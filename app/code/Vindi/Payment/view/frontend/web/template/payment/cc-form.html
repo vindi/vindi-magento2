@@ -1,8 +1,7 @@
 <fieldset data-bind="attr: {class: 'fieldset payment items ccard ' + getCode(), id: 'payment_form_' + getCode()}">
     <legend class="legend">
-        <span>Credit Card Information</span>
-    </legend>
-    <br/>
+        <span><!-- ko i18n: 'Credit Card Information'--><!-- /ko --></span>
+    </legend><br />
     <div class="field type">
         <div class="control">
             <ul class="credit-card-types">
@@ -23,27 +22,9 @@
                    ">
         </div>
     </div>
-
-    <div class="field text required">
-        <label data-bind="attr: {id: getCode() + '_cc_owner'}" class="label">
-            <span><!-- ko i18n: 'Credit Card Owner' --><!-- /ko --></span>
-        </label>
-        <div class="control">
-            <input type="text" name="payment[cc_owner]" class="input-text" value=""
-                   data-bind="attr: {
-                                    autocomplete: off,
-                                    id: getCode() + '_cc_owner',
-                                    title: $t('Credit Card Owner'),
-                                    'data-container': getCode() + '-cc-owner',
-                                    'data-validate': JSON.stringify({'required-number':true, 'validate-card-type':getCcAvailableTypesValues(), 'validate-card-number':'#' + getCode() + '_cc_type', 'validate-cc-type':'#' + getCode() + '_cc_type'})},
-                              enable: isActive($parents),
-                              value: creditCardOwner,
-                              valueUpdate: 'keyup' "/>
-        </div>
-    </div>
     <div class="field number required">
-        <label data-bind="attr: {id: getCode() + '_cc_number'}" class="label">
-            <span><!-- ko i18n: 'Credit Card Number' --><!-- /ko --></span>
+        <label data-bind="attr: {for: getCode() + '_cc_number'}" class="label">
+            <span><!-- ko i18n: 'Credit Card Number'--><!-- /ko --></span>
         </label>
         <div class="control">
             <input type="number" name="payment[cc_number]" class="input-text" value=""
@@ -60,7 +41,7 @@
     </div>
     <div class="field date required" data-bind="attr: {id: getCode() + '_cc_type_exp_div'}">
         <label data-bind="attr: {for: getCode() + '_expiration'}" class="label">
-            <span><!-- ko i18n: 'Expiration Date' --><!-- /ko --></span>
+            <span><!-- ko i18n: 'Expiration Date'--><!-- /ko --></span>
         </label>
         <div class="control">
             <div class="fields group group-2">
@@ -74,9 +55,7 @@
                                             optionsValue: 'value',
                                             optionsText: 'month',
                                             optionsCaption: $t('Month'),
-                                            value: creditCardExpMonth"
-                        >
-
+value: creditCardExpMonth">
                         </select>
                     </div>
                 </div>
@@ -100,7 +79,7 @@
     <!-- ko if: (hasVerification())-->
     <div class="field cvv required" data-bind="attr: {id: getCode() + '_cc_type_cvv_div'}">
         <label data-bind="attr: {for: getCode() + '_cc_cid'}" class="label">
-            <span>Card Verification Number</span>
+            <span><!-- ko i18n: 'Card Verification Number'--><!-- /ko --></span>
         </label>
         <div class="control _with-tooltip">
             <input type="number"
@@ -119,7 +98,7 @@
                       tabindex="0"
                       data-toggle="dropdown"
                       data-bind="attr: {title: $t('What is this?')}, mageInit: {'dropdown':{'activeClass': '_active'}}">
-                    <span>What is this?</span>
+                    <span><!-- ko i18n: 'What is this?'--><!-- /ko --></span>
                 </span>
             </div>
         </div>
