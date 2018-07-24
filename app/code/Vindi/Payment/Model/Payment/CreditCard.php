@@ -1,24 +1,13 @@
 <?php
 
-
-namespace Vindi\Payment\Model\Payment;
-
-use Magento\Framework\DataObject;
-use Magento\Quote\Api\Data\CartInterface;
-use Vindi\Payment\Model\Api;
-
-class Vindi extends \Magento\Payment\Model\Method\AbstractMethod
+class CreditCard extends \Magento\Payment\Model\Method\Cc
 {
+    use Vindi_Subscription_Trait_PaymentMethod;
 
-    protected $_code = "vindi";
-    protected $_isOffline = true;
-
-    public function isAvailable(
-        \Magento\Quote\Api\Data\CartInterface $quote = null
-    )
-    {
-        return parent::isAvailable($quote);
-    }
+    /**
+     * @var string
+     */
+    protected $_code = 'vindi_creditcard';
 
     /**
      * @var bool
@@ -92,7 +81,7 @@ class Vindi extends \Magento\Payment\Model\Method\AbstractMethod
      *
      * @return  Mage_Payment_Model_Method_Abstract
      */
-    public function assignData(DataObject $data)
+    public function assignData($data)
     {
         if (!($data instanceof Varien_Object)) {
             $data = new Varien_Object($data);
@@ -246,6 +235,19 @@ class Vindi extends \Magento\Payment\Model\Method\AbstractMethod
     }
 
     /**
+     * Check whether payment method can be used
+     *
+     * @param Mage_Sales_Model_Quote|null $quote
+     *
+     * @return bool
+     */
+    public function isAvailable($quote = null)
+    {
+        return Mage::getStoreConfig('payment/vindi_creditcard/active')
+            && Mage::helper('vindi_subscription')->getKey();
+    }
+
+    /**
      * Validate payment method information object
      *
      * @return  Mage_Payment_Model_Method_Abstract
@@ -317,6 +319,7 @@ class Vindi extends \Magento\Payment\Model\Method\AbstractMethod
      */
     protected function getPaymentMethodCode()
     {
+        // TODO fix it to proper method code
         return 'credit_card';
     }
 }
