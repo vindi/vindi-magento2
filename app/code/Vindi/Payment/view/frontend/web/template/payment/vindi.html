@@ -21,14 +21,9 @@
             <!-- ko template: getTemplate() --><!-- /ko -->
             <!--/ko-->
         </div>
-
-        <form class="form" id="pay" action="#" name="pay" method="post" >
-            <!-- ko template: 'Vindi_Payment/payment/cc-form' --><!-- /ko -->
-        </form>
-
         <div class="checkout-agreements-block">
             <!-- ko foreach: $parent.getRegion('before-place-order') -->
-            <!-- ko template: getTemplate() --><!-- /ko -->
+                <!-- ko template: getTemplate() --><!-- /ko -->
             <!--/ko-->
         </div>
         <div class="actions-toolbar">
@@ -48,3 +43,4 @@
         </div>
     </div>
 </div>
+        
