@@ -8,13 +8,13 @@ use Magento\Framework\Message\MessageInterface;
 class Api extends \Magento\Framework\Model\AbstractModel
 {
     /**
-     * @const string API base path.
-     */
-    private $base_path;
-    /**
      * @var string
      */
     public $lastError = '';
+    /**
+     * @const string API base path.
+     */
+    private $base_path;
     /**
      * @var string
      */
@@ -71,12 +71,43 @@ class Api extends \Magento\Framework\Model\AbstractModel
     }
 
     /**
-     * @param string $message
-     * @param int|null $level
+     * Make an API request to retrieve an existing Customer or to create one if not found.
+     *
+     * @param array $body (name, email, code)
+     *
+     * @return array|bool|mixed
      */
-    private function log($message)
+    public function findOrCreateCustomer($body)
     {
-        $this->logger->warning($message);
+        $customerId = $this->findCustomerByCode($body['code']);
+        // TODO update information
+        if (false === $customerId) {
+            return $this->createCustomer($body);
+        }
+        return $customerId;
+    }
+
+    /**
+     * Make an API request to retrieve an existing Customer.
+     *
+     * @param string $code
+     *
+     * @return array|bool|mixed
+     */
+    public function findCustomerByCode($code)
+    {
+        $customerId = $this->cache()->load("vindi_customer_by_code_{$code}");
+        if ($customerId === false) {
+            $response = $this->request("customers/search?code={$code}", 'GET');
+            if ($response && (1 === count($response['customers'])) && isset($response['customers'][0]['id'])) {
+                $customerId = $response['customers'][0]['id'];
+                $this->cache()->save(serialize($customerId), "vindi_customer_by_code_{$code}", ['vindi_cache'],
+                    5 * 60); // 5 minutes
+            }
+        } else {
+            $customerId = unserialize($customerId);
+        }
+        return $customerId;
     }
 
     /**
@@ -85,53 +116,6 @@ class Api extends \Magento\Framework\Model\AbstractModel
     private function cache()
     {
         return $this->cacheType;
-    }
-
-    /**
-     * Build HTTP Query.
-     *
-     * @param array $data
-     *
-     * @return string
-     */
-    private function buildBody($data)
-    {
-        $body = null;
-        if (!empty($data)) {
-            $body = json_encode($data);
-        }
-        return $body;
-    }
-
-    /**
-     * @param array $error
-     * @param       $endpoint
-     *
-     * @return string
-     */
-    private function getErrorMessage($error, $endpoint)
-    {
-        return "Erro em $endpoint: {$error['id']}: {$error['parameter']} - {$error['message']}";
-    }
-
-    /**
-     * @param array $response
-     * @param       $endpoint
-     *
-     * @return bool
-     */
-    private function checkResponse($response, $endpoint)
-    {
-        if (isset($response['errors']) && !empty($response['errors'])) {
-            foreach ($response['errors'] as $error) {
-                $message = $this->getErrorMessage($error, $endpoint);
-                $this->message->addErrorMessage($message);
-                $this->lastError = $message;
-            }
-            return false;
-        }
-        $this->lastError = '';
-        return true;
     }
 
     /**
@@ -197,6 +181,62 @@ class Api extends \Magento\Framework\Model\AbstractModel
     }
 
     /**
+     * Build HTTP Query.
+     *
+     * @param array $data
+     *
+     * @return string
+     */
+    private function buildBody($data)
+    {
+        $body = null;
+        if (!empty($data)) {
+            $body = json_encode($data);
+        }
+        return $body;
+    }
+
+    /**
+     * @param string $message
+     * @param int|null $level
+     */
+    private function log($message)
+    {
+        $this->logger->warning($message);
+    }
+
+    /**
+     * @param array $response
+     * @param       $endpoint
+     *
+     * @return bool
+     */
+    private function checkResponse($response, $endpoint)
+    {
+        if (isset($response['errors']) && !empty($response['errors'])) {
+            foreach ($response['errors'] as $error) {
+                $message = $this->getErrorMessage($error, $endpoint);
+                $this->message->addErrorMessage($message);
+                $this->lastError = $message;
+            }
+            return false;
+        }
+        $this->lastError = '';
+        return true;
+    }
+
+    /**
+     * @param array $error
+     * @param       $endpoint
+     *
+     * @return string
+     */
+    private function getErrorMessage($error, $endpoint)
+    {
+        return "Erro em $endpoint: {$error['id']}: {$error['parameter']} - {$error['message']}";
+    }
+
+    /**
      * Make an API request to create a Customer.
      *
      * @param array $body (name, email, code)
@@ -209,46 +249,6 @@ class Api extends \Magento\Framework\Model\AbstractModel
             return $response['customer']['id'];
         }
         return false;
-    }
-
-    /**
-     * Make an API request to retrieve an existing Customer.
-     *
-     * @param string $code
-     *
-     * @return array|bool|mixed
-     */
-    public function findCustomerByCode($code)
-    {
-        $customerId = $this->cache()->load("vindi_customer_by_code_{$code}");
-        if ($customerId === false) {
-            $response = $this->request("customers/search?code={$code}", 'GET');
-            if ($response && (1 === count($response['customers'])) && isset($response['customers'][0]['id'])) {
-                $customerId = $response['customers'][0]['id'];
-                $this->cache()->save(serialize($customerId), "vindi_customer_by_code_{$code}", ['vindi_cache'],
-                    5 * 60); // 5 minutes
-            }
-        } else {
-            $customerId = unserialize($customerId);
-        }
-        return $customerId;
-    }
-
-    /**
-     * Make an API request to retrieve an existing Customer or to create one if not found.
-     *
-     * @param array $body (name, email, code)
-     *
-     * @return array|bool|mixed
-     */
-    public function findOrCreateCustomer($body)
-    {
-        $customerId = $this->findCustomerByCode($body['code']);
-        // TODO update information
-        if (false === $customerId) {
-            return $this->createCustomer($body);
-        }
-        return $customerId;
     }
 
     /**
@@ -328,6 +328,21 @@ class Api extends \Magento\Framework\Model\AbstractModel
     }
 
     /**
+     * Retrieve Credit Card Types from Payment Methods.
+     *
+     * @return array
+     */
+    public function getCreditCardTypes()
+    {
+        $methods = $this->getPaymentMethods();
+        $types = [];
+        foreach ($methods['credit_card'] as $type) {
+            $types[$type['code']] = $type['name'];
+        }
+        return $types;
+    }
+
+    /**
      * Make an API request to retrieve Payment Methods.
      *
      * @return array|bool
@@ -370,21 +385,6 @@ class Api extends \Magento\Framework\Model\AbstractModel
         }
         $this->acceptBankSlip = $paymentMethods['bank_slip'];
         return $paymentMethods;
-    }
-
-    /**
-     * Retrieve Credit Card Types from Payment Methods.
-     *
-     * @return array
-     */
-    public function getCreditCardTypes()
-    {
-        $methods = $this->getPaymentMethods();
-        $types = [];
-        foreach ($methods['credit_card'] as $type) {
-            $types[$type['code']] = $type['name'];
-        }
-        return $types;
     }
 
     /**
@@ -545,6 +545,60 @@ class Api extends \Magento\Framework\Model\AbstractModel
     }
 
     /**
+     * Make an API request to retrieve a Product or to create it if not found.
+     * @param array $product
+     *
+     * @return array|bool|mixed
+     */
+    public function findOrCreateProduct($product)
+    {
+        //
+        $productId = $this->findProductByCode($product['sku']);
+        if (false === $productId) {
+            return $this->createProduct([
+                'name' => $product['name'],
+                'code' => $product['sku'],
+                'status' => 'active',
+                'pricing_schema' => [
+                    'price' => 0,
+                ],
+            ]);
+        }
+        return $productId;
+    }
+
+    /**
+     * Make an API request to retrieve an existing Product.
+     *
+     * @param string $code
+     *
+     * @return array|bool|mixed
+     */
+    public function findProductByCode($code)
+    {
+        $response = $this->request("products?query=code%3D{$code}", 'GET');
+        if ($response && (1 === count($response['products'])) && isset($response['products'][0]['id'])) {
+            return $response['products'][0]['id'];
+        }
+        return false;
+    }
+
+    /**
+     * Make an API request to create a Product.
+     *
+     * @param array $body (name, code, status, pricing_schema (price))
+     *
+     * @return array|bool|mixed
+     */
+    public function createProduct($body)
+    {
+        if ($response = $this->request('products', 'POST', $body)) {
+            return $response['product']['id'];
+        }
+        return false;
+    }
+
+    /**
      * @return array
      */
     public function getPlans()
@@ -572,37 +626,6 @@ class Api extends \Magento\Framework\Model\AbstractModel
     }
 
     /**
-     * Make an API request to create a Product.
-     *
-     * @param array $body (name, code, status, pricing_schema (price))
-     *
-     * @return array|bool|mixed
-     */
-    public function createProduct($body)
-    {
-        if ($response = $this->request('products', 'POST', $body)) {
-            return $response['product']['id'];
-        }
-        return false;
-    }
-
-    /**
-     * Make an API request to retrieve an existing Product.
-     *
-     * @param string $code
-     *
-     * @return array|bool|mixed
-     */
-    public function findProductByCode($code)
-    {
-        $response = $this->request("products?query=code%3D{$code}", 'GET');
-        if ($response && (1 === count($response['products'])) && isset($response['products'][0]['id'])) {
-            return $response['products'][0]['id'];
-        }
-        return false;
-    }
-
-    /**
      * Make an API request to retrieve the Unique Payment Product or to create it if not found.
      *
      * @return array|bool|mixed
@@ -624,26 +647,16 @@ class Api extends \Magento\Framework\Model\AbstractModel
     }
 
     /**
-     * Make an API request to retrieve a Product or to create it if not found.
-     * @param array $product
+     * Check to see if Merchant Status is Trial.
      *
-     * @return array|bool|mixed
+     * @return boolean
      */
-    public function findOrCreateProduct($product)
+    public function isMerchantStatusTrial()
     {
-        //
-        $productId = $this->findProductByCode($product['sku']);
-        if (false === $productId) {
-            return $this->createProduct([
-                'name' => $product['name'],
-                'code' => $product['sku'],
-                'status' => 'active',
-                'pricing_schema' => [
-                    'price' => 0,
-                ],
-            ]);
+        if ($merchant = $this->getMerchant()) {
+            return 'trial' === $merchant['status'];
         }
-        return $productId;
+        return false;
     }
 
     /**
@@ -665,19 +678,6 @@ class Api extends \Magento\Framework\Model\AbstractModel
             $merchant = unserialize($merchant);
         }
         return $merchant;
-    }
-
-    /**
-     * Check to see if Merchant Status is Trial.
-     *
-     * @return boolean
-     */
-    public function isMerchantStatusTrial()
-    {
-        if ($merchant = $this->getMerchant()) {
-            return 'trial' === $merchant['status'];
-        }
-        return false;
     }
 
     /**

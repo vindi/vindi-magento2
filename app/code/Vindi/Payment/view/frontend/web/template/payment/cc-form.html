@@ -25,7 +25,7 @@
     </div>
     <div class="field number required">
         <label data-bind="attr: {id: getCode() + '_cc_number'}" class="label">
-            <span>Credit Card Number</span>
+            <span><!-- ko i18n: 'Credit Card Number' --><!-- /ko --></span>
         </label>
         <div class="control">
             <input type="number" name="payment[cc_number]" class="input-text" value=""
@@ -42,7 +42,7 @@
     </div>
     <div class="field date required" data-bind="attr: {id: getCode() + '_cc_type_exp_div'}">
         <label data-bind="attr: {for: getCode() + '_expiration'}" class="label">
-            <span>Expiration Date</span>
+            <span><!-- ko i18n: 'Expiration Date' --><!-- /ko --></span>
         </label>
         <div class="control">
             <div class="fields group group-2">
@@ -56,8 +56,9 @@
                                             optionsValue: 'value',
                                             optionsText: 'month',
                                             optionsCaption: $t('Month'),
+                                            value: creditCardExpMonth"
+                        >
 
-                                            value: creditCardExpMonth">
                         </select>
                     </div>
                 </div>
