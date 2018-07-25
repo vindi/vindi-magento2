@@ -21,6 +21,22 @@ define(
                 creditCardVerificationNumber: '',
                 selectedCardType: null
             },
+            getData: function () {
+                var data = {
+                    'method': this.getCode(),
+                    'additional_data': {
+                        'cc_type': this.selectedCardType(),
+                        'cc_exp_year': this.creditCardExpYear(),
+                        'cc_exp_month': this.creditCardExpMonth(),
+                        'cc_number': this.creditCardNumber(),
+                        'cc_ss_start_month': this.creditCardSsStartMonth(),
+                        'cc_ss_start_year': this.creditCardSsStartYear(),
+                        'cc_cvv': this.creditCardVerificationNumber()
+                    }
+                };
+
+                return data;
+            },
             initObservable: function () {
                 this._super()
                     .observe([
@@ -36,12 +52,12 @@ define(
                 return this;
             },
 
-            initialize: function() {
+            initialize: function () {
                 var self = this;
                 this._super();
 
                 //Set credit card number to credit card data object
-                this.creditCardNumber.subscribe(function(value) {
+                this.creditCardNumber.subscribe(function (value) {
                     var result;
                     self.selectedCardType(null);
 
@@ -65,17 +81,17 @@ define(
                 });
 
                 //Set expiration year to credit card data object
-                this.creditCardExpYear.subscribe(function(value) {
+                this.creditCardExpYear.subscribe(function (value) {
                     creditCardData.expirationYear = value;
                 });
 
                 //Set expiration month to credit card data object
-                this.creditCardExpMonth.subscribe(function(value) {
+                this.creditCardExpMonth.subscribe(function (value) {
                     creditCardData.expirationYear = value;
                 });
 
                 //Set cvv code to credit card data object
-                this.creditCardVerificationNumber.subscribe(function(value) {
+                this.creditCardVerificationNumber.subscribe(function (value) {
                     creditCardData.cvvCode = value;
                 });
             },
@@ -84,40 +100,40 @@ define(
                 return true;
             },
 
-            getCcAvailableTypes: function() {
+            getCcAvailableTypes: function () {
                 return window.checkoutConfig.payment.vindi_cc.availableTypes['vindi_cc'];
             },
 
-            getCcMonths: function() {
+            getCcMonths: function () {
                 return window.checkoutConfig.payment.vindi_cc.months['vindi_cc'];
             },
 
-            getCcYears: function() {
+            getCcYears: function () {
                 return window.checkoutConfig.payment.vindi_cc.years['vindi_cc'];
             },
 
-            hasVerification: function() {
+            hasVerification: function () {
                 return window.checkoutConfig.payment.vindi_cc.hasVerification['vindi_cc'];
             },
 
-            getCcAvailableTypesValues: function() {
-                return _.map(this.getCcAvailableTypes(), function(value, key) {
+            getCcAvailableTypesValues: function () {
+                return _.map(this.getCcAvailableTypes(), function (value, key) {
                     return {
                         'value': key,
                         'type': value
                     }
                 });
             },
-            getCcMonthsValues: function() {
-                return _.map(this.getCcMonths(), function(value, key) {
+            getCcMonthsValues: function () {
+                return _.map(this.getCcMonths(), function (value, key) {
                     return {
                         'value': key,
                         'month': value
                     }
                 });
             },
-            getCcYearsValues: function() {
-                return _.map(this.getCcYears(), function(value, key) {
+            getCcYearsValues: function () {
+                return _.map(this.getCcYears(), function (value, key) {
                     return {
                         'value': key,
                         'year': value

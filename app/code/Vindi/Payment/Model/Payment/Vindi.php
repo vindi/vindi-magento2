@@ -4,7 +4,9 @@
 namespace Vindi\Payment\Model\Payment;
 
 use Magento\Framework\DataObject;
+use Magento\Payment\Observer\AbstractDataAssignObserver;
 use Magento\Quote\Api\Data\CartInterface;
+use Magento\Quote\Api\Data\PaymentInterface;
 use Vindi\Payment\Model\Api;
 
 class Vindi extends \Magento\Payment\Model\Method\AbstractMethod
@@ -76,51 +78,35 @@ class Vindi extends \Magento\Payment\Model\Method\AbstractMethod
     protected $_canSaveCc = false;
 
     /**
-     * @var string
-     */
-    protected $_formBlockType = 'vindi_subscription/form_cc';
-
-    /**
-     * @var string
-     */
-    protected $_infoBlockType = 'vindi_subscription/info_cc';
-
-    /**
      * Assign data to info model instance
      *
      * @param   mixed $data
      *
-     * @return  Mage_Payment_Model_Method_Abstract
+     * @return  Vindi
      */
     public function assignData(DataObject $data)
     {
-        if (!($data instanceof Varien_Object)) {
-            $data = new Varien_Object($data);
+        $additionalData = $data->getData(PaymentInterface::KEY_ADDITIONAL_DATA);
+
+        if (!is_object($additionalData)) {
+            $additionalData = new DataObject($additionalData ?: []);
         }
+
         $info = $this->getInfoInstance();
-        $quote = $info->getQuote();
-
-        $info->setAdditionalInformation('installments', $data->getCcInstallments());
-
-        if ($data->getCcChoice() === 'saved') {
-            $info->setAdditionalInformation('PaymentMethod', $this->_code)
-                ->setAdditionalInformation('use_saved_cc', true);
-
-            return $this;
-        }
-
-        $info->setCcType($data->getCcType())
-            ->setCcOwner($data->getCcOwner())
-            ->setCcLast4(substr($data->getCcNumber(), -4))
-            ->setCcNumber($data->getCcNumber())
-            ->setCcCid($data->getCcCid())
-            ->setCcExpMonth($data->getCcExpMonth())
-            ->setCcExpYear($data->getCcExpYear())
-            ->setCcSsIssue($data->getCcSsIssue())
-            ->setCcSsStartMonth($data->getCcSsStartMonth())
-            ->setCcSsStartYear($data->getCcSsStartYear())
-            ->setAdditionalInformation('PaymentMethod', $this->_code)
-            ->setAdditionalInformation('use_saved_cc', false);
+        $info->addData(
+            [
+                'cc_type' => $additionalData->getCcType(),
+                'cc_owner' => $additionalData->getCcOwner(),
+                'cc_last_4' => substr($additionalData->getCcNumber(), -4),
+                'cc_number' => $additionalData->getCcNumber(),
+                'cc_cid' => $additionalData->getCcCvv(),
+                'cc_exp_month' => $additionalData->getCcExpMonth(),
+                'cc_exp_year' => $additionalData->getCcExpYear(),
+                'cc_ss_issue' => $additionalData->getCcSsIssue(),
+                'cc_ss_start_month' => $additionalData->getCcSsStartMonth(),
+                'cc_ss_start_year' => $additionalData->getCcSsStartYear()
+            ]
+        );
 
         return $this;
     }
@@ -129,7 +115,7 @@ class Vindi extends \Magento\Payment\Model\Method\AbstractMethod
      * @param string $paymentAction
      * @param object $stateObject
      *
-     * @return bool|Mage_Payment_Model_Method_Abstract
+     * @return  Vindi
      */
     protected function processNewOrder($paymentAction, $stateObject)
     {
@@ -252,6 +238,10 @@ class Vindi extends \Magento\Payment\Model\Method\AbstractMethod
      */
     public function validate()
     {
+
+        echo "validate";
+        return;
+
         $info = $this->getInfoInstance();
 
         $quote = $info->getQuote();
