@@ -79,21 +79,11 @@ class Vindi extends \Magento\Payment\Model\Method\AbstractMethod
     protected $_canSaveCc = false;
 
     /**
-     * @var string
-     */
-    protected $_formBlockType = 'vindi_subscription/form_cc';
-
-    /**
-     * @var string
-     */
-    protected $_infoBlockType = 'vindi_subscription/info_cc';
-
-    /**
      * Assign data to info model instance
      *
      * @param   mixed $data
      *
-     * @return  VindiCreditcard
+     * @return  Vindi
      */
     public function assignData(DataObject $data)
     {
@@ -126,7 +116,7 @@ class Vindi extends \Magento\Payment\Model\Method\AbstractMethod
      * @param string $paymentAction
      * @param object $stateObject
      *
-     * @return  VindiCreditcard
+     * @return  Vindi
      */
     protected function processNewOrder($paymentAction, $stateObject)
     {
