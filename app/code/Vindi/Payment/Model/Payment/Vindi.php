@@ -13,7 +13,7 @@ use Vindi\Payment\Model\Api;
 class Vindi extends \Magento\Payment\Model\Method\AbstractMethod
 {
 
-    protected $_code = "vindi_creditcard";
+    protected $_code = "vindi";
     protected $_isOffline = true;
     protected $_infoBlockType = Cc::class;
 
