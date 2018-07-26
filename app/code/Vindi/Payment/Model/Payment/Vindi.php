@@ -7,13 +7,15 @@ use Magento\Framework\DataObject;
 use Magento\Payment\Observer\AbstractDataAssignObserver;
 use Magento\Quote\Api\Data\CartInterface;
 use Magento\Quote\Api\Data\PaymentInterface;
+use Vindi\Payment\Block\Info\Cc;
 use Vindi\Payment\Model\Api;
 
 class Vindi extends \Magento\Payment\Model\Method\AbstractMethod
 {
 
-    protected $_code = "vindi";
+    protected $_code = "vindi_creditcard";
     protected $_isOffline = true;
+    protected $_infoBlockType = Cc::class;
 
     public function isAvailable(
         \Magento\Quote\Api\Data\CartInterface $quote = null
@@ -82,7 +84,7 @@ class Vindi extends \Magento\Payment\Model\Method\AbstractMethod
      *
      * @param   mixed $data
      *
-     * @return  Vindi
+     * @return  VindiCreditcard
      */
     public function assignData(DataObject $data)
     {
@@ -115,7 +117,7 @@ class Vindi extends \Magento\Payment\Model\Method\AbstractMethod
      * @param string $paymentAction
      * @param object $stateObject
      *
-     * @return  Vindi
+     * @return  VindiCreditcard
      */
     protected function processNewOrder($paymentAction, $stateObject)
     {

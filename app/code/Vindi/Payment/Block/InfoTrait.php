@@ -30,25 +30,17 @@ trait InfoTrait
 
     public function canShowCcInfo()
     {
-        return $this->getOrder()->getPayment()->getMethod() === 'vindi_creditcard';
+        return $this->getOrder()->getPayment()->getMethod() === 'vindi';
     }
 
-    public function getCcOwner($totalQtyCard = 1, $cardPosition = 1)
+    public function getCcOwner()
     {
-        if ($totalQtyCard == 1) {
-            return $this->getOrder()->getPayment()->getCcOwner();
-        }
-
-        return $this->getOrder()->getPayment()->getAdditionalInformation('cc_owner_' . $totalQtyCard . '_' . $cardPosition);
+        return $this->getOrder()->getPayment()->getCcOwner();
     }
 
-    public function getCcInstallments($totalQtyCard = 1, $cardPosition = 1)
+    public function getCcInstallments()
     {
-        if ($totalQtyCard == 1) {
-            return $this->getOrder()->getPayment()->getAdditionalInformation('cc_installments');
-        }
-
-        return $this->getOrder()->getPayment()->getAdditionalInformation('cc_installments_' . $totalQtyCard . '_' . $cardPosition);
+        return $this->getOrder()->getPayment()->getAdditionalInformation('cc_installments');
     }
 
     public function getOrderKey()
@@ -57,11 +49,9 @@ trait InfoTrait
         return $mundipaggResponse->OrderResult->OrderKey;
     }
 
-    public function getCcNumber($cardPosition)
+    public function getCcNumber()
     {
-        $mundipaggResponse = json_decode($this->getOrder()->getPayment()->getAdditionalInformation('mundipagg_response'));
-        $transactionResultCollection = $mundipaggResponse->CreditCardTransactionResultCollection[$cardPosition - 1];
-        return $transactionResultCollection->CreditCard->MaskedCreditCardNumber;
+        return $this->getOrder()->getPayment()->getCcLast4();
     }
 
     public function getOrderReference()
@@ -75,14 +65,9 @@ trait InfoTrait
         return $this->_currency->currency($this->getOrder()->getPayment()->getAdditionalInformation('cc_value_' . $totalQtyCard . '_' . $cardPosition), true, false);
     }
 
-    public function getCcBrand($totalQtyCard = 1, $cardPosition = 1)
+    public function getCcBrand()
     {
-        if ($totalQtyCard == 1) {
-            return $this->cCBrands[$this->getOrder()->getPayment()->getCcType()];
-        }
-
-        $ccBrand = $this->getOrder()->getPayment()->getAdditionalInformation('cc_type_' . $totalQtyCard . '_' . $cardPosition);
-        return $this->cCBrands[$ccBrand];
+        return $this->cCBrands[$this->getOrder()->getPayment()->getCcType()];
     }
 
     public function getCcTransactionStatus($totalQtyCard = 1, $cardPosition = 1)

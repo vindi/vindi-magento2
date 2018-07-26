@@ -69,10 +69,11 @@ class CreditCard extends \Magento\Payment\Model\Method\Cc
      */
     protected $_formBlockType = 'vindi_subscription/form_cc';
 
+
     /**
      * @var string
      */
-    protected $_infoBlockType = 'vindi_subscription/info_cc';
+//    protected $_infoBlockType = 'Vindi\Payment\Block\Info\Cc';
 
     /**
      * Assign data to info model instance

@@ -1,5 +1,5 @@
 <?php
-namespace Trezo\MundipaggCc\Block\Info;
+namespace Vindi\Payment\Block\Info;
 
 class Cc extends \Magento\Payment\Block\Info
 {
