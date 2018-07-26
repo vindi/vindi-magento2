@@ -13,7 +13,7 @@ trait InfoTrait
         'HI' => 'HI',
     ];
 
-    private $mundipaggStatusEnum = [
+    private $vindigStatusEnum = [
         'AuthorizedPendingCapture' => 'Authorized with success',
         'Captured' => 'Captured',
         'PartialCapture' => 'Captured',
@@ -43,21 +43,9 @@ trait InfoTrait
         return $this->getOrder()->getPayment()->getAdditionalInformation('cc_installments');
     }
 
-    public function getOrderKey()
-    {
-        $mundipaggResponse = json_decode($this->getOrder()->getPayment()->getAdditionalInformation('mundipagg_response'));
-        return $mundipaggResponse->OrderResult->OrderKey;
-    }
-
     public function getCcNumber()
     {
         return $this->getOrder()->getPayment()->getCcLast4();
-    }
-
-    public function getOrderReference()
-    {
-        $mundipaggResponse = json_decode($this->getOrder()->getPayment()->getAdditionalInformation('mundipagg_response'));
-        return $mundipaggResponse->OrderResult->OrderReference;
     }
 
     public function getCcValue($totalQtyCard = 1, $cardPosition = 1)
@@ -68,19 +56,5 @@ trait InfoTrait
     public function getCcBrand()
     {
         return $this->cCBrands[$this->getOrder()->getPayment()->getCcType()];
-    }
-
-    public function getCcTransactionStatus($totalQtyCard = 1, $cardPosition = 1)
-    {
-        $transactionStatus = __('No status yet.');
-        $cCStatusEnum = $this->getOrder()->getPayment()->getAdditionalInformation('CreditCardTransactionStatusEnum');
-        if ($totalQtyCard != 1) {
-            $cCStatusEnum = $this->getOrder()->getPayment()->getAdditionalInformation('CreditCardTransactionStatusEnum_' . $totalQtyCard . '_' . $cardPosition);
-        }
-        if (!is_null($cCStatusEnum)) {
-            $transactionStatus = $this->mundipaggStatusEnum[$cCStatusEnum];
-        }
-
-        return __($transactionStatus);
     }
 }
