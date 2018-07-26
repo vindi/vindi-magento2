@@ -16,6 +16,7 @@ define(
                 creditCardExpYear: '',
                 creditCardExpMonth: '',
                 creditCardNumber: '',
+                creditCardOwner: '',
                 creditCardSsStartMonth: '',
                 creditCardSsStartYear: '',
                 creditCardVerificationNumber: '',
@@ -29,6 +30,7 @@ define(
                         'cc_exp_year': this.creditCardExpYear(),
                         'cc_exp_month': this.creditCardExpMonth(),
                         'cc_number': this.creditCardNumber(),
+                        'cc_owner': this.creditCardOwner(),
                         'cc_ss_start_month': this.creditCardSsStartMonth(),
                         'cc_ss_start_year': this.creditCardSsStartYear(),
                         'cc_cvv': this.creditCardVerificationNumber()
@@ -44,6 +46,7 @@ define(
                         'creditCardExpYear',
                         'creditCardExpMonth',
                         'creditCardNumber',
+                        'creditCardOwner',
                         'creditCardVerificationNumber',
                         'creditCardSsStartMonth',
                         'creditCardSsStartYear',
@@ -78,6 +81,10 @@ define(
                         creditCardData.creditCardNumber = value;
                         self.creditCardType(result.card.type);
                     }
+                });
+
+                this.creditCardOwner.subscribe(function (value) {
+                    creditCardData.creditCardOwner = value;
                 });
 
                 //Set expiration year to credit card data object

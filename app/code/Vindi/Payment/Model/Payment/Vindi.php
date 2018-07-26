@@ -13,7 +13,7 @@ use Vindi\Payment\Model\Api;
 class Vindi extends \Magento\Payment\Model\Method\AbstractMethod
 {
 
-    protected $_code = "vindi_creditcard";
+    protected $_code = "vindi";
     protected $_isOffline = true;
     protected $_infoBlockType = Cc::class;
 
@@ -238,58 +238,58 @@ class Vindi extends \Magento\Payment\Model\Method\AbstractMethod
      *
      * @return  Mage_Payment_Model_Method_Abstract
      */
-    public function validate()
-    {
-
-        echo "validate";
-        return;
-
-        $info = $this->getInfoInstance();
-
-        $quote = $info->getQuote();
-
-        $maxInstallmentsNumber = Mage::getStoreConfig('payment/vindi_creditcard/max_installments_number');
-
-        if ($this->isSingleOrder($quote) && ($maxInstallmentsNumber > 1)) {
-            if (!$installments = $info->getAdditionalInformation('installments')) {
-                return $this->error('Você deve informar o número de parcelas.');
-            }
-
-            if ($installments > $maxInstallmentsNumber) {
-                return $this->error('O número de parcelas selecionado é inválido.');
-            }
-
-            $minInstallmentsValue = Mage::getStoreConfig('payment/vindi_creditcard/min_installment_value');
-            $installmentValue = ceil($quote->getGrandTotal() / $installments * 100) / 100;
-
-            if (($installmentValue < $minInstallmentsValue) && ($installments > 1)) {
-                return $this->error('O número de parcelas selecionado é inválido.');
-            }
-        }
-
-        if ($info->getAdditionalInformation('use_saved_cc')) {
-            return $this;
-        }
-
-        $availableTypes = $this->api()->getCreditCardTypes();
-
-        $ccNumber = $info->getCcNumber();
-
-        // remove credit card non-numbers
-        $ccNumber = preg_replace('/\D/', '', $ccNumber);
-
-        $info->setCcNumber($ccNumber);
-
-        if (!$this->_validateExpDate($info->getCcExpYear(), $info->getCcExpMonth())) {
-            return $this->error(Mage::helper('payment')->__('Incorrect credit card expiration date.'));
-        }
-
-        if (!array_key_exists($info->getCcType(), $availableTypes)) {
-            return $this->error(Mage::helper('payment')->__('Credit card type is not allowed for this payment method.'));
-        }
-
-        return $this;
-    }
+//    public function validate()
+//    {
+//
+//        echo "validate";
+//        return;
+//
+//        $info = $this->getInfoInstance();
+//
+//        $quote = $info->getQuote();
+//
+//        $maxInstallmentsNumber = Mage::getStoreConfig('payment/vindi_creditcard/max_installments_number');
+//
+//        if ($this->isSingleOrder($quote) && ($maxInstallmentsNumber > 1)) {
+//            if (!$installments = $info->getAdditionalInformation('installments')) {
+//                return $this->error('Você deve informar o número de parcelas.');
+//            }
+//
+//            if ($installments > $maxInstallmentsNumber) {
+//                return $this->error('O número de parcelas selecionado é inválido.');
+//            }
+//
+//            $minInstallmentsValue = Mage::getStoreConfig('payment/vindi_creditcard/min_installment_value');
+//            $installmentValue = ceil($quote->getGrandTotal() / $installments * 100) / 100;
+//
+//            if (($installmentValue < $minInstallmentsValue) && ($installments > 1)) {
+//                return $this->error('O número de parcelas selecionado é inválido.');
+//            }
+//        }
+//
+//        if ($info->getAdditionalInformation('use_saved_cc')) {
+//            return $this;
+//        }
+//
+//        $availableTypes = $this->api()->getCreditCardTypes();
+//
+//        $ccNumber = $info->getCcNumber();
+//
+//        // remove credit card non-numbers
+//        $ccNumber = preg_replace('/\D/', '', $ccNumber);
+//
+//        $info->setCcNumber($ccNumber);
+//
+//        if (!$this->_validateExpDate($info->getCcExpYear(), $info->getCcExpMonth())) {
+//            return $this->error(Mage::helper('payment')->__('Incorrect credit card expiration date.'));
+//        }
+//
+//        if (!array_key_exists($info->getCcType(), $availableTypes)) {
+//            return $this->error(Mage::helper('payment')->__('Credit card type is not allowed for this payment method.'));
+//        }
+//
+//        return $this;
+//    }
 
     /**
      * @param string $errorMsg

@@ -23,6 +23,24 @@
                    ">
         </div>
     </div>
+
+    <div class="field text required">
+        <label data-bind="attr: {id: getCode() + '_cc_owner'}" class="label">
+            <span><!-- ko i18n: 'Credit Card Owner' --><!-- /ko --></span>
+        </label>
+        <div class="control">
+            <input type="text" name="payment[cc_owner]" class="input-text" value=""
+                   data-bind="attr: {
+                                    autocomplete: off,
+                                    id: getCode() + '_cc_owner',
+                                    title: $t('Credit Card Owner'),
+                                    'data-container': getCode() + '-cc-owner',
+                                    'data-validate': JSON.stringify({'required-number':true, 'validate-card-type':getCcAvailableTypesValues(), 'validate-card-number':'#' + getCode() + '_cc_type', 'validate-cc-type':'#' + getCode() + '_cc_type'})},
+                              enable: isActive($parents),
+                              value: creditCardOwner,
+                              valueUpdate: 'keyup' "/>
+        </div>
+    </div>
     <div class="field number required">
         <label data-bind="attr: {id: getCode() + '_cc_number'}" class="label">
             <span><!-- ko i18n: 'Credit Card Number' --><!-- /ko --></span>
