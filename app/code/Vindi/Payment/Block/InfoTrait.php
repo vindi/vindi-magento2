@@ -13,21 +13,6 @@ trait InfoTrait
         'HI' => 'Hiper Card',
     ];
 
-    private $vindigStatusEnum = [
-        'AuthorizedPendingCapture' => 'Authorized with success',
-        'Captured' => 'Captured',
-        'PartialCapture' => 'Captured',
-        'NotAuthorized' => 'Captured',
-        'Voided' => 'Voided',
-        'PendingVoid' => 'Cancellation pending',
-        'PartialVoid' => 'Partially canceled',
-        'Refunded' => 'Refunded',
-        'PendingRefund' => 'Pending Refund',
-        'PartialRefunded' => 'Partially Refunded',
-        'WithError' => 'With Error',
-        'NotFoundInAcquirer' => 'Not located on the acquirer'
-    ];
-
     public function canShowCcInfo()
     {
         return $this->getOrder()->getPayment()->getMethod() === 'vindi';
