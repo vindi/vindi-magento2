@@ -19,7 +19,8 @@ class Vindi extends \Magento\Payment\Model\Method\AbstractMethod
 
     public function isAvailable(
         \Magento\Quote\Api\Data\CartInterface $quote = null
-    ) {
+    )
+    {
         return parent::isAvailable($quote);
     }
 
