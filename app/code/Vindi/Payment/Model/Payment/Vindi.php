@@ -13,7 +13,7 @@ use Vindi\Payment\Model\Api;
 class Vindi extends \Magento\Payment\Model\Method\AbstractMethod
 {
 
-    protected $_code = "vindi";
+    protected $_code = "vindi_creditcard";
     protected $_isOffline = true;
     protected $_infoBlockType = Cc::class;
 
@@ -83,7 +83,7 @@ class Vindi extends \Magento\Payment\Model\Method\AbstractMethod
      *
      * @param   mixed $data
      *
-     * @return  Vindi
+     * @return  VindiCreditcard
      */
     public function assignData(DataObject $data)
     {
@@ -116,7 +116,7 @@ class Vindi extends \Magento\Payment\Model\Method\AbstractMethod
      * @param string $paymentAction
      * @param object $stateObject
      *
-     * @return  Vindi
+     * @return  VindiCreditcard
      */
     protected function processNewOrder($paymentAction, $stateObject)
     {
