@@ -5,12 +5,12 @@ namespace Vindi\Payment\Block;
 trait InfoTrait
 {
     private $cCBrands = [
-        'VI' => 'VI',
-        'MC' => 'MC',
-        'DN' => 'DN',
-        'AE' => 'AE',
-        'EL' => 'EL',
-        'HI' => 'HI',
+        'VI' => 'Visa',
+        'MC' => 'Master Card',
+        'DN' => 'Diners',
+        'AE' => 'American Express',
+        'EL' => 'Elo',
+        'HI' => 'Hiper Card',
     ];
 
     private $vindigStatusEnum = [
