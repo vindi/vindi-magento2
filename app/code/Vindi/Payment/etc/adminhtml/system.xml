@@ -20,6 +20,9 @@
 				<field id="api_key" showInDefault="1" showInStore="1" showInWebsite="1" sortOrder="20" translate="label" type="text">
 					<label>Api Key</label>
 				</field>
+                <field id="api_endpoint" showInDefault="1" showInStore="1" showInWebsite="1" sortOrder="20" translate="label" type="text">
+					<label>Api Endpoint</label>
+				</field>
 				<field id="allow_installments" showInDefault="1" showInStore="1" showInWebsite="1" sortOrder="20" translate="label" type="select">
 					<label>Allow Installments</label>
 					<source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
