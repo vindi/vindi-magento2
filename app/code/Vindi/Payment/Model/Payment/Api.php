@@ -26,7 +26,7 @@ class Api extends \Magento\Framework\Model\AbstractModel
 
     }
 
-    private function request($endpoint, $method = 'POST', $data = [], $dataToLog = null)
+    public function request($endpoint, $method = 'POST', $data = [], $dataToLog = null)
     {
         if (!$this->apiKey) {
             return false;
