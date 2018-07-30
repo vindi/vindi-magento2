@@ -21,13 +21,10 @@ class Product
     {
         foreach ($order->getItems() as $item) {
             $vindiProductId = $this->findOrCreateProduct($item);
-
-            for ($i = 0; $i < $item->getQtyOrdered(); $i++) {
                 $list[] = [
                     'product_id' => $vindiProductId,
-                    'pricing_schema' => ['price' => $item->getPrice()]
+                    'amount' => $item->getPrice()
                 ];
-            }
         }
         return $list;
     }
