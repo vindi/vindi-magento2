@@ -83,6 +83,7 @@ class Vindi extends \Magento\Payment\Model\Method\AbstractMethod
         Customer $customer,
         Product $product,
         Bill $bill,
+        Profile $profile,
         \Psr\Log\LoggerInterface $psrLogger,
         \Magento\Framework\Stdlib\DateTime\TimezoneInterface $date,
         PaymentMethod $paymentMethod,
@@ -122,6 +123,7 @@ class Vindi extends \Magento\Payment\Model\Method\AbstractMethod
         $this->paymentMethod = $paymentMethod;
         $this->date = $date;
         $this->psrLogger = $psrLogger;
+        $this->profile = $profile;
     }
 
 
@@ -237,12 +239,14 @@ class Vindi extends \Magento\Payment\Model\Method\AbstractMethod
     {
         $order = $payment->getOrder();
         $customerId = $this->customer->findOrCreate($order);
+        $paymentProfile = $this->profile->create($payment, $customerId, $this->getPaymentMethodCode());
         $productList = $this->product->findOrCreateProducts($order);
 
         $body = [
             'customer_id' => $customerId,
             'payment_method_code' => $this->getPaymentMethodCode(),
-            'bill_items' => $productList
+            'bill_items' => $productList,
+            'payment_profile' => ['id' => $paymentProfile['payment_profile']['id']]
         ];
 
         if ($bill = $this->bill->create($body)) {
@@ -267,7 +271,7 @@ class Vindi extends \Magento\Payment\Model\Method\AbstractMethod
             $message,
             true
         );
-        throw new \Exception($message);
+//        throw new \Exception($message);
 
     }
 }

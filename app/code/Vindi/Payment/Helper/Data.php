@@ -26,4 +26,9 @@ class Data extends AbstractHelper
     {
         return $this->getModuleConfig('min_installment_value');
     }
+
+    public function getShouldVerifyProfile()
+    {
+        return $this->getModuleConfig('verify_method');
+    }
 }
