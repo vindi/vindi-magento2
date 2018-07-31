@@ -256,8 +256,8 @@ class Vindi extends \Magento\Payment\Model\Method\AbstractMethod
                 || $bill['status'] === Bill::PAID_STATUS
                 || $bill['status'] === Bill::REVIEW_STATUS
             ) {
-//                $order->setVindiBillId($bill['id']);
-//                $order->save();
+                $order->setVindiBillId($bill['id']);
+                $order->save();
                 return $bill['id'];
             }
             $this->bill->delete($bill['id']);
