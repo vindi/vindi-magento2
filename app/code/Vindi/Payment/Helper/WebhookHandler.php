@@ -5,6 +5,7 @@ namespace Vindi\Payment\Helper;
 
 use Vindi\Payment\Helper\WebHookHandlers\BillCreated;
 use Vindi\Payment\Helper\WebHookHandlers\BillPaid;
+use Vindi\Payment\Helper\WebHookHandlers\ChargeRejected;
 
 class WebhookHandler
 {
@@ -13,13 +14,15 @@ class WebhookHandler
         \Magento\Framework\HTTP\PhpEnvironment\RemoteAddress $remoteAddress,
         \Psr\Log\LoggerInterface $logger,
         BillCreated $billCreated,
-        BillPaid $billPaid
+        BillPaid $billPaid,
+        ChargeRejected $chargeRejected
     )
     {
         $this->remoteAddress = $remoteAddress;
         $this->logger = $logger;
         $this->billCreated = $billCreated;
         $this->billPaid = $billPaid;
+        $this->chargeRejected = $chargeRejected;
     }
 
     public function getRemoteIp()
@@ -63,7 +66,7 @@ class WebhookHandler
             case 'bill_paid':
                 return $this->billPaid->billPaid($data);
             case 'charge_rejected':
-                return $this->chargeRejected($data);
+                return $this->chargeRejected->chargeRejected($data);
             default:
                 $this->logger->warning(sprintf('Evento do webhook ignorado pelo plugin: "%s".', $type));
                 exit('0');
