@@ -2,6 +2,7 @@
 
 namespace Vindi\Payment\Controller\Index;
 
+use Vindi\Payment\Helper\Data;
 use Vindi\Payment\Helper\WebhookHandler;
 use Vindi\Payment\Model\Api;
 
@@ -14,6 +15,7 @@ class Webhook extends \Magento\Framework\App\Action\Action
         \Vindi\Payment\Model\Payment\Api $api,
         \Psr\Log\LoggerInterface $logger,
         WebhookHandler $webhookHandler,
+        Data $helperData,
         \Magento\Framework\App\Action\Context $context,
         \Magento\Framework\View\Result\PageFactory $pageFactory
     )
@@ -22,6 +24,7 @@ class Webhook extends \Magento\Framework\App\Action\Action
         $this->logger = $logger;
         $this->_pageFactory = $pageFactory;
         $this->webhookHandler = $webhookHandler;
+        $this->helperData = $helperData;
         return parent::__construct($context);
     }
 
@@ -34,7 +37,6 @@ class Webhook extends \Magento\Framework\App\Action\Action
             $ip = $this->webhookHandler->getRemoteIp();
 
             $this->logger->error(sprintf('Invalid webhook attempt from IP %s', $ip), \Zend_Log::WARN);
-//            $this->norouteAction();
 
             return;
         }
@@ -42,7 +44,7 @@ class Webhook extends \Magento\Framework\App\Action\Action
         $body = file_get_contents('php://input');
         $this->logger->info(sprintf("Novo evento dos webhooks!\n%s", $body));
 
-        return $this->webhookHandler->handle($body);
+        $this->webhookHandler->handle($body);
     }
 
     /**
@@ -52,9 +54,7 @@ class Webhook extends \Magento\Framework\App\Action\Action
      */
     private function validateRequest()
     {
-        return true;
-
-        $systemKey = Mage::helper('vindi_subscription')->getHashKey();
+        $systemKey = $this->helperData->getWebhookKey();
         $requestKey = $this->getRequest()->getParam('key');
 
         return $systemKey === $requestKey;

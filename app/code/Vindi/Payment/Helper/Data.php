@@ -31,4 +31,9 @@ class Data extends AbstractHelper
     {
         return $this->getModuleConfig('verify_method');
     }
+
+    public function getWebhookKey()
+    {
+        return $this->getModuleConfig('webhook_key');
+    }
 }

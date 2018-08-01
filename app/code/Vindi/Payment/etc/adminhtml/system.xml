@@ -20,6 +20,9 @@
 				<field id="api_key" showInDefault="1" showInStore="1" showInWebsite="1" sortOrder="20" translate="label" type="text">
 					<label>Api Key</label>
 				</field>
+				<field id="webhook_key" showInDefault="1" showInStore="1" showInWebsite="1" sortOrder="20" translate="label" type="text">
+					<label>Webhook Key</label>
+				</field>
 				<field id="payment_action" showInDefault="1" showInStore="1" showInWebsite="1" sortOrder="30" translate="label" type="select">
 					<label>Payment Action</label>
 					<source_model>Vindi\Payment\Model\Config\Source\PaymentAction</source_model>
