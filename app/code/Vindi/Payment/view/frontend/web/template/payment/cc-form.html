@@ -24,7 +24,7 @@
         </div>
     </div>
 
-    <div class="field text required">
+    <div class="field number required">
         <label data-bind="attr: {id: getCode() + '_cc_owner'}" class="label">
             <span><!-- ko i18n: 'Credit Card Owner' --><!-- /ko --></span>
         </label>
@@ -101,7 +101,7 @@
     <!-- ko if: (hasVerification())-->
     <div class="field cvv required" data-bind="attr: {id: getCode() + '_cc_type_cvv_div'}">
         <label data-bind="attr: {for: getCode() + '_cc_cid'}" class="label">
-            <span>Card Verification Number</span>
+            <span><!-- ko i18n: 'Card Verification Number' --><!-- /ko --></span>
         </label>
         <div class="control _with-tooltip">
             <input type="number"

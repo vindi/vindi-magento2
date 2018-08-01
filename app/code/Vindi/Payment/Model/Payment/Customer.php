@@ -49,8 +49,8 @@ class Customer
         $customerId = $this->api->createCustomer($customerVindi);
 
         if ($customerId === false) {
-            $this->messageManager->addErrorMessage('Falha ao registrar o usuário. Verifique os dados e tente novamente!');
-            throw new \Exception('Falha ao registrar o usuário. Verifique os dados e tente novamente!');
+            $this->messageManager->addErrorMessage(__('Fail while registering the user. Verify data and try again'));
+            throw new \Exception(__('Fail while registering the user. Verify data and try again'));
         }
 
         return $customerId;

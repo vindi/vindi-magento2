@@ -29,7 +29,7 @@ class Order
         $order = $this->getOrderByBillId($data['bill']['id']);
 
         if (!$order || !$order->getId()) {
-            $this->logger->warning(sprintf('Nenhum pedido encontrado para a fatura: %d.', $data['bill']['id']));
+            $this->logger->warning(__(sprintf('No order was found to invoice: %d', $data['bill']['id'])));
 
             return false;
         }

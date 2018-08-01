@@ -36,13 +36,13 @@ class Webhook extends \Magento\Framework\App\Action\Action
         if (!$this->validateRequest()) {
             $ip = $this->webhookHandler->getRemoteIp();
 
-            $this->logger->error(sprintf('Invalid webhook attempt from IP %s', $ip), \Zend_Log::WARN);
+            $this->logger->error(__(sprintf('Invalid webhook attempt from IP %s', $ip)));
 
             return;
         }
 
         $body = file_get_contents('php://input');
-        $this->logger->info(sprintf("Novo evento dos webhooks!\n%s", $body));
+        $this->logger->info(__(sprintf("Webhook New Event!\n%s", $body)));
 
         $this->webhookHandler->handle($body);
     }

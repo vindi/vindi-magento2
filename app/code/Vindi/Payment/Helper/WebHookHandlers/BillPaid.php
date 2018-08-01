@@ -29,11 +29,11 @@ class BillPaid
     {
         if (!($order = $this->order->getOrder($data))) {
             $this->logger->error(
-                sprintf(
-                    'Ainda não existe um pedido para ciclo %s da assinatura: %d.',
+                __(sprintf(
+                    'There is no cycle %s of signature %d.',
                     $data['bill']['period']['cycle'],
                     $data['bill']['subscription']['id']
-                )
+                ))
             );
 
             return false;
@@ -51,13 +51,13 @@ class BillPaid
             return false;
         }
 
-        $this->logger->info(sprintf('Gerando fatura para o pedido: %s.', $order->getId()));
+        $this->logger->info(__(sprintf('Generating invoice for the order %s.', $order->getId())));
 
         $order->setState(\Magento\Sales\Model\Order::STATE_PROCESSING, true,
-            'O pagamento foi confirmado e o pedido está sendo processado.', true);
+            __('The payment was confirmed and the order is beeing processed'), true);
 
         if (!$order->canInvoice()) {
-            $this->logger->error(sprintf('Impossível gerar fatura para o pedido %s.', $order->getId()));
+            $this->logger->error(__(sprintf('Impossible to generate invoice for order %s.', $order->getId())));
 
             return false;
         }
@@ -65,9 +65,8 @@ class BillPaid
         $invoice = $order->prepareInvoice();
         $invoice->setRequestedCaptureCase(Invoice::CAPTURE_OFFLINE);
         $invoice->register();
-//        Mage::getModel('core/resource_transaction')->addObject($invoice)->addObject($invoice->getOrder())->save();
         $invoice->sendEmail(true);
-        $this->logger->info('Fatura gerada com sucesso.');
+        $this->logger->info(__('Invoice created with success'));
 
         return true;
     }

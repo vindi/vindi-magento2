@@ -47,19 +47,19 @@ class WebhookHandler
             $jsonBody = json_decode($body, true);
 
             if (!$jsonBody || !isset($jsonBody['event'])) {
-                throw new \Exception('Evento do Webhook não encontrado!');
+                throw new \Exception(__('Webhook event not found!'));
             }
 
             $type = $jsonBody['event']['type'];
             $data = $jsonBody['event']['data'];
         } catch (\Exception $e) {
-            $this->log(sprintf('Falha ao interpretar JSON do webhook: %s', $e->getMessage()));
+            $this->log(__(sprintf('Fail when interpreting webhook JSON: %s', $e->getMessage())));
             return false;
         }
 
         switch ($type) {
             case 'test':
-                $this->logger->info('Evento de teste do webhook.');
+                $this->logger->info(__('Webhook test event.'));
                 exit('1');
             case 'bill_created':
                 return $this->billCreated->billCreated($data);
@@ -68,7 +68,7 @@ class WebhookHandler
             case 'charge_rejected':
                 return $this->chargeRejected->chargeRejected($data);
             default:
-                $this->logger->warning(sprintf('Evento do webhook ignorado pelo plugin: "%s".', $type));
+                $this->logger->warning(__(sprintf('Webhook event ignored by plugin: "%s".', $type)));
                 exit('0');
         }
     }

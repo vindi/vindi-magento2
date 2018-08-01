@@ -21,13 +21,13 @@ class BillCreated
     public function billCreated($data)
     {
         if (!($bill = $data['bill'])) {
-            $this->logger->error('Erro ao interpretar webhook "bill_created".');
+            $this->logger->error(__('Error while interpreting webhook "bill_created"'));
 
             return false;
         }
 
         if (!isset($bill['subscription']) || is_null($bill['subscription'])) {
-            $this->logger->info(sprintf('Ignorando o evento "bill_created" para venda avulsa.'));
+            $this->logger->info(__(sprintf('Ignoring the event "bill_created" for single sell')));
 
             return false;
         }

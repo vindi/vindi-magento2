@@ -32,7 +32,7 @@ class ChargeRejected
         $charge = $data['charge'];
 
         if (!($order = $this->getOrderFromBill($charge['bill']['id']))) {
-            $this->logger->warning('Pedido não encontrado.');
+            $this->logger->warning(__('Order not found'));
 
             return false;
         }
@@ -41,33 +41,33 @@ class ChargeRejected
         $isLastAttempt = is_null($charge['next_attempt']);
 
         if ($isLastAttempt) {
-            $order->addStatusHistoryComment(sprintf(
-                'Tentativa de Pagamento rejeitada. Motivo: "%s"',
+            $order->addStatusHistoryComment(__(sprintf(
+                'Payment rejected. Motive: "%s"',
                 $gatewayMessage
-            ));
-            $order->setState(\Magento\Sales\Model\Order::STATE_CANCELED, true, sprintf(
-                'Todas as tentativas de pagamento foram rejeitadas. Motivo: "%s".',
+            )));
+            $order->setState(\Magento\Sales\Model\Order::STATE_CANCELED, true, __(sprintf(
+                'All payment tries were rejected. Motive: "%s".',
                 $gatewayMessage
-            ), true);
-            $order->setStatus(\Magento\Sales\Model\Order::STATE_CANCELED, true, sprintf(
-                'Todas as tentativas de pagamento foram rejeitadas. Motivo: "%s".',
+            )), true);
+            $order->setStatus(\Magento\Sales\Model\Order::STATE_CANCELED, true, __(sprintf(
+                'All payment tries were rejected. Motive: "%s".',
                 $gatewayMessage
-            ), true);
-            $this->logger->info(sprintf(
-                'Todas as tentativas de pagamento do pedido %s foram rejeitadas. Motivo: "%s".',
+            )), true);
+            $this->logger->info(__(sprintf(
+                'All payment tries were rejected. Motive: "%s".',
                 $order->getId(),
                 $gatewayMessage
-            ));
+            )));
         } else {
-            $order->addStatusHistoryComment(sprintf(
-                'Tentativa de Pagamento rejeitada. Motivo: "%s". Uma nova tentativa será feita.',
+            $order->addStatusHistoryComment(__(sprintf(
+                'Payment try rejected. Motive: "%s". A new try will be made',
                 $gatewayMessage
-            ));
-            $this->logger->info(sprintf(
-                'Tentativa de pagamento do pedido %s foi rejeitada. Motivo: "%s". Uma nova tentativa será feita.',
+            )));
+            $this->logger->info(__(sprintf(
+                'Payment try rejected. Motive: "%s". A new try will be made',
                 $order->getId(),
                 $gatewayMessage
-            ));
+            )));
         }
 
         $order->save();
