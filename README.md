@@ -11,7 +11,8 @@
 A integração do módulo da Vindi permite criação e gestão de planos e assinaturas através do Magento2 de forma transparente.
 
 # Requisitos
-- PHP **5.6.x** ou superior.
+- PHP **7.x.x** ou superior.
+- MySQL **5.6.x** ou superior.
 - cURL habilitado para o PHP.
 - Certificado SSL.
 - Conta ativa na [Vindi](https://www.vindi.com.br "Vindi").
