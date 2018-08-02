@@ -4,15 +4,6 @@ namespace Vindi\Payment\Block;
 
 trait InfoTrait
 {
-    private $cCBrands = [
-        'VI' => 'Visa',
-        'MC' => 'Master Card',
-        'DN' => 'Diners',
-        'AE' => 'American Express',
-        'EL' => 'Elo',
-        'HI' => 'Hiper Card',
-    ];
-
     public function canShowCcInfo()
     {
         return $this->getOrder()->getPayment()->getMethod() === 'vindi';
@@ -40,6 +31,9 @@ trait InfoTrait
 
     public function getCcBrand()
     {
-        return $this->cCBrands[$this->getOrder()->getPayment()->getCcType()];
+        $CardCode = $this->getOrder()->getPayment()->getCcType();
+
+        $cardTypes = $this->ccConfig->getCcAvailableTypes();
+        return $cardTypes[$CardCode];
     }
 }
