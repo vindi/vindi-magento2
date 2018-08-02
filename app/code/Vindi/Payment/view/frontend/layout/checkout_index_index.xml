@@ -23,7 +23,7 @@
 																	<item name="methods" xsi:type="array">
 																		<item name="vindi" xsi:type="array">
 																			<item name="isBillingAddressRequired"
-																				  xsi:type="boolean">true
+																				  xsi:type="boolean">false
 																			</item>
 																		</item>
 																	</item>
