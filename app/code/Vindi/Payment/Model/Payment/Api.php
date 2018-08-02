@@ -33,7 +33,7 @@ class Api extends \Magento\Framework\Model\AbstractModel
         }
         $url = $this->base_path . $endpoint;
         $body = $this->buildBody($data);
-        $requestId = microtime();
+        $requestId = number_format(microtime(true), 2, '', '');
         $dataToLog = null !== $dataToLog ? $this->buildBody($dataToLog) : $body;
         $this->logger->info(sprintf("[Request #%s]: Novo Request para a API.\n%s %s\n%s", $requestId, $method, $url,
             $dataToLog));
