@@ -37,13 +37,13 @@ class Profile
         $paymentProfile = $this->createPaymentProfile($creditCardData);
 
         if ($paymentProfile === false) {
-            throw new \Exception(__('Error while informing credit card data. Verify data and try again'));
+            throw new \Exception(__('Error while informing credit card data. Verify data and try again')->getText());
         }
 
         $verifyMethod = $this->helperData->getShouldVerifyProfile();
 
         if ($verifyMethod && !$this->verifyPaymentProfile($paymentProfile['payment_profile']['id'])) {
-            throw new \Exception(__('Impossible to validate your credit card'));
+            throw new \Exception(__('Impossible to validate your credit card')->getText());
         }
         return $paymentProfile;
     }

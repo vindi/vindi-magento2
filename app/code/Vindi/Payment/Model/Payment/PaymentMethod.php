@@ -14,15 +14,15 @@ class PaymentMethod
         'MC' => 'mastercard',
         'DN' => 'diners_club',
         'AE' => 'american_express',
-        'EL' => 'elo',
-        'HI' => 'diners_club',
+        'EL' => 'elo'
     ];
 
-    public function __construct(Api $api)
+    public function __construct(Api $api, \Magento\Payment\Model\CcConfig $ccConfig)
     {
         $this->api = $api;
+        $this->ccConfig = $ccConfig;
     }
-    
+
     public function getCreditCardTypes()
     {
         $methods = $this->get();
@@ -77,5 +77,34 @@ class PaymentMethod
         $this->acceptBankSlip = $paymentMethods['bank_slip'];
 
         return $paymentMethods;
+    }
+
+    public function isCcTypeValid($ccType)
+    {
+        $validCreditCardTypes = $this->getCreditCardTypes();
+        $fullName = $this->getCcTypeFullName($ccType);
+        $fullTrimmedName = strtolower(str_replace(' ', '', $fullName));
+
+        foreach ($validCreditCardTypes as $validCreditCardType) {
+            $trimmedName = strtolower(str_replace(' ', '', $validCreditCardType));
+
+            if ($trimmedName == $fullTrimmedName) {
+                return true;
+            }
+        }
+
+        return false;
+
+    }
+
+    private function getCcTypeFullName($ccType)
+    {
+        $fullNames = $this->ccConfig->getCcAvailableTypes();
+
+        if (isset($fullNames[$ccType])) {
+            return $fullNames[$ccType];
+        }
+
+        throw new \Exception(__("Could Not Find Payment Credit Card Type")->getText());
     }
 }

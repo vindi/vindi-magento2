@@ -190,7 +190,7 @@ class Vindi extends \Magento\Payment\Model\Method\AbstractMethod
             return $this->addError(__('Incorrect credit card expiration date.'));
         }
 
-        if (!array_key_exists(PaymentMethod::$cCBrands[$info->getCcType()], $availableTypes)) {
+        if (!$this->paymentMethod->isCcTypeValid($info->getCcType())) {
             return $this->addError(__('Credit card type is not allowed for this payment method.'));
         }
 
@@ -237,7 +237,7 @@ class Vindi extends \Magento\Payment\Model\Method\AbstractMethod
         }
 
         $this->psrLogger->error(__(sprintf('Error on order payment %d.', $order->getId())));
-        $message = __('There has been a payment confirmation error. Verify data and try again');
+        $message = __('There has been a payment confirmation error. Verify data and try again')->getText();
         $payment->setStatus(
             Order::STATE_CANCELED,
             Order::STATE_CANCELED,

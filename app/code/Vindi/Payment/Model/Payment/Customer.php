@@ -50,7 +50,7 @@ class Customer
 
         if ($customerId === false) {
             $this->messageManager->addErrorMessage(__('Fail while registering the user. Verify data and try again'));
-            throw new \Exception(__('Fail while registering the user. Verify data and try again'));
+            throw new \Exception(__('Fail while registering the user. Verify data and try again')->getText());
         }
 
         return $customerId;

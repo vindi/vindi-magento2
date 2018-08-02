@@ -47,7 +47,7 @@ class WebhookHandler
             $jsonBody = json_decode($body, true);
 
             if (!$jsonBody || !isset($jsonBody['event'])) {
-                throw new \Exception(__('Webhook event not found!'));
+                throw new \Exception(__('Webhook event not found!')->getText());
             }
 
             $type = $jsonBody['event']['type'];
