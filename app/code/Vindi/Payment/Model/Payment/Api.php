@@ -61,6 +61,7 @@ class Api extends \Magento\Framework\Model\AbstractModel
         $body = substr($response, curl_getinfo($ch, CURLINFO_HEADER_SIZE));
         if (curl_errno($ch) || $response === false) {
             $this->logger->error(sprintf("[Request #%s]: Erro ao fazer request!\n%s", $requestId, print_r($response, true)));
+            curl_close($ch);
             return false;
         }
         curl_close($ch);
