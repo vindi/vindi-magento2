@@ -3,28 +3,8 @@
         <span>Credit Card Information</span>
     </legend>
     <br/>
-    <div class="field type">
-        <div class="control">
-            <ul class="credit-card-types">
-                <!-- ko foreach: {data: getCcAvailableTypesValues(), as: 'item'} -->
-                <li class="item" data-bind="css: {
-                                                 _active: $parent.selectedCardType() == item.value,
-                                                 _inactive: $parent.selectedCardType() != null && $parent.selectedCardType() != item.value
-                                                 } ">
-                </li>
-                <!--/ko-->
-            </ul>
-            <input type="hidden"
-                   name="payment[cc_type]"
-                   class="input-text"
-                   value=""
-                   data-bind="attr: {id: getCode() + '_cc_type', 'data-container': getCode() + '-cc-type'},
-                   value: creditCardType
-                   ">
-        </div>
-    </div>
 
-    <div class="field number required">
+    <div class="field number required group-3">
         <label data-bind="attr: {id: getCode() + '_cc_owner'}" class="label">
             <span><!-- ko i18n: 'Credit Card Owner' --><!-- /ko --></span>
         </label>
@@ -58,6 +38,33 @@
                               valueUpdate: 'keyup' "/>
         </div>
     </div>
+
+    <div class="field date required" data-bind="attr: {id: getCode() + '_type'}">
+        <label data-bind="attr: {for: getCode() + '_type'}" class="label">
+            <span><!-- ko i18n: 'Type' --><!-- /ko --></span>
+        </label>
+        <div class="control">
+            <div class="fields group group-3">
+                <div class="field no-label month">
+                    <div class="control">
+                        <select name="payment[cc_type]"
+                                class="select credit-card-types"
+                                data-bind="attr: {id: getCode() + '_type', 'data-container': getCode() + '-type', 'data-validate': JSON.stringify({required:true, 'validate-cc-exp':'#' + getCode() + '_expiration_yr'})},
+                                            enable: isActive($parents),
+                                            options: getCcTypesValues(),
+                                            optionsValue: 'value',
+                                            optionsText: 'name',
+                                            optionsCaption: $t('Select'),
+                                            value: selectedCardType"
+                        >
+
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <div class="field date required" data-bind="attr: {id: getCode() + '_cc_type_exp_div'}">
         <label data-bind="attr: {for: getCode() + '_expiration'}" class="label">
             <span><!-- ko i18n: 'Expiration Date' --><!-- /ko --></span>
