@@ -32,9 +32,9 @@ class Api extends \Magento\Framework\Model\AbstractModel
             return false;
         }
         $url = $this->base_path . $endpoint;
-        $body = $this->buildBody($data);
+        $body = json_encode($data);
         $requestId = number_format(microtime(true), 2, '', '');
-        $dataToLog = null !== $dataToLog ? $this->buildBody($dataToLog) : $body;
+        $dataToLog = null !== $dataToLog ? json_encode($dataToLog) : $body;
         $this->logger->info(sprintf("[Request #%s]: Novo Request para a API.\n%s %s\n%s", $requestId, $method, $url,
             $dataToLog));
         $ch = curl_init();
@@ -92,17 +92,6 @@ class Api extends \Magento\Framework\Model\AbstractModel
         }
 
         return false;
-    }
-
-    private function buildBody($data)
-    {
-        $body = null;
-
-        if (!empty($data)) {
-            $body = json_encode($data);
-        }
-
-        return $body;
     }
 
     public function getVersion()
