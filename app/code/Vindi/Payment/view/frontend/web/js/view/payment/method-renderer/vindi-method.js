@@ -126,6 +126,34 @@ define(
                     ]);
                 return this;
             },
+            validate: function(){
+                if (!this.selectedCardType() || this.selectedCardType() == '') {
+                    this.messageContainer.addErrorMessage({'message': $t('Please enter the Credit Card Type.')});
+                    return false;
+                }
+                if (!this.creditCardExpYear() || this.creditCardExpYear() == '') {
+                    this.messageContainer.addErrorMessage({'message': $t('Please enter the Credit Card Expiry Year.')});
+                    return false;
+                }
+                if (!this.creditCardExpMonth() || this.creditCardExpMonth() == '') {
+                    this.messageContainer.addErrorMessage({'message': $t('Please enter the Credit Card Expiry Month.')});
+                    return false;
+                }
+                if (!this.creditCardNumber() || this.creditCardNumber() == '') {
+                    this.messageContainer.addErrorMessage({'message': $t('Please enter the Credit Card Number.')});
+                    return false;
+                }
+                if (!this.creditCardOwner() || this.creditCardOwner() == '') {
+                    this.messageContainer.addErrorMessage({'message': $t('Please enter the Credit Card Owner Name.')});
+                    return false;
+                }
+                if (!this.creditCardVerificationNumber() || this.creditCardVerificationNumber() == '') {
+                    this.messageContainer.addErrorMessage({'message': $t('Please enter the Credit Card CVV.')});
+                    return false;
+                }
+
+                return false
+            },
 
             initialize: function () {
                 var self = this;
