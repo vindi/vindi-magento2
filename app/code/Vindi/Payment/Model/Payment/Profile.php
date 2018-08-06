@@ -25,7 +25,7 @@ class Profile
             'card_number' => $payment->getCcNumber(),
             'card_cvv' => $payment->getCcCid() ?: '000',
             'customer_id' => $customerId,
-            'payment_company_code' => $this->paymentMethod->getCompanyPaymentCode($payment->getCcType()),
+            'payment_company_code' => $payment->getCcType(),
             'payment_method_code' => $paymentMethodCode
         ];
 

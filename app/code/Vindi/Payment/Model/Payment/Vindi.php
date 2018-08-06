@@ -167,6 +167,7 @@ class Vindi extends \Magento\Payment\Model\Method\AbstractMethod
                 'cc_ss_start_year' => $additionalData->getCcSsStartYear()
             ]
         );
+        $info->save();
 
         return $this;
     }
