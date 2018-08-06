@@ -69,7 +69,7 @@ class ConfigProvider implements ConfigProviderInterface
 
             for ($i = 1; $i <= $maxInstallmentsNumber; $i++) {
                 $value = ceil($total / $i * 100) / 100;
-                $price = $this->currency->format($value);
+                $price = $this->currency->format($value, null, null, false);
                 $installments[$i] = $i . " de " . $price;
                 if (($i + 1) > $installmentsTimes) {
                     break;
