@@ -5,6 +5,7 @@
 		<payment>
 			<vindi>
 				<active>1</active>
+				<mode>2</mode>
 				<model>Vindi\Payment\Model\Payment\Vindi</model>
 				<allow_installments>0</allow_installments>
 				<order_status>pending</order_status>
