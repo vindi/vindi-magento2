@@ -13,12 +13,14 @@ class Cc extends \Magento\Payment\Block\Info
     protected $_currency;
 
     public function __construct(
+        \Magento\Payment\Model\CcConfig $ccConfig,
         \Magento\Framework\Pricing\Helper\Data $currency,
         \Magento\Backend\Block\Template\Context $context,
         array $data = []
     ) {
 
         parent::__construct($context, $data);
+        $this->ccConfig = $ccConfig;
         $this->_currency = $currency;
     }
 

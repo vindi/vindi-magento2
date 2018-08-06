@@ -9,6 +9,7 @@ use Magento\Quote\Api\Data\CartInterface;
 use Magento\Quote\Api\Data\PaymentInterface;
 use Vindi\Payment\Block\Info\Cc;
 use Vindi\Payment\Model\Api;
+use Magento\Directory\Helper\Data as DirectoryHelper;
 
 class Vindi extends \Magento\Payment\Model\Method\AbstractMethod
 {
@@ -16,13 +17,6 @@ class Vindi extends \Magento\Payment\Model\Method\AbstractMethod
     protected $_code = "vindi";
     protected $_isOffline = true;
     protected $_infoBlockType = Cc::class;
-
-    public function isAvailable(
-        \Magento\Quote\Api\Data\CartInterface $quote = null
-    )
-    {
-        return parent::isAvailable($quote);
-    }
 
     /**
      * @var bool
@@ -78,6 +72,53 @@ class Vindi extends \Magento\Payment\Model\Method\AbstractMethod
      * @var bool
      */
     protected $_canSaveCc = false;
+
+    protected $_invoiceService ;
+    protected $api;
+
+    public function __construct(
+        \Magento\Framework\Model\Context $context,
+        \Vindi\Payment\Model\Payment\Api $api,
+        \Magento\Sales\Model\Service\InvoiceService $invoiceService,
+        \Magento\Framework\Registry $registry,
+        \Magento\Framework\Api\ExtensionAttributesFactory $extensionFactory,
+        \Magento\Framework\Api\AttributeValueFactory $customAttributeFactory,
+        \Magento\Payment\Helper\Data $paymentData,
+        \Magento\Framework\App\Config\ScopeConfigInterface $scopeConfig,
+        \Magento\Payment\Model\Method\Logger $logger,
+        \Magento\Sales\Model\OrderFactory $orderFactory,
+        \Magento\Checkout\Model\Session $checkoutSession,
+        \Magento\Framework\Model\ResourceModel\AbstractResource $resource = null,
+        \Magento\Framework\Data\Collection\AbstractDb $resourceCollection = null,
+        array $data = []
+    ) {
+        $this->_logger = $logger;
+        parent::__construct(
+            $context,
+            $registry,
+            $extensionFactory,
+            $customAttributeFactory,
+            $paymentData,
+            $scopeConfig,
+            $logger,
+            $resource,
+            $resourceCollection,
+            $data
+        );
+
+        $this->api = $api;
+        $this->_invoiceService = $invoiceService;
+    }
+
+
+
+
+    public function isAvailable(
+        \Magento\Quote\Api\Data\CartInterface $quote = null
+    )
+    {
+        return parent::isAvailable($quote);
+    }
 
     /**
      * Assign data to info model instance
