@@ -18,7 +18,7 @@ class Api extends \Magento\Framework\Model\AbstractModel
     )
     {
         $this->apiKey = $helperData->getModuleConfig("api_key");
-        $this->base_path = $helperData->getModuleConfig("api_endpoint");
+        $this->base_path = $helperData->getBaseUrl();
 
         $this->moduleList = $moduleList;
         $this->logger = $logger;

@@ -183,7 +183,6 @@ class Vindi extends \Magento\Payment\Model\Method\AbstractMethod
     public function validate()
     {
         $info = $this->getInfoInstance();
-        $availableTypes = $this->paymentMethod->getCreditCardTypes();
         $ccNumber = $info->getCcNumber();
         // remove credit card non-numbers
         $ccNumber = preg_replace('/\D/', '', $ccNumber);

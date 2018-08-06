@@ -10,52 +10,49 @@
 					<label>Enabled</label>
 					<source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
 				</field>
-				<field id="title" showInDefault="1" showInStore="1" showInWebsite="1" sortOrder="20" translate="label"
+				<field id="mode" showInDefault="1" showInStore="1" showInWebsite="1" sortOrder="20"
+					   translate="label"
+					   type="select">
+					<label>Mode</label>
+					<source_model>Vindi\Payment\Model\Config\Source\Mode</source_model>
+				</field>
+				<field id="title" showInDefault="1" showInStore="1" showInWebsite="1" sortOrder="30" translate="label"
 					   type="text">
 					<label>Title</label>
 				</field>
-				<field id="sandboxmode" showInDefault="1" showInStore="1" showInWebsite="1" sortOrder="21"
-					   translate="label"
-					   type="select">
-					<label>Sandbox</label>
-					<source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
-				</field>
-				<field id="api_key" showInDefault="1" showInStore="1" showInWebsite="1" sortOrder="20" translate="label" type="text">
+				<field id="api_key" showInDefault="1" showInStore="1" showInWebsite="1" sortOrder="40" translate="label" type="text">
 					<label>Api Key</label>
 				</field>
-				<field id="webhook_key" showInDefault="1" showInStore="1" showInWebsite="1" sortOrder="20" translate="label" type="text">
+				<field id="webhook_key" showInDefault="1" showInStore="1" showInWebsite="1" sortOrder="50" translate="label" type="text">
 					<label>Webhook Key</label>
 				</field>
-				<field id="payment_action" showInDefault="1" showInStore="1" showInWebsite="1" sortOrder="30" translate="label" type="select">
+				<field id="payment_action" showInDefault="1" showInStore="1" showInWebsite="1" sortOrder="60" translate="label" type="select">
 					<label>Payment Action</label>
 					<source_model>Vindi\Payment\Model\Config\Source\PaymentAction</source_model>
 				</field>
-                <field id="api_endpoint" showInDefault="1" showInStore="1" showInWebsite="1" sortOrder="20" translate="label" type="text">
-					<label>Api Endpoint</label>
-				</field>
-				<field id="allow_installments" showInDefault="1" showInStore="1" showInWebsite="1" sortOrder="20" translate="label" type="select">
+				<field id="allow_installments" showInDefault="1" showInStore="1" showInWebsite="1" sortOrder="70" translate="label" type="select">
 					<label>Allow Installments</label>
 					<source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
 				</field>
-				<field id="max_installments" showInDefault="1" showInStore="1" showInWebsite="1" sortOrder="20" translate="label" type="text">
+				<field id="max_installments" showInDefault="1" showInStore="1" showInWebsite="1" sortOrder="80" translate="label" type="text">
 					<label>Max Installments</label>
 				</field>
-				<field id="min_installment_value" showInDefault="1" showInStore="1" showInWebsite="1" sortOrder="20" translate="label" type="text">
+				<field id="min_installment_value" showInDefault="1" showInStore="1" showInWebsite="1" sortOrder="90" translate="label" type="text">
 					<label>Min Installment Value</label>
 				</field>
-				<field id="order_status" showInDefault="1" showInStore="1" showInWebsite="1" sortOrder="30" translate="label" type="select">
+				<field id="order_status" showInDefault="1" showInStore="1" showInWebsite="1" sortOrder="100" translate="label" type="select">
 					<label>New Order Status</label>
 					<source_model>Magento\Sales\Model\Config\Source\Order\Status\NewStatus</source_model>
 				</field>
-				<field id="verify_method" showInDefault="1" showInStore="1" showInWebsite="1" sortOrder="10" translate="label" type="select">
+				<field id="verify_method" showInDefault="1" showInStore="1" showInWebsite="1" sortOrder="110" translate="label" type="select">
 					<label>Verify Profile?</label>
 					<source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
 				</field>
-				<field id="allowspecific" showInDefault="1" showInStore="1" showInWebsite="1" sortOrder="40" translate="label" type="allowspecific">
+				<field id="allowspecific" showInDefault="1" showInStore="1" showInWebsite="1" sortOrder="120" translate="label" type="allowspecific">
 					<label>Allow Countries</label>
 					<source_model>Magento\Payment\Model\Config\Source\Allspecificcountries</source_model>
 				</field>
-				<field id="specificcountry" showInDefault="1" showInStore="1" showInWebsite="1" sortOrder="50"
+				<field id="specificcountry" showInDefault="1" showInStore="1" showInWebsite="1" sortOrder="130"
 					   translate="label" type="multiselect">
 					<label>Payment from Applicable Countries</label>
 					<source_model>Magento\Directory\Model\Config\Source\Country</source_model>

@@ -1,7 +1,9 @@
 <?php
 
 namespace Vindi\Payment\Helper;
+
 use \Magento\Framework\App\Helper\AbstractHelper;
+use Vindi\Payment\Model\Config\Source\Mode;
 
 class Data extends AbstractHelper
 {
@@ -35,5 +37,21 @@ class Data extends AbstractHelper
     public function getWebhookKey()
     {
         return $this->getModuleConfig('webhook_key');
+    }
+
+    public function getMode()
+    {
+        return $this->getModuleConfig('mode');
+    }
+
+    public function getBaseUrl()
+    {
+        $mode = $this->getMode();
+
+        if ($mode == Mode::PRODUCTION_MODE) {
+            return "https://app.vindi.com.br/api/v1/";
+        } else {
+            return "https://sandbox-app.vindi.com.br/api/v1/";
+        }
     }
 }
