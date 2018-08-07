@@ -20,7 +20,7 @@ class Customer
     {
         $billing = $order->getBillingAddress();
         $customer = $this->customerRepository->get($billing->getEmail());
-        $customerId = $this->api->findCustomerByCode($customer->getId());
+        $customerId = $this->findCustomerByCode($customer->getId());
 
         if ($customerId) {
             return $customerId;
@@ -54,6 +54,24 @@ class Customer
         }
 
         return $customerId;
+    }
+
+    /**
+     * Make an API request to retrieve an existing Customer.
+     *
+     * @param string $code
+     *
+     * @return array|bool|mixed
+     */
+    public function findCustomerByCode($code)
+    {
+        $response = $this->api->request("customers/search?code={$code}", 'GET');
+
+        if ($response && (1 === count($response['customers'])) && isset($response['customers'][0]['id'])) {
+            return $response['customers'][0]['id'];
+        }
+
+        return false;
     }
 
     /**

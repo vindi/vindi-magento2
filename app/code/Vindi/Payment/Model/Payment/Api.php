@@ -95,23 +95,7 @@ class Api extends \Magento\Framework\Model\AbstractModel
         return false;
     }
 
-    /**
-     * Make an API request to retrieve an existing Customer.
-     *
-     * @param string $code
-     *
-     * @return array|bool|mixed
-     */
-    public function findCustomerByCode($code)
-    {
-        $response = $this->request("customers/search?code={$code}", 'GET');
 
-        if ($response && (1 === count($response['customers'])) && isset($response['customers'][0]['id'])) {
-            return $response['customers'][0]['id'];
-        }
-
-        return false;
-    }
 
     public function getVersion()
     {
