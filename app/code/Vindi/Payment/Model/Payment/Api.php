@@ -79,24 +79,6 @@ class Api extends \Magento\Framework\Model\AbstractModel
         return $responseBody;
     }
 
-    /**
-     * Make an API request to create a Customer.
-     *
-     * @param array $body (name, email, code)
-     *
-     * @return array|bool|mixed
-     */
-    public function createCustomer($body)
-    {
-        if ($response = $this->request('customers', 'POST', $body)) {
-            return $response['customer']['id'];
-        }
-
-        return false;
-    }
-
-
-
     public function getVersion()
     {
         return $this->moduleList
