@@ -17,7 +17,7 @@ class Api extends \Magento\Framework\Model\AbstractModel
         \Magento\Framework\Message\ManagerInterface $messageManager
     )
     {
-        $this->apiKey = $helperData->getModuleConfig("api_key");
+        $this->apiKey = $helperData->getCreditCardConfig("api_key");
         $this->base_path = $helperData->getBaseUrl();
 
         $this->moduleList = $moduleList;

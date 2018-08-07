@@ -1,64 +1,86 @@
 <?xml version="1.0" ?>
 <config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-		xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Config:etc/system_file.xsd">
-	<system>
-		<section id="payment" showInDefault="1" showInStore="1" showInWebsite="1" sortOrder="1000" translate="label">
-			<group id="vindi" showInDefault="1" showInStore="1" showInWebsite="1" sortOrder="10" translate="label">
-				<label>Vindi</label>
-				<field id="active" showInDefault="1" showInStore="1" showInWebsite="1" sortOrder="10" translate="label"
-					   type="select">
-					<label>Enabled</label>
-					<source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
-				</field>
-				<field id="mode" showInDefault="1" showInStore="1" showInWebsite="1" sortOrder="20"
-					   translate="label"
-					   type="select">
-					<label>Mode</label>
-					<source_model>Vindi\Payment\Model\Config\Source\Mode</source_model>
-				</field>
-				<field id="title" showInDefault="1" showInStore="1" showInWebsite="1" sortOrder="30" translate="label"
-					   type="text">
-					<label>Title</label>
-				</field>
-				<field id="api_key" showInDefault="1" showInStore="1" showInWebsite="1" sortOrder="40" translate="label" type="text">
-					<label>Api Key</label>
-				</field>
-				<field id="webhook_key" showInDefault="1" showInStore="1" showInWebsite="1" sortOrder="50" translate="label" type="text">
-					<label>Webhook Key</label>
-				</field>
-				<field id="payment_action" showInDefault="1" showInStore="1" showInWebsite="1" sortOrder="60" translate="label" type="select">
-					<label>Payment Action</label>
-					<source_model>Vindi\Payment\Model\Config\Source\PaymentAction</source_model>
-				</field>
-				<field id="allow_installments" showInDefault="1" showInStore="1" showInWebsite="1" sortOrder="70" translate="label" type="select">
-					<label>Allow Installments</label>
-					<source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
-				</field>
-				<field id="max_installments" showInDefault="1" showInStore="1" showInWebsite="1" sortOrder="80" translate="label" type="text">
-					<label>Max Installments</label>
-				</field>
-				<field id="min_installment_value" showInDefault="1" showInStore="1" showInWebsite="1" sortOrder="90" translate="label" type="text">
-					<label>Min Installment Value</label>
-				</field>
-				<field id="order_status" showInDefault="1" showInStore="1" showInWebsite="1" sortOrder="100" translate="label" type="select">
-					<label>New Order Status</label>
-					<source_model>Magento\Sales\Model\Config\Source\Order\Status\NewStatus</source_model>
-				</field>
-				<field id="verify_method" showInDefault="1" showInStore="1" showInWebsite="1" sortOrder="110" translate="label" type="select">
-					<label>Verify Profile?</label>
-					<source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
-				</field>
-				<field id="allowspecific" showInDefault="1" showInStore="1" showInWebsite="1" sortOrder="120" translate="label" type="allowspecific">
-					<label>Allow Countries</label>
-					<source_model>Magento\Payment\Model\Config\Source\Allspecificcountries</source_model>
-				</field>
-				<field id="specificcountry" showInDefault="1" showInStore="1" showInWebsite="1" sortOrder="130"
-					   translate="label" type="multiselect">
-					<label>Payment from Applicable Countries</label>
-					<source_model>Magento\Directory\Model\Config\Source\Country</source_model>
-					<can_be_empty>1</can_be_empty>
-				</field>
-			</group>
-		</section>
-	</system>
+        xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Config:etc/system_file.xsd">
+    <system>
+        <section id="payment" showInDefault="1" showInStore="1" showInWebsite="1" sortOrder="1000" translate="label">
+            <group id="vindi" showInDefault="1" showInStore="1" showInWebsite="1" sortOrder="10" translate="label">
+                <label>Vindi</label>
+                <field id="active" showInDefault="1" showInStore="1" showInWebsite="1" sortOrder="10" translate="label"
+                       type="select">
+                    <label>Enabled</label>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                </field>
+                <field id="title" showInDefault="1" showInStore="1" showInWebsite="1" sortOrder="30" translate="label"
+                       type="text">
+                    <label>Title</label>
+                </field>
+                <field id="payment_action" showInDefault="1" showInStore="1" showInWebsite="1" sortOrder="60"
+                       translate="label" type="select">
+                    <label>Payment Action</label>
+                    <source_model>Vindi\Payment\Model\Config\Source\PaymentAction</source_model>
+                </field>
+                <field id="allow_installments" showInDefault="1" showInStore="1" showInWebsite="1" sortOrder="70"
+                       translate="label" type="select">
+                    <label>Allow Installments</label>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                </field>
+                <field id="max_installments" showInDefault="1" showInStore="1" showInWebsite="1" sortOrder="80"
+                       translate="label" type="text">
+                    <label>Max Installments</label>
+                </field>
+                <field id="min_installment_value" showInDefault="1" showInStore="1" showInWebsite="1" sortOrder="90"
+                       translate="label" type="text">
+                    <label>Min Installment Value</label>
+                </field>
+                <field id="order_status" showInDefault="1" showInStore="1" showInWebsite="1" sortOrder="100"
+                       translate="label" type="select">
+                    <label>New Order Status</label>
+                    <source_model>Magento\Sales\Model\Config\Source\Order\Status\NewStatus</source_model>
+                </field>
+                <field id="verify_method" showInDefault="1" showInStore="1" showInWebsite="1" sortOrder="110"
+                       translate="label" type="select">
+                    <label>Verify Profile?</label>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                </field>
+                <field id="allowspecific" showInDefault="1" showInStore="1" showInWebsite="1" sortOrder="120"
+                       translate="label" type="allowspecific">
+                    <label>Allow Countries</label>
+                    <source_model>Magento\Payment\Model\Config\Source\Allspecificcountries</source_model>
+                </field>
+                <field id="specificcountry" showInDefault="1" showInStore="1" showInWebsite="1" sortOrder="130"
+                       translate="label" type="multiselect">
+                    <label>Payment from Applicable Countries</label>
+                    <source_model>Magento\Directory\Model\Config\Source\Country</source_model>
+                    <can_be_empty>1</can_be_empty>
+                </field>
+            </group>
+        </section>
+
+        <tab id="vindi" sortOrder="999" translate="label">
+            <label>vindi</label>
+        </tab>
+        <section id="vindiconfiguration" showInDefault="1" showInStore="1" showInWebsite="1" sortOrder="10"
+                 translate="label">
+            <label>configuration</label>
+            <tab>vindi</tab>
+            <resource>Vindi_Payment::config_vindi_payment</resource>
+            <group id="general" showInDefault="1" showInStore="1" showInWebsite="1" sortOrder="10" translate="label">
+                <label>general</label>
+                <field id="mode" showInDefault="1" showInStore="1" showInWebsite="1" sortOrder="20"
+                       translate="label"
+                       type="select">
+                    <label>Mode</label>
+                    <source_model>Vindi\Payment\Model\Config\Source\Mode</source_model>
+                </field>
+                <field id="api_key" showInDefault="1" showInStore="1" showInWebsite="1" sortOrder="40" translate="label"
+                       type="text">
+                    <label>Api Key</label>
+                </field>
+                <field id="webhook_key" showInDefault="1" showInStore="1" showInWebsite="1" sortOrder="50"
+                       translate="label" type="text">
+                    <label>Webhook Key</label>
+                </field>
+            </group>
+        </section>
+    </system>
 </config>
