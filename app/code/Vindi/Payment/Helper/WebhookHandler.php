@@ -53,7 +53,7 @@ class WebhookHandler
             $type = $jsonBody['event']['type'];
             $data = $jsonBody['event']['data'];
         } catch (\Exception $e) {
-            $this->log(__(sprintf('Fail when interpreting webhook JSON: %s', $e->getMessage())));
+            $this->logger->info(__(sprintf('Fail when interpreting webhook JSON: %s', $e->getMessage())));
             return false;
         }
 

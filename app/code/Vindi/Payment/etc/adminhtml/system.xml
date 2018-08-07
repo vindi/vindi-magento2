@@ -79,6 +79,7 @@
                 <field id="webhook_key" showInDefault="1" showInStore="1" showInWebsite="1" sortOrder="50"
                        translate="label" type="text">
                     <label>Webhook Key</label>
+                    <comment model="Vindi\Payment\Model\WebhookKey" />
                 </field>
             </group>
         </section>
