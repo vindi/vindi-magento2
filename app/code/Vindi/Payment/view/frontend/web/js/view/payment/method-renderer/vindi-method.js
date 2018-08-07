@@ -11,76 +11,6 @@ define(
     function (_, Component, creditCardData, cardNumberValidator, $t, $, utils) {
         'use strict';
 
-        var types = [
-            {
-                title: 'Visa',
-                type: 'visa',
-                pattern: '^4\\d*$',
-                gaps: [4, 8, 12],
-                lengths: [16],
-                code: {
-                    name: 'CVV',
-                    size: 3
-                }
-            },
-            {
-                title: 'MasterCard',
-                type: 'mastercard',
-                pattern: '^(?:5[1-5][0-9]{2}|222[1-9]|22[3-9][0-9]|2[3-6][0-9]{2}|27[01][0-9]|2720)[0-9]{12}$',
-                gaps: [4, 8, 12],
-                lengths: [16],
-                code: {
-                    name: 'CVC',
-                    size: 3
-                }
-            },
-            {
-                title: 'American Express',
-                type: 'american_express',
-                pattern: '^3([47]\\d*)?$',
-                isAmex: true,
-                gaps: [4, 10],
-                lengths: [15],
-                code: {
-                    name: 'CID',
-                    size: 4
-                }
-            },
-            {
-                title: 'Diners',
-                type: 'diners_club',
-                pattern: '^(3(0[0-5]|095|6|[8-9]))\\d*$',
-                gaps: [4, 10],
-                lengths: [14, 16, 17, 18, 19],
-                code: {
-                    name: 'CVV',
-                    size: 3
-                }
-            },
-            {
-                title: 'Hipercard',
-                type: 'hipercard',
-                pattern: '^(?:3841[046]0|6(?:06282|37(?:095|5(?:68|99)|6(?:09|12))))',
-                gaps: [4, 8, 12],
-                lengths: [16],
-                code: {
-                    name: 'CVC',
-                    size: 3
-                }
-            },
-            {
-                title: 'Elo',
-                type: 'elo',
-                pattern: '^(4(0117[89]|3(1274|8935)|5(1416|7(393|63[12])))|50(4175|6(699|7([0-6]\\d|7[0-8]))|9\\d{3})|6(27780|36(297|368)|5(0(0(3[1-35-9]|4\\d|5[01])|4(0[5-9]|([1-3]\\d|8[5-9]|9\\d))|5([0-2]\\d|3[0-8]|4[1-9]|[5-8]\\d|9[0-8])|7(0\\d|1[0-8]|2[0-7])|9(0[1-9]|[1-6]\\d|7[0-8]))|16(5[2-9]|[67]\\d)|50([01]\\d|2[1-9]|[34]\\d|5[0-8]))))',
-                gaps: [4, 8, 12],
-                lengths: [16],
-                code: {
-                    name: 'CVC',
-                    size: 3
-                }
-            }
-        ];
-
         return Component.extend({
             defaults: {
                 template: 'Vindi_Payment/payment/vindi',
@@ -129,7 +59,7 @@ define(
                     ]);
                 return this;
             },
-            validate: function(){
+            validate: function () {
                 if (!this.selectedCardType() || this.selectedCardType() == '') {
                     this.messageContainer.addErrorMessage({'message': $t('Please enter the Credit Card Type.')});
                     return false;
@@ -176,19 +106,13 @@ define(
                     }
 
                     result = cardNumberValidator(value);
-                    var card = self.getCardTypes(value);
 
                     if (!result.isPotentiallyValid && !result.isValid) {
                         return false;
                     }
-                    if (card) {
-                        self.selectedCardType(card.type);
-                        creditCardData.creditCard = card;
-                    }
 
                     if (result.isValid) {
                         creditCardData.creditCardNumber = value;
-                        self.creditCardType(card.type);
                     }
                 });
 
@@ -269,28 +193,6 @@ define(
                         'name': value
                     }
                 });
-            },
-            getCardTypes: function (cardNumber) {
-                var i, value,
-                    result = [];
-
-                if (utils.isEmpty(cardNumber)) {
-                    return result;
-                }
-
-                if (cardNumber === '') {
-                    return $.extend(true, {}, types);
-                }
-
-                for (i = 0; i < types.length; i++) {
-                    value = types[i];
-
-                    if (new RegExp(value.pattern).test(cardNumber)) {
-                        return $.extend(true, {}, value);
-                    }
-                }
-
-                return result;
             },
             getCcInstallmentsAvailable: function () {
                 return _.map(this.getCcInstallments(), function (value, key) {
