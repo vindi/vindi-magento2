@@ -20,7 +20,7 @@ class Product
     public function findOrCreateProducts($order)
     {
         foreach ($order->getItems() as $item) {
-            $vindiProductId = $this->findOrCreateProduct($item);
+            $vindiProductId = $this->findOrCreateProduct($item->getSku(), $item->getName());
 
             for ($i = 0; $i < $item->getQtyOrdered(); $i++) {
                 $list[] = [
@@ -29,21 +29,30 @@ class Product
                 ];
             }
         }
+
+        if ($order->getShippingAmount() > 0) {
+
+            $shippingId = $this->findOrCreateProduct('frete', 'frete');
+            $list[] = [
+                'product_id' => $shippingId,
+                'amount' => $order->getShippingAmount()
+            ];
+        }
         return $list;
     }
 
-    private function findOrCreateProduct($item)
+    private function findOrCreateProduct($itemSku, $itemName)
     {
 
-        $vindiProductId = $this->findProductByCode($item->getSku());
+        $vindiProductId = $this->findProductByCode($itemSku);
 
         if ($vindiProductId) {
             return $vindiProductId;
         }
 
         $body = [
-            'name' => $item->getName(),
-            'code' => $item->getSku(),
+            'code' => $itemSku,
+            'name' => $itemName,
             'status' => 'active',
             'pricing_schema' => [
                 'price' => 0,
