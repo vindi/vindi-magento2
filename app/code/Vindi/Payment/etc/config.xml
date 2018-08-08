@@ -10,7 +10,7 @@
 				<order_status>pending</order_status>
 				<title>Vindi</title>
 				<allowspecific>0</allowspecific>
-				<payment_action>capture</payment_action>
+				<payment_action>authorize_capture</payment_action>
 				<group>offline</group>
 			</vindi>
 		</payment>

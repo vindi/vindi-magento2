@@ -15,11 +15,6 @@
                        type="text">
                     <label>Title</label>
                 </field>
-                <field id="payment_action" showInDefault="1" showInStore="1" showInWebsite="1" sortOrder="60"
-                       translate="label" type="select">
-                    <label>Payment Action</label>
-                    <source_model>Vindi\Payment\Model\Config\Source\PaymentAction</source_model>
-                </field>
                 <field id="allow_installments" showInDefault="1" showInStore="1" showInWebsite="1" sortOrder="70"
                        translate="label" type="select">
                     <label>Allow Installments</label>
