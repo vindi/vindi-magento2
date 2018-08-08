@@ -9,6 +9,7 @@
                        type="select">
                     <label>Enabled</label>
                     <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                    <backend_model>Vindi\Payment\Model\Config\Backend\ApiKeyValidator</backend_model>
                 </field>
                 <field id="title" showInDefault="1" showInStore="1" showInWebsite="1" sortOrder="30" translate="label"
                        type="text">
@@ -75,11 +76,13 @@
                 <field id="api_key" showInDefault="1" showInStore="1" showInWebsite="1" sortOrder="40" translate="label"
                        type="text">
                     <label>Api Key</label>
+                    <validate>required-entry</validate>
                 </field>
                 <field id="webhook_key" showInDefault="1" showInStore="1" showInWebsite="1" sortOrder="50"
                        translate="label" type="text">
                     <label>Webhook Key</label>
-                    <comment model="Vindi\Payment\Model\WebhookKey" />
+                    <comment model="Vindi\Payment\Model\WebhookKey"/>
+                    <frontend_model>Vindi\Payment\Block\System\Config\Form\Field\Disable</frontend_model>
                 </field>
             </group>
         </section>
