@@ -28,9 +28,6 @@ class Api extends \Magento\Framework\Model\AbstractModel
 
     public function request($endpoint, $method = 'POST', $data = [], $dataToLog = null)
     {
-        if (!$this->apiKey) {
-            return false;
-        }
         $url = $this->base_path . $endpoint;
         $body = json_encode($data);
         $requestId = number_format(microtime(true), 2, '', '');
