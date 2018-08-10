@@ -1,0 +1,18 @@
+<?xml version="1.0"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Backend:etc/menu.xsd">
+    <menu>
+        <add id="Vindi_Payment::first_level_demo"
+             title="Vindi"
+             module="Vindi_Payment"
+             sortOrder="9999"
+             resource="Magento_Backend::content" />
+        <add id="Vindi_Payment::configuration"
+             title="Configuration"
+             module="Vindi_Payment"
+             sortOrder="0"
+             action="adminhtml/system_config/edit/section/vindiconfiguration"
+             parent="Vindi_Payment::first_level_demo"
+             resource="Magento_Backend::content"/>
+    </menu>
+</config>

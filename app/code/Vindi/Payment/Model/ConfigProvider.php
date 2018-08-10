@@ -6,6 +6,7 @@ use Magento\Checkout\Model\ConfigProviderInterface;
 use Magento\Framework\View\Asset\Source;
 use Vindi\Payment\Helper\Data;
 use Vindi\Payment\Model\Payment\Api;
+use Vindi\Payment\Model\Payment\PaymentMethod;
 
 class ConfigProvider implements ConfigProviderInterface
 {
@@ -21,7 +22,8 @@ class ConfigProvider implements ConfigProviderInterface
         Source $assetSource,
         Data $data,
         \Magento\Checkout\Model\Cart $cart,
-        \Magento\Directory\Model\Currency $currency
+        \Magento\Directory\Model\Currency $currency,
+        PaymentMethod $paymentMethod
     )
     {
         $this->ccConfig = $ccConfig;
@@ -29,6 +31,7 @@ class ConfigProvider implements ConfigProviderInterface
         $this->helperData = $data;
         $this->cart = $cart;
         $this->currency = $currency;
+        $this->paymentMethod = $paymentMethod;
     }
 
     /**
@@ -44,7 +47,7 @@ class ConfigProvider implements ConfigProviderInterface
         return [
             'payment' => [
                 'vindi_cc' => [
-                    'availableTypes' => [$this->_methodCode => $this->ccConfig->getCcAvailableTypes()],
+                    'availableTypes' => [$this->_methodCode => $this->paymentMethod->getCreditCardTypes()],
                     'months' => [$this->_methodCode => $this->ccConfig->getCcMonths()],
                     'years' => [$this->_methodCode => $this->ccConfig->getCcYears()],
                     'hasVerification' => [$this->_methodCode => $this->ccConfig->hasVerification()],
@@ -69,7 +72,7 @@ class ConfigProvider implements ConfigProviderInterface
 
             for ($i = 1; $i <= $maxInstallmentsNumber; $i++) {
                 $value = ceil($total / $i * 100) / 100;
-                $price = $this->currency->format($value);
+                $price = $this->currency->format($value, null, null, false);
                 $installments[$i] = $i . " de " . $price;
                 if (($i + 1) > $installmentsTimes) {
                     break;

@@ -7,6 +7,7 @@ use Magento\Framework\DataObject;
 use Magento\Payment\Observer\AbstractDataAssignObserver;
 use Magento\Quote\Api\Data\CartInterface;
 use Magento\Quote\Api\Data\PaymentInterface;
+use Magento\Sales\Model\Order;
 use Vindi\Payment\Block\Info\Cc;
 use Vindi\Payment\Model\Api;
 use Magento\Directory\Helper\Data as DirectoryHelper;
@@ -81,6 +82,11 @@ class Vindi extends \Magento\Payment\Model\Method\AbstractMethod
         \Vindi\Payment\Model\Payment\Api $api,
         Customer $customer,
         Product $product,
+        Bill $bill,
+        Profile $profile,
+        \Psr\Log\LoggerInterface $psrLogger,
+        \Magento\Framework\Stdlib\DateTime\TimezoneInterface $date,
+        PaymentMethod $paymentMethod,
         \Magento\Sales\Model\Service\InvoiceService $invoiceService,
         \Magento\Framework\Registry $registry,
         \Magento\Framework\Api\ExtensionAttributesFactory $extensionFactory,
@@ -113,6 +119,11 @@ class Vindi extends \Magento\Payment\Model\Method\AbstractMethod
         $this->_invoiceService = $invoiceService;
         $this->customer = $customer;
         $this->product = $product;
+        $this->bill = $bill;
+        $this->paymentMethod = $paymentMethod;
+        $this->date = $date;
+        $this->psrLogger = $psrLogger;
+        $this->profile = $profile;
     }
 
 
@@ -139,6 +150,9 @@ class Vindi extends \Magento\Payment\Model\Method\AbstractMethod
         }
 
         $info = $this->getInfoInstance();
+
+        $info->setAdditionalInformation('installments', $additionalData->getCcInstallments());
+
         $info->addData(
             [
                 'cc_type' => $additionalData->getCcType(),
@@ -153,6 +167,7 @@ class Vindi extends \Magento\Payment\Model\Method\AbstractMethod
                 'cc_ss_start_year' => $additionalData->getCcSsStartYear()
             ]
         );
+        $info->save();
 
         return $this;
     }
@@ -165,10 +180,77 @@ class Vindi extends \Magento\Payment\Model\Method\AbstractMethod
         return 'credit_card';
     }
 
+    public function validate()
+    {
+        $info = $this->getInfoInstance();
+        $ccNumber = $info->getCcNumber();
+        // remove credit card non-numbers
+        $ccNumber = preg_replace('/\D/', '', $ccNumber);
+
+        $info->setCcNumber($ccNumber);
+
+        if (!$this->validateExpDate($info->getCcExpYear(), $info->getCcExpMonth())) {
+            return $this->addError(__('Incorrect credit card expiration date.'));
+        }
+
+        if (!$this->paymentMethod->isCcTypeValid($info->getCcType())) {
+            return $this->addError(__('Credit card type is not allowed for this payment method.'));
+        }
+
+        return $this;
+    }
+
+    protected function validateExpDate($expYear, $expMonth)
+    {
+        $date = $this->date->date();
+        if ($expYear && $expMonth && ($expYear > $date->format('Y'))
+            || ($date->format('Y') == $expYear && ($expMonth > $date->format('m')))
+        ) {
+            return true;
+        }
+        return false;
+    }
+
     public function capture(\Magento\Payment\Model\InfoInterface $payment, $amount)
     {
         $order = $payment->getOrder();
         $customerId = $this->customer->findOrCreate($order);
+        $paymentProfile = $this->profile->create($payment, $customerId, $this->getPaymentMethodCode());
         $productList = $this->product->findOrCreateProducts($order);
+
+        $body = [
+            'customer_id' => $customerId,
+            'payment_method_code' => $this->getPaymentMethodCode(),
+            'bill_items' => $productList,
+            'payment_profile' => ['id' => $paymentProfile['payment_profile']['id']]
+        ];
+
+        if ($installments = $payment->getAdditionalInformation('installments')) {
+            $body['installments'] = (int) $installments;
+        }
+
+        if ($bill = $this->bill->create($body)) {
+            if (
+                $bill['code'] === PaymentMethod::BANK_SLIP
+                || $bill['code'] === PaymentMethod::DEBIT_CARD
+                || $bill['status'] === Bill::PAID_STATUS
+                || $bill['status'] === Bill::REVIEW_STATUS
+            ) {
+                $order->setVindiBillId($bill['id']);
+                $order->save();
+                return $bill['id'];
+            }
+            $this->bill->delete($bill['id']);
+        }
+
+        $this->psrLogger->error(__(sprintf('Error on order payment %d.', $order->getId())));
+        $message = __('There has been a payment confirmation error. Verify data and try again')->getText();
+        $payment->setStatus(
+            Order::STATE_CANCELED,
+            Order::STATE_CANCELED,
+            $message,
+            true
+        );
+        throw new \Exception($message);
     }
 }
