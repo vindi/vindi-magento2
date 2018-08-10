@@ -45,16 +45,16 @@
         </label>
         <div class="control">
             <div class="fields group group-3">
-                <div class="field no-label month">
+                <div class="field no-label number">
                     <div class="control">
                         <select name="payment[cc_type]"
-                                class="select credit-card-types"
+                                class="input-text select credit-card-types"
                                 data-bind="attr: {id: getCode() + '_type', 'data-container': getCode() + '-type', 'data-validate': JSON.stringify({required:true, 'validate-cc-exp':'#' + getCode() + '_expiration_yr'})},
                                             enable: isActive($parents),
                                             options: getCcTypesValues(),
                                             optionsValue: 'value',
                                             optionsText: 'name',
-                                            optionsCaption: $t('Select'),
+                                            optionsCaption: $t('Select the type'),
                                             value: selectedCardType"
                         >
 
