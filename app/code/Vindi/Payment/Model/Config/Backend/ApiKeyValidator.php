@@ -11,6 +11,7 @@ use Magento\Framework\Model\ResourceModel\AbstractResource;
 use Magento\Framework\Registry;
 use Magento\Framework\Serialize\SerializerInterface;
 use Vindi\Payment\Helper\Data;
+use Vindi\Payment\Model\Payment\Api;
 
 /**
  * Class AdditionalEmail
@@ -38,6 +39,7 @@ class ApiKeyValidator extends ConfigValue
      */
     public function __construct(
         Data $helperData,
+        Api $api,
         SerializerInterface $serializer,
         Context $context,
         Registry $registry,
@@ -50,6 +52,7 @@ class ApiKeyValidator extends ConfigValue
     {
         $this->serializer = $serializer;
         $this->helperData = $helperData;
+        $this->api = $api;
         parent::__construct($context, $registry, $config, $cacheTypeList, $resource, $resourceCollection, $data);
     }
 
@@ -63,8 +66,16 @@ class ApiKeyValidator extends ConfigValue
         $apiKey = $this->helperData->getModuleGeneralConfig("api_key");
         $value = $this->getValue();
 
-        if ($value && !$apiKey) {
-            throw new \Exception(sprintf(__("The api key was not set on the module basic configuration")));
+        if ($value) {
+            if (!$apiKey) {
+                throw new \Exception(sprintf(__("The api key was not set on the module basic configuration")));
+            }
+
+            $data = $this->api->request("merchants/current", "GET");
+
+            if (isset($data['merchant']['status']) && $data['merchant']['status'] != 'active') {
+                throw new \Exception(sprintf(__("The api key is invalid or the merchant is inactive")));
+            }
         }
     }
 
