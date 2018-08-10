@@ -80,6 +80,7 @@ class Vindi extends \Magento\Payment\Model\Method\AbstractMethod
         \Magento\Framework\Model\Context $context,
         \Vindi\Payment\Model\Payment\Api $api,
         Customer $customer,
+        Product $product,
         \Magento\Sales\Model\Service\InvoiceService $invoiceService,
         \Magento\Framework\Registry $registry,
         \Magento\Framework\Api\ExtensionAttributesFactory $extensionFactory,
@@ -111,6 +112,7 @@ class Vindi extends \Magento\Payment\Model\Method\AbstractMethod
         $this->api = $api;
         $this->_invoiceService = $invoiceService;
         $this->customer = $customer;
+        $this->product = $product;
     }
 
 
@@ -167,5 +169,6 @@ class Vindi extends \Magento\Payment\Model\Method\AbstractMethod
     {
         $order = $payment->getOrder();
         $customerId = $this->customer->findOrCreate($order);
+        $productList = $this->product->findOrCreateProducts($order);
     }
 }
