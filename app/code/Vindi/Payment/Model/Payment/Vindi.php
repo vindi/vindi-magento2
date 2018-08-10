@@ -179,7 +179,7 @@ class Vindi extends \Magento\Payment\Model\Method\AbstractMethod
     public function validate()
     {
         $info = $this->getInfoInstance();
-        $quote = $info->getQuote();
+//        $quote = $info->getQuote();
 
 //        $maxInstallmentsNumber = Mage::getStoreConfig('payment/vindi_creditcard/max_installments_number');
 
