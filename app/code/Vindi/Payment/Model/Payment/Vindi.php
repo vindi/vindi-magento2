@@ -213,26 +213,11 @@ class Vindi extends \Magento\Payment\Model\Method\AbstractMethod
 
         $info->setCcNumber($ccNumber);
 
-        if (!$this->validateExpDate($info->getCcExpYear(), $info->getCcExpMonth())) {
-            return $this->addError(__('Incorrect credit card expiration date.'));
-        }
-
         if (!array_key_exists(PaymentMethod::$cCBrands[$info->getCcType()], $availableTypes)) {
             return $this->addError(__('Credit card type is not allowed for this payment method.'));
         }
 
         return $this;
-    }
-
-    protected function validateExpDate($expYear, $expMonth)
-    {
-        $date = $this->date->date();
-        if ($expYear && $expMonth && ($expYear > $date->format('Y'))
-            || ($date->format('Y') == $expYear && ($expMonth > $date->format('m')))
-        ) {
-            return true;
-        }
-        return false;
     }
 
     public function capture(\Magento\Payment\Model\InfoInterface $payment, $amount)
