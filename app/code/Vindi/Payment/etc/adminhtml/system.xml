@@ -28,11 +28,6 @@
                        translate="label" type="text">
                     <label>Min Installment Value</label>
                 </field>
-                <field id="order_status" showInDefault="1" showInStore="1" showInWebsite="1" sortOrder="100"
-                       translate="label" type="select">
-                    <label>New Order Status</label>
-                    <source_model>Magento\Sales\Model\Config\Source\Order\Status</source_model>
-                </field>
                 <field id="verify_method" showInDefault="1" showInStore="1" showInWebsite="1" sortOrder="110"
                        translate="label" type="select">
                     <label>Verify Profile?</label>
