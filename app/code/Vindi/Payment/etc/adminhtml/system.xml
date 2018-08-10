@@ -57,11 +57,11 @@
         </tab>
         <section id="vindiconfiguration" showInDefault="1" showInStore="1" showInWebsite="1" sortOrder="10"
                  translate="label">
-            <label>configuration</label>
+            <label>Configuration</label>
             <tab>vindi</tab>
             <resource>Vindi_Payment::config_vindi_payment</resource>
             <group id="general" showInDefault="1" showInStore="1" showInWebsite="1" sortOrder="10" translate="label">
-                <label>general</label>
+                <label>General</label>
                 <field id="mode" showInDefault="1" showInStore="1" showInWebsite="1" sortOrder="20"
                        translate="label"
                        type="select">

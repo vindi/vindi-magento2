@@ -64,4 +64,5 @@
 "Mode","Modo"
 "Configuration","Configuração"
 "Add this link to the webhooks menu in your vindi dashboard","Adicione este link ao menu de webhooks dentro do dashboard da vindi"
-"The api key was not set on the module basic configuration", "A chave da api não foi configurada na configuração base do módulo"
+"The api key was not set on the module basic configuration","A chave da api não foi configurada na configuração base do módulo"
+"General","Geral"
