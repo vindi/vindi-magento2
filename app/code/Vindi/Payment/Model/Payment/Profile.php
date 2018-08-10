@@ -50,8 +50,6 @@ class Profile
         $dataToLog['card_number'] = '**** *' . substr($dataToLog['card_number'], -3);
         $dataToLog['card_cvv'] = '***';
 
-        $customerId = $body['customer_id'];
-
         return $this->api->request('payment_profiles', 'POST', $body, $dataToLog);
     }
 
