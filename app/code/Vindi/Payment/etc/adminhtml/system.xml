@@ -9,15 +9,11 @@
                        type="select">
                     <label>Enabled</label>
                     <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                    <backend_model>Vindi\Payment\Model\Config\Backend\ApiKeyValidator</backend_model>
                 </field>
                 <field id="title" showInDefault="1" showInStore="1" showInWebsite="1" sortOrder="30" translate="label"
                        type="text">
                     <label>Title</label>
-                </field>
-                <field id="payment_action" showInDefault="1" showInStore="1" showInWebsite="1" sortOrder="60"
-                       translate="label" type="select">
-                    <label>Payment Action</label>
-                    <source_model>Vindi\Payment\Model\Config\Source\PaymentAction</source_model>
                 </field>
                 <field id="allow_installments" showInDefault="1" showInStore="1" showInWebsite="1" sortOrder="70"
                        translate="label" type="select">
@@ -61,11 +57,11 @@
         </tab>
         <section id="vindiconfiguration" showInDefault="1" showInStore="1" showInWebsite="1" sortOrder="10"
                  translate="label">
-            <label>configuration</label>
+            <label>Configuration</label>
             <tab>vindi</tab>
             <resource>Vindi_Payment::config_vindi_payment</resource>
             <group id="general" showInDefault="1" showInStore="1" showInWebsite="1" sortOrder="10" translate="label">
-                <label>general</label>
+                <label>General</label>
                 <field id="mode" showInDefault="1" showInStore="1" showInWebsite="1" sortOrder="20"
                        translate="label"
                        type="select">
@@ -75,11 +71,13 @@
                 <field id="api_key" showInDefault="1" showInStore="1" showInWebsite="1" sortOrder="40" translate="label"
                        type="text">
                     <label>Api Key</label>
+                    <validate>required-entry</validate>
                 </field>
                 <field id="webhook_key" showInDefault="1" showInStore="1" showInWebsite="1" sortOrder="50"
                        translate="label" type="text">
                     <label>Webhook Key</label>
-                    <comment model="Vindi\Payment\Model\WebhookKey" />
+                    <comment model="Vindi\Payment\Model\WebhookKey"/>
+                    <frontend_model>Vindi\Payment\Block\System\Config\Form\Field\Disable</frontend_model>
                 </field>
             </group>
         </section>
