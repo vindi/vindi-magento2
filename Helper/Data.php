@@ -51,6 +51,11 @@ class Data extends AbstractHelper
         return $this->getModuleGeneralConfig('mode');
     }
 
+    public function getOrderStatus()
+    {
+        return $this->getCreditCardConfig('order_status');
+    }
+
     public function getBaseUrl()
     {
         if ($this->getMode() == Mode::PRODUCTION_MODE) {
