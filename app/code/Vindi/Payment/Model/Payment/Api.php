@@ -35,8 +35,8 @@ class Api extends \Magento\Framework\Model\AbstractModel
         $body = json_encode($data);
         $requestId = number_format(microtime(true), 2, '', '');
         $dataToLog = null !== $dataToLog ? json_encode($dataToLog) : $body;
-        $this->logger->info(sprintf("[Request #%s]: Novo Request para a API.\n%s %s\n%s", $requestId, $method, $url,
-            $dataToLog));
+        $this->logger->info(__(sprintf('[Request #%s]: New Api Request.\n%s %s\n%s', $requestId, $method, $url,
+            $dataToLog)));
         $ch = curl_init();
         $ch_options = [
             CURLOPT_HTTPHEADER => [
@@ -60,17 +60,17 @@ class Api extends \Magento\Framework\Model\AbstractModel
         $statusCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
         $body = substr($response, curl_getinfo($ch, CURLINFO_HEADER_SIZE));
         if (curl_errno($ch) || $response === false) {
-            $this->logger->error(sprintf("[Request #%s]: Erro ao fazer request!\n%s", $requestId, print_r($response, true)));
+            $this->logger->error(__(sprintf('[Request #%s]: Error while executing request!\n%s', $requestId, print_r($response, true))));
             curl_close($ch);
             return false;
         }
         curl_close($ch);
         $status = "HTTP Status: $statusCode";
-        $this->logger->info(sprintf("[Request #%s]: Nova Resposta da API.\n%s\n%s", $requestId, $status, $body));
+        $this->logger->info(__(sprintf('[Request #%s]: New API Answer.\n%s\n%s', $requestId, $status, $body)));
         $responseBody = json_decode($body, true);
         if (!$responseBody) {
-            $this->logger->info(sprintf('[Request #%s]: Erro ao recuperar corpo do request! %s', $requestId,
-                print_r($body, true)));
+            $this->logger->info(__(sprintf('[Request #%s]: Error while recovering request body! %s', $requestId,
+                print_r($body, true))));
             return false;
         }
         if (!$this->checkResponse($responseBody, $endpoint)) {

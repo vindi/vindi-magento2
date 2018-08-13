@@ -8,7 +8,7 @@ class Index extends \Magento\Framework\App\Action\Action
     protected $_pageFactory;
 
     public function __construct(
-        Api $api,
+        \Vindi\Payment\Model\Payment\Api $api,
         \Magento\Framework\App\Action\Context $context,
         \Magento\Framework\View\Result\PageFactory $pageFactory
     )

@@ -179,41 +179,13 @@ class Vindi extends \Magento\Payment\Model\Method\AbstractMethod
     public function validate()
     {
         $info = $this->getInfoInstance();
-//        $quote = $info->getQuote();
-
-//        $maxInstallmentsNumber = Mage::getStoreConfig('payment/vindi_creditcard/max_installments_number');
-
-//        if ($this->isSingleOrder($quote) && ($maxInstallmentsNumber > 1)) {
-//            if (!$installments = $info->getAdditionalInformation('installments')) {
-//                return $this->error('Você deve informar o número de parcelas.');
-//            }
-//
-//            if ($installments > $maxInstallmentsNumber) {
-//                return $this->error('O número de parcelas selecionado é inválido.');
-//            }
-//
-//            $minInstallmentsValue = Mage::getStoreConfig('payment/vindi_creditcard/min_installment_value');
-//            $installmentValue = ceil($quote->getGrandTotal() / $installments * 100) / 100;
-//
-//            if (($installmentValue < $minInstallmentsValue) && ($installments > 1)) {
-//                return $this->error('O número de parcelas selecionado é inválido.');
-//            }
-//        }
-
-//        if ($info->getAdditionalInformation('use_saved_cc')) {
-//            return $this;
-//        }
-
-        $availableTypes = $this->paymentMethod->getCreditCardTypes();
-
         $ccNumber = $info->getCcNumber();
-
         // remove credit card non-numbers
         $ccNumber = preg_replace('/\D/', '', $ccNumber);
 
         $info->setCcNumber($ccNumber);
 
-        if (!array_key_exists(PaymentMethod::$cCBrands[$info->getCcType()], $availableTypes)) {
+        if (!$this->paymentMethod->isCcTypeValid($info->getCcType())) {
             return $this->addError(__('Credit card type is not allowed for this payment method.'));
         }
 
@@ -248,15 +220,14 @@ class Vindi extends \Magento\Payment\Model\Method\AbstractMethod
             $this->bill->delete($bill['id']);
         }
 
-        $this->psrLogger->error(sprintf('Erro no pagamento do pedido %d.', $order->getId()));
-        $message = "Houve um problema na confirmação do pagamento. Verifique os dados e tente novamente.";
+        $this->psrLogger->error(__(sprintf('Error on order payment %d.', $order->getId())));
+        $message = __('There has been a payment confirmation error. Verify data and try again')->getText();
         $payment->setStatus(
             Order::STATE_CANCELED,
             Order::STATE_CANCELED,
             $message,
             true
         );
-//        throw new \Exception($message);
-
+        throw new \Exception($message);
     }
 }
