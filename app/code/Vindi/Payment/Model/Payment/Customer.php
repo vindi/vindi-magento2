@@ -20,7 +20,7 @@ class Customer
     {
         $billing = $order->getBillingAddress();
         $customer = $this->customerRepository->get($billing->getEmail());
-        $customerId = $this->api->findCustomerByCode($customer->getId());
+        $customerId = $this->findCustomerByCode($customer->getId());
 
         if ($customerId) {
             return $customerId;
@@ -57,27 +57,47 @@ class Customer
     }
 
     /**
-     * @param array Customer phones $phone
-     * @return array
+     * Make an API request to create a Customer.
+     *
+     * @param array $body (name, email, code)
+     *
+     * @return array|bool|mixed
      */
+    public function createCustomer($body)
+    {
+        if ($response = $this->request('customers', 'POST', $body)) {
+            return $response['customer']['id'];
+        }
+
+        return false;
+    }
+
+    /**
+     * Make an API request to retrieve an existing Customer.
+     *
+     * @param string $code
+     *
+     * @return array|bool|mixed
+     */
+    public function findCustomerByCode($code)
+    {
+        $response = $this->api->request("customers/search?code={$code}", 'GET');
+
+        if ($response && (1 === count($response['customers'])) && isset($response['customers'][0]['id'])) {
+            return $response['customers'][0]['id'];
+        }
+
+        return false;
+    }
+
     public function format_phone($phone)
     {
-        $phone = '55' . preg_replace('/^0|\D+/', '', $phone);
+        $digits = strlen('55' . preg_replace('/^0|\D+/', '', $phone));
+        $phone_types = [
+            12 => 'landline',
+            13 => 'mobile',
+        ];
 
-        switch (strlen($phone)) {
-            case 12:
-                $phone_type = 'landline';
-                break;
-            case 13:
-                $phone_type = 'mobile';
-                break;
-        }
-
-        if (isset($phone_type)) {
-            return [[
-                'phone_type' => $phone_type,
-                'number' => $phone
-            ]];
-        }
+        return array_key_exists($digits, $phone_types) ? $phone_types[$digits] : null;
     }
 }

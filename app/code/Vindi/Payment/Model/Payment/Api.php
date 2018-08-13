@@ -17,8 +17,8 @@ class Api extends \Magento\Framework\Model\AbstractModel
         \Magento\Framework\Message\ManagerInterface $messageManager
     )
     {
-        $this->apiKey = $helperData->getModuleConfig("api_key");
-        $this->base_path = $helperData->getModuleConfig("api_endpoint");
+        $this->apiKey = $helperData->getCreditCardConfig("api_key");
+        $this->base_path = $helperData->getBaseUrl();
 
         $this->moduleList = $moduleList;
         $this->logger = $logger;
@@ -77,40 +77,6 @@ class Api extends \Magento\Framework\Model\AbstractModel
             return false;
         }
         return $responseBody;
-    }
-
-    /**
-     * Make an API request to create a Customer.
-     *
-     * @param array $body (name, email, code)
-     *
-     * @return array|bool|mixed
-     */
-    public function createCustomer($body)
-    {
-        if ($response = $this->request('customers', 'POST', $body)) {
-            return $response['customer']['id'];
-        }
-
-        return false;
-    }
-
-    /**
-     * Make an API request to retrieve an existing Customer.
-     *
-     * @param string $code
-     *
-     * @return array|bool|mixed
-     */
-    public function findCustomerByCode($code)
-    {
-        $response = $this->request("customers/search?code={$code}", 'GET');
-
-        if ($response && (1 === count($response['customers'])) && isset($response['customers'][0]['id'])) {
-            return $response['customers'][0]['id'];
-        }
-
-        return false;
     }
 
     public function getVersion()

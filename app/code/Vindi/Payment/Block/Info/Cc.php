@@ -1,6 +1,8 @@
 <?php
 namespace Vindi\Payment\Block\Info;
 
+use Vindi\Payment\Model\Payment\PaymentMethod;
+
 class Cc extends \Magento\Payment\Block\Info
 {
     use \Vindi\Payment\Block\InfoTrait;
@@ -13,14 +15,14 @@ class Cc extends \Magento\Payment\Block\Info
     protected $_currency;
 
     public function __construct(
-        \Magento\Payment\Model\CcConfig $ccConfig,
+        PaymentMethod $paymentMethod,
         \Magento\Framework\Pricing\Helper\Data $currency,
         \Magento\Backend\Block\Template\Context $context,
         array $data = []
     ) {
 
         parent::__construct($context, $data);
-        $this->ccConfig = $ccConfig;
+        $this->paymentMethod = $paymentMethod;
         $this->_currency = $currency;
     }
 

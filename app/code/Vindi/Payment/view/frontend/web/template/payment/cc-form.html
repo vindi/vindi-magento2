@@ -133,4 +133,30 @@
         </div>
     </div>
     <!-- /ko -->
+
+    <div class="field date required" data-bind="attr: {id: getCode() + '_installments'}">
+        <label data-bind="attr: {for: getCode() + '_installments'}" class="label">
+            <span><!-- ko i18n: 'Installments' --><!-- /ko --></span>
+        </label>
+        <div class="control">
+            <div class="fields group group-3">
+                <div class="field no-label month">
+                    <div class="control">
+                        <select name="payment[cc_installments]"
+                                class="select credit-card-installments"
+                                data-bind="attr: {id: getCode() + '_installments', 'data-container': getCode() + '-installments', 'data-validate': JSON.stringify({required:true, 'validate-cc-exp':'#' + getCode() + '_expiration_yr'})},
+                                            enable: isActive($parents),
+                                            options: getCcInstallmentsAvailable(),
+                                            optionsValue: 'value',
+                                            optionsText: 'text',
+                                            optionsCaption: $t('Installments'),
+                                            value: selectedInstallments"
+                        >
+
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 </fieldset>
