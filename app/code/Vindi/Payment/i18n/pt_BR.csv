@@ -65,3 +65,6 @@
 "Mode","Modo"
 "Configuration","Configuração"
 "Use this link to set up events in Vindi Webhooks.","Utilize esse link para configurar os eventos nos Webhooks da Vindi."
+"The api key was not set on the module basic configuration","A chave da api não foi configurada na configuração base do módulo"
+"General","Geral"
+"The api key is invalid or the merchant is inactive","A chave da api é invalida ou a loja está inativa"
