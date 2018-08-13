@@ -60,7 +60,7 @@ class WebhookHandler
         switch ($type) {
             case 'test':
                 $this->logger->info(__('Webhook test event.'));
-                exit('1');
+                break;
             case 'bill_created':
                 return $this->billCreated->billCreated($data);
             case 'bill_paid':
@@ -69,7 +69,7 @@ class WebhookHandler
                 return $this->chargeRejected->chargeRejected($data);
             default:
                 $this->logger->warning(__(sprintf('Webhook event ignored by plugin: "%s".', $type)));
-                exit('0');
+                break;
         }
     }
 }
