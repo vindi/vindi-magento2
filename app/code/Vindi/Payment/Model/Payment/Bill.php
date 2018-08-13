@@ -36,4 +36,20 @@ class Bill
         $this->api->request("bills/{$billId}", 'DELETE');
     }
 
+    /**
+     * @param $billId
+     *
+     * @return array|bool
+     */
+    public function getBill($billId)
+    {
+        $response = $this->api->request("bills/{$billId}", 'GET');
+
+        if (! $response || ! isset($response['bill'])) {
+            return false;
+        }
+
+        return $response['bill'];
+    }
+
 }

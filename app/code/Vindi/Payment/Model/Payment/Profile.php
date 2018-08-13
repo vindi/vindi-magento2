@@ -9,20 +9,15 @@ class Profile
 {
     private $api, $helperData;
 
-    public function __construct(Api $api, Data $helperData)
+    public function __construct(Api $api, Data $helperData, PaymentMethod $paymentMethod)
     {
         $this->api = $api;
         $this->helperData = $helperData;
+        $this->paymentMethod = $paymentMethod;
     }
 
-    /**
-     * @param int $customerId
-     * @param Object $payment
-     * @return array|bool
-     */
     public function create($payment, $customerId, $paymentMethodCode)
     {
-
         $creditCardData = [
             'holder_name' => $payment->getCcOwner(),
             'card_expiration' => str_pad($payment->getCcExpMonth(), 2, '0', STR_PAD_LEFT)
@@ -30,31 +25,24 @@ class Profile
             'card_number' => $payment->getCcNumber(),
             'card_cvv' => $payment->getCcCid() ?: '',
             'customer_id' => $customerId,
-            'payment_company_code' => PaymentMethod::$cCBrands[$payment->getCcType()],
+            'payment_company_code' => $this->paymentMethod->getCompanyPaymentCode($payment->getCcType()),
             'payment_method_code' => $paymentMethodCode
         ];
 
         $paymentProfile = $this->createPaymentProfile($creditCardData);
 
         if ($paymentProfile === false) {
-            throw new \Exception('Erro ao informar os dados de cartão de crédito. Verifique os dados e tente novamente!');
+            throw new \Exception(__('Error while informing credit card data. Verify data and try again')->getText());
         }
 
         $verifyMethod = $this->helperData->getShouldVerifyProfile();
 
         if ($verifyMethod && !$this->verifyPaymentProfile($paymentProfile['payment_profile']['id'])) {
-            throw new \Exception('Não foi possível realizar a verificação do seu cartão de crédito!');
+            throw new \Exception(__('Impossible to validate your credit card')->getText());
         }
         return $paymentProfile;
     }
 
-    /**
-     * Make an API request to create a Payment Profile to a Customer.
-     *
-     * @param $body (holder_name, card_expiration, card_number, card_cvv, customer_id)
-     *
-     * @return array|bool|mixed
-     */
     private function createPaymentProfile($body)
     {
         // Protect credit card number.
@@ -65,11 +53,6 @@ class Profile
         return $this->api->request('payment_profiles', 'POST', $body, $dataToLog);
     }
 
-    /**
-     * @param int $paymentProfileId
-     *
-     * @return array|bool
-     */
     public function verifyPaymentProfile($paymentProfileId)
     {
         $verify_status = $this->api->request('payment_profiles/' . $paymentProfileId . '/verify', 'POST');

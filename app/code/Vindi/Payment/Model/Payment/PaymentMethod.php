@@ -9,20 +9,12 @@ class PaymentMethod
     const CREDIT_CARD = "credit_card";
     const DEBIT_CARD = "debit_card";
 
-    public static $cCBrands = [
-        'VI' => 'visa',
-        'MC' => 'mastercard',
-        'DN' => 'diners_club',
-        'AE' => 'american_express',
-        'EL' => 'elo',
-        'HI' => 'diners_club',
-    ];
-
-    public function __construct(Api $api)
+    public function __construct(Api $api, \Magento\Payment\Model\CcConfig $ccConfig)
     {
         $this->api = $api;
+        $this->ccConfig = $ccConfig;
     }
-    
+
     public function getCreditCardTypes()
     {
         $methods = $this->get();
@@ -77,5 +69,51 @@ class PaymentMethod
         $this->acceptBankSlip = $paymentMethods['bank_slip'];
 
         return $paymentMethods;
+    }
+
+    public function isCcTypeValid($ccType)
+    {
+        $validCreditCardTypes = $this->getCreditCardTypes();
+        $fullName = $this->getCcTypeFullName($ccType);
+        $fullTrimmedName = strtolower(str_replace(' ', '', $fullName));
+
+        foreach ($validCreditCardTypes as $validCreditCardType) {
+            $trimmedName = strtolower(str_replace(' ', '', $validCreditCardType));
+
+            if ($trimmedName == $fullTrimmedName) {
+                return true;
+            }
+        }
+
+        return false;
+
+    }
+
+    private function getCcTypeFullName($ccType)
+    {
+        $fullNames = $this->ccConfig->getCcAvailableTypes();
+
+        if (isset($fullNames[$ccType])) {
+            return $fullNames[$ccType];
+        }
+
+        throw new \Exception(__("Could Not Find Payment Credit Card Type")->getText());
+    }
+
+    public function getCompanyPaymentCode($ccType)
+    {
+        $validCreditCardTypes = $this->getCreditCardTypes();
+        $fullName = $this->getCcTypeFullName($ccType);
+        $fullTrimmedName = strtolower(str_replace(' ', '', $fullName));
+
+        foreach ($validCreditCardTypes as $key => $validCreditCardType) {
+            $trimmedName = strtolower(str_replace(' ', '', $validCreditCardType));
+
+            if ($trimmedName == $fullTrimmedName) {
+                return $key;
+            }
+        }
+
+        throw new \Exception(__("Credit card type is not allowed for this payment method."));
     }
 }
