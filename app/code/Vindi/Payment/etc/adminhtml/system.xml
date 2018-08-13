@@ -4,7 +4,7 @@
     <system>
         <section id="payment" showInDefault="1" showInStore="1" showInWebsite="1" sortOrder="1000" translate="label">
             <group id="vindi" showInDefault="1" showInStore="1" showInWebsite="1" sortOrder="10" translate="label">
-                <label>Vindi</label>
+                <label>Vindi - Credit Card</label>
                 <field id="active" showInDefault="1" showInStore="1" showInWebsite="1" sortOrder="10" translate="label"
                        type="select">
                     <label>Enabled</label>
