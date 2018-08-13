@@ -7,6 +7,7 @@ use Magento\Framework\DataObject;
 use Magento\Payment\Observer\AbstractDataAssignObserver;
 use Magento\Quote\Api\Data\CartInterface;
 use Magento\Quote\Api\Data\PaymentInterface;
+use Magento\Sales\Model\Order;
 use Vindi\Payment\Block\Info\Cc;
 use Vindi\Payment\Model\Api;
 use Magento\Directory\Helper\Data as DirectoryHelper;
@@ -81,6 +82,11 @@ class Vindi extends \Magento\Payment\Model\Method\AbstractMethod
         \Vindi\Payment\Model\Payment\Api $api,
         Customer $customer,
         Product $product,
+        Bill $bill,
+        Profile $profile,
+        \Psr\Log\LoggerInterface $psrLogger,
+        \Magento\Framework\Stdlib\DateTime\TimezoneInterface $date,
+        PaymentMethod $paymentMethod,
         \Magento\Sales\Model\Service\InvoiceService $invoiceService,
         \Magento\Framework\Registry $registry,
         \Magento\Framework\Api\ExtensionAttributesFactory $extensionFactory,
@@ -113,6 +119,11 @@ class Vindi extends \Magento\Payment\Model\Method\AbstractMethod
         $this->_invoiceService = $invoiceService;
         $this->customer = $customer;
         $this->product = $product;
+        $this->bill = $bill;
+        $this->paymentMethod = $paymentMethod;
+        $this->date = $date;
+        $this->psrLogger = $psrLogger;
+        $this->profile = $profile;
     }
 
 
@@ -165,10 +176,87 @@ class Vindi extends \Magento\Payment\Model\Method\AbstractMethod
         return 'credit_card';
     }
 
+    public function validate()
+    {
+        $info = $this->getInfoInstance();
+//        $quote = $info->getQuote();
+
+//        $maxInstallmentsNumber = Mage::getStoreConfig('payment/vindi_creditcard/max_installments_number');
+
+//        if ($this->isSingleOrder($quote) && ($maxInstallmentsNumber > 1)) {
+//            if (!$installments = $info->getAdditionalInformation('installments')) {
+//                return $this->error('Você deve informar o número de parcelas.');
+//            }
+//
+//            if ($installments > $maxInstallmentsNumber) {
+//                return $this->error('O número de parcelas selecionado é inválido.');
+//            }
+//
+//            $minInstallmentsValue = Mage::getStoreConfig('payment/vindi_creditcard/min_installment_value');
+//            $installmentValue = ceil($quote->getGrandTotal() / $installments * 100) / 100;
+//
+//            if (($installmentValue < $minInstallmentsValue) && ($installments > 1)) {
+//                return $this->error('O número de parcelas selecionado é inválido.');
+//            }
+//        }
+
+//        if ($info->getAdditionalInformation('use_saved_cc')) {
+//            return $this;
+//        }
+
+        $availableTypes = $this->paymentMethod->getCreditCardTypes();
+
+        $ccNumber = $info->getCcNumber();
+
+        // remove credit card non-numbers
+        $ccNumber = preg_replace('/\D/', '', $ccNumber);
+
+        $info->setCcNumber($ccNumber);
+
+        if (!array_key_exists(PaymentMethod::$cCBrands[$info->getCcType()], $availableTypes)) {
+            return $this->addError(__('Credit card type is not allowed for this payment method.'));
+        }
+
+        return $this;
+    }
+
     public function capture(\Magento\Payment\Model\InfoInterface $payment, $amount)
     {
         $order = $payment->getOrder();
         $customerId = $this->customer->findOrCreate($order);
+        $paymentProfile = $this->profile->create($payment, $customerId, $this->getPaymentMethodCode());
         $productList = $this->product->findOrCreateProducts($order);
+
+        $body = [
+            'customer_id' => $customerId,
+            'payment_method_code' => $this->getPaymentMethodCode(),
+            'bill_items' => $productList,
+            'payment_profile' => ['id' => $paymentProfile['payment_profile']['id']]
+        ];
+
+        if ($bill = $this->bill->create($body)) {
+            if (
+                $bill['code'] === PaymentMethod::BANK_SLIP
+                || $bill['code'] === PaymentMethod::DEBIT_CARD
+                || $bill['status'] === Bill::PAID_STATUS
+                || $bill['status'] === Bill::REVIEW_STATUS
+            ) {
+                $order->setVindiBillId($bill['id']);
+                $order->save();
+                return $bill['id'];
+            }
+            $this->bill->delete($bill['id']);
+        }
+
+        $this->psrLogger->error(sprintf('Erro no pagamento do pedido %d.', $order->getId()));
+        $message = "Houve um problema na confirmação do pagamento. Verifique os dados e tente novamente.";
+        $payment->setStatus(
+            Order::STATE_CANCELED,
+            Order::STATE_CANCELED,
+            $message,
+            true
+        );
+//        throw new \Exception($message);
+
     }
 }
