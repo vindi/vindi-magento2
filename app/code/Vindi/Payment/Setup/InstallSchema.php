@@ -29,7 +29,7 @@ class InstallSchema implements InstallSchemaInterface
 
             $connection->addColumn($eavTable, 'vindi_bill_id', [
                 'type' => \Magento\Framework\DB\Ddl\Table::TYPE_INTEGER,
-                'length' => '1',
+                'length' => '11',
                 'nullable' => false,
                 'comment' => 'Vindi Bill Id',
             ]);
