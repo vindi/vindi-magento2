@@ -53,12 +53,9 @@ class Data extends AbstractHelper
 
     public function getBaseUrl()
     {
-        $mode = $this->getMode();
-
-        if ($mode == Mode::PRODUCTION_MODE) {
+        if ($this->getMode() == Mode::PRODUCTION_MODE) {
             return "https://app.vindi.com.br/api/v1/";
-        } else {
-            return "https://sandbox-app.vindi.com.br/api/v1/";
         }
+        return "https://sandbox-app.vindi.com.br/api/v1/";
     }
 }
