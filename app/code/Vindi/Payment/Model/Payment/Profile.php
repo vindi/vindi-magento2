@@ -23,7 +23,7 @@ class Profile
             'card_expiration' => str_pad($payment->getCcExpMonth(), 2, '0', STR_PAD_LEFT)
                 . '/' . $payment->getCcExpYear(),
             'card_number' => $payment->getCcNumber(),
-            'card_cvv' => $payment->getCcCid() ?: '000',
+            'card_cvv' => $payment->getCcCid() ?: '',
             'customer_id' => $customerId,
             'payment_company_code' => $payment->getCcType(),
             'payment_method_code' => $paymentMethodCode
