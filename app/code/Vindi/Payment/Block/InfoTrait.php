@@ -16,7 +16,7 @@ trait InfoTrait
 
     public function getCcInstallments()
     {
-        return $this->getOrder()->getPayment()->getAdditionalInformation('cc_installments');
+        return $this->getOrder()->getPayment()->getAdditionalInformation('installments');
     }
 
     public function getCcNumber()
@@ -31,9 +31,9 @@ trait InfoTrait
 
     public function getCcBrand()
     {
+        $brands = $this->paymentMethod->getCreditCardTypes();
         $CardCode = $this->getOrder()->getPayment()->getCcType();
 
-        $cardTypes = $this->ccConfig->getCcAvailableTypes();
-        return $cardTypes[$CardCode];
+        return $brands[$CardCode];
     }
 }

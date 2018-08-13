@@ -91,29 +91,12 @@ class PaymentMethod
 
     private function getCcTypeFullName($ccType)
     {
-        $fullNames = $this->ccConfig->getCcAvailableTypes();
+        $fullNames = $this->getCreditCardTypes();
 
         if (isset($fullNames[$ccType])) {
             return $fullNames[$ccType];
         }
 
         throw new \Exception(__("Could Not Find Payment Credit Card Type")->getText());
-    }
-
-    public function getCompanyPaymentCode($ccType)
-    {
-        $validCreditCardTypes = $this->getCreditCardTypes();
-        $fullName = $this->getCcTypeFullName($ccType);
-        $fullTrimmedName = strtolower(str_replace(' ', '', $fullName));
-
-        foreach ($validCreditCardTypes as $key => $validCreditCardType) {
-            $trimmedName = strtolower(str_replace(' ', '', $validCreditCardType));
-
-            if ($trimmedName == $fullTrimmedName) {
-                return $key;
-            }
-        }
-
-        throw new \Exception(__("Credit card type is not allowed for this payment method."));
     }
 }

@@ -150,6 +150,9 @@ class Vindi extends \Magento\Payment\Model\Method\AbstractMethod
         }
 
         $info = $this->getInfoInstance();
+
+        $info->setAdditionalInformation('installments', $additionalData->getCcInstallments());
+
         $info->addData(
             [
                 'cc_type' => $additionalData->getCcType(),
@@ -164,6 +167,7 @@ class Vindi extends \Magento\Payment\Model\Method\AbstractMethod
                 'cc_ss_start_year' => $additionalData->getCcSsStartYear()
             ]
         );
+        $info->save();
 
         return $this;
     }
@@ -205,6 +209,10 @@ class Vindi extends \Magento\Payment\Model\Method\AbstractMethod
             'bill_items' => $productList,
             'payment_profile' => ['id' => $paymentProfile['payment_profile']['id']]
         ];
+
+        if ($installments = $payment->getAdditionalInformation('installments')) {
+            $body['installments'] = (int) $installments;
+        }
 
         if ($bill = $this->bill->create($body)) {
             if (

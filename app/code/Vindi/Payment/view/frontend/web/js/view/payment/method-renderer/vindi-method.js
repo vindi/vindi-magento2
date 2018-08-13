@@ -22,7 +22,8 @@ define(
                 creditCardSsStartMonth: '',
                 creditCardSsStartYear: '',
                 creditCardVerificationNumber: '',
-                selectedCardType: null
+                selectedCardType: null,
+                selectedInstallments: null
             },
             getData: function () {
                 var data = {
@@ -35,7 +36,8 @@ define(
                         'cc_owner': this.creditCardOwner(),
                         'cc_ss_start_month': this.creditCardSsStartMonth(),
                         'cc_ss_start_year': this.creditCardSsStartYear(),
-                        'cc_cvv': this.creditCardVerificationNumber()
+                        'cc_cvv': this.creditCardVerificationNumber(),
+                        'cc_installments': this.selectedInstallments(),
                     }
                 };
 
@@ -52,7 +54,8 @@ define(
                         'creditCardVerificationNumber',
                         'creditCardSsStartMonth',
                         'creditCardSsStartYear',
-                        'selectedCardType'
+                        'selectedCardType',
+                        'selectedInstallments'
                     ]);
                 return this;
             },
@@ -81,8 +84,12 @@ define(
                     this.messageContainer.addErrorMessage({'message': $t('Please enter the Credit Card CVV.')});
                     return false;
                 }
+                if (!this.selectedInstallments() || this.selectedInstallments() == '') {
+                    this.messageContainer.addErrorMessage({'message': $t('Please enter the number of Installments.')});
+                    return false;
+                }
 
-                return false
+                return true;
             },
 
             initialize: function () {
@@ -127,6 +134,9 @@ define(
                 this.creditCardVerificationNumber.subscribe(function (value) {
                     creditCardData.cvvCode = value;
                 });
+                this.selectedInstallments.subscribe(function (value) {
+                    creditCardData.selectedInstallments = value;
+                });
             },
 
             isActive: function () {
@@ -147,6 +157,9 @@ define(
 
             hasVerification: function () {
                 return window.checkoutConfig.payment.vindi_cc.hasVerification['vindi_cc'];
+            },
+            getCcInstallments: function () {
+                return window.checkoutConfig.payment.vindi_cc.installments['vindi_cc'];
             },
 
             getCcAvailableTypesValues: function () {
@@ -180,7 +193,15 @@ define(
                         'name': value
                     }
                 });
-            }
+            },
+            getCcInstallmentsAvailable: function () {
+                return _.map(this.getCcInstallments(), function (value, key) {
+                    return {
+                        'value': key,
+                        'text': value
+                    }
+                });
+            },
         });
     }
 );

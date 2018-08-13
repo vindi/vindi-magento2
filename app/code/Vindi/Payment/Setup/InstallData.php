@@ -21,7 +21,7 @@ class InstallData implements InstallDataInterface
         $data = [
             'scope' => 'default',
             'scope_id' => 0,
-            'path' => 'payment/vindi/webhook_key',
+            'path' => 'vindiconfiguration/general/webhook_key',
             'value' => self::generateRandomHash(),
         ];
   $setup->getConnection()

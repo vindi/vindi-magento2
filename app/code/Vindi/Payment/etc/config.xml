@@ -14,5 +14,11 @@
 				<group>offline</group>
 			</vindi>
 		</payment>
+		<vindiconfiguration>
+			<general>
+				<mode>2</mode>
+				<test>values</test>
+			</general>
+		</vindiconfiguration>
 	</default>
 </config>
