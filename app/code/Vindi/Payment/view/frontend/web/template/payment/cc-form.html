@@ -41,20 +41,20 @@
 
     <div class="field date required" data-bind="attr: {id: getCode() + '_type'}">
         <label data-bind="attr: {for: getCode() + '_type'}" class="label">
-            <span><!-- ko i18n: 'Type' --><!-- /ko --></span>
+            <span><!-- ko i18n: 'Brand' --><!-- /ko --></span>
         </label>
         <div class="control">
             <div class="fields group group-3">
-                <div class="field no-label month">
+                <div class="field no-label number">
                     <div class="control">
                         <select name="payment[cc_type]"
-                                class="select credit-card-types"
+                                class="input-text select credit-card-types"
                                 data-bind="attr: {id: getCode() + '_type', 'data-container': getCode() + '-type', 'data-validate': JSON.stringify({required:true, 'validate-cc-exp':'#' + getCode() + '_expiration_yr'})},
                                             enable: isActive($parents),
                                             options: getCcTypesValues(),
                                             optionsValue: 'value',
                                             optionsText: 'name',
-                                            optionsCaption: $t('Select'),
+                                            optionsCaption: $t('Select the brand'),
                                             value: selectedCardType"
                         >
 

@@ -211,7 +211,7 @@ class Vindi extends \Magento\Payment\Model\Method\AbstractMethod
         ];
 
         if ($installments = $payment->getAdditionalInformation('installments')) {
-            $body['installments'] = (int) $installments;
+            $body['installments'] = (int)$installments;
         }
 
         if ($bill = $this->bill->create($body)) {

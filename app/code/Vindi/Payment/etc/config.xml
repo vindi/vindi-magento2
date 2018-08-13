@@ -12,6 +12,7 @@
 				<allowspecific>0</allowspecific>
 				<payment_action>authorize_capture</payment_action>
 				<group>offline</group>
+				<allowspecific>0</allowspecific>
 			</vindi>
 		</payment>
 		<vindiconfiguration>
