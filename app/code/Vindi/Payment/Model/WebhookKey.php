@@ -15,6 +15,6 @@ class WebhookKey implements CommentInterface
 
     public function getCommentText($elementValue)
     {
-        return "<strong>" . sprintf(__("Add this link to the webhooks menu in your vindi dashboard")) . " " . $this->urlInterface->getBaseUrl() . "vindiPayment/index/webhook?key=" . $elementValue . "</strong>";
+        return sprintf(__("Use this link to set up events in Vindi Webhooks.")) . " <strong>" . $this->urlInterface->getBaseUrl() . "vindiPayment/index/webhook?key=" . $elementValue . "</strong>";
     }
 }
