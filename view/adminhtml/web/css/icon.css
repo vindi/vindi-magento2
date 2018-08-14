@@ -1,0 +1,10 @@
+@import url("https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.css");
+
+#menu-vindi-payment-first-level-demo > a:before {
+    font: normal normal normal 14px/1 FontAwesome;
+    content: "\f1fa";
+    display: block;
+    font-size: 2.2rem;
+    height: 2.2rem;
+    margin-bottom: .3rem;
+}
