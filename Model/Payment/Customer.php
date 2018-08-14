@@ -46,7 +46,7 @@ class Customer
             'address' => $address
         ];
 
-        $customerId = $this->api->createCustomer($customerVindi);
+        $customerId = $this->createCustomer($customerVindi);
 
         if ($customerId === false) {
             $this->messageManager->addErrorMessage(__('Fail while registering the user. Verify data and try again'));
@@ -65,7 +65,7 @@ class Customer
      */
     public function createCustomer($body)
     {
-        if ($response = $this->request('customers', 'POST', $body)) {
+        if ($response = $this->api->request('customers', 'POST', $body)) {
             return $response['customer']['id'];
         }
 
