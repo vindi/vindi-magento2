@@ -8,7 +8,7 @@
 [![GitHub commits desde a última Versão][badge-versionGitHub-commits]][link-GitHub-release]
 
 # Descrição
-A integração do módulo da Vindi permite criação e gestão de planos e assinaturas através do Magento2 de forma transparente.
+A integração do módulo da Vindi permite criação e gestão de planos e assinaturas através do Magento 2 de forma transparente.
 
 # Requisitos
 - PHP **7.x.x** ou superior.
@@ -18,8 +18,41 @@ A integração do módulo da Vindi permite criação e gestão de planos e assin
 - Conta ativa na [Vindi](https://www.vindi.com.br "Vindi").
 
 # Instalação
+É possível realizar a instalação do módulo da Vindi para Magento 2 manualmente, via [Git](https://github.com) ou via [Composer](https://getcomposer.org).
 
-# Atualização
+#### Via [composer](https://getcomposer.org)
+- Vá até o diretório raíz do Magento e adicione o módulo
+> `composer require vindi/vindi-magento2`
+- Atualize os módulos disponíveis do Magento
+> `bin/magento setup:upgrade`
+- O módulo **Vindi_Payment** deverá ser exibido na lista de módulos do Magento
+> `bin/magento module:status`
+
+#### Via [git](https://github.com)
+- Vá até o diretório raíz do Magento e adicione o módulo
+> `git clone git@github.com:vindi/vindi-magento2.git app/code/Vindi/Payment/`
+- Atualize os módulos disponíveis do Magento
+> `bin/magento setup:upgrade`
+- O módulo **Vindi_Payment** deverá ser exibido na lista de módulos do Magento
+> `bin/magento module:status`
+
+#### Via [.zip](https://github.com/vindi/vindi-magento2/archive/master.zip)
+- Crie a(s) seguinte(s) pasta(s) dentro da pasta **app** no diretório raíz do Magento
+> `code->Vindi->Payment`
+- Faça o download do [.zip](https://github.com/vindi/vindi-magento2/archive/master.zip)
+- O caminho deve ser **app->code->Vindi->Payment**
+- Extraia os arquivos do **.zip** na pasta **Payment**
+- No diretório raíz, atualize os módulos disponíveis do Magento
+> `bin/magento setup:upgrade`
+- O módulo **Vindi_Payment** deverá ser exibido na lista de módulos do Magento
+> `bin/magento module:status`
+
+# Configuração
+1. Configurando sua conta Vindi
+    - Em *Vindi -> Configuração* selecione o modo de operação e informe a chave da API de sua conta Vindi.
+    - Você deve copiar o link de configuração dos Webhooks, e inseri-lo no campo URL no [painel da Vindi](https://app.vindi.com.br) em *Configurações -> Webhooks*.
+1. Habilitando/Configurando os métodos de pagamento
+    - Em *Lojas -> Vendas -> Métodos de pagamento*, configure e habilite o método de pagamento **Vindi - Cartão de Crédito**.
 
 ## Dúvidas
 Caso necessite de informações sobre a plataforma ou API por favor siga através do canal [Atendimento Vindi](http://atendimento.vindi.com.br/hc/pt-br)
