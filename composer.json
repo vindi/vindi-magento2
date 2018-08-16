@@ -1,6 +1,6 @@
 {
     "name": "vindi/vindi-magento2",
-    "description": "",
+    "description": "Módulo de cobrança Vindi para o Magento 2",
     "type": "magento2-module",
     "license": "proprietary",
     "authors": [
