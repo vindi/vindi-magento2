@@ -1,12 +1,12 @@
 {
-    "name": "vindi/module-payment",
+    "name": "vindi/vindi-magento2",
     "description": "",
     "type": "magento2-module",
     "license": "proprietary",
     "authors": [
         {
-            "email": "atendimento@vindi.com.br",
-            "name": "Atendimento Vindi"
+            "email": "comunidade@vindi.com.br",
+            "name": "Comunidade Vindi"
         }
     ],
     "minimum-stability": "dev",
