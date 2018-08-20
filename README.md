@@ -61,7 +61,7 @@ Caso necessite de informações sobre a plataforma ou a API, por favor, siga atr
 ## Contribuindo
 Por favor, leia o arquivo [CONTRIBUTING.md](CONTRIBUTING.md).
 
-Caso tenha alguma sugestão ou bug para reportar por favor nos comunique através das [issues](./issues).
+Caso tenha alguma sugestão ou bug para reportar, por favor, nos comunique através das [issues](./issues).
 
 ## Changelog
 Tipos de mudanças
