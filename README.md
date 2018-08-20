@@ -56,7 +56,7 @@ A integração do módulo da Vindi permite criação e gestão de planos e assin
     - Em *Lojas -> Vendas -> Métodos de pagamento*, configure e habilite o método de pagamento **Vindi - Cartão de Crédito**
 
 ## Dúvidas
-Caso necessite de informações sobre a plataforma ou API por favor siga através do canal [Atendimento Vindi](http://atendimento.vindi.com.br/hc/pt-br)
+Caso necessite de informações sobre a plataforma ou a API, por favor, siga através do canal [Atendimento Vindi](http://atendimento.vindi.com.br/hc/pt-br)
 
 ## Contribuindo
 Por favor, leia o arquivo [CONTRIBUTING.md](CONTRIBUTING.md).
