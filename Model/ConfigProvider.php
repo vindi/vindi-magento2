@@ -10,7 +10,6 @@ use Vindi\Payment\Model\Payment\PaymentMethod;
 
 class ConfigProvider implements ConfigProviderInterface
 {
-
     private $helperData;
 
     /**
@@ -25,7 +24,7 @@ class ConfigProvider implements ConfigProviderInterface
         \Magento\Directory\Model\Currency $currency,
         PaymentMethod $paymentMethod
     ) {
-    
+
         $this->ccConfig = $ccConfig;
         $this->assetSource = $assetSource;
         $this->helperData = $data;

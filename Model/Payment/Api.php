@@ -15,7 +15,7 @@ class Api extends \Magento\Framework\Model\AbstractModel
         \Psr\Log\LoggerInterface $logger,
         \Magento\Framework\Message\ManagerInterface $messageManager
     ) {
-    
+
         $this->apiKey = $helperData->getModuleGeneralConfig("api_key");
         $this->base_path = $helperData->getBaseUrl();
 
@@ -60,7 +60,9 @@ class Api extends \Magento\Framework\Model\AbstractModel
         $statusCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
         $body = substr($response, curl_getinfo($ch, CURLINFO_HEADER_SIZE));
         if (curl_errno($ch) || $response === false) {
-            $this->logger->error(__(sprintf('[Request #%s]: Error while executing request!\n%s', $requestId, print_r($response, true))));
+            $this->logger->error(
+                __(sprintf('[Request #%s]: Error while executing request!\n%s', $requestId, print_r($response, true)))
+            );
             curl_close($ch);
             return false;
         }

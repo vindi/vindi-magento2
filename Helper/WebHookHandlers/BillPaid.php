@@ -13,7 +13,6 @@ class BillPaid
         Order $order,
         Data $helperData
     ) {
-    
         $this->logger = $logger;
         $this->order = $order;
         $this->helperData = $helperData;

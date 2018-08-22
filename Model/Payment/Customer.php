@@ -9,7 +9,6 @@ class Customer
         Api $api,
         \Magento\Framework\Message\ManagerInterface $messageManager
     ) {
-    
         $this->customerRepository = $customerRepository;
         $this->api = $api;
         $this->messageManager = $messageManager;
@@ -41,7 +40,7 @@ class Customer
             'email' => $billing->getEmail(),
             'registry_code' => $order->getData('customer_taxvat'),
             'code' => $customer->getId(),
-            'phones' => $this->format_phone($billing->getTelephone()),
+            'phones' => $this->formatPhone($billing->getTelephone()),
             'address' => $address
         ];
 
@@ -49,7 +48,9 @@ class Customer
 
         if ($customerId === false) {
             $this->messageManager->addErrorMessage(__('Fail while registering the user. Verify data and try again'));
-            throw new \Exception(__('Fail while registering the user. Verify data and try again')->getText());
+            throw new \Magento\Framework\Exception\LocalizedException(
+                __('Fail while registering the user. Verify data and try again')->getText()
+            );
         }
 
         return $customerId;
@@ -89,7 +90,7 @@ class Customer
         return false;
     }
 
-    public function format_phone($phone)
+    public function formatPhone($phone)
     {
         $digits = strlen('55' . preg_replace('/^0|\D+/', '', $phone));
         $phone_types = [

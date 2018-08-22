@@ -9,7 +9,6 @@ class Order
         \Magento\Sales\Model\OrderRepository $orderRepository,
         \Magento\Framework\Api\SearchCriteriaBuilder $searchCriteriaBuilder
     ) {
-    
         $this->logger = $logger;
         $this->orderRepository = $orderRepository;
         $this->searchCriteriaBuilder = $searchCriteriaBuilder;
@@ -49,7 +48,7 @@ class Order
             $this->searchCriteriaBuilder->create()->setPageSize(1)->setCurrentPage(1)
         )->getItems();
 
-        if (count($order)) {
+        if (empty($order)) {
             return reset($order);
         }
 

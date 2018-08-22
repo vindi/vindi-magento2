@@ -8,7 +8,6 @@ use Vindi\Payment\Helper\WebHookHandlers\ChargeRejected;
 
 class WebhookHandler
 {
-
     public function __construct(
         \Magento\Framework\HTTP\PhpEnvironment\RemoteAddress $remoteAddress,
         \Psr\Log\LoggerInterface $logger,
@@ -16,7 +15,6 @@ class WebhookHandler
         BillPaid $billPaid,
         ChargeRejected $chargeRejected
     ) {
-    
         $this->remoteAddress = $remoteAddress;
         $this->logger = $logger;
         $this->billCreated = $billCreated;
@@ -26,12 +24,8 @@ class WebhookHandler
 
     public function getRemoteIp()
     {
-        $om = \Magento\Framework\App\ObjectManager::getInstance();
-        $obj = $om->get('Magento\Framework\HTTP\PhpEnvironment\RemoteAddress');
-        $ip = $obj->getRemoteAddress();
-        return $ip;
+        return $this->remoteAddress->getRemoteAddress();
     }
-
 
     /**
      * Handle incoming webhook.
@@ -46,7 +40,7 @@ class WebhookHandler
             $jsonBody = json_decode($body, true);
 
             if (!$jsonBody || !isset($jsonBody['event'])) {
-                throw new \Exception(__('Webhook event not found!')->getText());
+                throw new \Magento\Framework\Exception\LocalizedException(__('Webhook event not found!')->getText());
             }
 
             $type = $jsonBody['event']['type'];
