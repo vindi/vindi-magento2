@@ -1,0 +1,13 @@
+@font-face {
+font-family:'vindi';
+src: url('icomoon.ttf')
+}
+
+#menu-vindi-payment-first-level-demo > a:before {
+    font-family: 'vindi';
+    content: "\e900";
+    display: block;
+    font-size: 2.2rem;
+    height: 2.2rem;
+    margin-bottom: .3rem;
+}
