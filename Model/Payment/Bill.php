@@ -2,7 +2,6 @@
 
 namespace Vindi\Payment\Model\Payment;
 
-
 class Bill
 {
     private $api;
@@ -51,5 +50,4 @@ class Bill
 
         return $response['bill'];
     }
-
 }

@@ -8,8 +8,8 @@ class WebhookKey implements CommentInterface
 {
     public function __construct(
         \Magento\Framework\UrlInterface $urlInterface
-    )
-    {
+    ) {
+    
         $this->urlInterface = $urlInterface;
     }
 

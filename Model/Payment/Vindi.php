@@ -99,8 +99,8 @@ class Vindi extends \Magento\Payment\Model\Method\AbstractMethod
         \Magento\Framework\Model\ResourceModel\AbstractResource $resource = null,
         \Magento\Framework\Data\Collection\AbstractDb $resourceCollection = null,
         array $data = []
-    )
-    {
+    ) {
+    
         $this->_logger = $logger;
         parent::__construct(
             $context,
@@ -129,8 +129,8 @@ class Vindi extends \Magento\Payment\Model\Method\AbstractMethod
 
     public function isAvailable(
         \Magento\Quote\Api\Data\CartInterface $quote = null
-    )
-    {
+    ) {
+    
         return parent::isAvailable($quote);
     }
 
@@ -215,8 +215,7 @@ class Vindi extends \Magento\Payment\Model\Method\AbstractMethod
         }
 
         if ($bill = $this->bill->create($body)) {
-            if (
-                $bill['code'] === PaymentMethod::BANK_SLIP
+            if ($bill['code'] === PaymentMethod::BANK_SLIP
                 || $bill['code'] === PaymentMethod::DEBIT_CARD
                 || $bill['status'] === Bill::PAID_STATUS
                 || $bill['status'] === Bill::REVIEW_STATUS

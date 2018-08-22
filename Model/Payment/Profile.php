@@ -2,7 +2,6 @@
 
 namespace Vindi\Payment\Model\Payment;
 
-
 use Vindi\Payment\Helper\Data;
 
 class Profile

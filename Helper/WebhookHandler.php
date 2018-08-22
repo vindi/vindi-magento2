@@ -2,7 +2,6 @@
 
 namespace Vindi\Payment\Helper;
 
-
 use Vindi\Payment\Helper\WebHookHandlers\BillCreated;
 use Vindi\Payment\Helper\WebHookHandlers\BillPaid;
 use Vindi\Payment\Helper\WebHookHandlers\ChargeRejected;
@@ -16,8 +15,8 @@ class WebhookHandler
         BillCreated $billCreated,
         BillPaid $billPaid,
         ChargeRejected $chargeRejected
-    )
-    {
+    ) {
+    
         $this->remoteAddress = $remoteAddress;
         $this->logger = $logger;
         $this->billCreated = $billCreated;

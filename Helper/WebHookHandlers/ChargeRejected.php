@@ -2,7 +2,6 @@
 
 namespace Vindi\Payment\Helper\WebHookHandlers;
 
-
 use Vindi\Payment\Model\Payment\Api;
 use Vindi\Payment\Model\Payment\Bill;
 
@@ -14,8 +13,8 @@ class ChargeRejected
         Bill $bill,
         Order $order,
         \Psr\Log\LoggerInterface $logger
-    )
-    {
+    ) {
+    
         $this->bill = $bill;
         $this->order = $order;
         $this->logger = $logger;

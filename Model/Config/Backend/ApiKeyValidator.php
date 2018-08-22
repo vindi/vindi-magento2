@@ -48,8 +48,8 @@ class ApiKeyValidator extends ConfigValue
         AbstractResource $resource = null,
         AbstractDb $resourceCollection = null,
         array $data = []
-    )
-    {
+    ) {
+    
         $this->serializer = $serializer;
         $this->helperData = $helperData;
         $this->api = $api;

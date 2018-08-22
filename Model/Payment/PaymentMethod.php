@@ -2,7 +2,6 @@
 
 namespace Vindi\Payment\Model\Payment;
 
-
 class PaymentMethod
 {
     const BANK_SLIP = "bank_slip";
@@ -86,7 +85,6 @@ class PaymentMethod
         }
 
         return false;
-
     }
 
     private function getCcTypeFullName($ccType)

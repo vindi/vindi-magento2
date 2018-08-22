@@ -2,15 +2,14 @@
 
 namespace Vindi\Payment\Helper\WebHookHandlers;
 
-
 class Order
 {
     public function __construct(
         \Psr\Log\LoggerInterface $logger,
         \Magento\Sales\Model\OrderRepository $orderRepository,
         \Magento\Framework\Api\SearchCriteriaBuilder $searchCriteriaBuilder
-    )
-    {
+    ) {
+    
         $this->logger = $logger;
         $this->orderRepository = $orderRepository;
         $this->searchCriteriaBuilder = $searchCriteriaBuilder;
@@ -35,7 +34,6 @@ class Order
         }
 
         return $order;
-
     }
 
     /**

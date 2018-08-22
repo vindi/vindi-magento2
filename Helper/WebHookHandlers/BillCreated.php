@@ -2,7 +2,6 @@
 
 namespace Vindi\Payment\Helper\WebHookHandlers;
 
-
 class BillCreated
 {
     public function __construct(\Psr\Log\LoggerInterface $logger)

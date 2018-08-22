@@ -26,7 +26,6 @@ class InstallSchema implements InstallSchemaInterface
         $connection = $installer->getConnection();
 
         if ($connection->tableColumnExists($eavTable, 'vindi_bill_id') === false) {
-
             $connection->addColumn($eavTable, 'vindi_bill_id', [
                 'type' => \Magento\Framework\DB\Ddl\Table::TYPE_INTEGER,
                 'length' => '11',
