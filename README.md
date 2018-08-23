@@ -51,7 +51,10 @@ A integração do módulo da Vindi permite criação e gestão de planos e assin
 1. Configurando sua conta Vindi
     - No painel de Administração do Magento, acesse *Vindi -> Configuração*
     - Selecione o modo de operação e informe a chave da API de sua conta Vindi
-    - Você deve copiar o link de configuração dos Webhooks, e inseri-lo no campo URL no [painel da Vindi](https://app.vindi.com.br) em *Configurações -> Webhooks*
+    - Você deve copiar o link de configuração dos Webhooks, para inseri-lo na plataforma da Vindi
+    - Acesse [Vindi](https://app.vindi.com.br) -> Configurações -> Webhooks -> Novo webhook -> e cole o link no campo de URL
+    - Você pode clicar na opção **Testar** para validar a configuração
+    - Para finalizar a configuração, basta clicar na opção "Criar Webhook"
 1. Habilitando/Configurando os métodos de pagamento
     - Em *Lojas -> Vendas -> Métodos de pagamento*, configure e habilite o método de pagamento **Vindi - Cartão de Crédito**
 
