@@ -2,6 +2,7 @@
 
 namespace Vindi\Payment\Model\Payment;
 
+use Vindi\Payment\Helper\Data;
 
 class PaymentMethod
 {
@@ -9,8 +10,10 @@ class PaymentMethod
     const CREDIT_CARD = "credit_card";
     const DEBIT_CARD = "debit_card";
 
-    public function __construct(Api $api, \Magento\Payment\Model\CcConfig $ccConfig)
+    public function __construct(Api $api, \Magento\Payment\Model\CcConfig $ccConfig, Data $data)
     {
+        if (!$data->getModuleGeneralConfig("module_status"))
+            return false;
         $this->api = $api;
         $this->ccConfig = $ccConfig;
     }
