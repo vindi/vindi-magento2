@@ -13,7 +13,7 @@ class PaymentMethod
 
     public function __construct(Api $api, \Magento\Payment\Model\CcConfig $ccConfig, Data $data)
     {	
-	      $this->moduleStatus = $data->getModuleGeneralConfig("module_status");
+        $this->moduleStatus = $data->getModuleGeneralConfig("module_status");
         $this->api = $api;
         $this->ccConfig = $ccConfig;
     }
