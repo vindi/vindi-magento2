@@ -7,8 +7,9 @@ use Vindi\Payment\Helper\Data;
 trait InfoTrait
 {
     public function canShowCcInfo()
-    {
-        if ($moduleStatus = (new Data)->getModuleGeneralConfig("module_status"))
+    {   
+        $moduleStatus = (new Data)->getModuleGeneralConfig("module_status");
+        if ($moduleStatus)
             return $this->getOrder()->getPayment()->getMethod() === 'vindi';
     }
 
