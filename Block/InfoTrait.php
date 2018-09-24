@@ -8,7 +8,7 @@ trait InfoTrait
 {
     public function canShowCcInfo()
     {   
-        $moduleStatus = (new Data)->getModuleGeneralConfig("module_status");
+        $moduleStatus = (new Data)->getModuleGeneralConfig('module_status');
         if ($moduleStatus)
             return $this->getOrder()->getPayment()->getMethod() === 'vindi';
     }
