@@ -47,7 +47,7 @@ class ConfigProvider implements ConfigProviderInterface
      */
     public function getConfig()
     {	
-	if (!$this->helperData->getModuleGeneralConfig("module_status"))
+	if (!$this->helperData->getModuleGeneralConfig('module_status'))
 	    return [];
 
         return [

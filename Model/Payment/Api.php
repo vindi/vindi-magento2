@@ -18,8 +18,8 @@ class Api extends \Magento\Framework\Model\AbstractModel
         \Magento\Framework\Message\ManagerInterface $messageManager
     )
     {
-        $this->apiKey = $helperData->getModuleGeneralConfig("api_key");
-        $this->moduleStatus = $helperData->getModuleGeneralConfig("module_status");
+        $this->apiKey = $helperData->getModuleGeneralConfig('api_key');
+        $this->moduleStatus = $helperData->getModuleGeneralConfig('module_status');
         $this->base_path = $helperData->getBaseUrl();
         $this->moduleList = $moduleList;
         $this->logger = $logger;

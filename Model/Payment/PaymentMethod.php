@@ -6,14 +6,14 @@ use Vindi\Payment\Helper\Data;
 
 class PaymentMethod
 {
-    const BANK_SLIP = "bank_slip";
-    const CREDIT_CARD = "credit_card";
-    const DEBIT_CARD = "debit_card";
+    const BANK_SLIP = 'bank_slip';
+    const CREDIT_CARD = 'credit_card';
+    const DEBIT_CARD = 'debit_card';
     private $moduleStatus;
 
     public function __construct(Api $api, \Magento\Payment\Model\CcConfig $ccConfig, Data $data)
     {	
-        $this->moduleStatus = $data->getModuleGeneralConfig("module_status");
+        $this->moduleStatus = $data->getModuleGeneralConfig('module_status');
         $this->api = $api;
         $this->ccConfig = $ccConfig;
     }
@@ -103,6 +103,6 @@ class PaymentMethod
             return $fullNames[$ccType];
         }
 
-        throw new \Exception(__("Could Not Find Payment Credit Card Type")->getText());
+        throw new \Exception(__('Could Not Find Payment Credit Card Type')->getText());
     }
 }
