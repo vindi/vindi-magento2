@@ -17,18 +17,17 @@ class Api extends \Magento\Framework\Model\AbstractModel
         \Magento\Framework\Message\ManagerInterface $messageManager
     )
     {
-        if (!$helperData->getModuleGeneralConfig("module_status"))
-            return false;
-
-        $this->apiKey = $helperData->getModuleGeneralConfig("api_key"); 
+        $this->apiKey = $helperData->getModuleGeneralConfig("api_key");
         $this->base_path = $helperData->getBaseUrl();
+
         $this->moduleList = $moduleList;
         $this->logger = $logger;
         $this->messageManager = $messageManager;
+
     }
 
     public function request($endpoint, $method = 'POST', $data = [], $dataToLog = null)
-    {        
+    {
         $url = $this->base_path . $endpoint;
         $body = json_encode($data);
         $requestId = number_format(microtime(true), 2, '', '');

@@ -26,9 +26,6 @@ class ConfigProvider implements ConfigProviderInterface
         PaymentMethod $paymentMethod
     )
     {
-        if (!$data->getModuleGeneralConfig("module_status"))
-            return false;
-
         $this->ccConfig = $ccConfig;
         $this->assetSource = $assetSource;
         $this->helperData = $data;

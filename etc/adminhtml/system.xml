@@ -51,13 +51,7 @@
             <resource>Vindi_Payment::config_vindi_payment</resource>
             <group id="general" showInDefault="1" showInStore="1" showInWebsite="1" sortOrder="10" translate="label">
                 <label>General</label>
-                <field id="module_status" showInDefault="1" showInStore="1" showInWebsite="1" sortOrder="20"
-                       translate="label"
-                       type="select">
-                    <label>Enabled</label>
-                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
-                </field>
-                <field id="mode" showInDefault="1" showInStore="1" showInWebsite="1" sortOrder="30"
+                <field id="mode" showInDefault="1" showInStore="1" showInWebsite="1" sortOrder="20"
                        translate="label"
                        type="select">
                     <label>Mode</label>
