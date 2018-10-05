@@ -9,7 +9,6 @@ use Vindi\Payment\Helper\Data;
 class Api extends \Magento\Framework\Model\AbstractModel
 {
     private $apiKey;
-    private $moduleStatus;
 
     public function __construct(
         Data $helperData,
@@ -18,8 +17,10 @@ class Api extends \Magento\Framework\Model\AbstractModel
         \Magento\Framework\Message\ManagerInterface $messageManager
     )
     {
-        $this->apiKey = $helperData->getModuleGeneralConfig('api_key');
-        $this->moduleStatus = $helperData->getModuleGeneralConfig('module_status');
+        if (!$helperData->getModuleGeneralConfig("module_status"))
+            return false;
+
+        $this->apiKey = $helperData->getModuleGeneralConfig("api_key"); 
         $this->base_path = $helperData->getBaseUrl();
         $this->moduleList = $moduleList;
         $this->logger = $logger;
@@ -27,10 +28,7 @@ class Api extends \Magento\Framework\Model\AbstractModel
     }
 
     public function request($endpoint, $method = 'POST', $data = [], $dataToLog = null)
-    {
-        if (!$this->moduleStatus)
-            return false;
-
+    {        
         $url = $this->base_path . $endpoint;
         $body = json_encode($data);
         $requestId = number_format(microtime(true), 2, '', '');

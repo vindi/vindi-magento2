@@ -46,10 +46,7 @@ class ConfigProvider implements ConfigProviderInterface
      * {@inheritdoc}
      */
     public function getConfig()
-    {	
-	if (!$this->helperData->getModuleGeneralConfig('module_status'))
-	    return [];
-
+    {
         return [
             'payment' => [
                 'vindi_cc' => [

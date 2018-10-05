@@ -2,15 +2,11 @@
 
 namespace Vindi\Payment\Block;
 
-use Vindi\Payment\Helper\Data;
-
 trait InfoTrait
 {
     public function canShowCcInfo()
-    {   
-        $moduleStatus = (new Data)->getModuleGeneralConfig('module_status');
-        if ($moduleStatus)
-            return $this->getOrder()->getPayment()->getMethod() === 'vindi';
+    {
+        return $this->getOrder()->getPayment()->getMethod() === 'vindi';
     }
 
     public function getCcOwner()
