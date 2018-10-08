@@ -7,18 +7,30 @@ use Vindi\Payment\Model\Config\Source\Mode;
 
 class Data extends AbstractHelper
 {
+    private $scopeConfig;
+
+    public function __construct(
+        \Magento\Framework\App\Helper\Context $context
+    ) {
+
+        $this->scopeConfig = $context->getScopeConfig();
+        parent::__construct($context);
+    }
+
     public function getCreditCardConfig($field, $group = 'vindi')
     {
-        $objectManager = \Magento\Framework\App\ObjectManager::getInstance();
-        $scopeConfig = $objectManager->create('Magento\Framework\App\Config\ScopeConfigInterface');
-        return $scopeConfig->getValue('payment/' . $group . '/' . $field, \Magento\Store\Model\ScopeInterface::SCOPE_STORE);
+        return $this->scopeConfig->getValue(
+            'payment/' . $group . '/' . $field,
+            \Magento\Store\Model\ScopeInterface::SCOPE_STORE
+        );
     }
 
     public function getModuleGeneralConfig($field)
     {
-        $objectManager = \Magento\Framework\App\ObjectManager::getInstance();
-        $scopeConfig = $objectManager->create('Magento\Framework\App\Config\ScopeConfigInterface');
-        return $scopeConfig->getValue('vindiconfiguration/general/' . $field, \Magento\Store\Model\ScopeInterface::SCOPE_STORE);
+        return $this->scopeConfig->getValue(
+            'vindiconfiguration/general/' . $field,
+            \Magento\Store\Model\ScopeInterface::SCOPE_STORE
+        );
     }
 
     public function isInstallmentsAllowedInStore()

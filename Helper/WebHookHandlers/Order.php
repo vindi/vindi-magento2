@@ -2,15 +2,13 @@
 
 namespace Vindi\Payment\Helper\WebHookHandlers;
 
-
 class Order
 {
     public function __construct(
         \Psr\Log\LoggerInterface $logger,
         \Magento\Sales\Model\OrderRepository $orderRepository,
         \Magento\Framework\Api\SearchCriteriaBuilder $searchCriteriaBuilder
-    )
-    {
+    ) {
         $this->logger = $logger;
         $this->orderRepository = $orderRepository;
         $this->searchCriteriaBuilder = $searchCriteriaBuilder;
@@ -35,7 +33,6 @@ class Order
         }
 
         return $order;
-
     }
 
     /**
@@ -51,7 +48,7 @@ class Order
             $this->searchCriteriaBuilder->create()->setPageSize(1)->setCurrentPage(1)
         )->getItems();
 
-        if (count($order)) {
+        if (empty($order)) {
             return reset($order);
         }
 

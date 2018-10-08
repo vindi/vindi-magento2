@@ -2,16 +2,14 @@
 
 namespace Vindi\Payment\Model\Payment;
 
-
 class Product
 {
-
     public function __construct(
         \Magento\Customer\Api\CustomerRepositoryInterface $customerRepository,
         Api $api,
         \Magento\Framework\Message\ManagerInterface $messageManager
-    )
-    {
+    ) {
+
         $this->customerRepository = $customerRepository;
         $this->api = $api;
         $this->messageManager = $messageManager;
@@ -31,7 +29,6 @@ class Product
         }
 
         if ($order->getShippingAmount() > 0) {
-
             $shippingId = $this->findOrCreateProduct('frete', 'frete');
             $list[] = [
                 'product_id' => $shippingId,

@@ -2,12 +2,11 @@
 
 namespace Vindi\Payment\Model\Payment;
 
-
 class PaymentMethod
 {
-    const BANK_SLIP = "bank_slip";
-    const CREDIT_CARD = "credit_card";
-    const DEBIT_CARD = "debit_card";
+    const BANK_SLIP = 'bank_slip';
+    const CREDIT_CARD = 'credit_card';
+    const DEBIT_CARD = 'debit_card';
 
     public function __construct(Api $api, \Magento\Payment\Model\CcConfig $ccConfig)
     {
@@ -86,7 +85,6 @@ class PaymentMethod
         }
 
         return false;
-
     }
 
     private function getCcTypeFullName($ccType)

@@ -9,6 +9,5 @@ class Disable extends \Magento\Config\Block\System\Config\Form\Field
     {
         $element->setDisabled('disabled');
         return $element->getElementHtml();
-
     }
 }

@@ -18,8 +18,7 @@ class Webhook extends \Magento\Framework\App\Action\Action
         Data $helperData,
         \Magento\Framework\App\Action\Context $context,
         \Magento\Framework\View\Result\PageFactory $pageFactory
-    )
-    {
+    ) {
         $this->api = $api;
         $this->logger = $logger;
         $this->_pageFactory = $pageFactory;

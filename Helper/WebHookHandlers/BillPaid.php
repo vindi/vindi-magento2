@@ -2,7 +2,6 @@
 
 namespace Vindi\Payment\Helper\WebHookHandlers;
 
-
 use Magento\Sales\Model\Order\Invoice;
 use Vindi\Payment\Helper\Data;
 
@@ -13,8 +12,7 @@ class BillPaid
         \Psr\Log\LoggerInterface $logger,
         Order $order,
         Data $helperData
-    )
-    {
+    ) {
         $this->logger = $logger;
         $this->order = $order;
         $this->helperData = $helperData;
@@ -56,8 +54,12 @@ class BillPaid
 
         $this->logger->info(__(sprintf('Generating invoice for the order %s.', $order->getId())));
 
-        $order->setState($this->helperData->getOrderStatus(), true,
-            __('The payment was confirmed and the order is beeing processed'), true);
+        $order->setState(
+            $this->helperData->getOrderStatus(),
+            true,
+            __('The payment was confirmed and the order is beeing processed'),
+            true
+        );
 
         if (!$order->canInvoice()) {
             $this->logger->error(__(sprintf('Impossible to generate invoice for order %s.', $order->getId())));

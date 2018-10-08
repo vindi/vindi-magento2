@@ -26,7 +26,13 @@ trait InfoTrait
 
     public function getCcValue($totalQtyCard = 1, $cardPosition = 1)
     {
-        return $this->_currency->currency($this->getOrder()->getPayment()->getAdditionalInformation('cc_value_' . $totalQtyCard . '_' . $cardPosition), true, false);
+        return $this->_currency->currency(
+            $this->getOrder()->getPayment()->getAdditionalInformation(
+                'cc_value_' . $totalQtyCard . '_' . $cardPosition
+            ),
+            true,
+            false
+        );
     }
 
     public function getCcBrand()
