@@ -20,8 +20,10 @@ class PaymentMethod
         $methods = $this->get();
         $types = [];
 
-        foreach ($methods['credit_card'] as $type) {
-            $types[$type['code']] = $type['name'];
+        if ($methods) {
+            foreach ($methods['credit_card'] as $type) {
+                $types[$type['code']] = $type['name'];
+            }
         }
 
         return $types;
