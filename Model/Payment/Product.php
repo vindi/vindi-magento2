@@ -18,12 +18,18 @@ class Product
     public function findOrCreateProducts($order)
     {
         foreach ($order->getItems() as $item) {
-            $vindiProductId = $this->findOrCreateProduct($item->getSku(), $item->getName());
+            $productType = $item->getProduct()->getTypeId();
+            $vindiProductId = $this->findOrCreateProduct($item->getSku(), $item->getName(), $productType);
 
             for ($i = 0; $i < $item->getQtyOrdered(); $i++) {
+                $itemPrice = $this->getItemPrice($item, $productType);
+
+                if (false === $itemPrice)
+                    continue;
+
                 $list[] = [
                     'product_id' => $vindiProductId,
-                    'amount' => $item->getPrice()
+                    'amount' => $itemPrice
                 ];
             }
         }
@@ -38,9 +44,18 @@ class Product
         return $list;
     }
 
-    private function findOrCreateProduct($itemSku, $itemName)
+    private function getItemPrice($item, $productType)
     {
+        if ('bundle' == $productType)
+            return 0;
 
+        return $item->getPrice();
+    }
+
+    private function findOrCreateProduct($itemSku, $itemName, $itemType = 'simple')
+    {
+        $itemName = $itemType == 'configurable' ? $itemSku : $itemName;
+        $itemSku = $this->sanitizeItemSku($itemSku);
         $vindiProductId = $this->findProductByCode($itemSku);
 
         if ($vindiProductId) {
@@ -63,6 +78,14 @@ class Product
         }
 
         return false;
+    }
+
+    private function sanitizeItemSku($code)
+    {
+        return strtolower( preg_replace("[^a-zA-Z0-9-]", "-",
+        strtr(utf8_decode(trim(preg_replace('/[ -]+/' , '-' , $code))),
+        utf8_decode("áàãâéêíóôõúüñçÁÀÃÂÉÊÍÓÔÕÚÜÑÇ"),
+        "aaaaeeiooouuncAAAAEEIOOOUUNC-")));
     }
 
     private function findProductByCode($code)
