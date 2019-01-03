@@ -7,7 +7,7 @@ use Vindi\Payment\Model\Config\Source\Mode;
 
 class Data extends AbstractHelper
 {
-    protected $scopeConfig;
+    private $scopeConfig;
 
     public function __construct(
         \Magento\Framework\App\Helper\Context $context
