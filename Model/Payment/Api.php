@@ -49,7 +49,7 @@ class Api extends \Magento\Framework\Model\AbstractModel
             CURLOPT_SSL_VERIFYPEER => true,
             CURLOPT_HEADER => true,
             CURLOPT_RETURNTRANSFER => true,
-            CURLOPT_USERAGENT => 'Vindi-Magento/' . $this->getVersion(),
+            CURLOPT_USERAGENT => 'Vindi-Magento2/' . $this->getVersion(),
             CURLOPT_SSLVERSION => 'CURL_SSLVERSION_TLSv1_2',
             CURLOPT_USERPWD => $this->apiKey . ':',
             CURLOPT_URL => $url,
