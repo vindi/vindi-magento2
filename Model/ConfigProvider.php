@@ -10,7 +10,6 @@ use Vindi\Payment\Model\Payment\PaymentMethod;
 
 class ConfigProvider implements ConfigProviderInterface
 {
-
     private $helperData;
 
     /**
@@ -24,8 +23,8 @@ class ConfigProvider implements ConfigProviderInterface
         \Magento\Checkout\Model\Cart $cart,
         \Magento\Directory\Model\Currency $currency,
         PaymentMethod $paymentMethod
-    )
-    {
+    ) {
+
         $this->ccConfig = $ccConfig;
         $this->assetSource = $assetSource;
         $this->helperData = $data;
@@ -64,7 +63,7 @@ class ConfigProvider implements ConfigProviderInterface
         $minInstallmentsValue = $this->helperData->getMinInstallmentsValue();
 
         $quote = $this->cart->getQuote();
-        $installments = array();
+        $installments = [];
 
         if ($maxInstallmentsNumber > 1 && $allowInstallments == true) {
             $total = $quote->getGrandTotal();

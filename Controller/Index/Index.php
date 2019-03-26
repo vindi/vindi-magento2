@@ -11,8 +11,7 @@ class Index extends \Magento\Framework\App\Action\Action
         \Vindi\Payment\Model\Payment\Api $api,
         \Magento\Framework\App\Action\Context $context,
         \Magento\Framework\View\Result\PageFactory $pageFactory
-    )
-    {
+    ) {
         $this->_pageFactory = $pageFactory;
         $this->api = $api;
         return parent::__construct($context);

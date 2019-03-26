@@ -2,12 +2,12 @@
 
 namespace Vindi\Payment\Model\Payment;
 
-
 use Vindi\Payment\Helper\Data;
 
 class Profile
 {
-    private $api, $helperData;
+    private $api;
+    private $helperData;
 
     public function __construct(Api $api, Data $helperData, PaymentMethod $paymentMethod)
     {
@@ -32,13 +32,13 @@ class Profile
         $paymentProfile = $this->createPaymentProfile($creditCardData);
 
         if ($paymentProfile === false) {
-            throw new \Exception(__('Error while informing credit card data. Verify data and try again')->getText());
+            throw new \Magento\Framework\Exception\LocalizedException(__('Error while informing credit card data. Verify data and try again')->getText());
         }
 
         $verifyMethod = $this->helperData->getShouldVerifyProfile();
 
         if ($verifyMethod && !$this->verifyPaymentProfile($paymentProfile['payment_profile']['id'])) {
-            throw new \Exception(__('Impossible to validate your credit card')->getText());
+            throw new \Magento\Framework\Exception\LocalizedException(__('Impossible to validate your credit card')->getText());
         }
         return $paymentProfile;
     }

@@ -4,7 +4,7 @@
 	<default>
 		<payment>
 			<vindi>
-				<active>1</active>
+				<active>0</active>
 				<model>Vindi\Payment\Model\Payment\Vindi</model>
 				<allow_installments>0</allow_installments>
 				<order_status>pending</order_status>

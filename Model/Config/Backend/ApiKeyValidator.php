@@ -48,8 +48,7 @@ class ApiKeyValidator extends ConfigValue
         AbstractResource $resource = null,
         AbstractDb $resourceCollection = null,
         array $data = []
-    )
-    {
+    ) {
         $this->serializer = $serializer;
         $this->helperData = $helperData;
         $this->api = $api;
@@ -68,13 +67,17 @@ class ApiKeyValidator extends ConfigValue
 
         if ($value) {
             if (!$apiKey) {
-                throw new \Exception(sprintf(__("The api key was not set on the module basic configuration")));
+                throw new \Magento\Framework\Exception\LocalizedException(
+                    sprintf(__("The api key was not set on the module basic configuration"))
+                );
             }
 
             $data = $this->api->request("merchants/current", "GET");
 
             if (isset($data['merchant']['status']) && $data['merchant']['status'] != 'active') {
-                throw new \Exception(sprintf(__("The api key is invalid or the merchant is inactive")));
+                throw new \Magento\Framework\Exception\LocalizedException(
+                    sprintf(__("The api key is invalid or the merchant is inactive"))
+                );
             }
         }
     }

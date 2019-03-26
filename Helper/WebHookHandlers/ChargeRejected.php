@@ -2,7 +2,6 @@
 
 namespace Vindi\Payment\Helper\WebHookHandlers;
 
-
 use Vindi\Payment\Model\Payment\Api;
 use Vindi\Payment\Model\Payment\Bill;
 
@@ -14,8 +13,7 @@ class ChargeRejected
         Bill $bill,
         Order $order,
         \Psr\Log\LoggerInterface $logger
-    )
-    {
+    ) {
         $this->bill = $bill;
         $this->order = $order;
         $this->logger = $logger;
@@ -38,7 +36,7 @@ class ChargeRejected
         }
 
         $gatewayMessage = $charge['last_transaction']['gateway_message'];
-        $isLastAttempt = is_null($charge['next_attempt']);
+        $isLastAttempt = $charge['next_attempt'] === null;
 
         if ($isLastAttempt) {
             $order->addStatusHistoryComment(__(sprintf(
