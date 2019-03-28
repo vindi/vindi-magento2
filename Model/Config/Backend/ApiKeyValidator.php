@@ -13,9 +13,6 @@ use Magento\Framework\Serialize\SerializerInterface;
 use Vindi\Payment\Helper\Data;
 use Vindi\Payment\Model\Payment\Api;
 
-/**
- * Class AdditionalEmail
- */
 class ApiKeyValidator extends ConfigValue
 {
     /**
@@ -26,8 +23,6 @@ class ApiKeyValidator extends ConfigValue
     protected $serializer;
 
     /**
-     * ShippingMethods constructor
-     *
      * @param SerializerInterface $serializer
      * @param Context $context
      * @param Registry $registry
