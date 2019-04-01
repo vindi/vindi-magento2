@@ -3,7 +3,7 @@
     <default>
         <payment>
             <vindi>
-                <active>0</active>
+                <active>1</active>
                 <model>Vindi\Payment\Model\Payment\Vindi</model>
                 <allow_installments>0</allow_installments>
                 <order_status>pending</order_status>
@@ -13,7 +13,7 @@
                 <group>offline</group>
             </vindi>
             <vindi_bankslip>
-                <active>0</active>
+                <active>1</active>
                 <model>Vindi\Payment\Model\Payment\BankSlip</model>
                 <title>Vindi - Boleto Bancário</title>
                 <order_status>pending</order_status>

@@ -48,7 +48,7 @@ class Order
             $this->searchCriteriaBuilder->create()->setPageSize(1)->setCurrentPage(1)
         )->getItems();
 
-        if (empty($order)) {
+        if (!empty($order)) {
             return reset($order);
         }
 

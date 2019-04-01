@@ -152,6 +152,7 @@ class BankSlip extends \Magento\Payment\Model\Method\AbstractMethod
 
     public function authorize(\Magento\Payment\Model\InfoInterface $payment, $amount)
     {
+        /** @var Order $order */
         $order = $payment->getOrder();
         $customerId = $this->customer->findOrCreate($order);
         $productList = $this->product->findOrCreateProducts($order);
@@ -178,20 +179,16 @@ class BankSlip extends \Magento\Payment\Model\Method\AbstractMethod
                 || $bill['status'] === Bill::REVIEW_STATUS
             ) {
                 $order->setVindiBillId($bill['id']);
-                $order->save();
                 return $bill['id'];
             }
             $this->bill->delete($bill['id']);
         }
 
         $this->psrLogger->error(__(sprintf('Error on order payment %d.', $order->getId())));
-        $message = __('There has been a payment confirmation error. Verify data and try again')->getText();
-        $payment->setStatus(
-            Order::STATE_CANCELED,
-            Order::STATE_CANCELED,
-            $message,
-            true
-        );
+        $message = __('There has been a payment confirmation error. Verify data and try again');
+        $order->setState(Order::STATE_CANCELED)
+            ->setStatus($order->getConfig()->getStateDefaultStatus(Order::STATE_CANCELED))
+            ->addStatusHistoryComment($message->getText());
         throw new \Magento\Framework\Exception\LocalizedException($message);
     }
 }

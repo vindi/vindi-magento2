@@ -2,24 +2,53 @@
 
 namespace Vindi\Payment\Helper;
 
-use Vindi\Payment\Helper\WebHookHandlers\BillCreated;
-use Vindi\Payment\Helper\WebHookHandlers\BillPaid;
-use Vindi\Payment\Helper\WebHookHandlers\ChargeRejected;
 
 class WebhookHandler
 {
+    /**
+     * @var \Magento\Framework\HTTP\PhpEnvironment\RemoteAddress
+     */
+    protected $remoteAddress;
+
+    /**
+     * @var \Psr\Log\LoggerInterface
+     */
+    protected $logger;
+
+    /**
+     * @var \Vindi\Payment\Helper\WebHookHandlers\BillCreated
+     */
+    protected $billCreated;
+
+    /**
+     * @var \Vindi\Payment\Helper\WebHookHandlers\BillPaid
+     */
+    protected $billPaid;
+
+    /**
+     * @var \Vindi\Payment\Helper\WebHookHandlers\ChargeRejected
+     */
+    protected $chargeRejected;
+
+    /**
+     * @var \Vindi\Payment\Helper\WebHookHandlers\ChargeCanceled
+     */
+    protected $chargeCanceled;
+
     public function __construct(
         \Magento\Framework\HTTP\PhpEnvironment\RemoteAddress $remoteAddress,
         \Psr\Log\LoggerInterface $logger,
-        BillCreated $billCreated,
-        BillPaid $billPaid,
-        ChargeRejected $chargeRejected
+        \Vindi\Payment\Helper\WebHookHandlers\BillCreated $billCreated,
+        \Vindi\Payment\Helper\WebHookHandlers\BillPaid $billPaid,
+        \Vindi\Payment\Helper\WebHookHandlers\ChargeRejected $chargeRejected,
+        \Vindi\Payment\Helper\WebHookHandlers\ChargeCanceled $chargeCanceled
     ) {
         $this->remoteAddress = $remoteAddress;
         $this->logger = $logger;
         $this->billCreated = $billCreated;
         $this->billPaid = $billPaid;
         $this->chargeRejected = $chargeRejected;
+        $this->chargeCanceled = $chargeCanceled;
     }
 
     public function getRemoteIp()
@@ -60,6 +89,8 @@ class WebhookHandler
                 return $this->billPaid->billPaid($data);
             case 'charge_rejected':
                 return $this->chargeRejected->chargeRejected($data);
+            case 'charge_canceled':
+                return $this->chargeCanceled->chargeCanceled($data);
             default:
                 $this->logger->warning(__(sprintf('Webhook event ignored by plugin: "%s".', $type)));
                 break;
