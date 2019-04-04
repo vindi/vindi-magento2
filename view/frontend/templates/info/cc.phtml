@@ -1,0 +1,13 @@
+<?php if ($block->canShowCcInfo()) : ?>
+    <dl class="payment-method">
+        <dt class="title"><strong><?php echo $block->escapeHtml($block->getMethod()->getTitle()) ?></strong></dt>
+        <dd class="content">
+            <br/>
+            <p><?php echo sprintf(__('Cc Brand: %s'), $block->getCcBrand()) ?></p>
+            <p><?php echo sprintf(__('Cc Owner: %s'), $block->getCcOwner()) ?></p>
+            <p><?php echo sprintf(__('Cc Number: %s'), $block->getCcNumber()) ?></p>
+            <p><?php echo sprintf(__('Installments: %sx'), $block->getCcInstallments()) ?></p>
+            <br/>
+        </dd>
+    </dl>
+<?php endif; ?>
