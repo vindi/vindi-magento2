@@ -25,10 +25,10 @@ class Customer
         }
 
         $address = [
-            'street' => $billing->getStreetLine(0),
-            'number' => $billing->getStreetLine(1),
-            'additional_details' => $billing->getStreetLine(2),
-            'neighborhood' => $billing->getStreetLine(3),
+            'street' => $billing->getStreetLine(1) ?: '',
+            'number' => $billing->getStreetLine(2) ?: '',
+            'additional_details' => $billing->getStreetLine(3) ?: '',
+            'neighborhood' => $billing->getStreetLine(4) ?: '',
             'zipcode' => $billing->getPostcode(),
             'city' => $billing->getCity(),
             'state' => $billing->getRegionCode(),
@@ -38,7 +38,7 @@ class Customer
         $customerVindi = [
             'name' => $billing->getFirstname() . ' ' . $billing->getLastname(),
             'email' => $billing->getEmail(),
-            'registry_code' => $order->getData('customer_taxvat'),
+            'registry_code' => $order->getData('customer_taxvat') ?: '',
             'code' => $customer->getId(),
             'phones' => $this->formatPhone($billing->getTelephone()),
             'address' => $address
@@ -49,7 +49,7 @@ class Customer
         if ($customerId === false) {
             $this->messageManager->addErrorMessage(__('Fail while registering the user. Verify data and try again'));
             throw new \Magento\Framework\Exception\LocalizedException(
-                __('Fail while registering the user. Verify data and try again')->getText()
+                __('Fail while registering the user. Verify data and try again')
             );
         }
 
