@@ -60,7 +60,7 @@ class BankSlip extends \Magento\Payment\Model\Method\AbstractMethod
     /**
      * @var bool
      */
-    protected $_isInitializeNeeded = false;
+    protected $_isInitializeNeeded = true;
 
     /**
      * @var bool

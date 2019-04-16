@@ -47,9 +47,9 @@ class Customer
         $customerId = $this->createCustomer($customerVindi);
 
         if ($customerId === false) {
-            $this->messageManager->addErrorMessage(__('Fail while registering the user. Verify data and try again'));
+            $this->messageManager->addErrorMessage(__('Failed while registering user. Check the data and try again'));
             throw new \Magento\Framework\Exception\LocalizedException(
-                __('Fail while registering the user. Verify data and try again')
+                __('Failed while registering user. Check the data and try again')
             );
         }
 

@@ -2,7 +2,7 @@
 
 namespace Vindi\Payment\Helper\WebHookHandlers;
 
-class ChargeCanceled
+class BillCanceled
 {
     /**
      * @var \Vindi\Payment\Model\Payment\Bill
@@ -42,19 +42,26 @@ class ChargeCanceled
      * @return bool
      * @throws \Exception
      */
-    public function chargeCanceled($data)
+    public function billCanceled($data)
     {
-        $charge = $data['charge'];
+        $bill = $data['bill'];
+
+        if (!$bill) {
+            $this->logger->error(__('Error while interpreting webhook "bill_canceled"'));
+            return false;
+        }
 
         /** @var \Magento\Sales\Model\Order $order */
-        if (!($order = $this->getOrderFromBill($charge['bill']['id']))) {
+        if (!($order = $this->getOrderFromBill($bill['id']))) {
             $this->logger->warning(__('Order not found'));
-
             return false;
         }
 
         $order->cancel();
-        $order->addStatusHistoryComment(__(sprintf('Vindi API: Order Canceled.')));
+        $order->addStatusHistoryComment(__(sprintf(
+            'Vindi API: Order %s Canceled.',
+            $order->getId()
+        )));
         $this->orderRepository->save($order);
 
         $this->logger->info(__(sprintf(

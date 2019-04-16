@@ -4,19 +4,27 @@ namespace Vindi\Payment\Helper\WebHookHandlers;
 
 class Order
 {
+    /**
+     * @var \Psr\Log\LoggerInterface
+     */
+    protected $logger;
+
+    /**
+     * @var \Magento\Sales\Model\ResourceModel\Order\CollectionFactory
+     */
+    protected $orderCollectionFactory;
+
     public function __construct(
         \Psr\Log\LoggerInterface $logger,
-        \Magento\Sales\Model\OrderRepository $orderRepository,
-        \Magento\Framework\Api\SearchCriteriaBuilder $searchCriteriaBuilder
+        \Magento\Sales\Model\ResourceModel\Order\CollectionFactory $orderCollectionFactory
     ) {
         $this->logger = $logger;
-        $this->orderRepository = $orderRepository;
-        $this->searchCriteriaBuilder = $searchCriteriaBuilder;
+        $this->orderCollectionFactory = $orderCollectionFactory;
     }
 
     /**
      * @param array $data
-     *
+     * @return \Magento\Sales\Model\Order
      */
     public function getOrder($data)
     {
@@ -38,20 +46,22 @@ class Order
     /**
      * @param int $billId
      *
-     * @return Mage_Sales_Model_Order
+     * @return \Magento\Sales\Model\Order
      */
     private function getOrderByBillId($billId)
     {
-        $this->searchCriteriaBuilder->addFilter('vindi_bill_id', $billId);
-
-        $order = $this->orderRepository->getList(
-            $this->searchCriteriaBuilder->create()->setPageSize(1)->setCurrentPage(1)
-        )->getItems();
-
-        if (!empty($order)) {
-            return reset($order);
+        if (!$billId) {
+            return false;
         }
 
-        return false;
+        $order = $this->orderCollectionFactory->create()
+            ->addAttributeToFilter('vindi_bill_id', ['eq' => $billId])
+            ->getFirstItem();
+
+        if (!$order) {
+            return false;
+        }
+
+        return $order;
     }
 }

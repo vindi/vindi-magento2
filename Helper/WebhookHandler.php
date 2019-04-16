@@ -31,9 +31,9 @@ class WebhookHandler
     protected $chargeRejected;
 
     /**
-     * @var \Vindi\Payment\Helper\WebHookHandlers\ChargeCanceled
+     * @var \Vindi\Payment\Helper\WebHookHandlers\BillCanceled
      */
-    protected $chargeCanceled;
+    protected $billCanceled;
 
     public function __construct(
         \Magento\Framework\HTTP\PhpEnvironment\RemoteAddress $remoteAddress,
@@ -41,14 +41,14 @@ class WebhookHandler
         \Vindi\Payment\Helper\WebHookHandlers\BillCreated $billCreated,
         \Vindi\Payment\Helper\WebHookHandlers\BillPaid $billPaid,
         \Vindi\Payment\Helper\WebHookHandlers\ChargeRejected $chargeRejected,
-        \Vindi\Payment\Helper\WebHookHandlers\ChargeCanceled $chargeCanceled
+        \Vindi\Payment\Helper\WebHookHandlers\BillCanceled $billCanceled
     ) {
         $this->remoteAddress = $remoteAddress;
         $this->logger = $logger;
         $this->billCreated = $billCreated;
         $this->billPaid = $billPaid;
         $this->chargeRejected = $chargeRejected;
-        $this->chargeCanceled = $chargeCanceled;
+        $this->billCanceled = $billCanceled;
     }
 
     public function getRemoteIp()
@@ -69,7 +69,7 @@ class WebhookHandler
             $jsonBody = json_decode($body, true);
 
             if (!$jsonBody || !isset($jsonBody['event'])) {
-                throw new \Magento\Framework\Exception\LocalizedException(__('Webhook event not found!')->getText());
+                throw new \Magento\Framework\Exception\LocalizedException(__('Webhook event not found!'));
             }
 
             $type = $jsonBody['event']['type'];
@@ -89,8 +89,8 @@ class WebhookHandler
                 return $this->billPaid->billPaid($data);
             case 'charge_rejected':
                 return $this->chargeRejected->chargeRejected($data);
-            case 'charge_canceled':
-                return $this->chargeCanceled->chargeCanceled($data);
+            case 'bill_canceled':
+                return $this->billCanceled->billCanceled($data);
             default:
                 $this->logger->warning(__(sprintf('Webhook event ignored by plugin: "%s".', $type)));
                 break;
