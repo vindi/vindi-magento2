@@ -23,7 +23,7 @@ class Bankslip extends \Magento\Framework\View\Element\Template
     public function canShowBankslip()
     {
         $order = $this->getOrder();
-        if ($order->getPayment()->getMethod() === 'vindi_bankslip') {
+        if ($order->getPayment()->getMethod() === \Vindi\Payment\Model\Payment\BankSlip::CODE) {
             return true;
         }
 

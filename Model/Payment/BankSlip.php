@@ -8,7 +8,9 @@ use Vindi\Payment\Block\Info\BankSlip as InfoBlock;
 
 class BankSlip extends \Magento\Payment\Model\Method\AbstractMethod
 {
-    protected $_code = 'vindi_bankslip';
+    const CODE = 'vindi_bankslip';
+
+    protected $_code = self::CODE;
     protected $_isOffline = true;
     protected $_infoBlockType = InfoBlock::class;
 
