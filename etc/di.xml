@@ -3,4 +3,7 @@
     <type name="Magento\Framework\App\Request\CsrfValidator">
         <plugin name="csrf_validator_skip" type="Vindi\Payment\Plugin\CsrfValidatorSkip" />
     </type>
+    <type name="Magento\Sales\Model\Order\Payment">
+        <plugin name="setOrderStatusOnPlace" type="Vindi\Payment\Plugin\SetOrderStatusOnPlace" />
+    </type>
 </config>
