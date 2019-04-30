@@ -17,8 +17,13 @@ class Customer
     public function findOrCreate($order)
     {
         $billing = $order->getBillingAddress();
-        $customer = $this->customerRepository->get($billing->getEmail());
-        $customerId = $this->findCustomerByCode($customer->getId());
+        $customer = null;
+        $customerId = null;
+
+        if (!$order->getCustomerIsGuest()) {
+            $customer = $this->customerRepository->get($billing->getEmail());
+            $customerId = $this->findCustomerByCode($customer->getId());
+        }
 
         if ($customerId) {
             return $customerId;
@@ -39,7 +44,7 @@ class Customer
             'name' => $billing->getFirstname() . ' ' . $billing->getLastname(),
             'email' => $billing->getEmail(),
             'registry_code' => $order->getData('customer_taxvat') ?: '',
-            'code' => $customer->getId(),
+            'code' => $customer ? $customer->getId() : '',
             'phones' => $this->formatPhone($billing->getTelephone()),
             'address' => $address
         ];
