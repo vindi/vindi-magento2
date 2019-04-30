@@ -18,12 +18,16 @@ class Customer
     {
         $billing = $order->getBillingAddress();
         $customer = null;
-        $customerId = null;
+        $queryType = 'email';
+        $query = $billing->getEmail();
 
         if (!$order->getCustomerIsGuest()) {
-            $customer = $this->customerRepository->get($billing->getEmail());
-            $customerId = $this->findCustomerByCode($customer->getId());
+            $customer = $this->customerRepository->get($query);
+            $queryType = 'code';
+            $query = $customer->getId();
         }
+
+        $customerId = $this->findCustomerByQuery($query, $queryType);
 
         if ($customerId) {
             return $customerId;
@@ -80,13 +84,14 @@ class Customer
     /**
      * Make an API request to retrieve an existing Customer.
      *
-     * @param string $code
+     * @param string $query
+     * @param string $queryType
      *
      * @return array|bool|mixed
      */
-    public function findCustomerByCode($code)
+    public function findCustomerByQuery($query, $queryType)
     {
-        $response = $this->api->request("customers/search?code={$code}", 'GET');
+        $response = $this->api->request("customers?query={$queryType}={$query}", 'GET');
 
         if ($response && (1 === count($response['customers'])) && isset($response['customers'][0]['id'])) {
             return $response['customers'][0]['id'];
