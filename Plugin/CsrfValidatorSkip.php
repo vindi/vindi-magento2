@@ -6,10 +6,8 @@ use Magento\Framework\App\ProductMetadata;
 
 class CsrfValidatorSkip
 {
-
-    public function __construct(
-        ProductMetadata $productMetadata
-    ) {
+    public function __construct(ProductMetadata $productMetadata)
+    {
         $this->productMetadata = $productMetadata;
     }
 
@@ -19,16 +17,11 @@ class CsrfValidatorSkip
      * @param \Magento\Framework\App\RequestInterface $request
      * @param \Magento\Framework\App\ActionInterface $action
      */
-    public function aroundValidate(
-        $subject,
-        \Closure $proceed,
-        $request,
-        $action
-    ) {
+    public function aroundValidate($subject, \Closure $proceed, $request, $action)
+    {
         if ($this->productMetadata->getVersion() < '2.3.0') {
             $proceed($request, $action);
         }
         return;
     }
 }
-

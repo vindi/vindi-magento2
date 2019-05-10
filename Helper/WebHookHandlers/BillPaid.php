@@ -80,7 +80,10 @@ class BillPaid
         $this->invoiceRepository->save($invoice);
         $this->logger->info(__('Invoice created with success'));
 
-        $order->addStatusHistoryComment(__('The payment was confirmed and the order is beeing processed')->getText(), $order->getConfig()->getStateDefaultStatus(\Magento\Sales\Model\Order::STATE_PROCESSING));
+        $order->addStatusHistoryComment(
+            __('The payment was confirmed and the order is beeing processed')->getText(),
+            $order->getConfig()->getStateDefaultStatus(\Magento\Sales\Model\Order::STATE_PROCESSING)
+        );
         $this->orderRepository->save($order);
 
         return true;

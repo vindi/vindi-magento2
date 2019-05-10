@@ -1,0 +1,7 @@
+.block-payment-bankslip, .block-choice-saved-cc {
+    display: inline-block;
+    font-weight: bold;
+    background-color: #eee;
+    padding: 10px;
+    border: 1px solid #ccc;
+}

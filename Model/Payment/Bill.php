@@ -7,6 +7,7 @@ class Bill
     private $api;
     const PAID_STATUS = 'paid';
     const REVIEW_STATUS = 'review';
+    const FRAUD_REVIEW_STATUS = 'review';
 
     public function __construct(Api $api)
     {
