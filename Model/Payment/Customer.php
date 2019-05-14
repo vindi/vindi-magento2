@@ -22,7 +22,7 @@ class Customer
 
         if (!$order->getCustomerIsGuest()) {
             $customer = $this->customerRepository->get($billing->getEmail());
-            $customerId = $this->findCustomerByQuery($customer->getId(), 'code');
+            $customerId = $this->findVindiCustomer($customer->getId());
         }
 
         if ($customerId) {
@@ -81,13 +81,12 @@ class Customer
      * Make an API request to retrieve an existing Customer.
      *
      * @param string $query
-     * @param string $queryType
      *
      * @return array|bool|mixed
      */
-    public function findCustomerByQuery($query, $queryType)
+    public function findVindiCustomer($query)
     {
-        $response = $this->api->request("customers?query={$queryType}={$query}", 'GET');
+        $response = $this->api->request("customers?query=code={$query}", 'GET');
 
         if ($response && (1 === count($response['customers'])) && isset($response['customers'][0]['id'])) {
             return $response['customers'][0]['id'];
