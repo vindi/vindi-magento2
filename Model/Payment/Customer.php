@@ -18,16 +18,12 @@ class Customer
     {
         $billing = $order->getBillingAddress();
         $customer = null;
-        $queryType = 'email';
-        $query = $billing->getEmail();
+        $customerId = null;
 
         if (!$order->getCustomerIsGuest()) {
-            $customer = $this->customerRepository->get($query);
-            $queryType = 'code';
-            $query = $customer->getId();
+            $customer = $this->customerRepository->get($billing->getEmail());
+            $customerId = $this->findCustomerByQuery($customer->getId(), 'code');
         }
-
-        $customerId = $this->findCustomerByQuery($query, $queryType);
 
         if ($customerId) {
             return $customerId;

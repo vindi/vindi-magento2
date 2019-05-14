@@ -41,7 +41,6 @@
             </group>
             <group id="vindi_bankslip" showInDefault="1" showInStore="1" showInWebsite="1" sortOrder="20" translate="label comment">
                 <label>Vindi - Boleto Bancário</label>
-                <comment><![CDATA[<a href="https://app.vindi.com.br/prospects/new" target="_blank">Clique aqui para criar uma conta na Vindi.</a>]]></comment>
                 <field id="active" showInDefault="1" showInStore="1" showInWebsite="1" sortOrder="10" translate="label"
                        type="select">
                     <label>Enabled</label>
