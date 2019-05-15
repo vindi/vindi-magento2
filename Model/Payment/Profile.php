@@ -32,13 +32,13 @@ class Profile
         $paymentProfile = $this->createPaymentProfile($creditCardData);
 
         if ($paymentProfile === false) {
-            throw new \Magento\Framework\Exception\LocalizedException(__('Error while informing credit card data. Verify data and try again')->getText());
+            throw new \Magento\Framework\Exception\LocalizedException(__('Error while informing credit card data. Verify data and try again'));
         }
 
         $verifyMethod = $this->helperData->getShouldVerifyProfile();
 
         if ($verifyMethod && !$this->verifyPaymentProfile($paymentProfile['payment_profile']['id'])) {
-            throw new \Magento\Framework\Exception\LocalizedException(__('Impossible to validate your credit card')->getText());
+            throw new \Magento\Framework\Exception\LocalizedException(__('Impossible to validate your credit card'));
         }
         return $paymentProfile;
     }

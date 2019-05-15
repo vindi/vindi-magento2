@@ -7,13 +7,26 @@ use Vindi\Payment\Helper\Data;
 
 class BillPaid
 {
+    /**
+     * @var \Magento\Sales\Api\OrderRepositoryInterface
+     */
+    protected $orderRepository;
+
+    /**
+     * @var \Magento\Sales\Api\InvoiceRepositoryInterface
+     */
+    protected $invoiceRepository;
 
     public function __construct(
         \Psr\Log\LoggerInterface $logger,
+        \Magento\Sales\Api\OrderRepositoryInterface $orderRepository,
+        \Magento\Sales\Api\InvoiceRepositoryInterface $invoiceRepository,
         Order $order,
         Data $helperData
     ) {
         $this->logger = $logger;
+        $this->orderRepository = $orderRepository;
+        $this->invoiceRepository = $invoiceRepository;
         $this->order = $order;
         $this->helperData = $helperData;
     }
@@ -46,20 +59,13 @@ class BillPaid
     /**
      * @return bool
      */
-    public function createInvoice($order)
+    public function createInvoice(\Magento\Sales\Model\Order $order)
     {
         if (!$order->getId()) {
             return false;
         }
 
         $this->logger->info(__(sprintf('Generating invoice for the order %s.', $order->getId())));
-
-        $order->setState(
-            $this->helperData->getOrderStatus(),
-            true,
-            __('The payment was confirmed and the order is beeing processed'),
-            true
-        );
 
         if (!$order->canInvoice()) {
             $this->logger->error(__(sprintf('Impossible to generate invoice for order %s.', $order->getId())));
@@ -70,8 +76,15 @@ class BillPaid
         $invoice = $order->prepareInvoice();
         $invoice->setRequestedCaptureCase(Invoice::CAPTURE_OFFLINE);
         $invoice->register();
-        $invoice->sendEmail(true);
+        $invoice->setSendEmail(true);
+        $this->invoiceRepository->save($invoice);
         $this->logger->info(__('Invoice created with success'));
+
+        $order->addStatusHistoryComment(
+            __('The payment was confirmed and the order is beeing processed')->getText(),
+            $order->getConfig()->getStateDefaultStatus(\Magento\Sales\Model\Order::STATE_PROCESSING)
+        );
+        $this->orderRepository->save($order);
 
         return true;
     }

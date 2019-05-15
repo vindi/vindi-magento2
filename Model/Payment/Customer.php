@@ -17,18 +17,23 @@ class Customer
     public function findOrCreate($order)
     {
         $billing = $order->getBillingAddress();
-        $customer = $this->customerRepository->get($billing->getEmail());
-        $customerId = $this->findCustomerByCode($customer->getId());
+        $customer = null;
+        $customerId = null;
+
+        if (!$order->getCustomerIsGuest()) {
+            $customer = $this->customerRepository->get($billing->getEmail());
+            $customerId = $this->findVindiCustomer($customer->getId());
+        }
 
         if ($customerId) {
             return $customerId;
         }
 
         $address = [
-            'street' => $billing->getStreetLine(0),
-            'number' => $billing->getStreetLine(1),
-            'additional_details' => $billing->getStreetLine(2),
-            'neighborhood' => $billing->getStreetLine(3),
+            'street' => $billing->getStreetLine(1) ?: '',
+            'number' => $billing->getStreetLine(2) ?: '',
+            'additional_details' => $billing->getStreetLine(3) ?: '',
+            'neighborhood' => $billing->getStreetLine(4) ?: '',
             'zipcode' => $billing->getPostcode(),
             'city' => $billing->getCity(),
             'state' => $billing->getRegionCode(),
@@ -38,8 +43,8 @@ class Customer
         $customerVindi = [
             'name' => $billing->getFirstname() . ' ' . $billing->getLastname(),
             'email' => $billing->getEmail(),
-            'registry_code' => $order->getData('customer_taxvat'),
-            'code' => $customer->getId(),
+            'registry_code' => $order->getData('customer_taxvat') ?: '',
+            'code' => $customer ? $customer->getId() : '',
             'phones' => $this->formatPhone($billing->getTelephone()),
             'address' => $address
         ];
@@ -47,9 +52,9 @@ class Customer
         $customerId = $this->createCustomer($customerVindi);
 
         if ($customerId === false) {
-            $this->messageManager->addErrorMessage(__('Fail while registering the user. Verify data and try again'));
+            $this->messageManager->addErrorMessage(__('Failed while registering user. Check the data and try again'));
             throw new \Magento\Framework\Exception\LocalizedException(
-                __('Fail while registering the user. Verify data and try again')->getText()
+                __('Failed while registering user. Check the data and try again')
             );
         }
 
@@ -75,13 +80,13 @@ class Customer
     /**
      * Make an API request to retrieve an existing Customer.
      *
-     * @param string $code
+     * @param string $query
      *
      * @return array|bool|mixed
      */
-    public function findCustomerByCode($code)
+    public function findVindiCustomer($query)
     {
-        $response = $this->api->request("customers/search?code={$code}", 'GET');
+        $response = $this->api->request("customers?query=code={$query}", 'GET');
 
         if ($response && (1 === count($response['customers'])) && isset($response['customers'][0]['id'])) {
             return $response['customers'][0]['id'];
