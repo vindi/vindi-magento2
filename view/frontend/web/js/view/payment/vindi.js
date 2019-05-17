@@ -11,7 +11,11 @@ define(
         rendererList.push(
             {
                 type: 'vindi',
-                component: 'Vindi_Payment/js/view/payment/method-renderer/vindi-method'
+                component: 'Vindi_Payment/js/view/payment/method-renderer/vindi-cc'
+            },
+            {
+                type: 'vindi_bankslip',
+                component: 'Vindi_Payment/js/view/payment/method-renderer/vindi-bankslip'
             }
         );
         return Component.extend({});

@@ -1,18 +1,12 @@
 <?php
 
-
 namespace Vindi\Payment\Model\Payment;
 
 use Magento\Framework\DataObject;
-use Magento\Payment\Observer\AbstractDataAssignObserver;
-use Magento\Quote\Api\Data\CartInterface;
 use Magento\Quote\Api\Data\PaymentInterface;
-use Magento\Sales\Model\Order;
 use Vindi\Payment\Block\Info\Cc;
-use Vindi\Payment\Model\Api;
-use Magento\Directory\Helper\Data as DirectoryHelper;
 
-class Vindi extends \Magento\Payment\Model\Method\AbstractMethod
+class Vindi extends \Vindi\Payment\Model\Payment\AbstractMethod
 {
     protected $_code = 'vindi';
     protected $_isOffline = true;
@@ -73,73 +67,12 @@ class Vindi extends \Magento\Payment\Model\Method\AbstractMethod
      */
     protected $_canSaveCc = false;
 
-    protected $_invoiceService;
-    protected $api;
-    protected $order;
-
-    public function __construct(
-        \Magento\Framework\Model\Context $context,
-        \Vindi\Payment\Model\Payment\Api $api,
-        Customer $customer,
-        Product $product,
-        Bill $bill,
-        Profile $profile,
-        \Psr\Log\LoggerInterface $psrLogger,
-        \Magento\Framework\Stdlib\DateTime\TimezoneInterface $date,
-        PaymentMethod $paymentMethod,
-        \Magento\Sales\Model\Service\InvoiceService $invoiceService,
-        \Magento\Framework\Registry $registry,
-        \Magento\Framework\Api\ExtensionAttributesFactory $extensionFactory,
-        \Magento\Framework\Api\AttributeValueFactory $customAttributeFactory,
-        \Magento\Payment\Helper\Data $paymentData,
-        \Magento\Framework\App\Config\ScopeConfigInterface $scopeConfig,
-        \Magento\Payment\Model\Method\Logger $logger,
-        \Magento\Sales\Model\OrderFactory $orderFactory,
-        \Magento\Checkout\Model\Session $checkoutSession,
-        \Magento\Framework\Model\ResourceModel\AbstractResource $resource = null,
-        \Magento\Framework\Data\Collection\AbstractDb $resourceCollection = null,
-        array $data = []
-    ) {
-
-        $this->_logger = $logger;
-        parent::__construct(
-            $context,
-            $registry,
-            $extensionFactory,
-            $customAttributeFactory,
-            $paymentData,
-            $scopeConfig,
-            $logger,
-            $resource,
-            $resourceCollection,
-            $data
-        );
-
-        $this->api = $api;
-        $this->_invoiceService = $invoiceService;
-        $this->customer = $customer;
-        $this->product = $product;
-        $this->bill = $bill;
-        $this->paymentMethod = $paymentMethod;
-        $this->date = $date;
-        $this->psrLogger = $psrLogger;
-        $this->profile = $profile;
-    }
-
-
-    public function isAvailable(
-        \Magento\Quote\Api\Data\CartInterface $quote = null
-    ) {
-
-        return parent::isAvailable($quote);
-    }
-
     /**
      * Assign data to info model instance
      *
-     * @param   mixed $data
+     * @param mixed $data
      *
-     * @return  VindiCreditcard
+     * @return $this
      */
     public function assignData(DataObject $data)
     {
@@ -167,7 +100,8 @@ class Vindi extends \Magento\Payment\Model\Method\AbstractMethod
                 'cc_ss_start_year' => $additionalData->getCcSsStartYear()
             ]
         );
-        $info->save();
+
+        parent::assignData($data);
 
         return $this;
     }
@@ -177,7 +111,7 @@ class Vindi extends \Magento\Payment\Model\Method\AbstractMethod
      */
     protected function getPaymentMethodCode()
     {
-        return 'credit_card';
+        return PaymentMethod::CREDIT_CARD;
     }
 
     public function validate()
@@ -194,47 +128,5 @@ class Vindi extends \Magento\Payment\Model\Method\AbstractMethod
         }
 
         return $this;
-    }
-
-    public function capture(\Magento\Payment\Model\InfoInterface $payment, $amount)
-    {
-        $order = $payment->getOrder();
-        $customerId = $this->customer->findOrCreate($order);
-        $paymentProfile = $this->profile->create($payment, $customerId, $this->getPaymentMethodCode());
-        $productList = $this->product->findOrCreateProducts($order);
-
-        $body = [
-            'customer_id' => $customerId,
-            'payment_method_code' => $this->getPaymentMethodCode(),
-            'bill_items' => $productList,
-            'payment_profile' => ['id' => $paymentProfile['payment_profile']['id']]
-        ];
-
-        if ($installments = $payment->getAdditionalInformation('installments')) {
-            $body['installments'] = (int)$installments;
-        }
-
-        if ($bill = $this->bill->create($body)) {
-            if ($bill['code'] === PaymentMethod::BANK_SLIP
-                || $bill['code'] === PaymentMethod::DEBIT_CARD
-                || $bill['status'] === Bill::PAID_STATUS
-                || $bill['status'] === Bill::REVIEW_STATUS
-            ) {
-                $order->setVindiBillId($bill['id']);
-                $order->save();
-                return $bill['id'];
-            }
-            $this->bill->delete($bill['id']);
-        }
-
-        $this->psrLogger->error(__(sprintf('Error on order payment %d.', $order->getId())));
-        $message = __('There has been a payment confirmation error. Verify data and try again')->getText();
-        $payment->setStatus(
-            Order::STATE_CANCELED,
-            Order::STATE_CANCELED,
-            $message,
-            true
-        );
-        throw new \Magento\Framework\Exception\LocalizedException($message);
     }
 }

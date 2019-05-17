@@ -1,25 +1,32 @@
 <?xml version="1.0" ?>
-<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-		xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Store:etc/config.xsd">
-	<default>
-		<payment>
-			<vindi>
-				<active>0</active>
-				<model>Vindi\Payment\Model\Payment\Vindi</model>
-				<allow_installments>0</allow_installments>
-				<order_status>pending</order_status>
-				<title>Vindi</title>
-				<allowspecific>0</allowspecific>
-				<payment_action>authorize_capture</payment_action>
-				<group>offline</group>
-				<allowspecific>0</allowspecific>
-			</vindi>
-		</payment>
-		<vindiconfiguration>
-			<general>
-				<mode>2</mode>
-				<test>values</test>
-			</general>
-		</vindiconfiguration>
-	</default>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Store:etc/config.xsd">
+    <default>
+        <payment>
+            <vindi>
+                <active>1</active>
+                <model>Vindi\Payment\Model\Payment\Vindi</model>
+                <allow_installments>0</allow_installments>
+                <order_status>pending</order_status>
+                <title>Vindi</title>
+                <allowspecific>0</allowspecific>
+                <payment_action>authorize_capture</payment_action>
+                <group>offline</group>
+            </vindi>
+            <vindi_bankslip>
+                <active>1</active>
+                <model>Vindi\Payment\Model\Payment\BankSlip</model>
+                <title>Vindi - Boleto Bancário</title>
+                <order_status>pending</order_status>
+                <allowspecific>0</allowspecific>
+                <payment_action>authorize</payment_action>
+                <group>offline</group>
+            </vindi_bankslip>
+        </payment>
+        <vindiconfiguration>
+            <general>
+                <mode>2</mode>
+                <test>values</test>
+            </general>
+        </vindiconfiguration>
+    </default>
 </config>

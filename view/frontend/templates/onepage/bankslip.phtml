@@ -1,0 +1,4 @@
+<?php if ($this->canShowBankslip()) : ?>
+    <br/>
+    <button id="vindi-bankslip-button-print" type="button" class="action primary checkout" title="Print Vindi Bankslip" onclick="window.open('<?php echo $block->getBankslipPrintUrl() ?>', '_blank')"><?php echo __('Print your Bankslip') ?></button>
+<?php endif; ?>
