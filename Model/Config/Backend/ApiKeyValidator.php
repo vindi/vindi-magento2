@@ -63,7 +63,7 @@ class ApiKeyValidator extends ConfigValue
         if ($value) {
             if (!$apiKey) {
                 throw new \Magento\Framework\Exception\LocalizedException(
-                    sprintf(__("The api key was not set on the module basic configuration"))
+                    __("The api key was not set on the module basic configuration")
                 );
             }
 
@@ -71,7 +71,7 @@ class ApiKeyValidator extends ConfigValue
 
             if (isset($data['merchant']['status']) && $data['merchant']['status'] != 'active') {
                 throw new \Magento\Framework\Exception\LocalizedException(
-                    sprintf(__("The api key is invalid or the merchant is inactive"))
+                    __("The api key is invalid or the merchant is inactive")
                 );
             }
         }
