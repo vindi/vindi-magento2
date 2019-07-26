@@ -65,7 +65,9 @@ class Data extends AbstractHelper
 
     public function getOrderStatus()
     {
-        return $this->getCreditCardConfig('order_status');
+        $status = $this->getModuleGeneralConfig('order_status');
+
+        return ($status) ? $status : 'pending';
     }
 
     public function getBaseUrl()
