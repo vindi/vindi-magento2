@@ -76,7 +76,7 @@ class Product
     private function buildDiscount(array $list, $order)
     {
         if ($order->getDiscountAmount() < 0) {
-            $productId = $this->findOrCreateProduct('cupom', 'cupom');
+            $productId = $this->findOrCreateProduct('cupom', 'Cupom de Desconto');
             array_push($list, [
                 'product_id' => $productId,
                 'amount' => $order->getDiscountAmount()
