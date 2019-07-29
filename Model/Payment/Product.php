@@ -58,7 +58,7 @@ class Product
     private function buildTax(array $list, $order)
     {
         if ($order->getTaxAmount() > 0) {
-            $productId = $this->findOrCreateProduct('taxa', 'taxa');
+            $productId = $this->findOrCreateProduct('taxa', 'Taxa');
             array_push($list, [
                 'product_id' => $productId,
                 'amount' => $order->getTaxAmount()
