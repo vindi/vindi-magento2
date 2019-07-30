@@ -67,7 +67,7 @@ class Data extends AbstractHelper
     {
         $status = $this->getModuleGeneralConfig('order_status');
 
-        return ($status) ? $status : 'pending';
+        return $status ? : 'pending';
     }
 
     public function getBaseUrl()
