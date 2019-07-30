@@ -25,7 +25,7 @@ class Product
             for ($i = 0; $i < $item->getQtyOrdered(); $i++) {
                 $itemPrice = $this->getItemPrice($item, $productType);
 
-                if (false === $itemPrice)
+                 if (! $itemPrice)
                     continue;
 
                 array_push($list, [
