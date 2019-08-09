@@ -6,7 +6,7 @@
         </group>
     </groups>
     <methods>
-        <method name="vindi">
+        <method name="vindi_creditcard">
             <allow_multiple_address>0</allow_multiple_address>
         </method>
         <method name="vindi_bankslip">

@@ -2,7 +2,7 @@
 <config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Store:etc/config.xsd">
     <default>
         <payment>
-            <vindi>
+            <vindi_creditcard>
                 <active>1</active>
                 <model>Vindi\Payment\Model\Payment\Vindi</model>
                 <allow_installments>0</allow_installments>
@@ -11,7 +11,7 @@
                 <allowspecific>0</allowspecific>
                 <payment_action>authorize_capture</payment_action>
                 <group>offline</group>
-            </vindi>
+            </vindi_creditcard>
             <vindi_bankslip>
                 <active>1</active>
                 <model>Vindi\Payment\Model\Payment\BankSlip</model>

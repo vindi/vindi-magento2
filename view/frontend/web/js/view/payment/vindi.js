@@ -10,8 +10,8 @@ define(
         'use strict';
         rendererList.push(
             {
-                type: 'vindi',
-                component: 'Vindi_Payment/js/view/payment/method-renderer/vindi-cc'
+                type: 'vindi_creditcard',
+                component: 'Vindi_Payment/js/view/payment/method-renderer/vindi-creditcard'
             },
             {
                 type: 'vindi_bankslip',

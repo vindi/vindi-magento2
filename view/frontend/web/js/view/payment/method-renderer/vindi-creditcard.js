@@ -144,22 +144,22 @@ define(
             },
 
             getCcAvailableTypes: function () {
-                return window.checkoutConfig.payment.vindi_cc.availableTypes['vindi_cc'];
+                return window.checkoutConfig.payment.vindi_cc.availableTypes['vindi_creditcard'];
             },
 
             getCcMonths: function () {
-                return window.checkoutConfig.payment.vindi_cc.months['vindi_cc'];
+                return window.checkoutConfig.payment.vindi_cc.months['vindi_creditcard'];
             },
 
             getCcYears: function () {
-                return window.checkoutConfig.payment.vindi_cc.years['vindi_cc'];
+                return window.checkoutConfig.payment.vindi_cc.years['vindi_creditcard'];
             },
 
             hasVerification: function () {
-                return window.checkoutConfig.payment.vindi_cc.hasVerification['vindi_cc'];
+                return window.checkoutConfig.payment.vindi_cc.hasVerification['vindi_creditcard'];
             },
             getCcInstallments: function () {
-                return window.checkoutConfig.payment.vindi_cc.installments['vindi_cc'];
+                return window.checkoutConfig.payment.vindi_cc.installments['vindi_creditcard'];
             },
 
             getCcAvailableTypesValues: function () {
