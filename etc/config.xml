@@ -8,7 +8,7 @@
                 <allow_installments>0</allow_installments>
                 <title>Vindi</title>
                 <allowspecific>0</allowspecific>
-                <payment_action>authorize_capture</payment_action>
+                <payment_action>authorize</payment_action>
                 <group>offline</group>
             </vindi>
             <vindi_bankslip>
