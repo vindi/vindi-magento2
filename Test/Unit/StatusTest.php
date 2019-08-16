@@ -8,113 +8,124 @@ class StatusTest extends \PHPUnit\Framework\TestCase
 {
 
     protected $objectManager;
-    protected $context;
-    protected $scopeConfigMock;
+    protected $paymentMock;
     
     public function setUp()
     {
         $this->objectManager = new \Magento\Framework\TestFramework\Unit\Helper\ObjectManager($this);
-        
-        $this->context = $this->getMockBuilder(\Magento\Framework\App\Helper\Context::class)
-            ->disableOriginalConstructor()
-            ->getMock();
-        
-        $this->scopeConfigMock = $this->getMockBuilder(\Magento\Framework\App\Config\ScopeConfigInterface::class)
-            ->disableOriginalConstructor()
-            ->getMock();
+        $this->paymentMock   = $this->createPaymentMock();
     }
 
     public function testGetStatusToOrderCompleteWithNoStatusConfigured()
     {       
-        $this->scopeConfigMock->method('getValue')
-            ->willReturn(null);
-
-        $this->context->method('getScopeConfig')
-            ->willReturn($this->scopeConfigMock);
-
-        $helper = $this->objectManager->getObject(\Vindi\Payment\Helper\Data::class, [
-            'context' => $this->context
-        ]);
-
-        $this->assertEquals(Order::STATE_PROCESSING, $helper->getStatusToOrderComplete());
+        $this->assertEquals(Order::STATE_PROCESSING, $this->createHelperObjectManager(null)->getStatusToOrderComplete());
     }
 
     public function testGetStatusToOrderCompleteWithPendingStatusConfigured()
     {       
-        $this->scopeConfigMock->method('getValue')
-            ->willReturn('pending');
-
-        $this->context->method('getScopeConfig')
-            ->willReturn($this->scopeConfigMock);
-
-        $helper = $this->objectManager->getObject(\Vindi\Payment\Helper\Data::class, [
-            'context' => $this->context
-        ]);
-
-        $this->assertEquals('pending', $helper->getStatusToOrderComplete());
+        $this->assertEquals('pending', $this->createHelperObjectManager('pending')->getStatusToOrderComplete());
     }
 
     public function testSetProcessingOrderStatusOnPlaceCreditCard()
-    {       
-        $helperMock = $this->getMockBuilder(\Vindi\Payment\Helper\Data::class)
-            ->disableOriginalConstructor()
-            ->getMock();
-
-        $helperMock->method('getStatusToOrderComplete')
-            ->willReturn(Order::STATE_PROCESSING);
-
-        $plugin = $this->objectManager->getObject(\Vindi\Payment\Plugin\SetOrderStatusOnPlace::class, [
-            'helperData' => $helperMock
-        ]);
-
-        $paymentMock = $this->createPaymentMock();
-        $result      = $plugin->afterPlace($paymentMock, 'Expected Result');
+    {
+        $this->paymentMock->method('getMethod')
+            ->willReturn(
+                \Vindi\Payment\Model\Payment\Vindi::CODE
+            );
+        
+        $result = $this->createPluginObjectManager(Order::STATE_PROCESSING)->afterPlace($this->paymentMock, 'Expected Result');
 
         $this->assertEquals('Expected Result', $result);
-        $this->assertEquals($paymentMock->getOrder()->getState(), 'new');
-        $this->assertEquals(Order::STATE_PROCESSING, $paymentMock->getOrder()->getStatus());
+        $this->assertEquals($this->paymentMock->getOrder()->getState(), 'new');
+        $this->assertEquals(Order::STATE_PROCESSING, $this->paymentMock->getOrder()->getStatus());
     }
 
     public function testSetPendingOrderStatusOnPlaceCreditCard()
     {       
-        $helperMock = $this->getMockBuilder(\Vindi\Payment\Helper\Data::class)
-            ->disableOriginalConstructor()
-            ->getMock();
+        $this->paymentMock->method('getMethod')
+            ->willReturn(
+                \Vindi\Payment\Model\Payment\Vindi::CODE
+            );
 
-        $helperMock->method('getStatusToOrderComplete')
-            ->willReturn('pending');
-
-        $plugin = $this->objectManager->getObject(\Vindi\Payment\Plugin\SetOrderStatusOnPlace::class, [
-            'helperData' => $helperMock
-        ]);
-
-        $paymentMock = $this->createPaymentMock();
-        $result      = $plugin->afterPlace($paymentMock, 'Expected Result');
+        $result = $this->createPluginObjectManager('pending')->afterPlace($this->paymentMock, 'Expected Result');
 
         $this->assertEquals('Expected Result', $result);
-        $this->assertEquals($paymentMock->getOrder()->getState(), 'new');
-        $this->assertEquals('pending', $paymentMock->getOrder()->getStatus());
+        $this->assertEquals($this->paymentMock->getOrder()->getState(), 'new');
+        $this->assertEquals('pending', $this->paymentMock->getOrder()->getStatus());
     }
 
     public function testSetPendingOrderStatusOnPlaceSlip()
+    {
+        $this->paymentMock->method('getMethod')
+            ->willReturn(
+                \Vindi\Payment\Model\Payment\BankSlip::CODE
+            );
+
+        $result = $this->createPluginObjectManager('pending')->afterPlace($this->paymentMock, 'Expected Result');
+
+        $this->assertEquals('Expected Result', $result);
+        $this->assertEquals($this->paymentMock->getOrder()->getState(), 'new');
+        $this->assertEquals('pending', $this->paymentMock->getOrder()->getStatus());
+    }
+
+    public function testSetPendingOrderStatusOnPlaceSlip2()
+    {
+        $this->paymentMock->method('getMethod')
+            ->willReturn(
+                \Vindi\Payment\Model\Payment\BankSlip::CODE
+            );
+
+        $result = $this->createPluginObjectManager('other')->afterPlace($this->paymentMock, 'Expected Result');
+
+        $this->assertEquals('Expected Result', $result);
+        $this->assertEquals($this->paymentMock->getOrder()->getState(), 'new');
+        $this->assertEquals('pending', $this->paymentMock->getOrder()->getStatus());
+    }    
+
+    private function createHelperObjectManager($context)
+    {
+        return $this->objectManager->getObject(\Vindi\Payment\Helper\Data::class, [
+            'context' => $this->createContextMock($context)
+        ]);
+    }
+
+    private function createPluginObjectManager($status)
+    {
+        return $this->objectManager->getObject(\Vindi\Payment\Plugin\SetOrderStatusOnPlace::class, [
+            'helperData' => $this->createHelperMock($status)
+        ]);
+    }
+
+    private function createHelperMock($statusToOrderComplete)
     {
         $helperMock = $this->getMockBuilder(\Vindi\Payment\Helper\Data::class)
             ->disableOriginalConstructor()
             ->getMock();
 
         $helperMock->method('getStatusToOrderComplete')
-            ->willReturn('pending');
+            ->willReturn($statusToOrderComplete);
+        
+        return $helperMock;
+    }
 
-        $plugin = $this->objectManager->getObject(\Vindi\Payment\Plugin\SetOrderStatusOnPlace::class, [
-            'helperData' => $helperMock
-        ]);
+    private function createContextMock($expectedValue)
+    {
+        $contextMock = $this->getMockBuilder(\Magento\Framework\App\Helper\Context::class)
+            ->disableOriginalConstructor()
+            ->getMock();
+        
+        $scopeConfigMock = $this->getMockBuilder(\Magento\Framework\App\Config\ScopeConfigInterface::class)
+            ->disableOriginalConstructor()
+            ->getMock();
 
-        $paymentMock = $this->createPaymentMock();
-        $result      = $plugin->afterPlace($paymentMock, 'Expected Result');
 
-        $this->assertEquals('Expected Result', $result);
-        $this->assertEquals($paymentMock->getOrder()->getState(), 'new');
-        $this->assertEquals('pending', $paymentMock->getOrder()->getStatus());
+        $scopeConfigMock->method('getValue')
+            ->willReturn($expectedValue);
+
+        $contextMock->method('getScopeConfig')
+            ->willReturn($scopeConfigMock);
+
+        return $contextMock;
     }
 
     private function createPaymentMock()
@@ -125,13 +136,6 @@ class StatusTest extends \PHPUnit\Framework\TestCase
 
         $paymentMock->method('getOrder')
             ->willReturn($this->createOrderMock());
-
-        $paymentMock->method('getMethod')
-            ->willReturnOnConsecutiveCalls(
-                \Vindi\Payment\Model\Payment\Vindi::CODE,
-                \Vindi\Payment\Model\Payment\Vindi::CODE,
-                \Vindi\Payment\Model\Payment\BankSlip::CODE                
-            );
 
         return $paymentMock;
     }    
