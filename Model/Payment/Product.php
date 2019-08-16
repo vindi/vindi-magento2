@@ -17,6 +17,7 @@ class Product
 
     public function findOrCreateProducts($order)
     {
+        $list = [];
         foreach ($order->getItems() as $item) {
             $productType = $item->getProduct()->getTypeId();
             $vindiProductId = $this->findOrCreateProduct($item->getSku(), $item->getName(), $productType);
@@ -24,23 +25,20 @@ class Product
             for ($i = 0; $i < $item->getQtyOrdered(); $i++) {
                 $itemPrice = $this->getItemPrice($item, $productType);
 
-                if (false === $itemPrice)
+                 if (! $itemPrice)
                     continue;
 
-                $list[] = [
+                array_push($list, [
                     'product_id' => $vindiProductId,
                     'amount' => $itemPrice
-                ];
+                ]);
             }
         }
 
-        if ($order->getShippingAmount() > 0) {
-            $shippingId = $this->findOrCreateProduct('frete', 'frete');
-            $list[] = [
-                'product_id' => $shippingId,
-                'amount' => $order->getShippingAmount()
-            ];
-        }
+        $list = $this->buildTax($list, $order);
+        $list = $this->buildDiscount($list, $order);
+        $list = $this->buildShipping($list, $order);
+
         return $list;
     }
 
@@ -50,6 +48,60 @@ class Product
             return 0;
 
         return $item->getPrice();
+    }
+
+    /**
+     * @param array $list
+     * @param $order
+     * @return array
+     */
+    private function buildTax(array $list, $order)
+    {
+        if ($order->getTaxAmount() > 0) {
+            $productId = $this->findOrCreateProduct('taxa', 'Taxa');
+            array_push($list, [
+                'product_id' => $productId,
+                'amount' => $order->getTaxAmount()
+            ]);
+        }
+
+        return $list;
+    }
+
+    /**
+     * @param $list
+     * @param $order
+     * @return array
+     */
+    private function buildDiscount(array $list, $order)
+    {
+        if ($order->getDiscountAmount() < 0) {
+            $productId = $this->findOrCreateProduct('cupom', 'Cupom de Desconto');
+            array_push($list, [
+                'product_id' => $productId,
+                'amount' => $order->getDiscountAmount()
+            ]);
+        }
+
+        return $list;
+    }
+
+    /**
+     * @param array $list
+     * @param $order
+     * @return array
+     */
+    private function buildShipping(array $list, $order)
+    {
+        if ($order->getShippingAmount() > 0) {
+            $productId = $this->findOrCreateProduct('frete', 'frete');
+            array_push($list, [
+                'product_id' => $productId,
+                'amount' => $order->getShippingAmount()
+            ]);
+        }
+
+        return $list;
     }
 
     private function findOrCreateProduct($itemSku, $itemName, $itemType = 'simple')
