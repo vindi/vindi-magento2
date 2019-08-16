@@ -8,7 +8,9 @@ use Vindi\Payment\Block\Info\Cc;
 
 class Vindi extends \Vindi\Payment\Model\Payment\AbstractMethod
 {
-    protected $_code = 'vindi';
+    const CODE = 'vindi';
+
+    protected $_code = self::CODE;
     protected $_isOffline = true;
     protected $_infoBlockType = Cc::class;
 

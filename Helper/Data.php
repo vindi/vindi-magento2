@@ -3,6 +3,7 @@
 namespace Vindi\Payment\Helper;
 
 use \Magento\Framework\App\Helper\AbstractHelper;
+use Magento\Sales\Model\Order;
 use Vindi\Payment\Model\Config\Source\Mode;
 
 class Data extends AbstractHelper
@@ -63,9 +64,11 @@ class Data extends AbstractHelper
         return $this->getModuleGeneralConfig('mode');
     }
 
-    public function getOrderStatus()
+    public function getStatusToOrderComplete()
     {
-        return $this->getCreditCardConfig('order_status');
+        $status = $this->getModuleGeneralConfig('order_status');
+
+        return $status ? : Order::STATE_PROCESSING;
     }
 
     public function getBaseUrl()

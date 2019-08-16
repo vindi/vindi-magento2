@@ -82,7 +82,7 @@ class BillPaid
 
         $order->addStatusHistoryComment(
             __('The payment was confirmed and the order is beeing processed')->getText(),
-            $order->getConfig()->getStateDefaultStatus(\Magento\Sales\Model\Order::STATE_PROCESSING)
+            $this->helperData->getStatusToOrderComplete()
         );
         $this->orderRepository->save($order);
 
