@@ -47,7 +47,7 @@ class TestOrder extends \PHPUnit\Framework\TestCase
         $list  = $this->createVindiProductMock($vindiProductId)->findOrCreateProducts($order);
 
         $this->makeAssertions($list, $vindiProductId, $amount);
-    }   
+    }
 
     private function makeAssertions($list, $vindiProductId, $amount)
     {
@@ -66,18 +66,24 @@ class TestOrder extends \PHPUnit\Framework\TestCase
             ->disableOriginalConstructor()
             ->getMock();
 
+        $requestResponses = [];
+        
+        $requestResponses[] = [
+            'product' => [
+                'id' => 'fake_sku'
+            ]
+        ];
+
+        $requestResponses[] = [
+            'products' => [
+                0 => [
+                    'id' => $desiredTestResponse
+                ]
+            ]
+        ];
+
         $apiMock->method('request')
-            ->willReturn(
-                [
-                    'products' => [
-                        0 => [
-                            'id' => 'fake_sku_123'
-                        ]
-                    ],
-                    'product' => [
-                        'id' => $desiredTestResponse
-                    ]
-                ]);
+            ->willReturnOnConsecutiveCalls(false, $requestResponses[0], $requestResponses[1]);
 
         return $apiMock;
     }
@@ -131,10 +137,10 @@ class TestOrder extends \PHPUnit\Framework\TestCase
             ->willReturn($qty);
 
         $itemMock->method('getSku')
-            ->willReturn('FAKE_SKU_'. rand(1000, 10000));
+            ->willReturn('FAKE_SKU');
 
         $itemMock->method('getName')
-            ->willReturn('FAKE_NAME_'. rand(1000, 10000));
+            ->willReturn('FAKE_NAME');
             
         $itemMock->method('getPrice')
             ->willReturn($price);
