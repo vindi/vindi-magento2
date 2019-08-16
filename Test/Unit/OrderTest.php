@@ -1,8 +1,8 @@
 <?php
 
-namespace Vindi\Payment\Test\Unit\Model;
+namespace Vindi\Payment\Test\Unit;
 
-class TestOrder extends \PHPUnit\Framework\TestCase
+class OrderTest extends \PHPUnit\Framework\TestCase
 {
 
     protected $objectManager;
