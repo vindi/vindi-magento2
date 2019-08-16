@@ -6,7 +6,6 @@
                 <active>1</active>
                 <model>Vindi\Payment\Model\Payment\Vindi</model>
                 <allow_installments>0</allow_installments>
-                <order_status>pending</order_status>
                 <title>Vindi</title>
                 <allowspecific>0</allowspecific>
                 <payment_action>authorize_capture</payment_action>
@@ -16,7 +15,6 @@
                 <active>1</active>
                 <model>Vindi\Payment\Model\Payment\BankSlip</model>
                 <title>Vindi - Boleto Bancário</title>
-                <order_status>pending</order_status>
                 <allowspecific>0</allowspecific>
                 <payment_action>authorize</payment_action>
                 <group>offline</group>
@@ -26,6 +24,7 @@
             <general>
                 <mode>2</mode>
                 <test>values</test>
+                <order_status>pending</order_status>
             </general>
         </vindiconfiguration>
     </default>
