@@ -24,17 +24,17 @@ class SetOrderStatusOnPlace
         $this->helperData = $helperData;
     }
 
+    /** 
+     * Faz com que os status de pagamento dos pedidos
+     * sejam atualizados exclusivamente via webhooks da Vindi
+     * 
+     * @param Payment $subject, mixed $result
+     *
+     * @return mixed
+     */
     public function afterPlace(Payment $subject, $result)
     {
-        switch ($subject->getMethod()) {
-            case BankSlip::CODE:
-                $this->pendingStatus($subject);
-                break;
-            case Vindi::CODE:
-                $this->completeStatus($subject);
-                break;
-        }
-
+        $this->pendingStatus($subject);
         return $result;
     }
 
