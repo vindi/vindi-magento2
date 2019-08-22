@@ -37,7 +37,7 @@ class StatusTest extends \PHPUnit\Framework\TestCase
 
         $this->assertEquals('Expected Result', $result);
         $this->assertEquals($this->paymentMock->getOrder()->getState(), 'new');
-        $this->assertEquals(Order::STATE_PROCESSING, $this->paymentMock->getOrder()->getStatus());
+        $this->assertEquals('pending', $this->paymentMock->getOrder()->getStatus());
     }
 
     public function testSetPendingOrderStatusOnPlaceCreditCard()
@@ -67,20 +67,6 @@ class StatusTest extends \PHPUnit\Framework\TestCase
         $this->assertEquals($this->paymentMock->getOrder()->getState(), 'new');
         $this->assertEquals('pending', $this->paymentMock->getOrder()->getStatus());
     }
-
-    public function testSetPendingOrderStatusOnPlaceSlip2()
-    {
-        $this->paymentMock->method('getMethod')
-            ->willReturn(
-                \Vindi\Payment\Model\Payment\BankSlip::CODE
-            );
-
-        $result = $this->createPluginObjectManager('other')->afterPlace($this->paymentMock, 'Expected Result');
-
-        $this->assertEquals('Expected Result', $result);
-        $this->assertEquals($this->paymentMock->getOrder()->getState(), 'new');
-        $this->assertEquals('pending', $this->paymentMock->getOrder()->getStatus());
-    }    
 
     private function createHelperObjectManager($context)
     {
