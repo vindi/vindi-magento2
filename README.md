@@ -30,7 +30,7 @@ A integração do módulo da Vindi permite criação e gestão de planos e assin
 
 #### Via [git](https://github.com)
 - Vá até o diretório raíz do Magento e adicione o módulo
-> `git clone git@github.com:vindi/vindi-magento2.git app/code/Vindi/Payment/`
+> `git clone https://github.com/vindi/vindi-magento2.git app/code/Vindi/Payment/`
 - Atualize os módulos disponíveis do Magento
 > `bin/magento setup:upgrade`
 - O módulo **Vindi_Payment** deverá ser exibido na lista de módulos do Magento
