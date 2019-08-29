@@ -17,12 +17,9 @@ Nós valorizamos muito as [**contribuições por Pull Requests (PR)**](https://g
 - **Clareza** - Além de uma boa descrição sobre a motivação e a solução proposta é possível incluir imagens ou animações que demonstrem quaisquer modificações visuais na interface. 
 
 Exemplo de **Motivação** com uma **Solução Proposta**:
-> Motivação
-
+> #### Motivação
 > Fazer com que o pedido seja cancelado, caso o pagamento seja reprovado na primeira tentativa (compras avulsas ou primeiro ciclo de uma assinatura), mas atualmente o cliente recebe a informação que o pedido foi registrado com sucesso, e posteriormente recebe a informação de falha no pagamento no Magento.
-
-> Solução proposta
-
+> #### Solução proposta
 > Adicionar o cancelamento automático de faturas na Vindi após a recusa de uma transação no Magento2, exceto: compras via Boleto ou pendente de revisões do Antifraude.
 
 - **Foco** - Um PR deve possuir um único objetivo bem definido. Evite mais de um viés (bug-fix, feature, refactoring) no mesmo PR.
@@ -58,6 +55,19 @@ Obs.: Gostamos muito do [PSR-1](https://www.php-fig.org/psr/psr-1/) e [PSR-2](ht
 
 4. [Abra um Pull Request](https://help.github.com/articles/using-pull-requests/) com uma motivação e solução proposta bem claras.
 
+## Qualidade do código
+
+Para garantir o controle da qualidade do código, disponibilizamos alguns testes via [PHPUnit](https://phpunit.de/) em [Test/Unit](https://github.com/vindi/vindi-magento2/tree/master/Test/Unit).
+ 
+#### Se você nunca utilizou o composer, seja bem vindo :tada: :smile: [Aqui está o link do composer](https://getcomposer.org/download/), depois instale as dependências do composer.json.
+
+#### Se você nunca rodou testes funcionais com PHPUnit, seja bem vindo :tada: :smile: [Aqui está o link da documentação oficial](https://phpunit.readthedocs.io/pt_BR/latest).
+ 
+### Rodando os Testes
+
+``` bash
+./vendor/bin/phpunit -c dev/tests/unit/phpunit.xml.dist app/code/Vindi/Payment
+```
 
 ## Revisão da Comunidade
 
