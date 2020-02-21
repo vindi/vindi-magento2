@@ -105,16 +105,6 @@ class Customer
         return false;
     }
 
-    public function findVindiCustomerByEmail($email)
-    {
-        $response = $this->api->request("customers?query=email={$email}", 'GET');
-
-        if ($response && (1 === count($response['customers'])) && isset($response['customers'][0]['id'])) {
-            return $response['customers'][0]['id'];
-        }
-
-        return false;
-    }
 
     public function startsWith($haystack, $needle)
     {
