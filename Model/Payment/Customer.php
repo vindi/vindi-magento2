@@ -25,10 +25,6 @@ class Customer
             $customerId = $this->findVindiCustomer($customer->getId());
         }
 
-        if ($customerId) {
-            return $customerId;
-        }
-
         $address = [
             'street' => $billing->getStreetLine(1) ?: '',
             'number' => $billing->getStreetLine(2) ?: '',
@@ -48,6 +44,11 @@ class Customer
             'phones' => $this->formatPhone($billing->getTelephone()),
             'address' => $address
         ];
+
+        if ($customerId) {
+            $this->updateCustomer($customerId, $customerVindi);
+            return $customerId;
+        }
 
         $customerId = $this->createCustomer($customerVindi);
 
@@ -95,6 +96,26 @@ class Customer
         return false;
     }
 
+    public function updateCustomer($id, $body)
+    {
+        if ($response = $this->api->request('customers/'.$id, 'PUT', $body)) {
+            return $response['customer']['id'];
+        }
+
+        return false;
+    }
+
+    public function findVindiCustomerByEmail($email)
+    {
+        $response = $this->api->request("customers?query=email={$email}", 'GET');
+
+        if ($response && (1 === count($response['customers'])) && isset($response['customers'][0]['id'])) {
+            return $response['customers'][0]['id'];
+        }
+
+        return false;
+    }
+
     public function startsWith($haystack, $needle)
     {
          $length = strlen($needle);
@@ -125,4 +146,4 @@ class Customer
           'extension' => '' 
         ]] : [];
     }
-    }
+}
