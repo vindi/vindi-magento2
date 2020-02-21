@@ -95,14 +95,34 @@ class Customer
         return false;
     }
 
+    public function startsWith($haystack, $needle)
+    {
+         $length = strlen($needle);
+         return (substr($haystack, 0, $length) === $needle);
+    }
+
     public function formatPhone($phone)
     {
+        $phone = preg_replace('/^0|\D+/', '', $phone);
+
+        // remove 55 do início caso tenha o código do país
+        if ($this->startsWith($phone, '55') && strlen($phone) > 11) {
+            $phone = preg_replace('/^' . preg_quote('55', '/') . '/', '', $phone);
+        }
+        if ($this->startsWith($phone, '0') && strlen($phone) > 11) {
+            $phone = preg_replace('/^' . preg_quote('0', '/') . '/', '', $phone);
+        }
+
         $digits = strlen('55' . preg_replace('/^0|\D+/', '', $phone));
         $phone_types = [
             12 => 'landline',
             13 => 'mobile',
         ];
 
-        return array_key_exists($digits, $phone_types) ? $phone_types[$digits] : null;
+        return array_key_exists($digits, $phone_types) ? [[
+          'phone_type' => $phone_types[$digits],
+          'number' => '55' . $phone,
+          'extension' => '' 
+        ]] : [];
     }
-}
+    }
