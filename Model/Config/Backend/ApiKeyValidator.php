@@ -6,13 +6,18 @@ use Magento\Framework\App\Cache\TypeListInterface;
 use Magento\Framework\App\Config\ScopeConfigInterface;
 use Magento\Framework\App\Config\Value as ConfigValue;
 use Magento\Framework\Data\Collection\AbstractDb;
+use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Model\Context;
 use Magento\Framework\Model\ResourceModel\AbstractResource;
 use Magento\Framework\Registry;
 use Magento\Framework\Serialize\SerializerInterface;
 use Vindi\Payment\Helper\Data;
-use Vindi\Payment\Model\Payment\Api;
+use Vindi\Payment\Helper\Api;
 
+/**
+ * Class ApiKeyValidator
+ * @package Vindi\Payment\Model\Config\Backend
+ */
 class ApiKeyValidator extends ConfigValue
 {
     /**
@@ -21,8 +26,19 @@ class ApiKeyValidator extends ConfigValue
      * @var SerializerInterface
      */
     protected $serializer;
+    /**
+     * @var Data
+     */
+    private $helperData;
+    /**
+     * @var Api
+     */
+    private $api;
 
     /**
+     * ApiKeyValidator constructor.
+     * @param Data $helperData
+     * @param Api $api
      * @param SerializerInterface $serializer
      * @param Context $context
      * @param Registry $registry
@@ -51,9 +67,8 @@ class ApiKeyValidator extends ConfigValue
     }
 
     /**
-     * Prepare data before save
-     *
-     * @return void
+     * @return ConfigValue|void
+     * @throws LocalizedException
      */
     public function beforeSave()
     {
@@ -62,7 +77,7 @@ class ApiKeyValidator extends ConfigValue
 
         if ($value) {
             if (!$apiKey) {
-                throw new \Magento\Framework\Exception\LocalizedException(
+                throw new LocalizedException(
                     __("The api key was not set on the module basic configuration")
                 );
             }
@@ -70,7 +85,7 @@ class ApiKeyValidator extends ConfigValue
             $data = $this->api->request("merchants/current", "GET");
 
             if (isset($data['merchant']['status']) && $data['merchant']['status'] != 'active') {
-                throw new \Magento\Framework\Exception\LocalizedException(
+                throw new LocalizedException(
                     __("The api key is invalid or the merchant is inactive")
                 );
             }
@@ -78,17 +93,10 @@ class ApiKeyValidator extends ConfigValue
     }
 
     /**
-     * Process data after load
-     *
-     * @return void
+     * @return ConfigValue|void
      */
     protected function _afterLoad()
     {
         return;
-        /** @var string $value */
-        $value = $this->getValue();
-        $decodedValue = $this->serializer->unserialize($value);
-
-        $this->setValue($decodedValue);
     }
 }

@@ -2,4 +2,7 @@
     <event name="payment_method_assign_data_braintree">
         <observer name="braintree_gateway_data_assign" instance="Vindi\Payment\Observer\DataAssignObserver" />
     </event>
+    <event name="catalog_product_save_after">
+        <observer name="vindi_plan_sync" instance="Vindi\Payment\Observer\ProductSaveObserver" />
+    </event>
 </config>

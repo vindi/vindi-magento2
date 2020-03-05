@@ -9,7 +9,7 @@ class Bill
     const REVIEW_STATUS = 'review';
     const FRAUD_REVIEW_STATUS = 'fraud_review';
 
-    public function __construct(Api $api)
+    public function __construct(\Vindi\Payment\Helper\Api $api)
     {
         $this->api = $api;
     }

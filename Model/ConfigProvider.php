@@ -2,26 +2,57 @@
 
 namespace Vindi\Payment\Model;
 
+use Magento\Checkout\Model\Cart;
 use Magento\Checkout\Model\ConfigProviderInterface;
+use Magento\Directory\Model\Currency;
 use Magento\Framework\View\Asset\Source;
+use Magento\Payment\Model\CcConfig;
 use Vindi\Payment\Helper\Data;
-use Vindi\Payment\Model\Payment\Api;
 use Vindi\Payment\Model\Payment\PaymentMethod;
 
+/**
+ * Class ConfigProvider
+ * @package Vindi\Payment\Model
+ */
 class ConfigProvider implements ConfigProviderInterface
 {
     private $helperData;
+    /**
+     * @var CcConfig
+     */
+    private $ccConfig;
+    /**
+     * @var Source
+     */
+    private $assetSource;
+    /**
+     * @var Cart
+     */
+    private $cart;
+    /**
+     * @var Currency
+     */
+    private $currency;
+    /**
+     * @var PaymentMethod
+     */
+    private $paymentMethod;
 
     /**
+     * ConfigProvider constructor.
      * @param CcConfig $ccConfig
      * @param Source $assetSource
+     * @param Data $data
+     * @param Cart $cart
+     * @param Currency $currency
+     * @param PaymentMethod $paymentMethod
      */
     public function __construct(
-        \Magento\Payment\Model\CcConfig $ccConfig,
+        CcConfig $ccConfig,
         Source $assetSource,
         Data $data,
-        \Magento\Checkout\Model\Cart $cart,
-        \Magento\Directory\Model\Currency $currency,
+        Cart $cart,
+        Currency $currency,
         PaymentMethod $paymentMethod
     ) {
 
@@ -34,7 +65,7 @@ class ConfigProvider implements ConfigProviderInterface
     }
 
     /**
-     * @var string[]
+     * @var string
      */
     protected $_methodCode = 'vindi_cc';
 

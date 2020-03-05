@@ -1,0 +1,17 @@
+<?xml version="1.0" ?>
+<schema xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+		xsi:noNamespaceSchemaLocation="urn:magento:framework:Setup/Declaration/Schema/etc/schema.xsd">
+	<table comment="vindi_subscription Table" engine="innodb" name="vindi_subscription" resource="default">
+		<column comment="Entity Id" identity="true" name="id" nullable="false" padding="6" unsigned="false"
+				xsi:type="int"/>
+		<constraint referenceId="PRIMARY" xsi:type="primary">
+			<column name="id"/>
+		</constraint>
+		<column length="60" name="client" nullable="false" xsi:type="varchar"/>
+		<column length="30" name="plan" nullable="true" xsi:type="varchar"/>
+		<column name="start_at" nullable="true" xsi:type="datetime"/>
+		<column length="30" name="payment_method" nullable="true" xsi:type="varchar"/>
+		<column name="payment_profile" nullable="true" xsi:type="int"/>
+		<column length="20" name="status" nullable="true" xsi:type="varchar"/>
+	</table>
+</schema>

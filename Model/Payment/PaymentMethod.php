@@ -7,8 +7,12 @@ class PaymentMethod
     const BANK_SLIP = 'bank_slip';
     const CREDIT_CARD = 'credit_card';
     const DEBIT_CARD = 'debit_card';
+    /**
+     * @var \Vindi\Payment\Helper\Api
+     */
+    private $api;
 
-    public function __construct(Api $api, \Magento\Payment\Model\CcConfig $ccConfig)
+    public function __construct(\Vindi\Payment\Helper\Api $api, \Magento\Payment\Model\CcConfig $ccConfig)
     {
         $this->api = $api;
         $this->ccConfig = $ccConfig;

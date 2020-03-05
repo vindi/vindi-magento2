@@ -2,7 +2,6 @@
 
 namespace Vindi\Payment\Helper\WebHookHandlers;
 
-use Vindi\Payment\Model\Payment\Api;
 use Vindi\Payment\Model\Payment\Bill;
 
 class ChargeRejected

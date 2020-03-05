@@ -2,17 +2,25 @@
 <config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
         xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Backend:etc/menu.xsd">
     <menu>
-        <add id="Vindi_Payment::first_level_demo"
+        <add id="Vindi_Payment::top_level"
              title="Vindi"
              module="Vindi_Payment"
              sortOrder="9999"
              resource="Magento_Backend::content" />
+        <add action="vindi_payment/subscription/index"
+             id="Vindi_Payment::vindi_payment_subscription"
+             module="Vindi_Payment"
+             parent="Vindi_Payment::top_level"
+             resource="Magento_Backend::content"
+             sortOrder="10"
+             title="Subscriptions"
+        />
         <add id="Vindi_Payment::configuration"
              title="Configuration"
              module="Vindi_Payment"
-             sortOrder="0"
+             sortOrder="20"
              action="adminhtml/system_config/edit/section/vindiconfiguration"
-             parent="Vindi_Payment::first_level_demo"
+             parent="Vindi_Payment::top_level"
              resource="Magento_Backend::content"/>
     </menu>
 </config>
