@@ -2,6 +2,7 @@
 
 namespace Vindi\Payment\Setup;
 
+use Magento\Framework\DB\Ddl\Table;
 use Magento\Framework\Setup\InstallDataInterface;
 use Magento\Framework\Setup\InstallSchemaInterface;
 use Magento\Framework\Setup\ModuleContextInterface;
@@ -27,7 +28,7 @@ class InstallSchema implements InstallSchemaInterface
 
         if ($connection->tableColumnExists($eavTable, 'vindi_bill_id') === false) {
             $connection->addColumn($eavTable, 'vindi_bill_id', [
-                'type' => \Magento\Framework\DB\Ddl\Table::TYPE_INTEGER,
+                'type' => Table::TYPE_INTEGER,
                 'length' => '11',
                 'nullable' => false,
                 'comment' => 'Vindi Bill Id',

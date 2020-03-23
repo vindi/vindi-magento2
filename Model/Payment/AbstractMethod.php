@@ -286,6 +286,7 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
             $this->handleBankSplitAdditionalInformation($payment, $body, $bill);
             if ($this->successfullyPaid($body, $bill)) {
                 $order->setVindiBillId($bill['id']);
+                $order->setVindiSubscriptionId($responseData['subscription']['id']);
                 return $bill['id'];
             }
             $this->bill->delete($bill['id']);
