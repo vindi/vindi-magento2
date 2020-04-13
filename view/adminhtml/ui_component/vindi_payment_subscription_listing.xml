@@ -6,6 +6,11 @@
 		</item>
 	</argument>
 	<settings>
+		<buttons>
+			<button name="_">
+				<class>secondary</class>
+			</button>
+		</buttons>
 		<spinner>vindi_payment_subscription_columns</spinner>
 		<deps>
 			<dep>vindi_payment_subscription_listing.vindi_payment_subscription_listing_data_source</dep>
