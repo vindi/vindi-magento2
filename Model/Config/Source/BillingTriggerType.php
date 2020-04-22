@@ -22,7 +22,7 @@ class BillingTriggerType extends AbstractSource
     {
         if ($this->_options === null) {
             $this->_options = [
-                ['label' => __('Begging of Period'), 'value' => self::BEGINNING_OF_PERIOD],
+                ['label' => __('Beginning of Period'), 'value' => self::BEGINNING_OF_PERIOD],
                 ['label' => __('End of Period'), 'value' => self::END_OF_PERIOD],
                 ['label' => __('Day of Month'), 'value' => self::DAY_OF_MONTH]
             ];
