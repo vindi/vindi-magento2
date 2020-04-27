@@ -2,11 +2,18 @@
 
 namespace Vindi\Payment\Model;
 
+use Magento\Bundle\Model\Product\Type;
+use Magento\Catalog\Api\Data\ProductAttributeInterface;
+use Magento\Catalog\Api\Data\ProductInterface;
+use Magento\Catalog\Api\ProductRepositoryInterface;
 use Magento\Checkout\Model\Cart;
 use Magento\Checkout\Model\ConfigProviderInterface;
 use Magento\Directory\Model\Currency;
+use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Framework\View\Asset\Source;
 use Magento\Payment\Model\CcConfig;
+use Magento\Quote\Api\Data\CartItemInterface;
+use MelhorEnvio\Quote\Model\Config\Source\ProductAttribute;
 use Vindi\Payment\Helper\Data;
 use Vindi\Payment\Model\Payment\PaymentMethod;
 
@@ -37,6 +44,10 @@ class ConfigProvider implements ConfigProviderInterface
      * @var PaymentMethod
      */
     private $paymentMethod;
+    /**
+     * @var ProductRepositoryInterface
+     */
+    private $productRepository;
 
     /**
      * ConfigProvider constructor.
@@ -46,6 +57,7 @@ class ConfigProvider implements ConfigProviderInterface
      * @param Cart $cart
      * @param Currency $currency
      * @param PaymentMethod $paymentMethod
+     * @param ProductRepositoryInterface $productRepository
      */
     public function __construct(
         CcConfig $ccConfig,
@@ -53,7 +65,8 @@ class ConfigProvider implements ConfigProviderInterface
         Data $data,
         Cart $cart,
         Currency $currency,
-        PaymentMethod $paymentMethod
+        PaymentMethod $paymentMethod,
+        ProductRepositoryInterface $productRepository
     ) {
 
         $this->ccConfig = $ccConfig;
@@ -62,6 +75,7 @@ class ConfigProvider implements ConfigProviderInterface
         $this->cart = $cart;
         $this->currency = $currency;
         $this->paymentMethod = $paymentMethod;
+        $this->productRepository = $productRepository;
     }
 
     /**
@@ -96,6 +110,13 @@ class ConfigProvider implements ConfigProviderInterface
         $quote = $this->cart->getQuote();
         $installments = [];
 
+        if ($this->hasPlanInCart()) {
+            $planInterval = $this->planIntervalCountMaxInstallments();
+            if ($planInterval < $maxInstallmentsNumber) {
+                $maxInstallmentsNumber = $planInterval;
+            }
+        }
+
         if ($maxInstallmentsNumber > 1 && $allowInstallments == true) {
             $total = $quote->getGrandTotal();
             $installmentsTimes = floor($total / $minInstallmentsValue);
@@ -108,8 +129,105 @@ class ConfigProvider implements ConfigProviderInterface
                     break;
                 }
             }
+        } else {
+            $installments[1] = 1 . " de " . $this->currency->format(
+                $quote->getGrandTotal(),
+                null,
+                null,
+                false
+                );
         }
 
         return $installments;
+    }
+
+    /**
+     * @return bool
+     */
+    private function hasPlanInCart()
+    {
+        $quote = $this->cart->getQuote();
+        foreach ($quote->getAllItems() as $item) {
+            try {
+                if ($this->helperData->isVindiPlan($item->getProductId())) {
+                    return true;
+                }
+            } catch (NoSuchEntityException $e) {
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * @return int
+     */
+    private function planIntervalCountMaxInstallments()
+    {
+        $interval = 'months';
+        $intervalCount = 0;
+        $quote = $this->cart->getQuote();
+
+        foreach ($quote->getAllItems() as $item) {
+            if ($item->getProductType() != Type::TYPE_CODE) {
+                continue;
+            }
+
+            try {
+                $product = $this->productRepository->getById($item->getProductId());
+            } catch (NoSuchEntityException $e) {
+                continue;
+            }
+
+            $intervalAttr = $this->getAttributeValue($product, 'vindi_interval');
+            $intervalCountAttr = $this->getAttributeValue($product, 'vindi_interval_count');
+
+            if (!$intervalAttr) {
+                continue;
+            }
+
+            if (!$intervalCountAttr) {
+                continue;
+            }
+
+            if ($intervalCount > $intervalCountAttr || $intervalCount == 0) {
+                $intervalCount = $intervalCountAttr;
+            }
+
+            if ($this->isDaysInterval($intervalAttr, $intervalCountAttr)) {
+                $interval = $intervalAttr;
+            }
+        }
+
+        if ($interval == 'days') {
+            return (int) 1;
+        }
+
+        return (int) $intervalCount;
+    }
+
+    /**
+     * @param ProductInterface $product
+     * @param string $attribute
+     * @return bool|mixed
+     */
+    private function getAttributeValue(ProductInterface $product, $attribute = '')
+    {
+        $attr = $product->getCustomAttribute($attribute);
+        if (!$attr) {
+            return false;
+        }
+
+        return $attr->getValue();
+    }
+
+    /**
+     * @param $intervalAttr
+     * @param $intervalCountAttr
+     * @return bool
+     */
+    private function isDaysInterval($intervalAttr, $intervalCountAttr): bool
+    {
+        return $intervalAttr == 'days' && $intervalCountAttr < 30;
     }
 }
