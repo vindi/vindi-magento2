@@ -3,17 +3,13 @@
 namespace Vindi\Payment\Model;
 
 use Magento\Bundle\Model\Product\Type;
-use Magento\Catalog\Api\Data\ProductAttributeInterface;
 use Magento\Catalog\Api\Data\ProductInterface;
 use Magento\Catalog\Api\ProductRepositoryInterface;
 use Magento\Checkout\Model\Cart;
 use Magento\Checkout\Model\ConfigProviderInterface;
 use Magento\Directory\Model\Currency;
-use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Framework\View\Asset\Source;
 use Magento\Payment\Model\CcConfig;
-use Magento\Quote\Api\Data\CartItemInterface;
-use MelhorEnvio\Quote\Model\Config\Source\ProductAttribute;
 use Vindi\Payment\Helper\Data;
 use Vindi\Payment\Model\Payment\PaymentMethod;
 
@@ -148,11 +144,8 @@ class ConfigProvider implements ConfigProviderInterface
     {
         $quote = $this->cart->getQuote();
         foreach ($quote->getAllItems() as $item) {
-            try {
-                if ($this->helperData->isVindiPlan($item->getProductId())) {
-                    return true;
-                }
-            } catch (NoSuchEntityException $e) {
+            if ($this->helperData->isVindiPlan($item->getProductId())) {
+                return true;
             }
         }
 
@@ -164,7 +157,6 @@ class ConfigProvider implements ConfigProviderInterface
      */
     private function planIntervalCountMaxInstallments()
     {
-        $interval = 'months';
         $intervalCount = 0;
         $quote = $this->cart->getQuote();
 
@@ -173,19 +165,18 @@ class ConfigProvider implements ConfigProviderInterface
                 continue;
             }
 
-            try {
-                $product = $this->productRepository->getById($item->getProductId());
-            } catch (NoSuchEntityException $e) {
-                continue;
-            }
+            $product = $this->productRepository->getById($item->getProductId());
 
             $intervalAttr = $this->getAttributeValue($product, 'vindi_interval');
-            $intervalCountAttr = $this->getAttributeValue($product, 'vindi_interval_count');
-
             if (!$intervalAttr) {
                 continue;
             }
 
+            if ($intervalAttr == 'days') {
+                return 0;
+            }
+
+            $intervalCountAttr = $this->getAttributeValue($product, 'vindi_interval_count');
             if (!$intervalCountAttr) {
                 continue;
             }
@@ -193,14 +184,6 @@ class ConfigProvider implements ConfigProviderInterface
             if ($intervalCount > $intervalCountAttr || $intervalCount == 0) {
                 $intervalCount = $intervalCountAttr;
             }
-
-            if ($this->isDaysInterval($intervalAttr, $intervalCountAttr)) {
-                $interval = $intervalAttr;
-            }
-        }
-
-        if ($interval == 'days') {
-            return (int) 1;
         }
 
         return (int) $intervalCount;
@@ -219,15 +202,5 @@ class ConfigProvider implements ConfigProviderInterface
         }
 
         return $attr->getValue();
-    }
-
-    /**
-     * @param $intervalAttr
-     * @param $intervalCountAttr
-     * @return bool
-     */
-    private function isDaysInterval($intervalAttr, $intervalCountAttr): bool
-    {
-        return $intervalAttr == 'days' && $intervalCountAttr < 30;
     }
 }

@@ -62,10 +62,7 @@ class Index extends Action
      */
     public function execute()
     {
-        try {
-            $this->sync();
-        } catch (Exception $e) {
-        }
+        $this->sync();
 
         $resultPage = $this->resultPageFactory->create();
         $resultPage->getConfig()->getTitle()->prepend(__("Subscriptions"));
