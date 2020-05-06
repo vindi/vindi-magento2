@@ -1,0 +1,14 @@
+<?xml version="1.0" ?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:Acl/etc/acl.xsd">
+	<acl>
+		<resources>
+			<resource id="Magento_Backend::admin">
+				<resource id="Vindi_Payment::Subscription" sortOrder="10" title="Subscriptions">
+					<resource id="Vindi_Payment::Subscription_save" sortOrder="10" title="Save Subscription"/>
+					<resource id="Vindi_Payment::Subscription_update" sortOrder="30" title="Update Subscription"/>
+					<resource id="Vindi_Payment::Subscription_view" sortOrder="40" title="View Subscription"/>
+				</resource>
+			</resource>
+		</resources>
+	</acl>
+</config>

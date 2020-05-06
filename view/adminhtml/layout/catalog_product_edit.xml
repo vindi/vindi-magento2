@@ -1,0 +1,14 @@
+<?xml version="1.0"?>
+<page xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      layout="admin-1column"
+      xsi:noNamespaceSchemaLocation="urn:magento:framework:View/Layout/etc/page_configuration.xsd">
+    <update handle="styles"/>
+    <head>
+        <css src="Vindi_Payment::css/plan-fields.css"/>
+    </head>
+    <body>
+        <referenceContainer name="footer">
+            <block class="Vindi\Payment\Block\Adminhtml\Product\Plan" name="vindi_plan_attributes" template="Vindi_Payment::product/plan.phtml" />
+        </referenceContainer>
+    </body>
+</page>

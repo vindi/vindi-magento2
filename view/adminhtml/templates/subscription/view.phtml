@@ -1,0 +1,180 @@
+<?php
+
+use Vindi\Payment\Block\Adminhtml\Subscription\View;
+
+/** @var View $block */
+?>
+<section class="admin__page-section order-view-account-information">
+    <div class="admin__page-section-content">
+        <div class="admin__page-section-item order-information">
+            <div class="admin__page-section-item-title">
+                <span class="title">Detalhes</span>
+            </div>
+            <div class="admin__page-section-item-content">
+                <table class="admin__table-secondary order-information-table">
+                    <tbody>
+                        <tr>
+                            <th>Cliente</th>
+                            <td><strong><?php echo $block->escapeHtml($block->getCustomerName()) ?></strong></td>
+                        </tr>
+                        <tr>
+                            <th>Status</th>
+                            <td><strong><?php echo $block->escapeHtml(__($block->getStatus())) ?></strong></td>
+                        </tr>
+                        <tr>
+                            <th>Desde</th>
+                            <td><strong><?php echo $block->escapeHtml($block->getStartAt()) ?></strong></td>
+                        </tr>
+                        <tr>
+                            <th>Plano</th>
+                            <td><strong><?php echo $block->escapeHtml($block->getPlanName()) ?></strong></td>
+                        </tr>
+                        <tr>
+                            <th>Periodicidade</th>
+                            <td><strong><?php echo $block->escapeHtml(__($block->getPlanCycle())) ?></strong></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="admin__page-section-item order-account-information">
+            <div class="admin__page-section-item-title">
+                <span class="title">Cobrança</span>
+            </div>
+            <div class="admin__page-section-item-content">
+                <table class="admin__table-secondary order-account-information-table">
+                    <tbody>
+                        <tr>
+                            <th>Próxima Cobrança</th>
+                            <td><strong><?php echo $block->escapeHtml($block->getNextBillingAt()) ?></strong></td>
+                        </tr>
+                        <tr>
+                            <th>Cobrança</th>
+                            <td><strong><?php echo $block->escapeHtml(__($block->getBillingTrigger())) ?></strong></td>
+                        </tr>
+                        <tr>
+                            <th>Método de pagamento</th>
+                            <td><strong><?php echo $block->escapeHtml($block->getPaymentMethod()) ?></strong></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="admin__page-section">
+    <div class="admin__page-section-title">
+        <span class="title">Produtos</span>
+    </div>
+    <div class="admin__table-wrapper">
+        <table class="data-table admin__table-primary edit-order-table">
+            <thead>
+                <tr class="headings">
+                    <th class="col-product"><span>Produto</span></th>
+                    <th class="col-qty"><span>Quantidade</span></th>
+                    <th class="col-cycle"><span>Duração</span></th>
+                    <th class="col-price"><span>Price</span></th>
+                    <th class="col-status last"><span>Status</span></th>
+                </tr>
+            </thead>
+            <?php if (!empty($block->getProducts())): ?>
+            <?php foreach($block->getProducts() as $key => $product): ?>
+                <tbody class="<?php echo ($key%2) ? 'even' : 'odd'?>">
+                    <tr class="border">
+                        <td class="col-product">
+                            <div class="option-value"><?php echo $block->escapeHtml($product['product']['name']) ?></div>
+                        </td>
+                        <td class="col-qty">
+                            <div class="option-value"><?php echo $block->escapeHtml($product['quantity']) ?></div>
+                        </td>
+                        <td class="col-cycle">
+                            <div class="option-value"><?php echo $block->escapeHtml($block->getCycleLabel($product['cycles'])) ?></div>
+                        </td>
+                        <td class="col-price">
+                            <div class="price-excl-tax">
+                                <div class="price"><?php echo $block->escapeHtml($product['pricing_schema']['short_format']) ?></div>
+                            </div>
+                        </td>
+                        <td class="col-status last">
+                            <div class="option-value"><?php echo $block->escapeHtml(__($product['status'])) ?></div>
+                        </td>
+                    </tr>
+                </tbody>
+            <?php endforeach; ?>
+            <?php endif; ?>
+        </table>
+    </div>
+</section>
+
+<section class="admin__page-section">
+    <div class="admin__page-section-title">
+        <span class="title">Períodos</span>
+    </div>
+    <div class="admin__table-wrapper">
+        <table class="data-table admin__table-primary edit-order-table">
+            <thead>
+            <tr class="headings">
+                <th class="col-product"><span>Período</span></th>
+                <th class="col-billing_at"><span>Cobrança</span></th>
+                <th class="col-cycle last"><span>Ciclo</span></th>
+            </tr>
+            </thead>
+            <?php if (!empty($block->getPeriods())): ?>
+                <?php foreach($block->getPeriods() as $key => $period): ?>
+                    <tbody class="<?php echo ($key%2) ? 'even' : 'odd'?>">
+                    <tr class="border">
+                        <td class="col-product">
+                            <div class="option-value"><?php echo $block->escapeHtml($block->dateFormat($period['start_at'])) ?> - <?php echo $block->escapeHtml($block->dateFormat($period['end_at'])) ?></div>
+                        </td>
+                        <td class="col-billing_at">
+                            <div class="option-value"><?php echo $block->escapeHtml($block->dateFormat($period['billing_at'])) ?></div>
+                        </td>
+                        <td class="col-cycle">
+                            <div class="option-value"><?php echo $block->escapeHtml($period['cycle']) ?></div>
+                        </td>
+                    </tr>
+                    </tbody>
+                <?php endforeach; ?>
+            <?php endif; ?>
+        </table>
+    </div>
+</section>
+
+<section class="admin__page-section">
+    <div class="admin__page-section-title">
+        <span class="title">Descontos</span>
+    </div>
+    <div class="admin__table-wrapper">
+        <table class="data-table admin__table-primary edit-order-table">
+            <thead>
+            <tr class="headings">
+                <th class="col-product"><span>Produto</span></th>
+                <th class="col-cycle"><span>Duração</span></th>
+                <th class="col-promo last"><span>Desconto</span></th>
+            </tr>
+            </thead>
+            <?php if (!empty($block->getDiscounts())): ?>
+                <?php foreach($block->getDiscounts() as $key => $discount): ?>
+                    <tbody class="<?php echo ($key%2) ? 'even' : 'odd'?>">
+                    <tr class="border">
+                        <td class="col-product">
+                            <div class="option-value"><?php echo $block->escapeHtml($discount['product']) ?></div>
+                        </td>
+                        <td class="col-cycle">
+                            <div class="option-value"><?php echo $block->escapeHtml($block->getCycleLabel($discount['cycles'])) ?></div>
+                        </td>
+                        <td class="col-promo last">
+                            <div class="price-excl-tax">
+                                <div class="price">R$ <?php echo $block->escapeHtml($discount['amount']) ?></div>
+                            </div>
+                        </td>
+                    </tr>
+                    </tbody>
+                <?php endforeach; ?>
+            <?php endif; ?>
+        </table>
+    </div>
+</section>
+

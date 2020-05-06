@@ -34,6 +34,10 @@ class WebhookHandler
      * @var \Vindi\Payment\Helper\WebHookHandlers\BillCanceled
      */
     protected $billCanceled;
+    /**
+     * @var WebHookHandlers\Subscription
+     */
+    private $subscription;
 
     public function __construct(
         \Magento\Framework\HTTP\PhpEnvironment\RemoteAddress $remoteAddress,
@@ -41,7 +45,8 @@ class WebhookHandler
         \Vindi\Payment\Helper\WebHookHandlers\BillCreated $billCreated,
         \Vindi\Payment\Helper\WebHookHandlers\BillPaid $billPaid,
         \Vindi\Payment\Helper\WebHookHandlers\ChargeRejected $chargeRejected,
-        \Vindi\Payment\Helper\WebHookHandlers\BillCanceled $billCanceled
+        \Vindi\Payment\Helper\WebHookHandlers\BillCanceled $billCanceled,
+        \Vindi\Payment\Helper\WebHookHandlers\Subscription $subscription
     ) {
         $this->remoteAddress = $remoteAddress;
         $this->logger = $logger;
@@ -49,6 +54,7 @@ class WebhookHandler
         $this->billPaid = $billPaid;
         $this->chargeRejected = $chargeRejected;
         $this->billCanceled = $billCanceled;
+        $this->subscription = $subscription;
     }
 
     public function getRemoteIp()
@@ -91,6 +97,12 @@ class WebhookHandler
                 return $this->chargeRejected->chargeRejected($data);
             case 'bill_canceled':
                 return $this->billCanceled->billCanceled($data);
+            case 'subscription_created':
+                return $this->subscription->created($data);
+            case 'subscription_canceled':
+                return $this->subscription->canceled($data);
+            case 'subscription_reactivated':
+                return $this->subscription->reactivated($data);
             default:
                 $this->logger->warning(__(sprintf('Webhook event ignored by plugin: "%s".', $type)));
                 break;

@@ -2,17 +2,37 @@
 
 namespace Vindi\Payment\Model\Payment;
 
+use Magento\Framework\Api\AttributeValueFactory;
+use Magento\Framework\Api\ExtensionAttributesFactory;
+use Magento\Framework\App\Config\ScopeConfigInterface;
+use Magento\Framework\Data\Collection\AbstractDb;
 use Magento\Framework\DataObject;
+use Magento\Framework\Exception\LocalizedException;
+use Magento\Framework\Exception\NoSuchEntityException;
+use Magento\Framework\Model\Context;
+use Magento\Framework\Model\ResourceModel\AbstractResource;
+use Magento\Framework\Registry;
+use Magento\Framework\Stdlib\DateTime\TimezoneInterface;
+use Magento\Payment\Helper\Data;
+use Magento\Payment\Model\InfoInterface;
+use Magento\Payment\Model\Method\Logger;
+use Magento\Sales\Api\Data\OrderItemInterface;
+use Magento\Sales\Model\Order;
+use Magento\Sales\Model\Service\InvoiceService;
+use Psr\Log\LoggerInterface;
+use Vindi\Payment\Api\PlanManagementInterface;
+use Vindi\Payment\Api\ProductManagementInterface;
+use Vindi\Payment\Api\SubscriptionInterface;
 
 abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMethod
 {
     /**
-     * @var \Vindi\Payment\Model\Payment\Api
+     * @var \Vindi\Payment\Helper\Api
      */
     protected $api;
 
     /**
-     * @var \Magento\Sales\Model\Service\InvoiceService
+     * @var InvoiceService
      */
     protected $invoiceService;
 
@@ -20,11 +40,6 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
      * @var Customer
      */
     protected $customer;
-
-    /**
-     * @var Product
-     */
-    protected $product;
 
     /**
      * @var Bill
@@ -42,34 +57,53 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
     protected $paymentMethod;
 
     /**
-     * @var \Psr\Log\LoggerInterface
+     * @var LoggerInterface
      */
     protected $psrLogger;
 
     /**
-     * @var \Magento\Framework\Stdlib\DateTime\TimezoneInterface
+     * @var TimezoneInterface
      */
     protected $date;
+    /**
+     * @var ProductManagementInterface
+     */
+    private $productManagement;
+    /**
+     * @var \Vindi\Payment\Helper\Data
+     */
+    private $helperData;
+    /**
+     * @var PlanManagementInterface
+     */
+    private $planManagement;
+    /**
+     * @var SubscriptionInterface
+     */
+    private $subscriptionRepository;
 
     public function __construct(
-        \Magento\Framework\Model\Context $context,
-        \Magento\Framework\Registry $registry,
-        \Magento\Framework\Api\ExtensionAttributesFactory $extensionFactory,
-        \Magento\Framework\Api\AttributeValueFactory $customAttributeFactory,
-        \Magento\Payment\Helper\Data $paymentData,
-        \Magento\Framework\App\Config\ScopeConfigInterface $scopeConfig,
-        \Magento\Payment\Model\Method\Logger $logger,
-        \Vindi\Payment\Model\Payment\Api $api,
-        \Magento\Sales\Model\Service\InvoiceService $invoiceService,
+        Context $context,
+        Registry $registry,
+        ExtensionAttributesFactory $extensionFactory,
+        AttributeValueFactory $customAttributeFactory,
+        Data $paymentData,
+        ScopeConfigInterface $scopeConfig,
+        Logger $logger,
+        \Vindi\Payment\Helper\Api $api,
+        InvoiceService $invoiceService,
         Customer $customer,
-        Product $product,
+        ProductManagementInterface $productManagement,
+        PlanManagementInterface $planManagement,
+        SubscriptionInterface $subscriptionRepository,
         Bill $bill,
         Profile $profile,
         PaymentMethod $paymentMethod,
-        \Psr\Log\LoggerInterface $psrLogger,
-        \Magento\Framework\Stdlib\DateTime\TimezoneInterface $date,
-        \Magento\Framework\Model\ResourceModel\AbstractResource $resource = null,
-        \Magento\Framework\Data\Collection\AbstractDb $resourceCollection = null,
+        LoggerInterface $psrLogger,
+        TimezoneInterface $date,
+        \Vindi\Payment\Helper\Data $helperData,
+        AbstractResource $resource = null,
+        AbstractDb $resourceCollection = null,
         array $data = []
     ) {
         parent::__construct(
@@ -88,12 +122,15 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
         $this->api = $api;
         $this->invoiceService = $invoiceService;
         $this->customer = $customer;
-        $this->product = $product;
         $this->bill = $bill;
         $this->profile = $profile;
         $this->paymentMethod = $paymentMethod;
         $this->psrLogger = $psrLogger;
         $this->date = $date;
+        $this->productManagement = $productManagement;
+        $this->helperData = $helperData;
+        $this->planManagement = $planManagement;
+        $this->subscriptionRepository = $subscriptionRepository;
     }
 
     /**
@@ -118,6 +155,7 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
      * @param mixed $data
      *
      * @return $this
+     * @throws LocalizedException
      */
     public function assignData(DataObject $data)
     {
@@ -129,6 +167,7 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
      * Validate payment method information object
      *
      * @return $this
+     * @throws LocalizedException
      */
     public function validate()
     {
@@ -141,10 +180,10 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
      *
      * @param \Magento\Framework\DataObject|InfoInterface $payment
      * @param float $amount
-     * @throws \Magento\Framework\Exception\LocalizedException
+     * @throws LocalizedException
      * @return $this|string
      */
-    public function authorize(\Magento\Payment\Model\InfoInterface $payment, $amount)
+    public function authorize(InfoInterface $payment, $amount)
     {
         parent::authorize($payment, $amount);
         $this->processPayment($payment, $amount);
@@ -155,10 +194,10 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
      *
      * @param \Magento\Framework\DataObject|InfoInterface $payment
      * @param float $amount
-     * @throws \Magento\Framework\Exception\LocalizedException
+     * @throws LocalizedException
      * @return $this|string
      */
-    public function capture(\Magento\Payment\Model\InfoInterface $payment, $amount)
+    public function capture(InfoInterface $payment, $amount)
     {
         parent::capture($payment, $amount);
         $this->processPayment($payment, $amount);
@@ -167,15 +206,21 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
     /**
      * @param \Magento\Framework\DataObject|InfoInterface $payment
      * @param float $amount
-     * @throws \Magento\Framework\Exception\LocalizedException
+     * @throws LocalizedException
      * @return $this|string
      */
-    protected function processPayment(\Magento\Payment\Model\InfoInterface $payment, $amount)
+    protected function processPayment(InfoInterface $payment, $amount)
     {
-        /** @var \Magento\Sales\Model\Order $order */
+        /** @var Order $order */
         $order = $payment->getOrder();
+
+        if ($plan = $this->isSubscriptionOrder($order)) {
+            return $this->handleSubscriptionOrder($payment, $plan);
+        }
+
         $customerId = $this->customer->findOrCreate($order);
-        $productList = $this->product->findOrCreateProducts($order);
+
+        $productList = $this->productManagement->findOrCreateProductsFromOrder($order);
 
         $body = [
             'customer_id' => $customerId,
@@ -193,31 +238,126 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
         }
 
         if ($bill = $this->bill->create($body)) {
-            if ($body['payment_method_code'] === PaymentMethod::BANK_SLIP) {
-                $payment->setAdditionalInformation('print_url', $bill['charges'][0]['print_url']);
-                $payment->setAdditionalInformation('due_at', $bill['charges'][0]['due_at']);
-            }
-
-            if (
-                $body['payment_method_code'] === PaymentMethod::BANK_SLIP
-                || $body['payment_method_code'] === PaymentMethod::DEBIT_CARD
-                || $bill['status'] === Bill::PAID_STATUS
-                || $bill['status'] === Bill::REVIEW_STATUS
-                || reset($bill['charges'])['status'] === Bill::FRAUD_REVIEW_STATUS
-            ) {
+            $this->handleBankSplitAdditionalInformation($payment, $body, $bill);
+            if ($this->successfullyPaid($body, $bill)) {
                 $order->setVindiBillId($bill['id']);
                 return $bill['id'];
             }
             $this->bill->delete($bill['id']);
         }
 
+        return $this->handleError($order);
+    }
+
+    /**
+     * @param InfoInterface $payment
+     * @param OrderItemInterface $plan
+     * @return mixed
+     * @throws LocalizedException
+     */
+    private function handleSubscriptionOrder(InfoInterface $payment, OrderItemInterface $plan)
+    {
+        /** @var Order $order */
+        $order = $payment->getOrder();
+        $customerId = $this->customer->findOrCreate($order);
+        $planId = $this->planManagement->create($plan->getProductId());
+
+        $productItems = $this->productManagement->findOrCreateProductsToSubscription($order);
+
+        $body = [
+            'customer_id' => $customerId,
+            'payment_method_code' => $this->getPaymentMethodCode(),
+            'plan_id' => $planId,
+            'product_items' => $productItems,
+            'code' => $order->getIncrementId()
+        ];
+
+        if ($body['payment_method_code'] === PaymentMethod::CREDIT_CARD) {
+            $paymentProfile = $this->profile->create($payment, $customerId, $this->getPaymentMethodCode());
+            $body['payment_profile'] = ['id' => $paymentProfile['payment_profile']['id']];
+        }
+
+        if ($installments = $payment->getAdditionalInformation('installments')) {
+            $body['installments'] = (int)$installments;
+        }
+
+        if ($responseData = $this->subscriptionRepository->create($body)) {
+            $bill = $responseData['bill'];
+            $this->handleBankSplitAdditionalInformation($payment, $body, $bill);
+            if ($this->successfullyPaid($body, $bill)) {
+                $order->setVindiBillId($bill['id']);
+                $order->setVindiSubscriptionId($responseData['subscription']['id']);
+                return $bill['id'];
+            }
+            $this->bill->delete($bill['id']);
+        }
+
+        return $this->handleError($order);
+    }
+
+    /**
+     * @param Order $order
+     * @return OrderItemInterface|bool
+     */
+    private function isSubscriptionOrder(Order $order)
+    {
+        foreach ($order->getItems() as $item) {
+            try {
+                if ($this->helperData->isVindiPlan($item->getProductId())) {
+                    return $item;
+                }
+            } catch (NoSuchEntityException $e) {
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * @param Order $order
+     * @throws LocalizedException
+     */
+    private function handleError(Order $order)
+    {
         $this->psrLogger->error(__(sprintf('Error on order payment %d.', $order->getId())));
         $message = __('There has been a payment confirmation error. Verify data and try again');
-        $order->setState(\Magento\Sales\Model\Order::STATE_CANCELED)
-            ->setStatus($order->getConfig()->getStateDefaultStatus(\Magento\Sales\Model\Order::STATE_CANCELED))
+        $order->setState(Order::STATE_CANCELED)
+            ->setStatus($order->getConfig()->getStateDefaultStatus(Order::STATE_CANCELED))
             ->addStatusHistoryComment($message->getText());
-        throw new \Magento\Framework\Exception\LocalizedException($message);
 
-        return $this;
+        throw new LocalizedException($message);
+    }
+
+    /**
+     * @param InfoInterface $payment
+     * @param array $body
+     * @param $bill
+     */
+    protected function handleBankSplitAdditionalInformation(InfoInterface $payment, array $body, $bill)
+    {
+        if ($body['payment_method_code'] === PaymentMethod::BANK_SLIP) {
+            $payment->setAdditionalInformation('print_url', $bill['charges'][0]['print_url']);
+            $payment->setAdditionalInformation('due_at', $bill['charges'][0]['due_at']);
+        }
+    }
+
+    /**
+     * @param array $body
+     * @param $bill
+     * @return bool
+     */
+    private function successfullyPaid(array $body, $bill)
+    {
+        if (
+            $body['payment_method_code'] === PaymentMethod::BANK_SLIP
+            || $body['payment_method_code'] === PaymentMethod::DEBIT_CARD
+            || $bill['status'] === Bill::PAID_STATUS
+            || $bill['status'] === Bill::REVIEW_STATUS
+            || reset($bill['charges'])['status'] === Bill::FRAUD_REVIEW_STATUS
+        ) {
+            return true;
+        }
+
+        return false;
     }
 }

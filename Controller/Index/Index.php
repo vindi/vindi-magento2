@@ -1,19 +1,29 @@
 <?php
+
 namespace Vindi\Payment\Controller\Index;
 
-use Vindi\Payment\Model\Api;
+use Magento\Framework\App\Action\Action;
+use Magento\Framework\App\Action\Context;
+use Magento\Framework\View\Result\PageFactory;
 
-class Index extends \Magento\Framework\App\Action\Action
+/**
+ * Class Index
+ * @package Vindi\Payment\Controller\Index
+ */
+class Index extends Action
 {
     protected $_pageFactory;
 
+    /**
+     * Index constructor.
+     * @param Context $context
+     * @param PageFactory $pageFactory
+     */
     public function __construct(
-        \Vindi\Payment\Model\Payment\Api $api,
-        \Magento\Framework\App\Action\Context $context,
-        \Magento\Framework\View\Result\PageFactory $pageFactory
+        Context $context,
+        PageFactory $pageFactory
     ) {
         $this->_pageFactory = $pageFactory;
-        $this->api = $api;
         return parent::__construct($context);
     }
 

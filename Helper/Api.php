@@ -1,29 +1,77 @@
 <?php
 
-namespace Vindi\Payment\Model\Payment;
+namespace Vindi\Payment\Helper;
 
+use Magento\Framework\App\Helper\AbstractHelper;
+use Magento\Framework\App\Helper\Context;
+use Magento\Framework\Message\ManagerInterface;
 use Magento\Framework\Module\ModuleListInterface;
-use Vindi\Payment\Helper\Data;
+use Psr\Log\LoggerInterface;
 
-class Api extends \Magento\Framework\Model\AbstractModel
+/**
+ * Class Api
+ * @package Vindi\Payment\Helper
+ */
+class Api extends AbstractHelper
 {
     private $apiKey;
+    /**
+     * @var string
+     */
+    private $base_path;
+    /**
+     * @var Data
+     */
+    private $helperData;
+    /**
+     * @var ModuleListInterface
+     */
+    private $moduleList;
+    /**
+     * @var LoggerInterface
+     */
+    private $logger;
+    /**
+     * @var ManagerInterface
+     */
+    private $messageManager;
+    /**
+     * @var string
+     */
+    private $lastError;
 
+    /**
+     * Api constructor.
+     * @param Context $context
+     * @param Data $helperData
+     * @param ModuleListInterface $moduleList
+     * @param LoggerInterface $logger
+     * @param ManagerInterface $messageManager
+     */
     public function __construct(
+        Context $context,
         Data $helperData,
         ModuleListInterface $moduleList,
-        \Psr\Log\LoggerInterface $logger,
-        \Magento\Framework\Message\ManagerInterface $messageManager
+        LoggerInterface $logger,
+        ManagerInterface $messageManager
     ) {
-
-        $this->apiKey = $helperData->getModuleGeneralConfig("api_key");
-        $this->base_path = $helperData->getBaseUrl();
-
+        parent::__construct($context);
+        $this->helperData = $helperData;
         $this->moduleList = $moduleList;
         $this->logger = $logger;
         $this->messageManager = $messageManager;
+
+        $this->apiKey = $helperData->getModuleGeneralConfig("api_key");
+        $this->base_path = $helperData->getBaseUrl();
     }
 
+    /**
+     * @param $endpoint
+     * @param string $method
+     * @param array $data
+     * @param null $dataToLog
+     * @return bool|mixed
+     */
     public function request($endpoint, $method = 'POST', $data = [], $dataToLog = null)
     {
         if (!$this->apiKey) {
