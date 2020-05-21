@@ -88,11 +88,15 @@ class PaymentProfile implements ModifierInterface
     public function getPaymentProfiles()
     {
         $options = [];
-        $customer = $this->getCustomerId();
-        $request = $this->api->request('payment_profiles?query=customer_id%3D' . $customer . '&status=active', 'GET');
+
+        $endpoint = 'payment_profiles?query=customer_id%3D' . $this->getCustomerId() . '%20status%3Dactive';
+
+        $request = $this->api->request($endpoint,'GET');
+
         if (!is_array($request) && !array_key_exists('payment_profiles', $request)) {
             return $options;
         }
+
         foreach ($request['payment_profiles'] as $profile) {
             $options[] = [
                 'value' => $profile['id'],
