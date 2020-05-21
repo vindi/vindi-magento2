@@ -2,6 +2,7 @@
 
 namespace Vindi\Payment\Helper\WebHookHandlers;
 
+use Magento\Sales\Api\Data\OrderInterface;
 use Magento\Sales\Model\Order\Invoice;
 use Vindi\Payment\Helper\Data;
 
@@ -16,11 +17,16 @@ class BillPaid
      * @var \Magento\Sales\Api\InvoiceRepositoryInterface
      */
     protected $invoiceRepository;
+    /**
+     * @var \Magento\Framework\Api\SearchCriteriaBuilder
+     */
+    private $searchCriteriaBuilder;
 
     public function __construct(
         \Psr\Log\LoggerInterface $logger,
         \Magento\Sales\Api\OrderRepositoryInterface $orderRepository,
         \Magento\Sales\Api\InvoiceRepositoryInterface $invoiceRepository,
+        \Magento\Framework\Api\SearchCriteriaBuilder $searchCriteriaBuilder,
         Order $order,
         Data $helperData
     ) {
@@ -29,6 +35,7 @@ class BillPaid
         $this->invoiceRepository = $invoiceRepository;
         $this->order = $order;
         $this->helperData = $helperData;
+        $this->searchCriteriaBuilder = $searchCriteriaBuilder;
     }
 
     /**
@@ -41,7 +48,17 @@ class BillPaid
      */
     public function billPaid($data)
     {
-        if (!($order = $this->order->getOrder($data))) {
+        $order = null;
+        $isSubscription = false;
+
+        if (array_key_exists('subscription', $data['bill'])
+            && array_key_exists('code', $data['bill']['subscription'])
+        ) {
+            $isSubscription = true;
+            $order = $this->getOrder($data['bill']['subscription']['code']);
+        }
+
+        if (!$order && !($order = $this->order->getOrder($data))) {
             $this->logger->error(
                 __(sprintf(
                     'There is no cycle %s of signature %d.',
@@ -53,13 +70,16 @@ class BillPaid
             return false;
         }
 
-        return $this->createInvoice($order);
+        return $this->createInvoice($order, $isSubscription);
     }
 
     /**
+     * @param \Magento\Sales\Model\Order $order
+     * @param bool $isSubscription
      * @return bool
+     * @throws \Magento\Framework\Exception\LocalizedException
      */
-    public function createInvoice(\Magento\Sales\Model\Order $order)
+    public function createInvoice(\Magento\Sales\Model\Order $order, $isSubscription = false)
     {
         if (!$order->getId()) {
             return false;
@@ -67,10 +87,12 @@ class BillPaid
 
         $this->logger->info(__(sprintf('Generating invoice for the order %s.', $order->getId())));
 
-        if (!$order->canInvoice()) {
-            $this->logger->error(__(sprintf('Impossible to generate invoice for order %s.', $order->getId())));
+        if (!$isSubscription) {
+            if (!$order->canInvoice()) {
+                $this->logger->error(__(sprintf('Impossible to generate invoice for order %s.', $order->getId())));
 
-            return false;
+                return false;
+            }
         }
 
         $invoice = $order->prepareInvoice();
@@ -80,12 +102,45 @@ class BillPaid
         $this->invoiceRepository->save($invoice);
         $this->logger->info(__('Invoice created with success'));
 
-        $order->addStatusHistoryComment(
-            __('The payment was confirmed and the order is beeing processed')->getText(),
-            $this->helperData->getStatusToOrderComplete()
-        );
+        if ($isSubscription) {
+            $order->addCommentToStatusHistory(
+                __('The payment was confirmed and the subscription is beeing processed')->getText(),
+                \Magento\Sales\Model\Order::STATE_PROCESSING
+            );
+        } else {
+            $order->addCommentToStatusHistory(
+                __('The payment was confirmed and the order is beeing processed')->getText(),
+                $this->helperData->getStatusToOrderComplete()
+            );
+        }
+
+
         $this->orderRepository->save($order);
 
         return true;
+    }
+
+    /**
+     * @param $incrementId
+     * @return bool|OrderInterface
+     */
+    private function getOrder($incrementId)
+    {
+        $searchCriteria = $this->searchCriteriaBuilder
+            ->addFilter('increment_id', $incrementId, 'eq')
+            ->create();
+
+        $orderList = $this->orderRepository
+            ->getList($searchCriteria)
+            ->getItems();
+
+        try {
+            return reset($orderList);
+        } catch (Exception $e) {
+            $this->logger->error(__('Order #%1 not found', $incrementId));
+            $this->logger->error($e->getMessage());
+        }
+
+        return false;
     }
 }

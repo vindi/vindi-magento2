@@ -1,0 +1,42 @@
+<script>
+    require([
+        "jquery",
+    ], function ($) {
+        var canChange = false;
+        var dayOptions = '<?php echo $block->getDayOptions() ?>';
+        var daysOfMonthOptions = '<?php echo $block->getDaysOfMonth() ?>';
+
+        var bodyElement = $('body');
+
+        function fillBillingTriggerDay(triggerType) {
+            var data = (triggerType === 'day_of_month') ? daysOfMonthOptions : dayOptions;
+            var options = '';
+            $.map(JSON.parse(data), function (item) {
+                if (item.selected === 'true') {
+                    options += '<option value="' + item.value + '" selected="selected">' + item.label + '</option>';
+                } else {
+                    options += '<option value="' + item.value + '">' + item.label + '</option>';
+                }
+            });
+
+            $("[name='product[vindi_billing_trigger_day]']")
+                .find('option')
+                .remove()
+                .end()
+                .append(options);
+            $("[name='product[vindi_billing_trigger_day]']").trigger('change');
+        }
+
+        $(document).on("change", "[name='product[vindi_billing_trigger_type]']", function () {
+            var triggerType = $(this).val();
+            if (!canChange){
+                fillBillingTriggerDay(triggerType);
+                canChange = true;
+            } else {
+                bodyElement.trigger('processStart');
+                fillBillingTriggerDay(triggerType);
+                bodyElement.trigger('processStop');
+            }
+        });
+    });
+</script>

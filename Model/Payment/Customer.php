@@ -6,7 +6,7 @@ class Customer
 {
     public function __construct(
         \Magento\Customer\Api\CustomerRepositoryInterface $customerRepository,
-        Api $api,
+        \Vindi\Payment\Helper\Api $api,
         \Magento\Framework\Message\ManagerInterface $messageManager
     ) {
         $this->customerRepository = $customerRepository;

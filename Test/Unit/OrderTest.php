@@ -17,13 +17,13 @@ class OrderTest extends \PHPUnit\Framework\TestCase
     }
 
     public function testOrderWithTax()
-    {       
+    {
         $vindiProductId = 'taxa';
         $amount         = 1.00;
 
         $order = $this->createOrderMock($amount, 0.00, 0.00);
-        $list  = $this->createVindiProductMock($vindiProductId)->findOrCreateProducts($order);
-        
+        $list  = $this->createVindiProductManagementMock($vindiProductId)->findOrCreateProductsFromOrder($order);
+
         $this->makeAssertions($list, $vindiProductId, $amount);
     }
 
@@ -33,10 +33,10 @@ class OrderTest extends \PHPUnit\Framework\TestCase
         $amount         = -5.00;
 
         $order = $this->createOrderMock(0.00, $amount, 0.00);
-        $list  = $this->createVindiProductMock($vindiProductId)->findOrCreateProducts($order);
+        $list  = $this->createVindiProductManagementMock($vindiProductId)->findOrCreateProductsFromOrder($order);
 
         $this->makeAssertions($list, $vindiProductId, $amount);
-    }    
+    }
 
     public function testOrderWithShipping()
     {
@@ -44,7 +44,7 @@ class OrderTest extends \PHPUnit\Framework\TestCase
         $amount         = 10.00;
 
         $order = $this->createOrderMock(0.00, 0.00, $amount);
-        $list  = $this->createVindiProductMock($vindiProductId)->findOrCreateProducts($order);
+        $list  = $this->createVindiProductManagementMock($vindiProductId)->findOrCreateProductsFromOrder($order);
 
         $this->makeAssertions($list, $vindiProductId, $amount);
     }
@@ -62,12 +62,12 @@ class OrderTest extends \PHPUnit\Framework\TestCase
 
     private function createApiMock($desiredTestResponse = null)
     {
-        $apiMock = $this->getMockBuilder(\Vindi\Payment\Model\Payment\Api::class)
+        $apiMock = $this->getMockBuilder(\Vindi\Payment\Helper\Api::class)
             ->disableOriginalConstructor()
             ->getMock();
 
         $requestResponses = [];
-        
+
         $requestResponses[] = [
             'product' => [
                 'id' => 'fake_sku'
@@ -88,15 +88,18 @@ class OrderTest extends \PHPUnit\Framework\TestCase
         return $apiMock;
     }
 
+    private function createVindiProductManagementMock($desiredTestResponse)
+    {
+        return $this->objectManager->getObject(\Vindi\Payment\Model\Vindi\ProductManagement::class, [
+            'productRepository' => $this->createVindiProductMock($desiredTestResponse)
+        ]);
+    }
+
     private function createVindiProductMock($desiredTestResponse)
     {
-        $product = $this->objectManager->getObject(\Vindi\Payment\Model\Payment\Product::class, [
-            'customerRepository' => $this->customerRepositoryInterface,
-            'api'                => $this->createApiMock($desiredTestResponse),
-            'messageManager'     => $this->managerInterface
+        return $this->objectManager->getObject(\Vindi\Payment\Model\Vindi\Product::class, [
+            'api' => $this->createApiMock($desiredTestResponse)
         ]);
-        
-        return $product;
     }
 
     private function createOrderMock(
@@ -141,10 +144,10 @@ class OrderTest extends \PHPUnit\Framework\TestCase
 
         $itemMock->method('getName')
             ->willReturn('FAKE_NAME');
-            
+
         $itemMock->method('getPrice')
             ->willReturn($price);
-            
+
         $itemMock->method('getProduct')
             ->willReturn($this->createProductMock($type));
 

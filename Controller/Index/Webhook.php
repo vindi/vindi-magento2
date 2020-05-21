@@ -2,22 +2,51 @@
 
 namespace Vindi\Payment\Controller\Index;
 
+use Magento\Framework\App\Action\Action;
+use Magento\Framework\App\Action\Context;
+use Magento\Framework\View\Result\PageFactory;
+use Psr\Log\LoggerInterface;
+use Vindi\Payment\Helper\Api;
 use Vindi\Payment\Helper\Data;
 use Vindi\Payment\Helper\WebhookHandler;
-use Vindi\Payment\Model\Api;
 
-class Webhook extends \Magento\Framework\App\Action\Action
+/**
+ * Class Webhook
+ * @package Vindi\Payment\Controller\Index
+ */
+class Webhook extends Action
 {
     protected $_pageFactory;
     private $webhookHandler;
+    /**
+     * @var Api
+     */
+    private $api;
+    /**
+     * @var LoggerInterface
+     */
+    private $logger;
+    /**
+     * @var Data
+     */
+    private $helperData;
 
+    /**
+     * Webhook constructor.
+     * @param Api $api
+     * @param LoggerInterface $logger
+     * @param WebhookHandler $webhookHandler
+     * @param Data $helperData
+     * @param Context $context
+     * @param PageFactory $pageFactory
+     */
     public function __construct(
-        \Vindi\Payment\Model\Payment\Api $api,
-        \Psr\Log\LoggerInterface $logger,
+        Api $api,
+        LoggerInterface $logger,
         WebhookHandler $webhookHandler,
         Data $helperData,
-        \Magento\Framework\App\Action\Context $context,
-        \Magento\Framework\View\Result\PageFactory $pageFactory
+        Context $context,
+        PageFactory $pageFactory
     ) {
         $this->api = $api;
         $this->logger = $logger;

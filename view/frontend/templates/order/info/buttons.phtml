@@ -1,0 +1,12 @@
+<?php
+// @codingStandardsIgnoreFile
+use Vindi\Payment\Block\Order\Info\Buttons;
+
+/** @var Buttons $block */
+?>
+<?php  $order = $block->getOrder() ?>
+<?php if ($block->canVindiSubscriptionCancel($order)) : ?>
+    <a href="<?php echo $block->getVindiSubscriptionCancelUrl($order) ?>" class="action order">
+        <span><?= /* @escapeNotVerified */ __('Cancel Subscription') ?></span>
+    </a>
+<?php endif ?>
