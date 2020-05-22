@@ -89,7 +89,7 @@ class PaymentProfile implements ModifierInterface
     {
         $options = [];
 
-        $endpoint = 'payment_profiles?query=customer_id%3D' . $this->getCustomerId() . '%20status%3Dactive';
+        $endpoint = 'payment_profiles?query=customer_id%3D' . $this->getCustomerId() . '%20status%3Dactive%20type%3DPaymentProfile%3A%3ACreditCard';
 
         $request = $this->api->request($endpoint,'GET');
 
