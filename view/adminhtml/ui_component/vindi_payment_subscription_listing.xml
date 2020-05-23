@@ -7,8 +7,10 @@
 	</argument>
 	<settings>
 		<buttons>
-			<button name="_">
-				<class>secondary</class>
+			<button name="sync">
+				<url path="*/*/sync"/>
+				<class>primary</class>
+				<label translate="true">Sync Subscription</label>
 			</button>
 		</buttons>
 		<spinner>vindi_payment_subscription_columns</spinner>

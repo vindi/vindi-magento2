@@ -3,16 +3,15 @@
 namespace Vindi\Payment\Controller\Adminhtml\Subscription;
 
 use DateTime;
-use Exception;
 use Magento\Backend\App\Action;
 use Magento\Backend\App\Action\Context;
-use Magento\Framework\App\ResourceConnection;
 use Magento\Framework\App\ResponseInterface;
 use Magento\Framework\Controller\ResultInterface;
-use Magento\Framework\DB\Adapter\AdapterInterface;
 use Magento\Framework\View\Result\Page;
 use Magento\Framework\View\Result\PageFactory;
-use Vindi\Payment\Helper\Api;
+use Vindi\Payment\Model\Subscription\SyncSubscriptionInterface;
+use Magento\Framework\App\Config\Storage\WriterInterface;
+use Magento\Framework\App\Config\ScopeConfigInterface;
 
 /**
  * Class Index
@@ -20,41 +19,44 @@ use Vindi\Payment\Helper\Api;
  */
 class Index extends Action
 {
+    const VINDI_SUBSCRIPTION_LAST_SYNC = 'vindi/subscription/last_sync';
     /**
      * @var PageFactory
      */
     protected $resultPageFactory;
     /**
-     * @var Api
+     * @var SyncSubscriptionInterface
      */
-    private $api;
+    private $syncSubscription;
     /**
-     * @var ResourceConnection
+     * @var WriterInterface
      */
-    private $resource;
+    private $configWriter;
     /**
-     * @var AdapterInterface
+     * @var ScopeConfigInterface
      */
-    private $connection;
+    private $scopeConfig;
 
     /**
      * Index constructor.
      * @param Context $context
      * @param PageFactory $resultPageFactory
-     * @param Api $api
-     * @param ResourceConnection $resource
+     * @param SyncSubscriptionInterface $syncSubscription
+     * @param WriterInterface $configWriter
+     * @param ScopeConfigInterface $scopeConfig
      */
     public function __construct(
         Context $context,
         PageFactory $resultPageFactory,
-        Api $api,
-        ResourceConnection $resource
+        SyncSubscriptionInterface $syncSubscription,
+        WriterInterface $configWriter,
+        ScopeConfigInterface $scopeConfig
     ) {
         $this->resultPageFactory = $resultPageFactory;
         parent::__construct($context);
-        $this->api = $api;
-        $this->resource = $resource;
-        $this->connection = $resource->getConnection();
+        $this->syncSubscription = $syncSubscription;
+        $this->configWriter = $configWriter;
+        $this->scopeConfig = $scopeConfig;
     }
 
     /**
@@ -62,65 +64,46 @@ class Index extends Action
      */
     public function execute()
     {
-        $this->sync();
+        $this->syncSubscription();
 
         $resultPage = $this->resultPageFactory->create();
         $resultPage->getConfig()->getTitle()->prepend(__("Subscriptions"));
+
         return $resultPage;
     }
 
     /**
-     * @throws Exception
+     * @return void
      */
-    private function sync()
+    private function syncSubscription()
     {
-        $data = [];
-
-        $subscriptions = $this->getSubscriptions(1);
-        if (!$subscriptions) {
-            return;
+        if ($this->availableToSync()) {
+            $this->syncSubscription->execute();
+            $this->updateLastSync();
         }
 
-        foreach ($subscriptions as $key => $item) {
-            $startAt = new DateTime($item['start_at']);
-
-            $data[$key] = [
-                'id' => $item['id'],
-                'client' => $item['customer']['name'],
-                'plan' => $item['plan']['name'],
-                'payment_method' => $item['payment_method']['code'],
-                'payment_profile' => null,
-                'status' => $item['status'],
-                'start_at' => $startAt->format('Y-m-d H:i:s')
-            ];
-
-            if (is_array($item['payment_profile'])) {
-                $data[$key]['payment_profile'] = $item['payment_profile']['id'];
-            }
-        }
-
-        $tableName = $this->resource->getTableName('vindi_subscription');
-        $this->connection->truncateTable($tableName);
-        $this->connection->insertMultiple($tableName, $data);
+        return;
     }
 
     /**
-     * @param int $page
-     * @param array $subscription
-     * @return array|mixed
+     * @return bool
      */
-    private function getSubscriptions($page = 1, $subscription = [])
+    private function availableToSync()
     {
-        if ($page == 20) {
-            return $subscription;
-        }
+        $currentDate = new DateTime('now');
+        $lastSync = $this->scopeConfig->getValue(self::VINDI_SUBSCRIPTION_LAST_SYNC);
 
-        $request = $this->api->request('subscriptions?per_page=500&page=' . $page, 'GET');
-        if (!empty($request['subscriptions'])) {
-            $subscription = $request['subscriptions'];
-            $this->getSubscriptions(++$page, $subscription);
-        }
+        return $lastSync < $currentDate->format("Y-m-d");
+    }
 
-        return $subscription;
+    /**
+     * @return void
+     */
+    private function updateLastSync()
+    {
+        $currentDate = new DateTime('now');
+        $value = $currentDate->format("Y-m-d");
+
+        $this->configWriter->save(self::VINDI_SUBSCRIPTION_LAST_SYNC, $value);
     }
 }
