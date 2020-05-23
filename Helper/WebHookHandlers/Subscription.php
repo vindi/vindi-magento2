@@ -6,6 +6,7 @@ use Exception;
 use Magento\Framework\Api\SearchCriteriaBuilder;
 use Magento\Sales\Api\Data\OrderInterface;
 use Magento\Sales\Api\OrderRepositoryInterface;
+use Magento\Sales\Model\OrderFactory;
 use Psr\Log\LoggerInterface;
 
 /**
@@ -26,21 +27,28 @@ class Subscription
      * @var SearchCriteriaBuilder
      */
     private $searchCriteriaBuilder;
+    /**
+     * @var OrderFactory
+     */
+    private $orderFactory;
 
     /**
      * Subscription constructor.
      * @param OrderRepositoryInterface $orderRepository
      * @param SearchCriteriaBuilder $searchCriteriaBuilder
+     * @param OrderFactory $orderFactory
      * @param LoggerInterface $logger
      */
     public function __construct(
         OrderRepositoryInterface $orderRepository,
         SearchCriteriaBuilder $searchCriteriaBuilder,
+        OrderFactory $orderFactory,
         LoggerInterface $logger
     ) {
         $this->logger = $logger;
         $this->orderRepository = $orderRepository;
         $this->searchCriteriaBuilder = $searchCriteriaBuilder;
+        $this->orderFactory = $orderFactory;
     }
 
     /**
@@ -62,6 +70,7 @@ class Subscription
     /**
      * @param $data
      * @return bool
+     * @throws Exception
      */
     public function canceled($data)
     {
@@ -71,6 +80,8 @@ class Subscription
 
         $order->addCommentToStatusHistory(__('The subscription was canceled')->getText());
         $this->orderRepository->save($order);
+
+        $this->cancel($order->getIncrementId());
 
         return true;
     }
@@ -113,5 +124,24 @@ class Subscription
         }
 
         return false;
+    }
+
+    /**
+     * @param $incrementId
+     * @throws Exception
+     */
+    private function cancel($incrementId)
+    {
+        $orderFactory = $this->orderFactory->create();
+        $order = $orderFactory->loadByIncrementId($incrementId);
+
+        $order->cancel();
+
+        if (!$order->canCancel()) {
+            $order->setState(\Magento\Sales\Model\Order::STATE_CLOSED)
+                ->setStatus(\Magento\Sales\Model\Order::STATE_CLOSED);
+        }
+
+        $order->save();
     }
 }
