@@ -17,13 +17,13 @@ class OrderTest extends \PHPUnit\Framework\TestCase
     }
 
     public function testOrderWithTax()
-    {       
+    {
         $vindiProductId = 'taxa';
         $amount         = 1.00;
 
         $order = $this->createOrderMock($amount, 0.00, 0.00);
         $list  = $this->createVindiProductManagementMock($vindiProductId)->findOrCreateProductsFromOrder($order);
-        
+
         $this->makeAssertions($list, $vindiProductId, $amount);
     }
 
@@ -36,7 +36,7 @@ class OrderTest extends \PHPUnit\Framework\TestCase
         $list  = $this->createVindiProductManagementMock($vindiProductId)->findOrCreateProductsFromOrder($order);
 
         $this->makeAssertions($list, $vindiProductId, $amount);
-    }    
+    }
 
     public function testOrderWithShipping()
     {
@@ -67,7 +67,7 @@ class OrderTest extends \PHPUnit\Framework\TestCase
             ->getMock();
 
         $requestResponses = [];
-        
+
         $requestResponses[] = [
             'product' => [
                 'id' => 'fake_sku'
@@ -144,10 +144,10 @@ class OrderTest extends \PHPUnit\Framework\TestCase
 
         $itemMock->method('getName')
             ->willReturn('FAKE_NAME');
-            
+
         $itemMock->method('getPrice')
             ->willReturn($price);
-            
+
         $itemMock->method('getProduct')
             ->willReturn($this->createProductMock($type));
 
