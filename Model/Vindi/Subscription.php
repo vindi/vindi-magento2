@@ -37,4 +37,12 @@ class Subscription implements SubscriptionInterface
 
         return false;
     }
+
+    /**
+     * @param $id
+     */
+    public function deleteAndCancelBills($id)
+    {
+        $this->api->request("subscriptions/{$id}?cancel_bills=true", 'DELETE');
+    }
 }
