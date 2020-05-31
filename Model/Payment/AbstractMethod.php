@@ -290,7 +290,8 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
                 $order->setVindiSubscriptionId($responseData['subscription']['id']);
                 return $bill['id'];
             }
-            $this->bill->delete($bill['id']);
+
+            $this->subscriptionRepository->deleteAndCancelBills($responseData['subscription']['id']);
         }
 
         return $this->handleError($order);

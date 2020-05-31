@@ -13,4 +13,10 @@ interface SubscriptionInterface
      * @return array|bool
      */
     public function create($data = []);
+
+    /**
+     * @param $id
+     * @return void
+     */
+    public function deleteAndCancelBills($id);
 }
