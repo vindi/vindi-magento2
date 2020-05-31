@@ -14,6 +14,7 @@ use Magento\Framework\Setup\ModuleDataSetupInterface;
 use Magento\Eav\Model\Entity\Attribute\SetFactory as AttributeSetFactory;
 use Vindi\Payment\Model\Config\Source\BillingCycles;
 use Vindi\Payment\Model\Config\Source\Interval;
+use Vindi\Payment\Model\Config\Source\Plan;
 use Vindi\Payment\Model\Config\Source\BillingTriggerType;
 
 /**
@@ -77,6 +78,10 @@ class UpgradeData implements UpgradeDataInterface
         if (version_compare($context->getVersion(), "1.1.0", "<")) {
             $this->createPlanAttributeSet();
             $this->createProductAttributes();
+        }
+
+        if (version_compare($context->getVersion(), "1.1.1", "<")) {
+            $this->addPlanIdFieldProductAttribute();
         }
     }
 
@@ -268,6 +273,44 @@ class UpgradeData implements UpgradeDataInterface
                 self::VINDI_PLANOS,
                 self::VINDI_PLAN_SETTINGS,
                 'vindi_billing_trigger_day'
+            );
+        }
+    }
+
+    private function addPlanIdFieldProductAttribute()
+    {
+        /** @var EavSetup $eavSetup */
+        $eavSetup = $this->eavSetupFactory->create(['setup' => $this->moduleDataSetup]);
+
+        $attribute = $eavSetup->getAttribute(Product::ENTITY, 'vindi_plan_id');
+        if (!$attribute) {
+            $eavSetup->addAttribute(Product::ENTITY, 'vindi_plan_id', [
+                'sort_order' => 1,
+                'type' => 'varchar',
+                'backend' => '',
+                'frontend' => '',
+                'label' => 'Use Registered Plan in Vindi',
+                'input' => 'select',
+                'class' => '',
+                'source' => Plan::class,
+                'global' => ScopedAttributeInterface::SCOPE_GLOBAL,
+                'visible' => true,
+                'required' => false,
+                'user_defined' => true,
+                'default' => null,
+                'searchable' => false,
+                'filterable' => false,
+                'comparable' => false,
+                'visible_on_front' => false,
+                'used_in_product_listing' => false,
+                'unique' => false
+            ]);
+
+            $eavSetup->addAttributeToGroup(
+                Product::ENTITY,
+                self::VINDI_PLANOS,
+                self::VINDI_PLAN_SETTINGS,
+                'vindi_plan_id'
             );
         }
     }
