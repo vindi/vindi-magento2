@@ -289,7 +289,7 @@ class UpgradeData implements UpgradeDataInterface
                 'type' => 'varchar',
                 'backend' => '',
                 'frontend' => '',
-                'label' => 'Use Registered Plan in Vindi',
+                'label' => 'Vindi Plan',
                 'input' => 'select',
                 'class' => '',
                 'source' => Plan::class,
