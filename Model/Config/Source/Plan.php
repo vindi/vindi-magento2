@@ -49,7 +49,7 @@ class Plan extends AbstractSource
     {
         $data = [];
 
-        $result = $this->api->request('plans', 'GET');
+        $result = $this->api->request('plans?query=status%3Dactive', 'GET');
 
         if (!empty($result) && !empty($result['plans'])) {
             foreach ($result['plans'] as $plan) {
