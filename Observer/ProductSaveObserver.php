@@ -47,6 +47,10 @@ class ProductSaveObserver implements ObserverInterface
             return;
         }
 
+        if ($product->getVindiPlanId() > 0) {
+            return;
+        }
+
         $this->plansManagement->create($product->getId());
     }
 }

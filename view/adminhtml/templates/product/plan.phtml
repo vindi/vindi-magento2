@@ -1,7 +1,8 @@
 <script>
     require([
         "jquery",
-    ], function ($) {
+        "uiRegistry"
+    ], function ($, uiRegistry) {
         var canChange = false;
         var dayOptions = '<?php echo $block->getDayOptions() ?>';
         var daysOfMonthOptions = '<?php echo $block->getDaysOfMonth() ?>';
@@ -36,6 +37,23 @@
                 bodyElement.trigger('processStart');
                 fillBillingTriggerDay(triggerType);
                 bodyElement.trigger('processStop');
+            }
+        });
+
+        $(document).on("change", "[name='product[vindi_plan_id]']", function () {
+            var fieldsetIntervalCount = $('.admin__field-interval-count').parents('fieldset.admin__field');
+            var fieldsetBillingTriggerType = $('.admin__field-billing-trigger-type').parents('fieldset.admin__field');
+
+            if ($(this).val() > 0) {
+                fieldsetIntervalCount.addClass('hidden');
+                fieldsetBillingTriggerType.addClass('hidden');
+
+                uiRegistry.get('index = vindi_interval_count', function (elem) {
+                    elem.value(0);
+                });
+            } else {
+                fieldsetIntervalCount.removeClass('hidden');
+                fieldsetBillingTriggerType.removeClass('hidden');
             }
         });
     });
