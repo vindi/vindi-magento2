@@ -8,6 +8,7 @@
 - Insere função de envio de fretes e taxas
 - Insere suporte a webhooks de renovação de assinatura
 - Insere renovação de pedidos
+- Insere página para consulta e edição de assinaturas no painel administrativo
 
 ## [1.2.0 - 19/08/2019](https://github.com/vindi/vindi-magento2/releases/tag/1.2.0)
 - Corrige falha ao salvar as configurações de métodos de pagamento sem informar a chave API
