@@ -251,16 +251,17 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
 
     /**
      * @param InfoInterface $payment
-     * @param OrderItemInterface $plan
+     * @param OrderItemInterface $orderItem
      * @return mixed
      * @throws LocalizedException
      */
-    private function handleSubscriptionOrder(InfoInterface $payment, OrderItemInterface $plan)
+    private function handleSubscriptionOrder(InfoInterface $payment, OrderItemInterface $orderItem)
     {
         /** @var Order $order */
         $order = $payment->getOrder();
         $customerId = $this->customer->findOrCreate($order);
-        $planId = $this->planManagement->create($plan->getProductId());
+
+        $planId = $this->planManagement->create($orderItem->getProductId());
 
         $productItems = $this->productManagement->findOrCreateProductsToSubscription($order);
 
@@ -289,7 +290,8 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
                 $order->setVindiSubscriptionId($responseData['subscription']['id']);
                 return $bill['id'];
             }
-            $this->bill->delete($bill['id']);
+
+            $this->subscriptionRepository->deleteAndCancelBills($responseData['subscription']['id']);
         }
 
         return $this->handleError($order);

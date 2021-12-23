@@ -51,6 +51,11 @@ class PlanManagement implements PlanManagementInterface
             throw new LocalizedException(__('Product Type not support to plan'));
         }
 
+        $planId = $product->getVindiPlanId();
+        if ($planId) {
+            return $planId;
+        }
+
         $data = [
             'name' => $product->getName(),
             'code' => Data::sanitizeItemSku($product->getSku()),
