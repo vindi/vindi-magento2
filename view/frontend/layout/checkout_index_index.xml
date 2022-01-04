@@ -30,6 +30,10 @@
                                                                             <item name="isBillingAddressRequired" xsi:type="boolean">false
                                                                             </item>
                                                                         </item>
+                                                                        <item name="vindi_pix" xsi:type="array">
+                                                                            <item name="isBillingAddressRequired" xsi:type="boolean">false
+                                                                            </item>
+                                                                        </item>
                                                                     </item>
                                                                 </item>
                                                             </item>

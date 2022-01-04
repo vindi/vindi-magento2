@@ -34,6 +34,19 @@
                     <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
                 </field>
             </group>
+            <group id="vindi_pix" showInDefault="1" showInStore="1" showInWebsite="1" sortOrder="15" translate="label comment">
+                <label>Vindi - Pix</label>
+                <field id="active" showInDefault="1" showInStore="1" showInWebsite="1" sortOrder="10" translate="label"
+                       type="select">
+                    <label>Enabled</label>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                    <backend_model>Vindi\Payment\Model\Config\Backend\ApiKeyValidator</backend_model>
+                </field>
+                <field id="title" showInDefault="1" showInStore="1" showInWebsite="1" sortOrder="20" translate="label"
+                       type="text">
+                    <label>Title</label>
+                </field>
+            </group>
             <group id="vindi_bankslip" showInDefault="1" showInStore="1" showInWebsite="1" sortOrder="20" translate="label comment">
                 <label>Vindi - Boleto Bancário</label>
                 <field id="active" showInDefault="1" showInStore="1" showInWebsite="1" sortOrder="10" translate="label"

@@ -2,22 +2,34 @@
 
 namespace Vindi\Payment\Model\Payment;
 
+
+use Exception;
+use Vindi\Payment\Helper\Api;
+
 class PaymentMethod
 {
+
     const BANK_SLIP = 'bank_slip';
+    const PIX = 'pix';
     const CREDIT_CARD = 'credit_card';
     const DEBIT_CARD = 'debit_card';
+
     /**
      * @var \Vindi\Payment\Helper\Api
      */
     private $api;
 
-    public function __construct(\Vindi\Payment\Helper\Api $api, \Magento\Payment\Model\CcConfig $ccConfig)
+    /**
+     * @param Api $api
+     */
+    public function __construct(Api $api)
     {
         $this->api = $api;
-        $this->ccConfig = $ccConfig;
     }
 
+    /**
+     * @return array
+     */
     public function getCreditCardTypes()
     {
         $methods = $this->get();
@@ -76,6 +88,12 @@ class PaymentMethod
         return $paymentMethods;
     }
 
+    /**
+     * @param $ccType
+     *
+     * @return bool
+     * @throws Exception
+     */
     public function isCcTypeValid($ccType)
     {
         $validCreditCardTypes = $this->getCreditCardTypes();
@@ -93,6 +111,12 @@ class PaymentMethod
         return false;
     }
 
+    /**
+     * @param $ccType
+     *
+     * @return mixed
+     * @throws Exception
+     */
     private function getCcTypeFullName($ccType)
     {
         $fullNames = $this->getCreditCardTypes();
@@ -101,6 +125,6 @@ class PaymentMethod
             return $fullNames[$ccType];
         }
 
-        throw new \Exception(__("Could Not Find Payment Credit Card Type")->getText());
+        throw new Exception(__("Could Not Find Payment Credit Card Type")->getText());
     }
 }
