@@ -374,6 +374,12 @@ abstract class AbstractMethod extends OriginAbstractMethod
             $payment->setAdditionalInformation('print_url', $bill['charges'][0]['print_url']);
             $payment->setAdditionalInformation('due_at', $bill['charges'][0]['due_at']);
         }
+
+        if ($body['payment_method_code'] === PaymentMethod::PIX) {
+            $payment->setAdditionalInformation('qrcode_original_path', $bill['charges'][0]['last_transaction']['gateway_response_fields']['qrcode_original_path']);
+            $payment->setAdditionalInformation('qrcode_path', $bill['charges'][0]['last_transaction']['gateway_response_fields']['qrcode_path']);
+            $payment->setAdditionalInformation('due_at', $bill['charges'][0]['due_at']);
+        }
     }
 
     /**

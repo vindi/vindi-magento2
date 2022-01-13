@@ -36,5 +36,10 @@
                 <order_status>pending</order_status>
             </general>
         </vindiconfiguration>
+        <checkout>
+            <vindi_pix>
+                <qr-code-warning-message>Seu navegador não da suporte a renderização do QRCode. Use o código do PIX para realizar o pagamento ou acesse o link abaixo para acessar o QR Code</qr-code-warning-message>
+            </vindi_pix>
+        </checkout>
     </default>
 </config>

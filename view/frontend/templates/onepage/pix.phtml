@@ -1,0 +1,30 @@
+<?php
+
+use Vindi\Payment\Block\Onepage\Pix;
+
+/** @var $block Pix */
+?>
+
+<?php if ($block->canShowPix()) : ?>
+    <br/>
+    <object data="<?= $block->getQrCodePix() ?>" type="image/svg+xml" class="qr-code" id="qrcode">
+        <?= $block->getQrCodeWarningMessage() ?>
+        <button
+            id="vindi-pix-button-open"
+            type="button"
+            class="action primary checkout"
+            title="Open QR Code Pix"
+            onclick="window.open('<?= $block->getQrCodePix() ?>', '_blank')">
+            <?php echo __('Open QR Code') ?>
+        </button>
+    </object>
+    <br/>
+    <button
+        id="vindi-pix-button-copy"
+        type="button"
+        class="action primary checkout"
+        title="Copy QR Code key"
+        onclick="">
+        <?php echo __('Copy QR Code key') ?>
+    </button>
+<?php endif; ?>

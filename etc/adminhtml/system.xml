@@ -1,6 +1,7 @@
 <?xml version="1.0" ?>
 <config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
         xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Config:etc/system_file.xsd">
+
     <system>
         <section id="payment" showInDefault="1" showInStore="1" showInWebsite="1" sortOrder="1000" translate="label">
             <group id="vindi" showInDefault="1" showInStore="1" showInWebsite="1" sortOrder="10" translate="label">
@@ -65,8 +66,7 @@
         <tab id="vindi" sortOrder="999" translate="label">
             <label>vindi</label>
         </tab>
-        <section id="vindiconfiguration" showInDefault="1" showInStore="1" showInWebsite="1" sortOrder="10"
-                 translate="label">
+        <section id="vindiconfiguration" showInDefault="1" showInStore="1" showInWebsite="1" sortOrder="10" translate="label">
             <label>Configuration</label>
             <tab>vindi</tab>
             <resource>Vindi_Payment::config_vindi_payment</resource>
@@ -93,6 +93,16 @@
                        translate="label" type="select">
                     <label>New Order Status</label>
                     <source_model>Magento\Sales\Model\Config\Source\Order\Status</source_model>
+                </field>
+            </group>
+        </section>
+
+        <section id="checkout" showInDefault="1" showInStore="1" showInWebsite="1" sortOrder="1500" translate="label">
+            <group id="vindi_pix" showInDefault="1" showInStore="1" showInWebsite="1" sortOrder="15" translate="label">
+                <label>Vindi - Pix</label>
+                <field id="qr-code-warning-message" showInDefault="1" showInStore="1" showInWebsite="1" sortOrder="20" translate="label" type="text">
+                    <label>QR Code warning message</label>
+                    <comment>Message if the qr code is not resized.</comment>
                 </field>
             </group>
         </section>
