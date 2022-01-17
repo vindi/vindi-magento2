@@ -4,6 +4,7 @@ namespace Vindi\Payment\Block\Onepage;
 
 
 use Magento\Checkout\Model\Session;
+use Magento\Framework\Serialize\Serializer\Json;
 use Magento\Framework\View\Element\Template;
 use Magento\Framework\View\Element\Template\Context;
 use Magento\Sales\Model\Order;
@@ -23,20 +24,28 @@ class Pix extends Template
     protected $configuration;
 
     /**
+     * @var Json
+     */
+    protected $json;
+
+    /**
+     * @param ConfigurationInterface $configuration
      * @param Session $checkoutSession
      * @param Context $context
-     * @param ConfigurationInterface $configuration
+     * @param Json $json
      * @param array $data
      */
     public function __construct(
         ConfigurationInterface $configuration,
         Session $checkoutSession,
         Context $context,
+        Json $json,
         array $data = []
     ) {
         parent::__construct($context, $data);
         $this->checkoutSession = $checkoutSession;
         $this->configuration = $configuration;
+        $this->json = $json;
     }
 
     /**
@@ -64,11 +73,13 @@ class Pix extends Template
     }
 
     /**
-     * @return string[]
+     * @return bool|string
      */
     public function getQrcodeOriginalPath()
     {
-        return $this->getOrder()->getPayment()->getAdditionalInformation('qrcode_original_path');
+
+        $qrcodeOriginalPath = $this->getOrder()->getPayment()->getAdditionalInformation('qrcode_original_path');
+        return $this->json->serialize($qrcodeOriginalPath);
     }
 
     /**

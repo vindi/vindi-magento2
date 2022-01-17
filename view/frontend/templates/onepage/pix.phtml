@@ -7,6 +7,7 @@ use Vindi\Payment\Block\Onepage\Pix;
 
 <?php if ($block->canShowPix()) : ?>
     <br/>
+
     <object data="<?= $block->getQrCodePix() ?>" type="image/svg+xml" class="qr-code" id="qrcode">
         <?= $block->getQrCodeWarningMessage() ?>
         <button
@@ -19,12 +20,24 @@ use Vindi\Payment\Block\Onepage\Pix;
         </button>
     </object>
     <br/>
-    <button
-        id="vindi-pix-button-copy"
-        type="button"
-        class="action primary checkout"
-        title="Copy QR Code key"
-        onclick="">
-        <?php echo __('Copy QR Code key') ?>
-    </button>
+
+    <div data-bind="scope: 'vindiPix'">
+        <!-- ko template: getTemplate() --><!-- /ko -->
+    </div>
+
+    <script type="text/x-magento-init">
+        {
+            "*": {
+                "Magento_Ui/js/core/app": {
+                    "components": {
+                        "vindiPix": {
+                            "component": "Vindi_Payment/js/view/onepage/vindi-pix",
+                            "qrCodeKey": <?= $block->getQrcodeOriginalPath() ?>
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
 <?php endif; ?>
