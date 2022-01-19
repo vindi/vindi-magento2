@@ -11,7 +11,7 @@
     <preference for="Vindi\Payment\Api\SubscriptionRepositoryInterface" type="Vindi\Payment\Model\SubscriptionRepository"/>
     <preference for="Vindi\Payment\Api\Data\SubscriptionInterface" type="Vindi\Payment\Model\Data\Subscription"/>
     <preference for="Vindi\Payment\Api\Data\SubscriptionSearchResultsInterface" type="Magento\Framework\Api\SearchResults"/>
-    <preference for="Vindi\Payment\Api\ConfigurationInterface" type="Vindi\Payment\Helper\Configuration"/>
+    <preference for="Vindi\Payment\Api\PixConfigurationInterface" type="Vindi\Payment\Helper\PixConfiguration"/>
 
     <virtualType name="Vindi\Payment\Model\ResourceModel\Subscription\Grid\Collection" type="Magento\Framework\View\Element\UiComponent\DataProvider\SearchResult">
         <arguments>

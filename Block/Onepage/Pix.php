@@ -8,7 +8,7 @@ use Magento\Framework\Serialize\Serializer\Json;
 use Magento\Framework\View\Element\Template;
 use Magento\Framework\View\Element\Template\Context;
 use Magento\Sales\Model\Order;
-use Vindi\Payment\Api\ConfigurationInterface;
+use Vindi\Payment\Api\PixConfigurationInterface;
 
 class Pix extends Template
 {
@@ -19,9 +19,9 @@ class Pix extends Template
     protected $checkoutSession;
 
     /**
-     * @var ConfigurationInterface
+     * @var PixConfigurationInterface
      */
-    protected $configuration;
+    protected $pixConfiguration;
 
     /**
      * @var Json
@@ -29,14 +29,14 @@ class Pix extends Template
     protected $json;
 
     /**
-     * @param ConfigurationInterface $configuration
+     * @param PixConfigurationInterface $pixConfiguration
      * @param Session $checkoutSession
      * @param Context $context
      * @param Json $json
      * @param array $data
      */
     public function __construct(
-        ConfigurationInterface $configuration,
+        PixConfigurationInterface $pixConfiguration,
         Session $checkoutSession,
         Context $context,
         Json $json,
@@ -44,7 +44,7 @@ class Pix extends Template
     ) {
         parent::__construct($context, $data);
         $this->checkoutSession = $checkoutSession;
-        $this->configuration = $configuration;
+        $this->pixConfiguration = $pixConfiguration;
         $this->json = $json;
     }
 
@@ -69,7 +69,7 @@ class Pix extends Template
      */
     public function getQrCodeWarningMessage()
     {
-        return $this->configuration->getQrCodeWarningMessage();
+        return $this->pixConfiguration->getQrCodeWarningMessage();
     }
 
     /**

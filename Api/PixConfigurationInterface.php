@@ -5,7 +5,7 @@ namespace Vindi\Payment\Api;
 
 use Magento\Store\Model\ScopeInterface;
 
-interface ConfigurationInterface
+interface PixConfigurationInterface
 {
 
     const PATH_QR_CODE_WARNING_MESSAGE = 'checkout/vindi_pix/qr-code-warning-message';

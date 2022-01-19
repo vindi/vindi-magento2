@@ -4,10 +4,10 @@ namespace Vindi\Payment\Helper;
 
 
 use Magento\Store\Model\ScopeInterface;
-use Vindi\Payment\Api\ConfigurationInterface;
+use Vindi\Payment\Api\PixConfigurationInterface;
 use Magento\Framework\App\Helper\AbstractHelper;
 
-class Configuration extends AbstractHelper implements ConfigurationInterface
+class PixConfiguration extends AbstractHelper implements PixConfigurationInterface
 {
 
     /**
