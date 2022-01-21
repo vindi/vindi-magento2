@@ -21,7 +21,7 @@
             <!-- ko template: getTemplate() --><!-- /ko -->
             <!--/ko-->
         </div>
-        <div class="block-payment-pix"><!-- ko i18n: 'Payment data will be displayed after placing the order.' --><!-- /ko --></div>
+        <div class="block-payment-pix"><!-- ko i18n: getInfoMessage() --><!-- /ko --></div>
         <div class="checkout-agreements-block">
             <!-- ko foreach: $parent.getRegion('before-place-order') -->
             <!-- ko template: getTemplate() --><!-- /ko -->

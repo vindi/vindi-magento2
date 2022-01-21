@@ -38,7 +38,9 @@
         </vindiconfiguration>
         <checkout>
             <vindi_pix>
-                <qr-code-warning-message>Seu navegador não da suporte a renderização do QRCode. Use o código do PIX para realizar o pagamento ou acesse o link abaixo para acessar o QR Code</qr-code-warning-message>
+                <info_message>Os dados para o pagamento, serão exibidos após finalizar o pedido.</info_message>
+                <info_message_onepage_success>Seu pedido foi concluído, abaixo segue as informações do PIX para realizar o pagamento.</info_message_onepage_success>
+                <qr-code-warning-message>Seu navegador não da suporte a renderização do QRCode. Use o código do PIX para realizar o pagamento ou acesse o link abaixo para acessar o QR Code.</qr-code-warning-message>
             </vindi_pix>
         </checkout>
     </default>

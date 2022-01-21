@@ -100,6 +100,14 @@
         <section id="checkout" showInDefault="1" showInStore="1" showInWebsite="1" sortOrder="1500" translate="label">
             <group id="vindi_pix" showInDefault="1" showInStore="1" showInWebsite="1" sortOrder="15" translate="label">
                 <label>Vindi - Pix</label>
+                <field id="info_message" showInDefault="1" showInStore="1" showInWebsite="1" sortOrder="20" translate="label" type="text">
+                    <label>PIX Payment method message</label>
+                    <comment>Message when selecting the payment method on the checkout screen.</comment>
+                </field>
+                <field id="info_message_onepage_success" showInDefault="1" showInStore="1" showInWebsite="1" sortOrder="20" translate="label" type="text">
+                    <label>Message on onepage success</label>
+                    <comment>Message that will be presented to the customer on the success screen, after completing the order.</comment>
+                </field>
                 <field id="qr-code-warning-message" showInDefault="1" showInStore="1" showInWebsite="1" sortOrder="20" translate="label" type="text">
                     <label>QR Code warning message</label>
                     <comment>Message if the qr code is not resized.</comment>

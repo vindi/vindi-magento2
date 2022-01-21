@@ -73,11 +73,18 @@ class Pix extends Template
     }
 
     /**
+     * @return string
+     */
+    public function getInfoMessageOnepageSuccess()
+    {
+        return $this->pixConfiguration->getInfoMessageOnepageSuccess();
+    }
+
+    /**
      * @return bool|string
      */
     public function getQrcodeOriginalPath()
     {
-
         $qrcodeOriginalPath = $this->getOrder()->getPayment()->getAdditionalInformation('qrcode_original_path');
         return $this->json->serialize($qrcodeOriginalPath);
     }

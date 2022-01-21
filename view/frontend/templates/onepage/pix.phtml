@@ -6,23 +6,27 @@ use Vindi\Payment\Block\Onepage\Pix;
 ?>
 
 <?php if ($block->canShowPix()) : ?>
-    <br/>
+    <div class="checkout-success">
+        <p>
+            <?= $block->getInfoMessageOnepageSuccess() ?>
+        </p>
+        <object data="<?= $block->getQrCodePix() ?>" type="image/svg+xml" class="qr-code" id="qrcode">
+            <p>
+                <?= $block->getQrCodeWarningMessage() ?>
+            </p>
+            <button
+                id="vindi-pix-button-open"
+                type="button"
+                class="action primary checkout"
+                title="Open QR Code Pix"
+                onclick="window.open('<?= $block->getQrCodePix() ?>', '_blank')">
+                <?php echo __('Open QR Code') ?>
+            </button>
+        </object>
 
-    <object data="<?= $block->getQrCodePix() ?>" type="image/svg+xml" class="qr-code" id="qrcode">
-        <?= $block->getQrCodeWarningMessage() ?>
-        <button
-            id="vindi-pix-button-open"
-            type="button"
-            class="action primary checkout"
-            title="Open QR Code Pix"
-            onclick="window.open('<?= $block->getQrCodePix() ?>', '_blank')">
-            <?php echo __('Open QR Code') ?>
-        </button>
-    </object>
-    <br/>
-
-    <div data-bind="scope: 'vindiPix'">
-        <!-- ko template: getTemplate() --><!-- /ko -->
+        <div data-bind="scope: 'vindiPix'">
+            <!-- ko template: getTemplate() --><!-- /ko -->
+        </div>
     </div>
 
     <script type="text/x-magento-init">
