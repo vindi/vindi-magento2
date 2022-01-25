@@ -126,3 +126,4 @@
 "Message that will be presented to the customer on the success screen, after completing the order.","Mensagem que será apresentado ao cliente na tela de sucesso, após finalizar o pedido."
 "Copy QR Code key","Copiar chave QR Code"
 "Message if the qr code is not resized.","Mensagem se o QR Code não for redimensionado."
+"Pay up: %s","Pague até: %s"
