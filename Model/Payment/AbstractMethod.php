@@ -276,8 +276,8 @@ abstract class AbstractMethod extends OriginAbstractMethod
         }
 
         if ($bill = $this->bill->create($body)) {
-            $this->handleBankSplitAdditionalInformation($payment, $body, $bill);
             if ($this->successfullyPaid($body, $bill)) {
+                $this->handleBankSplitAdditionalInformation($payment, $body, $bill);
                 $order->setVindiBillId($bill['id']);
                 return $bill['id'];
             }
@@ -322,8 +322,8 @@ abstract class AbstractMethod extends OriginAbstractMethod
 
         if ($responseData = $this->subscriptionRepository->create($body)) {
             $bill = $responseData['bill'];
-            $this->handleBankSplitAdditionalInformation($payment, $body, $bill);
             if ($this->successfullyPaid($body, $bill)) {
+                $this->handleBankSplitAdditionalInformation($payment, $body, $bill);
                 $order->setVindiBillId($bill['id']);
                 $order->setVindiSubscriptionId($responseData['subscription']['id']);
                 return $bill['id'];
@@ -395,7 +395,9 @@ abstract class AbstractMethod extends OriginAbstractMethod
      */
     private function successfullyPaid(array $body, $bill)
     {
-        return $this->isValidPaymentMethodCode($body['payment_method_code']) || $this->isValidStatus($bill) || $this->isWaitingPaymentMethodResponse($bill);
+        return $this->isValidPaymentMethodCode($body['payment_method_code'])
+            || $this->isValidStatus($bill)
+            || $this->isWaitingPaymentMethodResponse($bill);
     }
 
     /**
