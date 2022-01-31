@@ -76,7 +76,10 @@ class Pix extends Info
      */
     public function canShowPixInfo()
     {
-        return $this->getOrder()->getPayment()->getMethod() === \Vindi\Payment\Model\Payment\Pix::CODE;
+        $paymentMethod = $this->getOrder()->getPayment()->getMethod() === \Vindi\Payment\Model\Payment\Pix::CODE;
+        $timestampMaxDays = strtotime($this->getMaxDaysToPayment());
+
+        return $paymentMethod && $this->isValidToPayment($timestampMaxDays);
     }
 
     /**
@@ -112,7 +115,30 @@ class Pix extends Info
      */
     public function getDaysToKeepWaitingPayment()
     {
-        $timestamp = strtotime($this->getOrder()->getPayment()->getAdditionalInformation('max_days_to_keep_waiting_payment'));
-        return  date('d/m/Y H:m:s', $timestamp);
+        $timestampMaxDays = strtotime($this->getMaxDaysToPayment());
+        return date('d/m/Y H:m:s', $timestampMaxDays);
+    }
+
+    /**
+     * @param $timestampMaxDays
+     *
+     * @return bool
+     */
+    protected function isValidToPayment($timestampMaxDays)
+    {
+        if (!$timestampMaxDays) {
+            return false;
+        }
+
+        return $timestampMaxDays >= strtotime("now");
+    }
+
+    /**
+     * @return mixed
+     * @throws \Magento\Framework\Exception\LocalizedException
+     */
+    protected function getMaxDaysToPayment()
+    {
+        return $this->getOrder()->getPayment()->getAdditionalInformation('max_days_to_keep_waiting_payment');
     }
 }
