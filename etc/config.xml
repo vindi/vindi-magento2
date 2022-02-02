@@ -1,5 +1,6 @@
 <?xml version="1.0" ?>
-<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Store:etc/config.xsd">
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Store:etc/config.xsd">
     <default>
         <payment>
             <vindi>
@@ -19,6 +20,14 @@
                 <payment_action>authorize</payment_action>
                 <group>offline</group>
             </vindi_bankslip>
+            <vindi_pix>
+                <active>0</active>
+                <model>Vindi\Payment\Model\Payment\Pix</model>
+                <title>Vindi - Pix</title>
+                <allowspecific>0</allowspecific>
+                <payment_action>authorize</payment_action>
+                <group>offline</group>
+            </vindi_pix>
         </payment>
         <vindiconfiguration>
             <general>
@@ -27,5 +36,12 @@
                 <order_status>pending</order_status>
             </general>
         </vindiconfiguration>
+        <checkout>
+            <vindi_pix>
+                <info_message>Os dados para o pagamento, serão exibidos após finalizar o pedido.</info_message>
+                <info_message_onepage_success>Seu pedido foi concluído, abaixo segue as informações do PIX para realizar o pagamento.</info_message_onepage_success>
+                <qr-code-warning-message>Seu navegador não da suporte a renderização do QRCode. Use o código do PIX para realizar o pagamento ou acesse o link abaixo para acessar o QR Code.</qr-code-warning-message>
+            </vindi_pix>
+        </checkout>
     </default>
 </config>

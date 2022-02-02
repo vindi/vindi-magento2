@@ -2,14 +2,29 @@
 
 namespace Vindi\Payment\Model\Payment;
 
+use Vindi\Payment\Helper\Api;
+
+/**
+ * Class Bill
+ * @package Vindi\Payment\Model\Payment
+ */
 class Bill
 {
-    private $api;
+
     const PAID_STATUS = 'paid';
     const REVIEW_STATUS = 'review';
     const FRAUD_REVIEW_STATUS = 'fraud_review';
+    const WAITING_STATUS = 'waiting';
 
-    public function __construct(\Vindi\Payment\Helper\Api $api)
+    /**
+     * @var Api
+     */
+    private $api;
+
+    /**
+     * @param Api $api
+     */
+    public function __construct(Api $api)
     {
         $this->api = $api;
     }
