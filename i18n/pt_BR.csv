@@ -120,7 +120,7 @@
 "Create New Plan","Criar Novo Plano"
 "Open QR Code","Abrir QR Code"
 "QR Code warning message","Mensagem de aviso QR Code"
-"Payment method PIX message","Mensagem do método de pagamento PIX"
+"PIX Payment method message","Mensagem do método de pagamento PIX"
 "Message when selecting the payment method on the checkout screen.","Mensagem ao selecionar o método de pagamento na tela de checkout."
 "Message on onepage success","Mensagem na página de sucesso"
 "Message that will be presented to the customer on the success screen, after completing the order.","Mensagem que será apresentado ao cliente na tela de sucesso, após finalizar o pedido."
