@@ -276,6 +276,7 @@ abstract class AbstractMethod extends OriginAbstractMethod
         }
 
         if ($bill = $this->bill->create($body)) {
+            $this->handleBankSplitAdditionalInformation($payment, $body, $bill);
             if ($this->successfullyPaid($body, $bill)) {
                 $this->handleBankSplitAdditionalInformation($payment, $body, $bill);
                 $order->setVindiBillId($bill['id']);
@@ -322,6 +323,7 @@ abstract class AbstractMethod extends OriginAbstractMethod
 
         if ($responseData = $this->subscriptionRepository->create($body)) {
             $bill = $responseData['bill'];
+            $this->handleBankSplitAdditionalInformation($payment, $body, $bill);
             if ($this->successfullyPaid($body, $bill)) {
                 $this->handleBankSplitAdditionalInformation($payment, $body, $bill);
                 $order->setVindiBillId($bill['id']);
