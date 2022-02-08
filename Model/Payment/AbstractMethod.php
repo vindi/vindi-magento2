@@ -27,6 +27,11 @@ use Vindi\Payment\Api\SubscriptionInterface;
 use Magento\Payment\Model\Method\AbstractMethod as OriginAbstractMethod;
 use Vindi\Payment\Helper\Api;
 
+/**
+ * Class AbstractMethod
+ *
+ * @package \Vindi\Payment\Model\Payment
+ */
 abstract class AbstractMethod extends OriginAbstractMethod
 {
 
@@ -84,7 +89,6 @@ abstract class AbstractMethod extends OriginAbstractMethod
      * @var PlanManagementInterface
      */
     private $planManagement;
-
     /**
      * @var SubscriptionInterface
      */
@@ -271,8 +275,8 @@ abstract class AbstractMethod extends OriginAbstractMethod
         }
 
         if ($bill = $this->bill->create($body)) {
-            $this->handleBankSplitAdditionalInformation($payment, $body, $bill);
             if ($this->successfullyPaid($body, $bill)) {
+                $this->handleBankSplitAdditionalInformation($payment, $body, $bill);
                 $order->setVindiBillId($bill['id']);
                 return $bill['id'];
             }
@@ -317,8 +321,8 @@ abstract class AbstractMethod extends OriginAbstractMethod
 
         if ($responseData = $this->subscriptionRepository->create($body)) {
             $bill = $responseData['bill'];
-            $this->handleBankSplitAdditionalInformation($payment, $body, $bill);
             if ($this->successfullyPaid($body, $bill)) {
+                $this->handleBankSplitAdditionalInformation($payment, $body, $bill);
                 $order->setVindiBillId($bill['id']);
                 $order->setVindiSubscriptionId($responseData['subscription']['id']);
                 return $bill['id'];
@@ -374,6 +378,12 @@ abstract class AbstractMethod extends OriginAbstractMethod
             $payment->setAdditionalInformation('print_url', $bill['charges'][0]['print_url']);
             $payment->setAdditionalInformation('due_at', $bill['charges'][0]['due_at']);
         }
+
+        if ($body['payment_method_code'] === PaymentMethod::PIX) {
+            $payment->setAdditionalInformation('qrcode_original_path', $bill['charges'][0]['last_transaction']['gateway_response_fields']['qrcode_original_path']);
+            $payment->setAdditionalInformation('qrcode_path', $bill['charges'][0]['last_transaction']['gateway_response_fields']['qrcode_path']);
+            $payment->setAdditionalInformation('due_at', $bill['charges'][0]['due_at']);
+        }
     }
 
     /**
@@ -384,11 +394,9 @@ abstract class AbstractMethod extends OriginAbstractMethod
      */
     private function successfullyPaid(array $body, $bill)
     {
-        if ($this->isValidPaymentMethodCode($body['payment_method_code']) || $this->isValidStatus($bill)) {
-            return true;
-        }
-
-        return false;
+        return $this->isValidPaymentMethodCode($body['payment_method_code'])
+            || $this->isValidStatus($bill)
+            || $this->isWaitingPaymentMethodResponse($bill);
     }
 
     /**
@@ -400,11 +408,20 @@ abstract class AbstractMethod extends OriginAbstractMethod
     {
         $paymentMethodsCode = [
             PaymentMethod::BANK_SLIP,
-            PaymentMethod::DEBIT_CARD,
-            PaymentMethod::PIX
+            PaymentMethod::DEBIT_CARD
         ];
 
         return in_array($paymentMethodCode , $paymentMethodsCode);
+    }
+
+    /**
+     * @param $bill
+     *
+     * @return bool
+     */
+    protected function isWaitingPaymentMethodResponse($bill)
+    {
+        return reset($bill['charges'])['last_transaction']['status'] === Bill::WAITING_STATUS;
     }
 
     /**
