@@ -13,6 +13,14 @@ class PixConfiguration extends AbstractHelper implements PixConfigurationInterfa
     /**
      * @inheritDoc
      */
+    public function isEnabledDocument(string $scopeType = ScopeInterface::SCOPE_STORE, string $scopeCode = null)
+    {
+        return $this->scopeConfig->isSetFlag(static::PATH_ENABLED_DOCUMENT, $scopeType, $scopeCode);
+    }
+
+    /**
+     * @inheritDoc
+     */
     public function getInfoMessage(string $scopeType = ScopeInterface::SCOPE_STORE, string $scopeCode = null)
     {
         $result = $this->scopeConfig->getValue(static::PATH_INFO_MESSAGE, $scopeType, $scopeCode);
