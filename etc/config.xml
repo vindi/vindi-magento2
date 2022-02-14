@@ -24,6 +24,7 @@
                 <active>0</active>
                 <model>Vindi\Payment\Model\Payment\Pix</model>
                 <title>Vindi - Pix</title>
+                <enabled_document>0</enabled_document>
                 <allowspecific>0</allowspecific>
                 <payment_action>authorize</payment_action>
                 <group>offline</group>
