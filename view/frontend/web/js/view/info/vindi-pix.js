@@ -8,7 +8,7 @@ define(
 
         return Component.extend({
             defaults: {
-                template: 'Vindi_Payment/onepage/vindi-pix'
+                template: 'Vindi_Payment/info/vindi-pix'
             },
         });
     }
