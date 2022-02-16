@@ -2,6 +2,7 @@
 
 namespace Vindi\Payment\Model\Payment;
 
+
 use Magento\Framework\Api\AttributeValueFactory;
 use Magento\Framework\Api\ExtensionAttributesFactory;
 use Magento\Framework\App\Config\ScopeConfigInterface;
@@ -23,11 +24,19 @@ use Psr\Log\LoggerInterface;
 use Vindi\Payment\Api\PlanManagementInterface;
 use Vindi\Payment\Api\ProductManagementInterface;
 use Vindi\Payment\Api\SubscriptionInterface;
+use Magento\Payment\Model\Method\AbstractMethod as OriginAbstractMethod;
+use Vindi\Payment\Helper\Api;
 
-abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMethod
+/**
+ * Class AbstractMethod
+ *
+ * @package \Vindi\Payment\Model\Payment
+ */
+abstract class AbstractMethod extends OriginAbstractMethod
 {
+
     /**
-     * @var \Vindi\Payment\Helper\Api
+     * @var Api
      */
     protected $api;
 
@@ -65,23 +74,51 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
      * @var TimezoneInterface
      */
     protected $date;
+
     /**
      * @var ProductManagementInterface
      */
     private $productManagement;
+
     /**
      * @var \Vindi\Payment\Helper\Data
      */
     private $helperData;
+
     /**
      * @var PlanManagementInterface
      */
     private $planManagement;
+
     /**
      * @var SubscriptionInterface
      */
     private $subscriptionRepository;
 
+    /**
+     * @param Context $context
+     * @param Registry $registry
+     * @param ExtensionAttributesFactory $extensionFactory
+     * @param AttributeValueFactory $customAttributeFactory
+     * @param Data $paymentData
+     * @param ScopeConfigInterface $scopeConfig
+     * @param Logger $logger
+     * @param Api $api
+     * @param InvoiceService $invoiceService
+     * @param Customer $customer
+     * @param ProductManagementInterface $productManagement
+     * @param PlanManagementInterface $planManagement
+     * @param SubscriptionInterface $subscriptionRepository
+     * @param Bill $bill
+     * @param Profile $profile
+     * @param PaymentMethod $paymentMethod
+     * @param LoggerInterface $psrLogger
+     * @param TimezoneInterface $date
+     * @param \Vindi\Payment\Helper\Data $helperData
+     * @param AbstractResource|null $resource
+     * @param AbstractDb|null $resourceCollection
+     * @param array $data
+     */
     public function __construct(
         Context $context,
         Registry $registry,
@@ -90,7 +127,7 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
         Data $paymentData,
         ScopeConfigInterface $scopeConfig,
         Logger $logger,
-        \Vindi\Payment\Helper\Api $api,
+        Api $api,
         InvoiceService $invoiceService,
         Customer $customer,
         ProductManagementInterface $productManagement,
@@ -206,6 +243,7 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
     /**
      * @param \Magento\Framework\DataObject|InfoInterface $payment
      * @param float $amount
+     *
      * @throws LocalizedException
      * @return $this|string
      */
@@ -238,8 +276,8 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
         }
 
         if ($bill = $this->bill->create($body)) {
-            $this->handleBankSplitAdditionalInformation($payment, $body, $bill);
             if ($this->successfullyPaid($body, $bill)) {
+                $this->handleBankSplitAdditionalInformation($payment, $body, $bill);
                 $order->setVindiBillId($bill['id']);
                 return $bill['id'];
             }
@@ -284,8 +322,8 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
 
         if ($responseData = $this->subscriptionRepository->create($body)) {
             $bill = $responseData['bill'];
-            $this->handleBankSplitAdditionalInformation($payment, $body, $bill);
             if ($this->successfullyPaid($body, $bill)) {
+                $this->handleBankSplitAdditionalInformation($payment, $body, $bill);
                 $order->setVindiBillId($bill['id']);
                 $order->setVindiSubscriptionId($responseData['subscription']['id']);
                 return $bill['id'];
@@ -341,25 +379,68 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
             $payment->setAdditionalInformation('print_url', $bill['charges'][0]['print_url']);
             $payment->setAdditionalInformation('due_at', $bill['charges'][0]['due_at']);
         }
+
+        if ($body['payment_method_code'] === PaymentMethod::PIX) {
+            $payment->setAdditionalInformation('qrcode_original_path', $bill['charges'][0]['last_transaction']['gateway_response_fields']['qrcode_original_path']);
+            $payment->setAdditionalInformation('qrcode_path', $bill['charges'][0]['last_transaction']['gateway_response_fields']['qrcode_path']);
+            $payment->setAdditionalInformation('due_at', $bill['charges'][0]['due_at']);
+        }
     }
 
     /**
      * @param array $body
      * @param $bill
+     *
      * @return bool
      */
     private function successfullyPaid(array $body, $bill)
     {
-        if (
-            $body['payment_method_code'] === PaymentMethod::BANK_SLIP
-            || $body['payment_method_code'] === PaymentMethod::DEBIT_CARD
-            || $bill['status'] === Bill::PAID_STATUS
-            || $bill['status'] === Bill::REVIEW_STATUS
-            || reset($bill['charges'])['status'] === Bill::FRAUD_REVIEW_STATUS
-        ) {
-            return true;
-        }
+        return $this->isValidPaymentMethodCode($body['payment_method_code'])
+            || $this->isValidStatus($bill)
+            || $this->isWaitingPaymentMethodResponse($bill);
+    }
 
-        return false;
+    /**
+     * @param $paymentMethodCode
+     *
+     * @return bool
+     */
+    protected function isValidPaymentMethodCode($paymentMethodCode)
+    {
+        $paymentMethodsCode = [
+            PaymentMethod::BANK_SLIP,
+            PaymentMethod::DEBIT_CARD
+        ];
+
+        return in_array($paymentMethodCode , $paymentMethodsCode);
+    }
+
+    /**
+     * @param $bill
+     *
+     * @return bool
+     */
+    protected function isWaitingPaymentMethodResponse($bill)
+    {
+        return reset($bill['charges'])['last_transaction']['status'] === Bill::WAITING_STATUS;
+    }
+
+    /**
+     * @param $bill
+     *
+     * @return bool
+     */
+    protected function isValidStatus($bill)
+    {
+        if (!$bill) return false;
+
+        $billStatus = [
+            Bill::PAID_STATUS,
+            Bill::REVIEW_STATUS
+        ];
+
+        $chargeStatus = reset($bill['charges'])['status'] === Bill::FRAUD_REVIEW_STATUS;
+
+        return in_array($bill['status'], $billStatus) || $chargeStatus;
     }
 }

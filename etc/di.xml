@@ -1,22 +1,25 @@
 <?xml version="1.0"?>
-<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:ObjectManager/etc/config.xsd">
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:framework:ObjectManager/etc/config.xsd">
+
     <preference for="Vindi\Payment\Api\PlanInterface" type="Vindi\Payment\Model\Vindi\Plan"/>
     <preference for="Vindi\Payment\Api\PlanManagementInterface" type="Vindi\Payment\Model\Vindi\PlanManagement"/>
-
     <preference for="Vindi\Payment\Api\ProductInterface" type="Vindi\Payment\Model\Vindi\Product"/>
     <preference for="Vindi\Payment\Api\ProductManagementInterface" type="Vindi\Payment\Model\Vindi\ProductManagement"/>
-
     <preference for="Vindi\Payment\Model\Subscription\SyncSubscriptionInterface" type="Vindi\Payment\Model\Subscription\SyncSubscription"/>
     <preference for="Vindi\Payment\Api\SubscriptionInterface" type="Vindi\Payment\Model\Vindi\Subscription"/>
     <preference for="Vindi\Payment\Api\SubscriptionRepositoryInterface" type="Vindi\Payment\Model\SubscriptionRepository"/>
     <preference for="Vindi\Payment\Api\Data\SubscriptionInterface" type="Vindi\Payment\Model\Data\Subscription"/>
     <preference for="Vindi\Payment\Api\Data\SubscriptionSearchResultsInterface" type="Magento\Framework\Api\SearchResults"/>
+    <preference for="Vindi\Payment\Api\PixConfigurationInterface" type="Vindi\Payment\Helper\PixConfiguration"/>
+
     <virtualType name="Vindi\Payment\Model\ResourceModel\Subscription\Grid\Collection" type="Magento\Framework\View\Element\UiComponent\DataProvider\SearchResult">
         <arguments>
             <argument name="mainTable" xsi:type="string">vindi_subscription</argument>
             <argument name="resourceModel" xsi:type="string">Vindi\Payment\Model\ResourceModel\Subscription\Collection</argument>
         </arguments>
     </virtualType>
+
     <type name="Magento\Framework\View\Element\UiComponent\DataProvider\CollectionFactory">
         <arguments>
             <argument name="collections" xsi:type="array">
