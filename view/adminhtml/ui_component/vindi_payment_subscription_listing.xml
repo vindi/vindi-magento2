@@ -84,6 +84,10 @@
 						<item name="value" xsi:type="string">bank_slip</item>
 						<item name="label" xsi:type="string" translate="true">Boleto Bancário</item>
 					</item>
+                    <item name="pix" xsi:type="array">
+						<item name="value" xsi:type="string">pix</item>
+						<item name="label" xsi:type="string" translate="true">Pix</item>
+					</item>
 				</item>
 				<item name="config" xsi:type="array">
 					<item name="filter" xsi:type="string">select</item>

@@ -4,8 +4,13 @@ namespace Vindi\Payment\Model\Payment;
 
 
 use Magento\Framework\DataObject;
-use Vindi\Payment\Block\Info\BankSlip as InfoBlock;
+use Vindi\Payment\Block\Info\Pix as InfoBlock;
 
+/**
+ * Class Pix
+ *
+ * @package Vindi\Payment\Model\Payment
+ */
 class Pix extends AbstractMethod
 {
 
