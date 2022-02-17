@@ -26,7 +26,7 @@ define(
             },
 
             checkCpf: function () {
-                const message = documentValidate.isValidCpf(this?.document?.value()) ? 'CPF válido' : 'CPF inválido';
+                const message = !documentValidate.isValidCpf(this?.document?.value()) ? '' : 'CPF inválido';
                 $('#cpfResponse').text(message);
             },
 
