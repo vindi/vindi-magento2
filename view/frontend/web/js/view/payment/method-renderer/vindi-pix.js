@@ -35,6 +35,8 @@ define(
                 const self = this;
                 const documentValue = this?.document?.value();
 
+                if (!this.isActiveDocument()) return true;
+
                 if (!documentValue || documentValue === '') {
                     self.messageContainer.addErrorMessage({'message': ('CPF é obrigatório')});
                     return false;
