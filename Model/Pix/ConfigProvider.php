@@ -36,6 +36,7 @@ class ConfigProvider implements ConfigProviderInterface
         return [
             'payment' => [
                 'vindi_pix' => [
+                    'enabledDocument' => $this->pixConfiguration->isEnabledDocument(),
                     'info_message' => $this->pixConfiguration->getInfoMessage(),
                 ]
             ]
