@@ -23,10 +23,12 @@ define(
 
                 navigator.clipboard.writeText(value).then(function() {
                     //@todo application condition frontend
-                    console.log("success", value);
+                    jQuery('#copied-success').fadeIn(2000);
+                    jQuery('#copied-success').fadeOut(3000);
                 }, function() {
                     //@todo application condition frontend
-                    console.log("fail");
+                    jQuery('#copied-error').fadeIn(2000);
+                    jQuery('#copied-error').fadeOut(3000);
                 });
             }
         });

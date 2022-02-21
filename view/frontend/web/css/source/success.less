@@ -1,0 +1,198 @@
+//
+// Magento UI Media Queries - Breakpoints
+//
+// @screen__s:   640px;
+// @screen__xs:  480px;
+// @screen__m:   768px;
+// @screen__l:   1024px;
+//  _____________________________________________
+
+//
+// Mobile and Desktop (style-m.css) - common
+//
+// Is placed in style-m.css as both desktop and mobile devices
+// have rules within this block "in common"
+//  ---------------------------------------------
+
+.checkout-onepage-success {
+    .page-wrapper {
+        .action.primary {
+            background: #FF6720;
+            border-radius: 8px;
+            border: #FF6720;
+            padding: 10px 25px;
+            font-size: 14px;
+            margin-right: 0;
+            margin-top: 20px;
+            &:hover {
+                background-color: #d82b00;
+            }
+        }
+
+        .checkout-success {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+
+            #qrcode {
+                width: 200px;
+                height: 200px;
+            }
+
+            #copied-success {
+                display: none;
+                position: relative;
+                margin: 20px 0;
+                text-align: center;
+                color: white;
+                font-weight: bold;
+                padding: 10px 15px;
+                background-color: #70bf5d;
+                border-radius: 8px;
+                box-shadow: 0 3px 15px #b8c6db;
+                -moz-box-shadow: 0 3px 15px #b8c6db;
+                -webkit-box-shadow: 0 3px 15px #b8c6db;
+            }
+
+            #copied-error {
+                display: none;
+                position: relative;
+                margin: 20px 0;
+                text-align: center;
+                color: white;
+                font-weight: bold;
+                padding: 10px 15px;
+                background-color: red;
+                border-radius: 8px;
+                box-shadow: 0 3px 15px #b8c6db;
+                -moz-box-shadow: 0 3px 15px #b8c6db;
+                -webkit-box-shadow: 0 3px 15px #b8c6db;
+            }
+
+            p {
+                &:nth-child(1) {
+                    font-weight: 600;
+                    font-size: 16px;
+                    line-height: 28px;
+                    text-align: center;
+                    color: #2A2A2A;
+                }
+                &:nth-child(2) {
+                    width: 40%;
+                    text-align: center;
+                    margin: 20px 0;
+                    font-weight: 500;
+                    font-size: 16px;
+                    line-height: 28px;
+                    text-align: center;
+                    color: #898989;
+                }
+                a {
+                    color: #999999;
+                }
+            }
+
+        }
+
+        .page-title-wrapper {
+            display: flex;
+            align-items: center;
+            flex-direction: column;
+
+            .page-title {
+                margin-bottom: 30px;
+                order: 1;
+
+                span {
+                    font-weight: bold;
+                    color: #012169;
+                }
+            }
+            .action.print {
+                margin-bottom: 10px;
+                order: 0;
+            }
+        }
+
+        .checkout-success.qr-code {
+            margin-top: 20px;
+            p {
+                width: 40%;
+                margin: 20px 0;
+                font-weight: 500;
+                font-size: 16px;
+                line-height: 28px;
+                text-align: center;
+                color: #898989;
+            }
+            .box-qr {
+                height: 115px;
+            }
+        }
+
+        .container-button-print {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+    }
+}
+
+
+//  1024px;
+
+@media (max-width: 1024px){
+    .checkout-onepage-success {
+        .page-wrapper {
+            .checkout-success {
+                p {
+                    &:nth-child(2) {
+                        width: 70%;
+                    }
+                }
+            }
+            .checkout-success.qr-code {
+                p {
+                    width: 65%;
+                }
+            }
+        }
+    }
+}
+
+// 768px;
+
+@media (max-width: 768px) {
+    .checkout-onepage-success {
+        .page-wrapper {
+            .page-title-wrapper {
+                .page-title {
+                    text-align: center;
+                    span {
+                        font-size: 24px;
+                    }
+                }
+            }
+            .checkout-success {
+                p {
+                    &:nth-child(1) {
+                        font-size: 14px;
+                    }
+
+                    &:nth-child(2) {
+                        width: 100%;
+                        margin: 15px 0;
+                        font-size: 14px;
+                    }
+                }
+            }
+            .checkout-success.qr-code {
+                p {
+                    width: 100%;
+                    font-size: 14px;
+                }
+            }
+        }
+    }
+
+}
