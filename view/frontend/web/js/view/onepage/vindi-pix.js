@@ -1,12 +1,10 @@
 define(
     [
         'jquery',
-        'uiComponent'
+        'Vindi_Payment/js/view/onepage/model/vindi-pix-copy-paste'
     ],
     function ($, Component) {
         'use strict';
-
-        const elemVindiPixButtonCopy = '.vindi-pix-button-copy';
 
         return Component.extend({
             defaults: {
@@ -22,11 +20,9 @@ define(
                 const value = this?.qrCodeKey;
 
                 navigator.clipboard.writeText(value).then(function() {
-                    //@todo application condition frontend
                     jQuery('#copied-success').fadeIn(2000);
                     jQuery('#copied-success').fadeOut(3000);
                 }, function() {
-                    //@todo application condition frontend
                     jQuery('#copied-error').fadeIn(2000);
                     jQuery('#copied-error').fadeOut(3000);
                 });
