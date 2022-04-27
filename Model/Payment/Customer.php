@@ -117,9 +117,9 @@ class Customer
      *
      * @return array|bool|mixed
      */
-    public function updateVindiCustomer($query ,$body)
+    public function updateVindiCustomer($customerId ,$body)
     {
-        $response = $this->api->request("customers/{$query}", 'PUT', $body);
+        $response = $this->api->request("customers/{$customerId}", 'PUT', $body);
 
         if (isset($response['customer']['id'])) {
             return $response['customer']['id'];
