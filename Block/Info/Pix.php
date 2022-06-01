@@ -71,6 +71,18 @@ class Pix extends Info
     }
 
     /**
+     * Get reorder URL
+     *
+     * @param object $order
+     * @return string
+     */
+    public function getReorderUrl()
+    {
+        $order = $this->getOrder();
+        return $this->getUrl('sales/order/reorder', ['order_id' => $order->getId()]);
+    }
+
+    /**
      * @return bool
      * @throws \Magento\Framework\Exception\LocalizedException
      */
