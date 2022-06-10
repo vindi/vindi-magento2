@@ -5,13 +5,14 @@ use Vindi\Payment\Block\Info\Pix;
 /** @var $block Pix */
 ?>
 
-<?php if ($block->canShowPixInfo()) : ?>
+
     <dl class="payment-method">
         <dt class="title">
             <strong>
                 <?= $block->escapeHtml($block->getMethod()->getTitle()) ?>
             </strong>
         </dt>
+        <?php if ($block->canShowPixInfo()) : ?>
         <dd>
             <p>
                 <strong>
@@ -55,4 +56,9 @@ use Vindi\Payment\Block\Info\Pix;
             }
         }
     </script>
-<?php endif; ?>
+    <?php else: ?>
+        <strong>
+            <?=__('Pix expirado') ?>
+        </strong></br>
+        <a href="/vindiPayment/subscription/renew?bill=<?= $block->getBillId()?>&order=<?= $block->getOrder()->getId() ?>"><button name="renew-pix"><?=__('Renovar Cobrança')?></button></a>
+    <?php endif; ?>

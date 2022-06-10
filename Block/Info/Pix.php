@@ -62,6 +62,18 @@ class Pix extends Info
     }
 
     /**
+     * @return string
+     * @throws \Magento\Framework\Exception\LocalizedException
+     */
+    public function getBillId()
+    {
+        $order = $this->getOrder();
+        $billId = $order->getVindiBillId() ?? null;
+
+        return $billId;
+    }
+
+    /**
      * @return mixed
      * @throws \Magento\Framework\Exception\LocalizedException
      */
