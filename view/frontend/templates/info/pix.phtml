@@ -6,7 +6,8 @@ use Vindi\Payment\Block\Info\Pix;
 ?>
 
 
-    <dl class="payment-method">
+
+      <dl class="payment-method">
         <dt class="title">
             <strong>
                 <?= $block->escapeHtml($block->getMethod()->getTitle()) ?>
@@ -26,11 +27,11 @@ use Vindi\Payment\Block\Info\Pix;
                     <?= $block->getQrCodeWarningMessage() ?>
                 </p>
                 <button
-                    id="vindi-pix-button-open"
-                    type="button"
-                    class="action primary checkout"
-                    title="Open QR Code Pix"
-                    onclick="window.open('<?= $block->getQrCodePix() ?>', '_blank')">
+                        id="vindi-pix-button-open"
+                        type="button"
+                        class="action primary checkout"
+                        title="Open QR Code Pix"
+                        onclick="window.open('<?= $block->getQrCodePix() ?>', '_blank')">
                     <?= __('Open QR Code') ?>
                 </button>
             </object>
@@ -40,9 +41,26 @@ use Vindi\Payment\Block\Info\Pix;
             </div>
 
         </dd>
-    </dl>
+    <?php else : ?>
+        <dd>
+            <p>
+                <strong>
+                    <?= sprintf(__('Pix expirado. Por favor realizar uma nova compra.'))?>
+                </strong>
+            </p>
+        </dd>
+        <dd>
+            <a href="#" data-post='<?= /* @noEscape */
+            $this->helper(\Magento\Framework\Data\Helper\PostHelper::class)
+                ->getPostData($block->getReorderUrl())
+            ?>' class="action order">
+                <span><?= $block->escapeHtml(__('Reorder')) ?></span>
+            </a>
+        </dd>
+    <?php endif; ?>
+</dl>
 
-    <script type="text/x-magento-init">
+<script type="text/x-magento-init">
         {
             "*": {
                 "Magento_Ui/js/core/app": {
