@@ -55,9 +55,8 @@ class Renew extends Action
                     foreach ($response['bill']['charges'] as $charge) {
                         if ($charge['status'] == "pending") {
                             $chargeId = $charge['id'];
-                            $this->api->request("charges/{$chargeId}", "DELETE");
-                            $newBill = $this->api->request("bills/{$billId}/charge", "POST");
-                            foreach($newBill['bill']['charges'] as $newCharge) {
+                            $newCharges = $this->api->request("charges/{$chargeId}/charge", "POST");
+                            foreach($newCharges as $newCharge) {
                                 if ($newCharge['status'] == 'pending' && isset($newCharge['last_transaction']['gateway_response_fields']['qrcode_original_path'])) {
                                     $order = $this->orderRepository->get($orderId);
                                     $additionalInformation = $order->getPayment()->getAdditionalInformation();
@@ -66,7 +65,7 @@ class Renew extends Action
                                     $additionalInformation['max_days_to_keep_waiting_payment'] = $newCharge['last_transaction']['gateway_response_fields']['max_days_to_keep_waiting_payment'];
                                     $order->getPayment()->setAdditionalInformation($additionalInformation);
                                     $this->orderRepository->save($order);
-                                    $this->messageManager->addSuccessMessage(__("Cobrança renovada"));
+                                    $this->messageManager->addSuccessMessage(__("QR Code atualizado"));
                                     return $resultRedirect;
                                 }
                             }
@@ -77,7 +76,7 @@ class Renew extends Action
                 $this->messageManager->addErrorMessage($e);
             }
         } else {
-            $this->messageManager->addErrorMessage(__("Nao foi possivel renovar a cobrança"));
+            $this->messageManager->addErrorMessage(__("Não foi possivel atualizar o QR Code."));
         }
         return $resultRedirect;
     }
