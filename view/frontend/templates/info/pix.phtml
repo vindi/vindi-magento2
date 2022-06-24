@@ -40,23 +40,6 @@ use Vindi\Payment\Block\Info\Pix;
             </div>
 
         </dd>
-    <?php else : ?>
-        <dd>
-            <p>
-                <strong>
-                    <?= sprintf(__('Pix expirado. Por favor realizar uma nova compra.'))?>
-                </strong>
-            </p>
-        </dd>
-        <dd>
-            <a href="#" data-post='<?= /* @noEscape */
-            $this->helper(\Magento\Framework\Data\Helper\PostHelper::class)
-                ->getPostData($block->getReorderUrl())
-            ?>' class="action order">
-                <span><?= $block->escapeHtml(__('Reorder')) ?></span>
-            </a>
-        </dd>
-    <?php endif; ?>
 </dl>
 
 <script type="text/x-magento-init">
