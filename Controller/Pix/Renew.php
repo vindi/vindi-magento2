@@ -1,6 +1,6 @@
 <?php
 
-namespace Vindi\Payment\Controller\Subscription;
+namespace Vindi\Payment\Controller\Pix;
 
 use Magento\Framework\App\Action\Context;
 use Magento\Backend\Model\View\Result\Redirect;
