@@ -5,6 +5,7 @@ use Vindi\Payment\Block\Info\Pix;
 /** @var $block Pix */
 ?>
 
+
 <dl class="payment-method">
     <dt class="title">
         <strong>
@@ -39,23 +40,6 @@ use Vindi\Payment\Block\Info\Pix;
             </div>
 
         </dd>
-    <?php else : ?>
-        <dd>
-            <p>
-                <strong>
-                    <?= sprintf(__('Pix expirado. Por favor realizar uma nova compra.'))?>
-                </strong>
-            </p>
-        </dd>
-        <dd>
-            <a href="#" data-post='<?= /* @noEscape */
-            $this->helper(\Magento\Framework\Data\Helper\PostHelper::class)
-                ->getPostData($block->getReorderUrl())
-            ?>' class="action order">
-                <span><?= $block->escapeHtml(__('Reorder')) ?></span>
-            </a>
-        </dd>
-    <?php endif; ?>
 </dl>
 
 <script type="text/x-magento-init">
@@ -72,3 +56,9 @@ use Vindi\Payment\Block\Info\Pix;
             }
         }
     </script>
+    <?php else: ?>
+        <strong>
+            <?=__('Pix expirado') ?>
+        </strong></br>
+        <a href="/vindiPayment/pix/renew?bill=<?= $block->getBillId()?>&order=<?= $block->getOrder()->getId() ?>"><button name="renew-pix"><?=__('Atualizar QR Code')?></button></a>
+    <?php endif; ?>
