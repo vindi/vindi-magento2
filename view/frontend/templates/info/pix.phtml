@@ -5,13 +5,14 @@ use Vindi\Payment\Block\Info\Pix;
 /** @var $block Pix */
 ?>
 
-<?php if ($block->canShowPixInfo()) : ?>
-    <dl class="payment-method">
-        <dt class="title">
-            <strong>
-                <?= $block->escapeHtml($block->getMethod()->getTitle()) ?>
-            </strong>
-        </dt>
+
+<dl class="payment-method">
+    <dt class="title">
+        <strong>
+            <?= $block->escapeHtml($block->getMethod()->getTitle()) ?>
+        </strong>
+    </dt>
+    <?php if ($block->canShowPixInfo()) : ?>
         <dd>
             <p>
                 <strong>
@@ -25,11 +26,11 @@ use Vindi\Payment\Block\Info\Pix;
                     <?= $block->getQrCodeWarningMessage() ?>
                 </p>
                 <button
-                    id="vindi-pix-button-open"
-                    type="button"
-                    class="action primary checkout"
-                    title="Open QR Code Pix"
-                    onclick="window.open('<?= $block->getQrCodePix() ?>', '_blank')">
+                        id="vindi-pix-button-open"
+                        type="button"
+                        class="action primary checkout"
+                        title="Open QR Code Pix"
+                        onclick="window.open('<?= $block->getQrCodePix() ?>', '_blank')">
                     <?= __('Open QR Code') ?>
                 </button>
             </object>
@@ -39,9 +40,9 @@ use Vindi\Payment\Block\Info\Pix;
             </div>
 
         </dd>
-    </dl>
+</dl>
 
-    <script type="text/x-magento-init">
+<script type="text/x-magento-init">
         {
             "*": {
                 "Magento_Ui/js/core/app": {
@@ -55,4 +56,9 @@ use Vindi\Payment\Block\Info\Pix;
             }
         }
     </script>
-<?php endif; ?>
+    <?php else: ?>
+        <strong>
+            <?=__('Pix expirado') ?>
+        </strong></br>
+        <a href="/vindiPayment/pix/renew?bill=<?= $block->getBillId()?>&order=<?= $block->getOrder()->getId() ?>"><button name="renew-pix"><?=__('Atualizar QR Code')?></button></a>
+    <?php endif; ?>
