@@ -62,12 +62,36 @@ class Pix extends Info
     }
 
     /**
+     * @return string
+     * @throws \Magento\Framework\Exception\LocalizedException
+     */
+    public function getBillId()
+    {
+        $order = $this->getOrder();
+        $billId = $order->getVindiBillId() ?? null;
+
+        return $billId;
+    }
+
+    /**
      * @return mixed
      * @throws \Magento\Framework\Exception\LocalizedException
      */
     public function getOrder()
     {
         return $this->getInfo()->getOrder();
+    }
+
+    /**
+     * Get reorder URL
+     *
+     * @param object $order
+     * @return string
+     */
+    public function getReorderUrl()
+    {
+        $order = $this->getOrder();
+        return $this->getUrl('sales/order/reorder', ['order_id' => $order->getId()]);
     }
 
     /**
