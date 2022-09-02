@@ -90,6 +90,7 @@ abstract class AbstractMethod extends OriginAbstractMethod
      */
     private $planManagement;
     /**
+    
      * @var SubscriptionInterface
      */
     private $subscriptionRepository;
