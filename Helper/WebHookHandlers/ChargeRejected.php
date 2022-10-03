@@ -27,7 +27,6 @@ class ChargeRejected
     public function chargeRejected($data)
     {
         $charge = $data['charge'];
-
         if (!($order = $this->getOrderFromBill($charge['bill']['id']))) {
             $this->logger->warning(__('Order not found'));
 
@@ -36,8 +35,8 @@ class ChargeRejected
 
         $gatewayMessage = $charge['last_transaction']['gateway_message'];
         $isLastAttempt = $charge['next_attempt'] === null;
-
-        if ($isLastAttempt) {
+        $chargeStatus = $charge['status'] != 'pending';
+        if ($isLastAttempt && $chargeStatus) {
             $order->addStatusHistoryComment(__(sprintf(
                 'Payment rejected. Motive: "%s"',
                 $gatewayMessage
