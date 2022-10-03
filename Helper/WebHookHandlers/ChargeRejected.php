@@ -27,6 +27,7 @@ class ChargeRejected
     public function chargeRejected($data)
     {
         $charge = $data['charge'];
+        
         if (!($order = $this->getOrderFromBill($charge['bill']['id']))) {
             $this->logger->warning(__('Order not found'));
 
