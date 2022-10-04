@@ -89,6 +89,7 @@ abstract class AbstractMethod extends OriginAbstractMethod
      * @var PlanManagementInterface
      */
     private $planManagement;
+    
     /**
      * @var SubscriptionInterface
      */
@@ -381,7 +382,8 @@ abstract class AbstractMethod extends OriginAbstractMethod
             $payment->setAdditionalInformation('due_at', $bill['charges'][0]['due_at']);
         }
 
-        if ($body['payment_method_code'] === PaymentMethod::PIX) {
+        $isValidPix = isset($bill['charges'][0]['last_transaction']['gateway_response_fields']['qrcode_original_path']);
+        if ($body['payment_method_code'] === PaymentMethod::PIX && $isValidPix) {
             $payment->setAdditionalInformation('qrcode_original_path', $bill['charges'][0]['last_transaction']['gateway_response_fields']['qrcode_original_path']);
             $payment->setAdditionalInformation('qrcode_path', $bill['charges'][0]['last_transaction']['gateway_response_fields']['qrcode_path']);
             $payment->setAdditionalInformation('max_days_to_keep_waiting_payment', $bill['charges'][0]['last_transaction']['gateway_response_fields']['max_days_to_keep_waiting_payment']);
