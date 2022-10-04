@@ -71,9 +71,11 @@ class Renew extends Action
                             }
                         }
                     }
+                } else {
+                    $this->messageManager->addErrorMessage(__("Não foi possivel atualizar o QR Code."));
                 }
             } catch(\Exception $e){
-                $this->messageManager->addErrorMessage($e);
+                $this->messageManager->addErrorMessage(__("Não foi possivel atualizar o QR Code. Tente novamente mais tarde."));
             }
         } else {
             $this->messageManager->addErrorMessage(__("Não foi possivel atualizar o QR Code."));

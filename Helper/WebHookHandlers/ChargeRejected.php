@@ -36,8 +36,9 @@ class ChargeRejected
 
         $gatewayMessage = $charge['last_transaction']['gateway_message'];
         $isLastAttempt = $charge['next_attempt'] === null;
+        $chargeStatus = $charge['status'] != 'pending';
 
-        if ($isLastAttempt) {
+        if ($isLastAttempt && $chargeStatus) {
             $order->addStatusHistoryComment(__(sprintf(
                 'Payment rejected. Motive: "%s"',
                 $gatewayMessage
