@@ -1,15 +1,26 @@
 <?php
 
-use Vindi\Payment\Block\Onepage\Pix;
+use Vindi\Payment\Block\Info\Pix;
 
 /** @var $block Pix */
 ?>
 
-<?php if ($block->canShowPix()) : ?>
-    <div class="checkout-success qr-code">
+
+<dl class="payment-method">
+    <dt class="title">
+        <strong>
+            <?= $block->escapeHtml($block->getMethod()->getTitle()) ?>
+        </strong>
+    </dt>
+    <?php if ($block->canShowPixInfo()) : ?>
+    <dd>
         <p>
-            <?= $block->getInfoMessageOnepageSuccess() ?>
+            <strong>
+                <?= sprintf(__('Pay up: %s'), $block->getDaysToKeepWaitingPayment())?>
+            </strong>
         </p>
+    </dd>
+    <dd class="content">
         <object data="<?= $block->getQrCodePix() ?>" type="image/svg+xml" class="qr-code" id="qrcode">
             <p>
                 <?= $block->getQrCodeWarningMessage() ?>
@@ -20,20 +31,16 @@ use Vindi\Payment\Block\Onepage\Pix;
                 class="action primary checkout"
                 title="Open QR Code Pix"
                 onclick="window.open('<?= $block->getQrCodePix() ?>', '_blank')">
-                <?php echo __('Open QR Code') ?>
+                <?= __('Open QR Code') ?>
             </button>
         </object>
 
-        <div data-bind="scope: 'vindiPix'" class="box-qr">
+        <div data-bind="scope: 'vindiPix'">
             <!-- ko template: getTemplate() --><!-- /ko -->
-            <div id="copied-success" class="copied">
-                <span><?= __('QR Code Key copied') ?></span>
-            </div>
-            <div id="copied-error" class="copied">
-                <span><?= __('Error copying QR Code') ?></span>
-            </div>
         </div>
-    </div>
+
+    </dd>
+</dl>
 
     <script type="text/x-magento-init">
         {
@@ -41,7 +48,7 @@ use Vindi\Payment\Block\Onepage\Pix;
                 "Magento_Ui/js/core/app": {
                     "components": {
                         "vindiPix": {
-                            "component": "Vindi_Payment/js/view/onepage/vindi-pix",
+                            "component": "Vindi_Payment/js/view/info/vindi-pix",
                             "qrCodeKey": <?= $block->getQrcodeOriginalPath() ?>
                         }
                     }
@@ -49,5 +56,9 @@ use Vindi\Payment\Block\Onepage\Pix;
             }
         }
     </script>
-
+<?php else: ?>
+    <strong>
+        <?=__('Pix expirado') ?>
+    </strong></br>
+    <a href="/vindiPayment/pix/renew?bill=<?= $block->getBillId()?>&order=<?= $block->getOrder()->getId() ?>"><button name="renew-pix"><?=__('Atualizar QRCode')?></button></a>
 <?php endif; ?>
