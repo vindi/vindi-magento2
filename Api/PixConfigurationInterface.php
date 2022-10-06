@@ -11,7 +11,7 @@ interface PixConfigurationInterface
     const PATH_ENABLED_DOCUMENT = 'payment/vindi_pix/enabled_document';
     const PATH_INFO_MESSAGE = 'checkout/vindi_pix/info_message';
     const PATH_INFO_MESSAGE_ONEPAGE_SUCCESS = 'checkout/vindi_pix/info_message_onepage_success';
-    const PATH_QR_CODE_WARNING_MESSAGE = 'checkout/vindi_pix/qr_code_warning_message';
+    const PATH_QR_CODE_WARNING_MESSAGE = 'checkout/vindi_pix/qr-code-warning-message';
 
     /**
      * @param string $scopeType

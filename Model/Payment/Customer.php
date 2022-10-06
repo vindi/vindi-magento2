@@ -45,19 +45,6 @@ class Customer
         }
 
         if ($customerId) {
-            if($order->getPayment()->getMethod() == "vindi_pix") {
-                $customerVindi = $this->getVindiCustomerData($customer->getId());
-                $taxVatOrder = str_replace([' ', '-', '.'], '', $order->getPayment()->getAdditionalInformation()['document']);
-                if ($customerVindi['registry_code'] != $taxVatOrder) {
-                    $updateData = [
-                        'registry_code' => $taxVatOrder,
-                    ];
-                    $this->updateVindiCustomer($customerId, $updateData);
-                    $customer->setTaxvat($order->getPayment()->getAdditionalInformation()['document']);
-                    $this->customerRepository->save($customer);
-                }
-            }
-
             return $customerId;
         }
 
@@ -109,25 +96,6 @@ class Customer
         return false;
     }
 
-
-    /**
-     * Update customer Vindi.
-     *
-     * @param string $query
-     *
-     * @return array|bool|mixed
-     */
-    public function updateVindiCustomer($customerId ,$body)
-    {
-        $response = $this->api->request("customers/{$customerId}", 'PUT', $body);
-
-        if (isset($response['customer']['id'])) {
-            return $response['customer']['id'];
-        }
-
-        return false;
-    }
-
     /**
      * Make an API request to retrieve an existing Customer.
      *
@@ -141,24 +109,6 @@ class Customer
 
         if ($response && (1 === count($response['customers'])) && isset($response['customers'][0]['id'])) {
             return $response['customers'][0]['id'];
-        }
-
-        return false;
-    }
-
-    /**
-     * Make an API request to retrieve an existing Customer Data.
-     *
-     * @param string $query
-     *
-     * @return array|bool|mixed
-     */
-    public function getVindiCustomerData($query)
-    {
-        $response = $this->api->request("customers?query=code={$query}", 'GET');
-
-        if ($response && (1 === count($response['customers'])) && isset($response['customers'][0]['id'])) {
-            return $response['customers'][0];
         }
 
         return false;

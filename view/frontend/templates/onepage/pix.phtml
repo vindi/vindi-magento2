@@ -6,7 +6,7 @@ use Vindi\Payment\Block\Onepage\Pix;
 ?>
 
 <?php if ($block->canShowPix()) : ?>
-    <div class="checkout-success qr-code">
+    <div class="checkout-success">
         <p>
             <?= $block->getInfoMessageOnepageSuccess() ?>
         </p>
@@ -24,14 +24,8 @@ use Vindi\Payment\Block\Onepage\Pix;
             </button>
         </object>
 
-        <div data-bind="scope: 'vindiPix'" class="box-qr">
+        <div data-bind="scope: 'vindiPix'">
             <!-- ko template: getTemplate() --><!-- /ko -->
-            <div id="copied-success" class="copied">
-                <span><?= __('QR Code Key copied') ?></span>
-            </div>
-            <div id="copied-error" class="copied">
-                <span><?= __('Error copying QR Code') ?></span>
-            </div>
         </div>
     </div>
 

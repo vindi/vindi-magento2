@@ -115,7 +115,7 @@
                     <label>Message on onepage success</label>
                     <comment>Message that will be presented to the customer on the success screen, after completing the order.</comment>
                 </field>
-                <field id="qr_code_warning_message" showInDefault="1" showInStore="1" showInWebsite="1" sortOrder="20" translate="label" type="text">
+                <field id="qr-code-warning-message" showInDefault="1" showInStore="1" showInWebsite="1" sortOrder="20" translate="label" type="text">
                     <label>QR Code warning message</label>
                     <comment>Message if the qr code is not resized.</comment>
                 </field>
