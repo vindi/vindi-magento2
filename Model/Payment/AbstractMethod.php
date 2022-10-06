@@ -263,8 +263,7 @@ abstract class AbstractMethod extends OriginAbstractMethod
         $body = [
             'customer_id' => $customerId,
             'payment_method_code' => $this->getPaymentMethodCode(),
-            'bill_items' => $productList,
-            'code' => $order->getIncrementId()
+            'bill_items' => $productList
         ];
 
         if ($body['payment_method_code'] === PaymentMethod::CREDIT_CARD) {

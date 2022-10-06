@@ -52,13 +52,10 @@ class BillPaid
         $isSubscription = false;
 
         if (array_key_exists('subscription', $data['bill'])
-            && isset($data['bill']['subscription']['code'])
-            && $data['bill']['subscription'] != null
+            && array_key_exists('code', $data['bill']['subscription'])
         ) {
             $isSubscription = true;
             $order = $this->getOrder($data['bill']['subscription']['code']);
-        } elseif (isset($data['bill']['code']) && $data['bill']['code'] != null) {
-            $order = $this->getOrder($data['bill']['code']);
         }
 
         if (!$order && !($order = $this->order->getOrder($data))) {
