@@ -89,7 +89,7 @@ abstract class AbstractMethod extends OriginAbstractMethod
      * @var PlanManagementInterface
      */
     private $planManagement;
-    
+
     /**
      * @var SubscriptionInterface
      */
@@ -263,7 +263,8 @@ abstract class AbstractMethod extends OriginAbstractMethod
         $body = [
             'customer_id' => $customerId,
             'payment_method_code' => $this->getPaymentMethodCode(),
-            'bill_items' => $productList
+            'bill_items' => $productList,
+            'code' => $order->getIncrementId()
         ];
 
         if ($body['payment_method_code'] === PaymentMethod::CREDIT_CARD) {
