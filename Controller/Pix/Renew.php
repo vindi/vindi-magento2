@@ -48,6 +48,7 @@ class Renew extends Action
 
         $billId = $this->getRequest()->getParam('bill');
         $orderId = $this->getRequest()->getParam('order');
+        $messageError = "Não foi possivel atualizar o QR Code. Tente novamente mais tarde.";
         if ($billId) {
             try {
                 $response = $this->api->request("bills/{$billId}" , "GET");
@@ -67,18 +68,20 @@ class Renew extends Action
                                     $this->orderRepository->save($order);
                                     $this->messageManager->addSuccessMessage(__("QR Code atualizado"));
                                     return $resultRedirect;
+                                } else {
+                                    $this->messageManager->addErrorMessage(__($messageError));
                                 }
                             }
                         }
                     }
                 } else {
-                    $this->messageManager->addErrorMessage(__("Não foi possivel atualizar o QR Code."));
+                    $this->messageManager->addErrorMessage(__($messageError));
                 }
             } catch(\Exception $e){
-                $this->messageManager->addErrorMessage(__("Não foi possivel atualizar o QR Code. Tente novamente mais tarde."));
+                $this->messageManager->addErrorMessage(__($messageError));
             }
         } else {
-            $this->messageManager->addErrorMessage(__("Não foi possivel atualizar o QR Code."));
+            $this->messageManager->addErrorMessage(__($messageError));
         }
         return $resultRedirect;
     }
