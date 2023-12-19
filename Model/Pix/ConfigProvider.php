@@ -4,6 +4,7 @@ namespace Vindi\Payment\Model\Pix;
 
 
 use Magento\Checkout\Model\ConfigProviderInterface;
+use Magento\Customer\Model\Session as CustomerSession;
 use Vindi\Payment\Api\PixConfigurationInterface;
 
 
@@ -20,12 +21,20 @@ class ConfigProvider implements ConfigProviderInterface
     protected $pixConfiguration;
 
     /**
+     * @var CustomerSession $customerSession
+     */
+    protected $customerSession;
+
+    /**
      * @param PixConfigurationInterface $pixConfiguration
+     * @param CustomerSession $customerSession
      */
     public function __construct(
-        PixConfigurationInterface $pixConfiguration
+        PixConfigurationInterface $pixConfiguration,
+        CustomerSession $customerSession
     ) {
         $this->pixConfiguration = $pixConfiguration;
+        $this->customerSession = $customerSession;
     }
 
     /**
@@ -33,11 +42,18 @@ class ConfigProvider implements ConfigProviderInterface
      */
     public function getConfig()
     {
+        $customerTaxvat = '';
+        $customer = $this->customerSession->getCustomer();
+        if ($customer && $customer->getTaxvat()) {
+            $customerTaxvat = $customer->getTaxvat();
+        }
+
         return [
             'payment' => [
                 'vindi_pix' => [
                     'enabledDocument' => $this->pixConfiguration->isEnabledDocument(),
                     'info_message' => $this->pixConfiguration->getInfoMessage(),
+                    'customer_taxvat' => $customerTaxvat
                 ]
             ]
         ];
