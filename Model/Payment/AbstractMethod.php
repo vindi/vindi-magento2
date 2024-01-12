@@ -2,7 +2,6 @@
 
 namespace Vindi\Payment\Model\Payment;
 
-
 use Magento\Framework\Api\AttributeValueFactory;
 use Magento\Framework\Api\ExtensionAttributesFactory;
 use Magento\Framework\App\Config\ScopeConfigInterface;
@@ -324,12 +323,14 @@ abstract class AbstractMethod extends OriginAbstractMethod
 
         if ($responseData = $this->subscriptionRepository->create($body)) {
             $bill = $responseData['bill'];
+            $subscription = $responseData['subscription'];
             $this->handleBankSplitAdditionalInformation($payment, $body, $bill);
-            if ($this->successfullyPaid($body, $bill)) {
+            if ($this->successfullyPaid($body, $bill, $subscription)) {
                 $this->handleBankSplitAdditionalInformation($payment, $body, $bill);
-                $order->setVindiBillId($bill['id']);
+                $billId = $bill['id'] ?? 0;
+                $order->setVindiBillId($billId);
                 $order->setVindiSubscriptionId($responseData['subscription']['id']);
-                return $bill['id'];
+                return $billId;
             }
 
             $this->subscriptionRepository->deleteAndCancelBills($responseData['subscription']['id']);
@@ -394,11 +395,19 @@ abstract class AbstractMethod extends OriginAbstractMethod
     /**
      * @param array $body
      * @param $bill
-     *
+     * @param array $subscription
      * @return bool
      */
-    private function successfullyPaid(array $body, $bill)
+    private function successfullyPaid(array $body, $bill, array $subscription = [])
     {
+        // nova validação para permitir pedidos com pagamento/fatura pendente
+        if (!$bill) {
+            $billingType = $subscription['billing_trigger_type'] ?? null;
+            if ($billingType != 'day_of_month') {
+                return true;
+            }
+        }
+
         return $this->isValidPaymentMethodCode($body['payment_method_code'])
             || $this->isValidStatus($bill)
             || $this->isWaitingPaymentMethodResponse($bill);
@@ -426,6 +435,10 @@ abstract class AbstractMethod extends OriginAbstractMethod
      */
     protected function isWaitingPaymentMethodResponse($bill)
     {
+        if (!$bill) {
+            return false;
+        }
+
         return reset($bill['charges'])['last_transaction']['status'] === Bill::WAITING_STATUS;
     }
 
