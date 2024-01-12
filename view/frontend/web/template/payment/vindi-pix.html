@@ -30,7 +30,7 @@
 
                     <div class="field number required" data-bind="attr: {id: getCode() + '_document'}">
                         <label data-bind="attr: {for: getCode() + '_document'}" class="label">
-                            <span><!-- ko i18n: 'CPF'--><!-- /ko --></span>
+                            <span><!-- ko i18n: 'CPF/CNPJ'--><!-- /ko --></span>
                         </label>
 
                         <div class="control">
@@ -46,9 +46,10 @@
                                                     id: getCode() + '_document',
                                                     title: $t('CPF'),
                                                     'data-container': getCode() + '-cpf',
-                                                    'data-validate': JSON.stringify({'required-number':true})
+                                                    'data-validate': JSON.stringify({'required-number':true}),
+                                                    'maxlength': 18
                                                 },
-                                                value: document.value,
+                                                value: taxvat.value,
                                                 valueUpdate: 'keyup',
                                                 event: {
                                                     keyup: checkCpf
