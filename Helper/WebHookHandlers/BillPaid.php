@@ -101,6 +101,7 @@ class BillPaid
         $invoice = $order->prepareInvoice();
         $invoice->setRequestedCaptureCase(Invoice::CAPTURE_OFFLINE);
         $invoice->register();
+        $invoice->pay();
         $invoice->setSendEmail(true);
         $this->invoiceRepository->save($invoice);
         $this->logger->info(__('Invoice created with success'));
@@ -111,9 +112,15 @@ class BillPaid
                 \Magento\Sales\Model\Order::STATE_PROCESSING
             );
         } else {
+            $status = $this->helperData->getStatusToPaidOrder();
+
+            if ($state = $this->helperData->getStatusState($status)) {
+                $order->setState($state);
+            }
+
             $order->addCommentToStatusHistory(
                 __('The payment was confirmed and the order is being processed')->getText(),
-                $this->helperData->getStatusToPaidOrder()
+                $status
             );
         }
 

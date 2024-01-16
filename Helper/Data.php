@@ -8,6 +8,7 @@ use \Magento\Framework\App\Helper\AbstractHelper;
 use Magento\Framework\App\Helper\Context;
 use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Sales\Model\Order;
+use Magento\Sales\Model\ResourceModel\Order\Status\CollectionFactory;
 use Vindi\Payment\Model\Config\Source\Mode;
 use Vindi\Payment\Setup\UpgradeData;
 
@@ -24,21 +25,30 @@ class Data extends AbstractHelper
     private $productRepository;
 
     /**
+     * @var CollectionFactory
+     */
+    private $orderStatusCollectionFactory;
+
+
+    /**
      * Data constructor.
      * @param Context $context
      * @param AttributeSetRepositoryInterface $attributeSetRepository
      * @param ProductRepositoryInterface $productRepository
+     * @param CollectionFactory $orderStatusCollectionFactory
      */
     public function __construct(
         Context $context,
         AttributeSetRepositoryInterface $attributeSetRepository,
-        ProductRepositoryInterface $productRepository
+        ProductRepositoryInterface $productRepository,
+        CollectionFactory $orderStatusCollectionFactory
     ) {
 
         $this->scopeConfig = $context->getScopeConfig();
         parent::__construct($context);
         $this->attributeSetRepository = $attributeSetRepository;
         $this->productRepository = $productRepository;
+        $this->orderStatusCollectionFactory = $orderStatusCollectionFactory;
     }
 
     public function getCreditCardConfig($field, $group = 'vindi')
@@ -101,6 +111,26 @@ class Data extends AbstractHelper
         $status = $this->getModuleGeneralConfig('order_status');
 
         return $status ? : Order::STATE_PROCESSING;
+    }
+
+    /**
+     * @param $status
+     * @return string
+     */
+    public function getStatusState($status)
+    {
+        if ($status) {
+            $statuses = $this->orderStatusCollectionFactory
+                ->create()
+                ->joinStates()
+                ->addFieldToFilter('main_table.status', $status);
+
+            if ($statuses->getSize()) {
+                return $statuses->getFirstItem()->getState();
+            }
+        }
+
+        return '';
     }
 
     public function getBaseUrl()
