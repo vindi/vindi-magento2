@@ -87,6 +87,15 @@ class Data extends AbstractHelper
         return $this->getModuleGeneralConfig('mode');
     }
 
+    /**
+     * @return mixed|string
+     */
+    public function getStatusToPaidOrder()
+    {
+        $status = $this->getModuleGeneralConfig('paid_order_status');
+        return $status ?: Order::STATE_PROCESSING;
+    }
+
     public function getStatusToOrderComplete()
     {
         $status = $this->getModuleGeneralConfig('order_status');

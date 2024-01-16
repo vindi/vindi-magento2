@@ -12,7 +12,7 @@
 "Error while interpreting webhook 'bill_created'","Erro ao interpretar webhook 'bill_created'."
 "There is no cycle %s of signature %d.","Ainda não existe um pedido para ciclo %s da assinatura: %d."
 "Generating invoice for the order %s.","Gerando fatura para o pedido: %s."
-"The payment was confirmed and the order is beeing processed","O pagamento foi confirmado e o pedido está sendo processado."
+"The payment was confirmed and the order is being processed","O pagamento foi confirmado e o pedido está sendo processado."
 "Impossible to generate invoice for order %s.","Impossível gerar fatura para o pedido %s."
 "Invoice created with success","Fatura gerada com sucesso."
 "Order not found","Pedido não encontrado."
@@ -132,3 +132,4 @@
 "Pay up: %s","Pague até: %s"
 "Enabled document","Ativar documento"
 "When enabled, it will only be possible to finalize the order with the document informed when selecting the payment method. When disabled, the client will not be asked for the document, but it will still be necessary to send the document when creating the order in VINDI, otherwise it will be rejected by the API.","Quando habilitado, só será possível finalizar o pedido com o documento informado ao selecionar o método de pagamento. Quando desabilitado, não será solicitado ao cliente o documento, porém ainda será necessário o envio do documento ao criar o pedido na VINDI, caso contrário será rejeitado pela API."
+"Paid Order Status","Status de Pedido Pago"
