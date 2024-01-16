@@ -112,8 +112,8 @@ class BillPaid
             );
         } else {
             $order->addCommentToStatusHistory(
-                __('The payment was confirmed and the order is beeing processed')->getText(),
-                $this->helperData->getStatusToOrderComplete()
+                __('The payment was confirmed and the order is being processed')->getText(),
+                $this->helperData->getStatusToPaidOrder()
             );
         }
 

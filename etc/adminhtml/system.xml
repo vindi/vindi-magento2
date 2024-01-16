@@ -101,6 +101,11 @@
                     <label>New Order Status</label>
                     <source_model>Magento\Sales\Model\Config\Source\Order\Status</source_model>
                 </field>
+                <field id="paid_order_status" showInDefault="1" showInStore="1" showInWebsite="1" sortOrder="110"
+                       translate="label" type="select">
+                    <label>Paid Order Status</label>
+                    <source_model>Magento\Sales\Model\Config\Source\Order\Status</source_model>
+                </field>
             </group>
         </section>
 

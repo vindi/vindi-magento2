@@ -5,16 +5,16 @@ define(
         'mage/translate',
         'jquery',
         'mageUtils',
-        'Vindi_Payment/js/model/document',
+        'Vindi_Payment/js/model/taxvat',
         'Vindi_Payment/js/model/validate'
     ],
 
-    function (_, Component, $t, $, utils, document, documentValidate) {
+    function (_, Component, $t, $, utils, taxvat, documentValidate) {
         'use strict';
         return Component.extend({
             defaults: {
                 template: 'Vindi_Payment/payment/vindi-pix',
-                document: document
+                taxvat: taxvat
             },
 
             getInfoMessage: function () {
@@ -25,25 +25,29 @@ define(
                 return window?.checkoutConfig?.payment?.vindi_pix?.enabledDocument;
             },
 
-            checkCpf: function () {
-                const message = documentValidate.isValidCpf(this?.document?.value()) ? '' : 'CPF inválido';
+            checkCpf: function (self, event) {
+                this.formatTaxvat(event.target)
+                const message = documentValidate.isValidTaxvat(this?.taxvat?.value()) ? '' : 'CPF/CNPJ inválido';
                 $('#cpfResponse').text(message);
             },
 
+            formatTaxvat: function (target) {
+                taxvat.formatDocument(target)
+            },
 
             validate: function () {
                 const self = this;
-                const documentValue = this?.document?.value();
+                const documentValue = this?.taxvat?.value();
 
                 if (!this.isActiveDocument()) return true;
 
                 if (!documentValue || documentValue === '') {
-                    self.messageContainer.addErrorMessage({'message': ('CPF é obrigatório')});
+                    self.messageContainer.addErrorMessage({'message': ('CPF/CNPJ é obrigatório')});
                     return false;
                 }
 
-                if (!documentValidate.isValidCpf(documentValue)) {
-                    self.messageContainer.addErrorMessage({'message': ('CPF não é válido')});
+                if (!documentValidate.isValidTaxvat(documentValue)) {
+                    self.messageContainer.addErrorMessage({'message': ('CPF/CNPJ não é válido')});
                     return false;
                 }
 
@@ -54,7 +58,7 @@ define(
                 return {
                     'method': this?.item?.method,
                     'additional_data': {
-                        'document': this?.document?.value()
+                        'document': this?.taxvat?.value()
                     }
                 };
             },

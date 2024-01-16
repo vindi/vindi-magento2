@@ -5,7 +5,7 @@ namespace Vindi\Payment\Model;
 use Magento\Bundle\Model\Product\Type;
 use Magento\Catalog\Api\Data\ProductInterface;
 use Magento\Catalog\Api\ProductRepositoryInterface;
-use Magento\Checkout\Model\Cart;
+use Magento\Checkout\Model\Session as CheckoutSession;
 use Magento\Checkout\Model\ConfigProviderInterface;
 use Magento\Directory\Model\Currency;
 use Magento\Framework\View\Asset\Source;
@@ -28,10 +28,12 @@ class ConfigProvider implements ConfigProviderInterface
      * @var Source
      */
     private $assetSource;
+
     /**
-     * @var Cart
+     * @var CheckoutSession
      */
-    private $cart;
+    private $checkoutSession;
+
     /**
      * @var Currency
      */
@@ -50,7 +52,7 @@ class ConfigProvider implements ConfigProviderInterface
      * @param CcConfig $ccConfig
      * @param Source $assetSource
      * @param Data $data
-     * @param Cart $cart
+     * @param CheckoutSession $checkoutSession
      * @param Currency $currency
      * @param PaymentMethod $paymentMethod
      * @param ProductRepositoryInterface $productRepository
@@ -59,7 +61,7 @@ class ConfigProvider implements ConfigProviderInterface
         CcConfig $ccConfig,
         Source $assetSource,
         Data $data,
-        Cart $cart,
+        CheckoutSession $checkoutSession,
         Currency $currency,
         PaymentMethod $paymentMethod,
         ProductRepositoryInterface $productRepository
@@ -68,7 +70,7 @@ class ConfigProvider implements ConfigProviderInterface
         $this->ccConfig = $ccConfig;
         $this->assetSource = $assetSource;
         $this->helperData = $data;
-        $this->cart = $cart;
+        $this->checkoutSession = $checkoutSession;
         $this->currency = $currency;
         $this->paymentMethod = $paymentMethod;
         $this->productRepository = $productRepository;
@@ -103,7 +105,7 @@ class ConfigProvider implements ConfigProviderInterface
         $maxInstallmentsNumber = $this->helperData->getMaxInstallments();
         $minInstallmentsValue = $this->helperData->getMinInstallmentsValue();
 
-        $quote = $this->cart->getQuote();
+        $quote =  $this->checkoutSession->getQuote();
         $installments = [];
 
         if ($this->hasPlanInCart()) {
@@ -142,7 +144,7 @@ class ConfigProvider implements ConfigProviderInterface
      */
     private function hasPlanInCart()
     {
-        $quote = $this->cart->getQuote();
+        $quote = $this->checkoutSession->getQuote();
         foreach ($quote->getAllItems() as $item) {
             if ($this->helperData->isVindiPlan($item->getProductId())) {
                 return true;
@@ -158,7 +160,7 @@ class ConfigProvider implements ConfigProviderInterface
     private function planIntervalCountMaxInstallments()
     {
         $intervalCount = 0;
-        $quote = $this->cart->getQuote();
+        $quote = $this->checkoutSession->getQuote();
 
         foreach ($quote->getAllItems() as $item) {
             if ($item->getProductType() != Type::TYPE_CODE) {
