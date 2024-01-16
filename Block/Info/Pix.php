@@ -101,7 +101,13 @@ class Pix extends Info
     public function canShowPixInfo()
     {
         $paymentMethod = $this->getOrder()->getPayment()->getMethod() === \Vindi\Payment\Model\Payment\Pix::CODE;
-        $timestampMaxDays = strtotime($this->getMaxDaysToPayment());
+        $daysToPayment = $this->getMaxDaysToPayment();
+
+        if (!$daysToPayment) {
+            return true;
+        }
+
+        $timestampMaxDays = strtotime($daysToPayment);
 
         return $paymentMethod && $this->isValidToPayment($timestampMaxDays);
     }
@@ -139,7 +145,12 @@ class Pix extends Info
      */
     public function getDaysToKeepWaitingPayment()
     {
-        $timestampMaxDays = strtotime($this->getMaxDaysToPayment());
+        $daysToPayment = $this->getMaxDaysToPayment();
+        if (!$daysToPayment) {
+            return null;
+        }
+
+        $timestampMaxDays = strtotime($daysToPayment);
         return date('d/m/Y H:m:s', $timestampMaxDays);
     }
 
