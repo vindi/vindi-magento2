@@ -324,16 +324,20 @@ abstract class AbstractMethod extends OriginAbstractMethod
         if ($responseData = $this->subscriptionRepository->create($body)) {
             $bill = $responseData['bill'];
             $subscription = $responseData['subscription'];
-            $this->handleBankSplitAdditionalInformation($payment, $body, $bill);
-            if ($this->successfullyPaid($body, $bill, $subscription)) {
+            if ($bill) {
                 $this->handleBankSplitAdditionalInformation($payment, $body, $bill);
+            }
+            if ($this->successfullyPaid($body, $bill, $subscription)) {
+                if ($bill) {
+                    $this->handleBankSplitAdditionalInformation($payment, $body, $bill);
+                }
                 $billId = $bill['id'] ?? 0;
                 $order->setVindiBillId($billId);
                 $order->setVindiSubscriptionId($responseData['subscription']['id']);
                 return $billId;
             }
 
-            $this->subscriptionRepository->deleteAndCancelBills($responseData['subscription']['id']);
+            $this->subscriptionRepository->deleteAndCancelBills($subscription['id']);
         }
 
         return $this->handleError($order);
@@ -435,9 +439,7 @@ abstract class AbstractMethod extends OriginAbstractMethod
      */
     protected function isWaitingPaymentMethodResponse($bill)
     {
-        if (!$bill) {
-            return false;
-        }
+        if (!$bill) return false;
 
         return reset($bill['charges'])['last_transaction']['status'] === Bill::WAITING_STATUS;
     }

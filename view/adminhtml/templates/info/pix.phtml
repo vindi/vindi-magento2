@@ -13,13 +13,15 @@ use Vindi\Payment\Block\Info\Pix;
         </strong>
     </dt>
     <?php if ($block->canShowPixInfo()) : ?>
-    <dd>
-        <p>
-            <strong>
-                <?= sprintf(__('Pay up: %s'), $block->getDaysToKeepWaitingPayment())?>
-            </strong>
-        </p>
-    </dd>
+        <?php if ($block->getDaysToKeepWaitingPayment()) : ?>
+        <dd>
+            <p>
+                <strong>
+                    <?= sprintf(__('Pay up: %s'), $block->getDaysToKeepWaitingPayment())?>
+                </strong>
+            </p>
+        </dd>
+        <?php endif; ?>
     <dd class="content">
         <object data="<?= $block->getQrCodePix() ?>" type="image/svg+xml" class="qr-code" id="qrcode">
             <p>
