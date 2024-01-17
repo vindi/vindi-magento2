@@ -93,50 +93,14 @@ class ConfigProvider implements ConfigProviderInterface
                     'months' => [$this->_methodCode => $this->ccConfig->getCcMonths()],
                     'years' => [$this->_methodCode => $this->ccConfig->getCcYears()],
                     'hasVerification' => [$this->_methodCode => $this->ccConfig->hasVerification()],
-                    'installments' => [$this->_methodCode => $this->getInstallments()],
+                    'isInstallmentsAllowedInStore' => (int) $this->helperData->isInstallmentsAllowedInStore(),
+                    'maxInstallments' => (int) $this->helperData->getMaxInstallments() ?: 1,
+                    'minInstallmentsValue' => (int) $this->helperData->getMinInstallmentsValue(),
+                    'hasPlanInCart' => (int) $this->hasPlanInCart(),
+                    'planIntervalCountMaxInstallments' => (int) $this->planIntervalCountMaxInstallments()
                 ]
             ]
         ];
-    }
-
-    public function getInstallments()
-    {
-        $allowInstallments = $this->helperData->isInstallmentsAllowedInStore();
-        $maxInstallmentsNumber = $this->helperData->getMaxInstallments();
-        $minInstallmentsValue = $this->helperData->getMinInstallmentsValue();
-
-        $quote =  $this->checkoutSession->getQuote();
-        $installments = [];
-
-        if ($this->hasPlanInCart()) {
-            $planInterval = $this->planIntervalCountMaxInstallments();
-            if ($planInterval < $maxInstallmentsNumber) {
-                $maxInstallmentsNumber = $planInterval;
-            }
-        }
-
-        if ($maxInstallmentsNumber > 1 && $allowInstallments == true) {
-            $total = $quote->getGrandTotal();
-            $installmentsTimes = floor($total / $minInstallmentsValue);
-
-            for ($i = 1; $i <= $maxInstallmentsNumber; $i++) {
-                $value = ceil($total / $i * 100) / 100;
-                $price = $this->currency->format($value, null, null, false);
-                $installments[$i] = $i . " de " . $price;
-                if (($i + 1) > $installmentsTimes) {
-                    break;
-                }
-            }
-        } else {
-            $installments[1] = 1 . " de " . $this->currency->format(
-                $quote->getGrandTotal(),
-                null,
-                null,
-                false
-                );
-        }
-
-        return $installments;
     }
 
     /**
