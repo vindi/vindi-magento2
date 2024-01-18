@@ -187,7 +187,8 @@ abstract class AbstractMethod extends OriginAbstractMethod
             foreach ($quote->getItems() as $item) {
                 if ($this->helperData->isVindiPlan($item->getProductId())) {
                     $product = $this->helperData->getProductById($item->getProductId());
-                    if ($product->getData('vindi_billing_trigger_day') > 0) {
+                    if ($product->getData('vindi_billing_trigger_day') > 0 ||
+                        $product->getData('vindi_billing_trigger_type') == 'end_of_period') {
                         return false;
                     }
                 }
