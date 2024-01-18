@@ -15,6 +15,7 @@ use Magento\Framework\Registry;
 use Magento\Framework\Stdlib\DateTime\TimezoneInterface;
 use Magento\Payment\Helper\Data;
 use Magento\Payment\Model\InfoInterface;
+use Magento\Payment\Model\Method\AbstractMethod as OriginAbstractMethod;
 use Magento\Payment\Model\Method\Logger;
 use Magento\Sales\Api\Data\OrderItemInterface;
 use Magento\Sales\Model\Order;
@@ -23,7 +24,6 @@ use Psr\Log\LoggerInterface;
 use Vindi\Payment\Api\PlanManagementInterface;
 use Vindi\Payment\Api\ProductManagementInterface;
 use Vindi\Payment\Api\SubscriptionInterface;
-use Magento\Payment\Model\Method\AbstractMethod as OriginAbstractMethod;
 use Vindi\Payment\Helper\Api;
 
 /**
@@ -179,9 +179,20 @@ abstract class AbstractMethod extends OriginAbstractMethod
      *
      * @param \Magento\Quote\Api\Data\CartInterface|null $quote
      * @return bool
+     * @throws NoSuchEntityException
      */
     public function isAvailable(\Magento\Quote\Api\Data\CartInterface $quote = null)
     {
+        if ($this->getPaymentMethodCode() == PaymentMethod::BANK_SLIP || $this->getPaymentMethodCode() == PaymentMethod::PIX) {
+            foreach ($quote->getItems() as $item) {
+                if ($this->helperData->isVindiPlan($item->getProductId())) {
+                    $product = $this->helperData->getProductById($item->getProductId());
+                    if ($product->getData('vindi_billing_trigger_day') > 0) {
+                        return false;
+                    }
+                }
+            }
+        }
         return parent::isAvailable($quote);
     }
 
@@ -429,7 +440,7 @@ abstract class AbstractMethod extends OriginAbstractMethod
             PaymentMethod::DEBIT_CARD
         ];
 
-        return in_array($paymentMethodCode , $paymentMethodsCode);
+        return in_array($paymentMethodCode, $paymentMethodsCode);
     }
 
     /**
@@ -439,7 +450,9 @@ abstract class AbstractMethod extends OriginAbstractMethod
      */
     protected function isWaitingPaymentMethodResponse($bill)
     {
-        if (!$bill) return false;
+        if (!$bill) {
+            return false;
+        }
 
         return reset($bill['charges'])['last_transaction']['status'] === Bill::WAITING_STATUS;
     }
@@ -451,7 +464,9 @@ abstract class AbstractMethod extends OriginAbstractMethod
      */
     protected function isValidStatus($bill)
     {
-        if (!$bill) return false;
+        if (!$bill) {
+            return false;
+        }
 
         $billStatus = [
             Bill::PAID_STATUS,

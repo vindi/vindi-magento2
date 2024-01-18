@@ -4,7 +4,7 @@ namespace Vindi\Payment\Helper;
 
 use Magento\Catalog\Api\ProductRepositoryInterface;
 use Magento\Eav\Api\AttributeSetRepositoryInterface;
-use \Magento\Framework\App\Helper\AbstractHelper;
+use Magento\Framework\App\Helper\AbstractHelper;
 use Magento\Framework\App\Helper\Context;
 use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Sales\Model\Order;
@@ -110,7 +110,7 @@ class Data extends AbstractHelper
     {
         $status = $this->getModuleGeneralConfig('order_status');
 
-        return $status ? : Order::STATE_PROCESSING;
+        return $status ?: Order::STATE_PROCESSING;
     }
 
     /**
@@ -147,10 +147,15 @@ class Data extends AbstractHelper
      */
     public static function sanitizeItemSku($code)
     {
-        return strtolower( preg_replace("[^a-zA-Z0-9-]", "-",
-            strtr(utf8_decode(trim(preg_replace('/[ -]+/' , '-' , $code))),
+        return strtolower(preg_replace(
+            "[^a-zA-Z0-9-]",
+            "-",
+            strtr(
+                utf8_decode(trim(preg_replace('/[ -]+/', '-', $code))),
                 utf8_decode("áàãâéêíóôõúüñçÁÀÃÂÉÊÍÓÔÕÚÜÑÇ"),
-                "aaaaeeiooouuncAAAAEEIOOOUUNC-")));
+                "aaaaeeiooouuncAAAAEEIOOOUUNC-"
+            )
+        ));
     }
 
     /**
@@ -163,5 +168,15 @@ class Data extends AbstractHelper
         $product = $this->productRepository->getById($productId);
         $attrSet = $this->attributeSetRepository->get($product->getAttributeSetId());
         return $attrSet->getAttributeSetName() == UpgradeData::VINDI_PLANOS;
+    }
+
+    /**
+    * @param $productId
+    * @return \Magento\Catalog\Api\Data\ProductInterface
+    * @throws NoSuchEntityException
+    */
+    public function getProductById($productId)
+    {
+        return $this->productRepository->getById($productId);
     }
 }
