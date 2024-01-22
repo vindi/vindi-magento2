@@ -52,10 +52,13 @@ class BillPaid
         $isSubscription = false;
 
         if (array_key_exists('subscription', $data['bill'])
-            && array_key_exists('code', $data['bill']['subscription'])
+            && isset($data['bill']['subscription']['code'])
+            && $data['bill']['subscription'] != null
         ) {
             $isSubscription = true;
             $order = $this->getOrder($data['bill']['subscription']['code']);
+        } elseif (isset($data['bill']['code']) && $data['bill']['code'] != null) {
+            $order = $this->getOrder($data['bill']['code']);
         }
 
         if (!$order && !($order = $this->order->getOrder($data))) {
@@ -98,6 +101,7 @@ class BillPaid
         $invoice = $order->prepareInvoice();
         $invoice->setRequestedCaptureCase(Invoice::CAPTURE_OFFLINE);
         $invoice->register();
+        $invoice->pay();
         $invoice->setSendEmail(true);
         $this->invoiceRepository->save($invoice);
         $this->logger->info(__('Invoice created with success'));
@@ -108,9 +112,15 @@ class BillPaid
                 \Magento\Sales\Model\Order::STATE_PROCESSING
             );
         } else {
+            $status = $this->helperData->getStatusToPaidOrder();
+
+            if ($state = $this->helperData->getStatusState($status)) {
+                $order->setState($state);
+            }
+
             $order->addCommentToStatusHistory(
-                __('The payment was confirmed and the order is beeing processed')->getText(),
-                $this->helperData->getStatusToOrderComplete()
+                __('The payment was confirmed and the order is being processed')->getText(),
+                $status
             );
         }
 

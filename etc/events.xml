@@ -1,5 +1,7 @@
-<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:Event/etc/events.xsd">
-    <event name="payment_method_assign_data_braintree">
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:framework:Event/etc/events.xsd">
+
+    <event name="payment_method_assign_data">
         <observer name="braintree_gateway_data_assign" instance="Vindi\Payment\Observer\DataAssignObserver" />
     </event>
     <event name="catalog_product_save_after">

@@ -1,9 +1,6 @@
 <?xml version="1.0" ?>
 <page layout="1column"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:View/Layout/etc/page_configuration.xsd">
-    <head>
-        <css src="Vindi_Payment::css/vindi.css" />
-    </head>
     <body>
         <referenceBlock name="checkout.root">
             <arguments>
@@ -27,6 +24,10 @@
                                                                             </item>
                                                                         </item>
                                                                         <item name="vindi_bankslip" xsi:type="array">
+                                                                            <item name="isBillingAddressRequired" xsi:type="boolean">false
+                                                                            </item>
+                                                                        </item>
+                                                                        <item name="vindi_pix" xsi:type="array">
                                                                             <item name="isBillingAddressRequired" xsi:type="boolean">false
                                                                             </item>
                                                                         </item>

@@ -146,7 +146,7 @@
                                 class="select credit-card-installments"
                                 data-bind="attr: {id: getCode() + '_installments', 'data-container': getCode() + '-installments', 'data-validate': JSON.stringify({required:true, 'validate-cc-exp':'#' + getCode() + '_expiration_yr'})},
                                             enable: isActive($parents),
-                                            options: getCcInstallmentsAvailable(),
+                                            options: creditCardInstallments,
                                             optionsValue: 'value',
                                             optionsText: 'text',
                                             optionsCaption: $t('Installments'),

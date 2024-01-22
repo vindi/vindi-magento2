@@ -1,8 +1,12 @@
 <?xml version="1.0"?>
-<page xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" layout="1column" xsi:noNamespaceSchemaLocation="urn:magento:framework:View/Layout/etc/page_configuration.xsd">
+
+<page xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" layout="1column"
+      xsi:noNamespaceSchemaLocation="urn:magento:framework:View/Layout/etc/page_configuration.xsd">
+
     <body>
         <referenceContainer name="content">
             <block class="Vindi\Payment\Block\Onepage\Bankslip" name="checkout.success.vindi.bankslip" template="onepage/bankslip.phtml" cacheable="false"/>
+            <block class="Vindi\Payment\Block\Onepage\Pix" name="checkout.success.vindi.pix" template="Vindi_Payment::onepage/pix.phtml" cacheable="false"/>
         </referenceContainer>
     </body>
 </page>
