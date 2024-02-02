@@ -13,15 +13,15 @@ use Vindi\Payment\Block\Info\Pix;
         </strong>
     </dt>
     <?php if ($block->canShowPixInfo()) : ?>
-        <?php if ($block->getDaysToKeepWaitingPayment()) : ?>
+    <?php if ($block->getDaysToKeepWaitingPayment()) : ?>
         <dd>
             <p>
                 <strong>
-                    <?= sprintf(__('Pay up: %s'), $block->getDaysToKeepWaitingPayment())?>
+                    <?= sprintf(__('Pay up: %s'), $block->getDaysToKeepWaitingPayment()) ?>
                 </strong>
             </p>
         </dd>
-        <?php endif; ?>
+    <?php endif; ?>
     <dd class="content">
         <object data="<?= $block->getQrCodePix() ?>" type="image/svg+xml" class="qr-code" id="qrcode">
             <p>
@@ -52,15 +52,17 @@ use Vindi\Payment\Block\Info\Pix;
                         "vindiPix": {
                             "component": "Vindi_Payment/js/view/info/vindi-pix",
                             "qrCodeKey": <?= $block->getQrcodeOriginalPath() ?>
-                        }
-                    }
-                }
-            }
         }
+    }
+}
+}
+}
     </script>
 <?php else: ?>
     <strong>
-        <?=__('Pix expirado') ?>
+        <?= __('Pix expirado') ?>
     </strong></br>
-    <a href="/vindiPayment/pix/renew?bill=<?= $block->getBillId()?>&order=<?= $block->getOrder()->getId() ?>"><button name="renew-pix"><?=__('Atualizar QRCode')?></button></a>
+    <a href="/vindiPayment/pix/renew?bill=<?= $block->getBillId() ?>&order=<?= $block->getOrder()->getId() ?>">
+        <button name="renew-pix"><?= __('Atualizar QRCode') ?></button>
+    </a>
 <?php endif; ?>
