@@ -5,7 +5,7 @@ namespace Vindi\Payment\Model;
 use Magento\Bundle\Model\Product\Type;
 use Magento\Catalog\Api\Data\ProductInterface;
 use Magento\Catalog\Api\ProductRepositoryInterface;
-use Magento\Checkout\Model\Cart;
+use Magento\Checkout\Model\Session as CheckoutSession;
 use Magento\Checkout\Model\ConfigProviderInterface;
 use Magento\Directory\Model\Currency;
 use Magento\Framework\View\Asset\Source;
@@ -28,10 +28,12 @@ class ConfigProvider implements ConfigProviderInterface
      * @var Source
      */
     private $assetSource;
+
     /**
-     * @var Cart
+     * @var CheckoutSession
      */
-    private $cart;
+    private $checkoutSession;
+
     /**
      * @var Currency
      */
@@ -50,7 +52,7 @@ class ConfigProvider implements ConfigProviderInterface
      * @param CcConfig $ccConfig
      * @param Source $assetSource
      * @param Data $data
-     * @param Cart $cart
+     * @param CheckoutSession $checkoutSession
      * @param Currency $currency
      * @param PaymentMethod $paymentMethod
      * @param ProductRepositoryInterface $productRepository
@@ -59,7 +61,7 @@ class ConfigProvider implements ConfigProviderInterface
         CcConfig $ccConfig,
         Source $assetSource,
         Data $data,
-        Cart $cart,
+        CheckoutSession $checkoutSession,
         Currency $currency,
         PaymentMethod $paymentMethod,
         ProductRepositoryInterface $productRepository
@@ -68,7 +70,7 @@ class ConfigProvider implements ConfigProviderInterface
         $this->ccConfig = $ccConfig;
         $this->assetSource = $assetSource;
         $this->helperData = $data;
-        $this->cart = $cart;
+        $this->checkoutSession = $checkoutSession;
         $this->currency = $currency;
         $this->paymentMethod = $paymentMethod;
         $this->productRepository = $productRepository;
@@ -91,50 +93,14 @@ class ConfigProvider implements ConfigProviderInterface
                     'months' => [$this->_methodCode => $this->ccConfig->getCcMonths()],
                     'years' => [$this->_methodCode => $this->ccConfig->getCcYears()],
                     'hasVerification' => [$this->_methodCode => $this->ccConfig->hasVerification()],
-                    'installments' => [$this->_methodCode => $this->getInstallments()],
+                    'isInstallmentsAllowedInStore' => (int) $this->helperData->isInstallmentsAllowedInStore(),
+                    'maxInstallments' => (int) $this->helperData->getMaxInstallments() ?: 1,
+                    'minInstallmentsValue' => (int) $this->helperData->getMinInstallmentsValue(),
+                    'hasPlanInCart' => (int) $this->hasPlanInCart(),
+                    'planIntervalCountMaxInstallments' => (int) $this->planIntervalCountMaxInstallments()
                 ]
             ]
         ];
-    }
-
-    public function getInstallments()
-    {
-        $allowInstallments = $this->helperData->isInstallmentsAllowedInStore();
-        $maxInstallmentsNumber = $this->helperData->getMaxInstallments();
-        $minInstallmentsValue = $this->helperData->getMinInstallmentsValue();
-
-        $quote = $this->cart->getQuote();
-        $installments = [];
-
-        if ($this->hasPlanInCart()) {
-            $planInterval = $this->planIntervalCountMaxInstallments();
-            if ($planInterval < $maxInstallmentsNumber) {
-                $maxInstallmentsNumber = $planInterval;
-            }
-        }
-
-        if ($maxInstallmentsNumber > 1 && $allowInstallments == true) {
-            $total = $quote->getGrandTotal();
-            $installmentsTimes = floor($total / $minInstallmentsValue);
-
-            for ($i = 1; $i <= $maxInstallmentsNumber; $i++) {
-                $value = ceil($total / $i * 100) / 100;
-                $price = $this->currency->format($value, null, null, false);
-                $installments[$i] = $i . " de " . $price;
-                if (($i + 1) > $installmentsTimes) {
-                    break;
-                }
-            }
-        } else {
-            $installments[1] = 1 . " de " . $this->currency->format(
-                $quote->getGrandTotal(),
-                null,
-                null,
-                false
-                );
-        }
-
-        return $installments;
     }
 
     /**
@@ -142,7 +108,7 @@ class ConfigProvider implements ConfigProviderInterface
      */
     private function hasPlanInCart()
     {
-        $quote = $this->cart->getQuote();
+        $quote = $this->checkoutSession->getQuote();
         foreach ($quote->getAllItems() as $item) {
             if ($this->helperData->isVindiPlan($item->getProductId())) {
                 return true;
@@ -158,7 +124,7 @@ class ConfigProvider implements ConfigProviderInterface
     private function planIntervalCountMaxInstallments()
     {
         $intervalCount = 0;
-        $quote = $this->cart->getQuote();
+        $quote = $this->checkoutSession->getQuote();
 
         foreach ($quote->getAllItems() as $item) {
             if ($item->getProductType() != Type::TYPE_CODE) {

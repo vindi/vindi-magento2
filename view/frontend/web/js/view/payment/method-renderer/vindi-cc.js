@@ -1,14 +1,33 @@
-define(
-    [
+define([
         'underscore',
+        'ko',
         'Magento_Checkout/js/view/payment/default',
         'Magento_Payment/js/model/credit-card-validation/credit-card-data',
         'Magento_Payment/js/model/credit-card-validation/credit-card-number-validator',
+        'Magento_Checkout/js/model/quote',
+        'Magento_Checkout/js/model/totals',
+        'Magento_SalesRule/js/action/set-coupon-code',
+        'Magento_SalesRule/js/action/cancel-coupon',
+        'Magento_Catalog/js/price-utils',
         'mage/translate',
         'jquery',
         'mageUtils'
     ],
-    function (_, Component, creditCardData, cardNumberValidator, $t, $, utils) {
+    function (
+        _,
+        ko,
+        Component,
+        creditCardData,
+        cardNumberValidator,
+        quote,
+        totals,
+        setCouponCodeAction,
+        cancelCouponCodeAction,
+        priceUtils,
+        $t,
+        $,
+        utils
+    ) {
         'use strict';
 
         return Component.extend({
@@ -23,7 +42,8 @@ define(
                 creditCardSsStartYear: '',
                 creditCardVerificationNumber: '',
                 selectedCardType: null,
-                selectedInstallments: null
+                selectedInstallments: null,
+                creditCardInstallments: ko.observableArray([])
             },
             getData: function () {
                 var data = {
@@ -44,6 +64,8 @@ define(
                 return data;
             },
             initObservable: function () {
+                var self = this;
+
                 this._super()
                     .observe([
                         'creditCardType',
@@ -58,7 +80,16 @@ define(
                         'selectedInstallments'
                     ]);
                 return this;
+
+                setCouponCodeAction.registerSuccessCallback(function () {
+                    self.updateInstallments();
+                });
+
+                cancelCouponCodeAction.registerSuccessCallback(function () {
+                    self.updateInstallments();
+                });
             },
+
             validate: function () {
                 if (!this.selectedCardType() || this.selectedCardType() == '') {
                     this.messageContainer.addErrorMessage({'message': $t('Please enter the Credit Card Type.')});
@@ -95,6 +126,8 @@ define(
             initialize: function () {
                 var self = this;
                 this._super();
+
+                self.updateInstallments();
 
                 //Set credit card number to credit card data object
                 this.creditCardNumber.subscribe(function (value) {
@@ -158,9 +191,6 @@ define(
             hasVerification: function () {
                 return window.checkoutConfig.payment.vindi_cc.hasVerification['vindi_cc'];
             },
-            getCcInstallments: function () {
-                return window.checkoutConfig.payment.vindi_cc.installments['vindi_cc'];
-            },
 
             getCcAvailableTypesValues: function () {
                 return _.map(this.getCcAvailableTypes(), function (value, key) {
@@ -194,14 +224,50 @@ define(
                     }
                 });
             },
-            getCcInstallmentsAvailable: function () {
-                return _.map(this.getCcInstallments(), function (value, key) {
-                    return {
-                        'value': key,
-                        'text': value
+            updateInstallments: function () {
+                let ccCheckoutConfig = window.checkoutConfig.payment.vindi_cc;
+                let installments = [];
+
+                if (ccCheckoutConfig) {
+                    let allowInstallments = ccCheckoutConfig.isInstallmentsAllowedInStore;
+                    let maxInstallmentsNumber = ccCheckoutConfig.maxInstallments;
+                    let minInstallmentsValue = ccCheckoutConfig.minInstallmentsValue;
+
+
+                    if (ccCheckoutConfig.hasPlanInCart) {
+                        let planInterval = ccCheckoutConfig.planIntervalCountMaxInstallments;
+                        if (planInterval < maxInstallmentsNumber) {
+                            maxInstallmentsNumber = planInterval;
+                        }
                     }
-                });
+
+                    let grandTotal = totals.getSegment('grand_total').value;
+                    if (maxInstallmentsNumber > 1 && allowInstallments == true) {
+                        let installmentsTimes = Math.floor(grandTotal / minInstallmentsValue);
+
+                        for (let i = 1; i <= maxInstallmentsNumber; i++) {
+                            let value = Math.ceil((grandTotal / i) * 100) / 100;
+                            installments.push({
+                                'value': i,
+                                'text': `${i} de ${this.getFormattedPrice(value)}`
+                            });
+
+                            if (i + 1 > installmentsTimes) {
+                                break;
+                            }
+                        }
+                    } else {
+                        installments.push({
+                            'value': 1,
+                            'text': `1 de ${this.getFormattedPrice(grandTotal)}`
+                        });
+                    }
+                }
+                this.creditCardInstallments(installments);
             },
+            getFormattedPrice: function (price) {
+                return priceUtils.formatPrice(price, quote.getPriceFormat());
+            }
         });
     }
 );

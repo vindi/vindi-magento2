@@ -2,7 +2,6 @@
 
 namespace Vindi\Payment\Model\Payment;
 
-
 use Magento\Framework\Api\AttributeValueFactory;
 use Magento\Framework\Api\ExtensionAttributesFactory;
 use Magento\Framework\App\Config\ScopeConfigInterface;
@@ -16,6 +15,7 @@ use Magento\Framework\Registry;
 use Magento\Framework\Stdlib\DateTime\TimezoneInterface;
 use Magento\Payment\Helper\Data;
 use Magento\Payment\Model\InfoInterface;
+use Magento\Payment\Model\Method\AbstractMethod as OriginAbstractMethod;
 use Magento\Payment\Model\Method\Logger;
 use Magento\Sales\Api\Data\OrderItemInterface;
 use Magento\Sales\Model\Order;
@@ -24,7 +24,6 @@ use Psr\Log\LoggerInterface;
 use Vindi\Payment\Api\PlanManagementInterface;
 use Vindi\Payment\Api\ProductManagementInterface;
 use Vindi\Payment\Api\SubscriptionInterface;
-use Magento\Payment\Model\Method\AbstractMethod as OriginAbstractMethod;
 use Vindi\Payment\Helper\Api;
 
 /**
@@ -180,9 +179,21 @@ abstract class AbstractMethod extends OriginAbstractMethod
      *
      * @param \Magento\Quote\Api\Data\CartInterface|null $quote
      * @return bool
+     * @throws NoSuchEntityException
      */
     public function isAvailable(\Magento\Quote\Api\Data\CartInterface $quote = null)
     {
+        if ($this->getPaymentMethodCode() == PaymentMethod::BANK_SLIP || $this->getPaymentMethodCode() == PaymentMethod::PIX) {
+            foreach ($quote->getItems() as $item) {
+                if ($this->helperData->isVindiPlan($item->getProductId())) {
+                    $product = $this->helperData->getProductById($item->getProductId());
+                    if ($product->getData('vindi_billing_trigger_day') > 0 ||
+                        $product->getData('vindi_billing_trigger_type') == 'end_of_period') {
+                        return false;
+                    }
+                }
+            }
+        }
         return parent::isAvailable($quote);
     }
 
@@ -324,15 +335,21 @@ abstract class AbstractMethod extends OriginAbstractMethod
 
         if ($responseData = $this->subscriptionRepository->create($body)) {
             $bill = $responseData['bill'];
-            $this->handleBankSplitAdditionalInformation($payment, $body, $bill);
-            if ($this->successfullyPaid($body, $bill)) {
+            $subscription = $responseData['subscription'];
+            if ($bill) {
                 $this->handleBankSplitAdditionalInformation($payment, $body, $bill);
-                $order->setVindiBillId($bill['id']);
+            }
+            if ($this->successfullyPaid($body, $bill, $subscription)) {
+                if ($bill) {
+                    $this->handleBankSplitAdditionalInformation($payment, $body, $bill);
+                }
+                $billId = $bill['id'] ?? 0;
+                $order->setVindiBillId($billId);
                 $order->setVindiSubscriptionId($responseData['subscription']['id']);
-                return $bill['id'];
+                return $billId;
             }
 
-            $this->subscriptionRepository->deleteAndCancelBills($responseData['subscription']['id']);
+            $this->subscriptionRepository->deleteAndCancelBills($subscription['id']);
         }
 
         return $this->handleError($order);
@@ -394,11 +411,19 @@ abstract class AbstractMethod extends OriginAbstractMethod
     /**
      * @param array $body
      * @param $bill
-     *
+     * @param array $subscription
      * @return bool
      */
-    private function successfullyPaid(array $body, $bill)
+    private function successfullyPaid(array $body, $bill, array $subscription = [])
     {
+        // nova validação para permitir pedidos com pagamento/fatura pendente
+        if (!$bill) {
+            $billingType = $subscription['billing_trigger_type'] ?? null;
+            if ($billingType != 'day_of_month') {
+                return true;
+            }
+        }
+
         return $this->isValidPaymentMethodCode($body['payment_method_code'])
             || $this->isValidStatus($bill)
             || $this->isWaitingPaymentMethodResponse($bill);
@@ -416,7 +441,7 @@ abstract class AbstractMethod extends OriginAbstractMethod
             PaymentMethod::DEBIT_CARD
         ];
 
-        return in_array($paymentMethodCode , $paymentMethodsCode);
+        return in_array($paymentMethodCode, $paymentMethodsCode);
     }
 
     /**
@@ -426,6 +451,10 @@ abstract class AbstractMethod extends OriginAbstractMethod
      */
     protected function isWaitingPaymentMethodResponse($bill)
     {
+        if (!$bill) {
+            return false;
+        }
+
         return reset($bill['charges'])['last_transaction']['status'] === Bill::WAITING_STATUS;
     }
 
@@ -436,7 +465,9 @@ abstract class AbstractMethod extends OriginAbstractMethod
      */
     protected function isValidStatus($bill)
     {
-        if (!$bill) return false;
+        if (!$bill) {
+            return false;
+        }
 
         $billStatus = [
             Bill::PAID_STATUS,
