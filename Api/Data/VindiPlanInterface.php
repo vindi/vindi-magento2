@@ -10,87 +10,44 @@ namespace Vindi\Payment\Api\Data;
  */
 interface VindiPlanInterface
 {
-    /**
-     * Constants for keys of data array.
-     */
-    const ENTITY_ID      = 'entity_id';
-    const NAME           = 'name';
-    const STATUS         = 'status';
-    const CREATED_AT     = 'created_at';
-    const UPDATED_AT     = 'updated_at';
+    const ENTITY_ID             = 'entity_id';
+    const NAME                  = 'name';
+    const INTERVAL              = 'interval';
+    const INTERVAL_COUNT        = 'interval_count';
+    const BILLING_TRIGGER_TYPE  = 'billing_trigger_type';
+    const BILLING_TRIGGER_DAY   = 'billing_trigger_day';
+    const BILLING_CYCLES        = 'billing_cycles';
+    const CODE                  = 'code';
+    const DESCRIPTION           = 'description';
+    const INSTALLMENTS          = 'installments';
+    const INVOICE_SPLIT         = 'invoice_split';
+    const STATUS                = 'status';
+    const METADATA              = 'metadata';
 
-    /**
-     * Get entity_id
-     *
-     * @return int|null
-     */
     public function getId();
-
-    /**
-     * Set $entityId
-     *
-     * @param int $entityId
-     * @return $this
-     */
     public function setId($entityId);
-
-    /**
-     * Get name
-     *
-     * @return string|null
-     */
     public function getName();
-
-    /**
-     * Set $name
-     *
-     * @param string $name
-     * @return $this
-     */
     public function setName($name);
-
-    /**
-     * Get status
-     *
-     * @return int|null
-     */
+    public function getInterval();
+    public function setInterval($interval);
+    public function getIntervalCount();
+    public function setIntervalCount($intervalCount);
+    public function getBillingTriggerType();
+    public function setBillingTriggerType($billingTriggerType);
+    public function getBillingTriggerDay();
+    public function setBillingTriggerDay($billingTriggerDay);
+    public function getBillingCycles();
+    public function setBillingCycles($billingCycles);
+    public function getCode();
+    public function setCode($code);
+    public function getDescription();
+    public function setDescription($description);
+    public function getInstallments();
+    public function setInstallments($installments);
+    public function getInvoiceSplit();
+    public function setInvoiceSplit($invoiceSplit);
     public function getStatus();
-
-    /**
-     * Set $status
-     *
-     * @param int $status
-     * @return $this
-     */
     public function setStatus($status);
-
-    /**
-     * Get created_at
-     *
-     * @return string|null
-     */
-    public function getCreatedAt();
-
-    /**
-     * Set $createdAt
-     *
-     * @param string $createdAt
-     * @return $this
-     */
-    public function setCreatedAt($createdAt);
-
-    /**
-     * Get updated_at
-     *
-     * @return string|null
-     */
-    public function getUpdatedAt();
-
-    /**
-     * Set $updatedAt
-     *
-     * @param string $updatedAt
-     * @return $this
-     */
-    public function setUpdatedAt($updatedAt);
+    public function getMetadata();
+    public function setMetadata($metadata);
 }

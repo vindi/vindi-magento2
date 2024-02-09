@@ -28,8 +28,22 @@
         <column xsi:type="boolean" name="invoice_split" nullable="false" comment="Invoice Split"/>
         <column xsi:type="varchar" name="status" length="255" nullable="false" comment="Plan Status"/>
         <column xsi:type="text" name="metadata" nullable="true" comment="Metadata"/>
+        <column xsi:type="timestamp" name="updated_at" nullable="false" default="CURRENT_TIMESTAMP" on_update="true"/>
+        <column xsi:type="timestamp" name="created_at" nullable="false" default="CURRENT_TIMESTAMP" on_update="false"/>
         <constraint xsi:type="primary" referenceId="PRIMARY">
             <column name="entity_id"/>
         </constraint>
     </table>
+<!--    <table name="vindi_plan_items" resource="default" engine="innodb" comment="Vindi Plan Items Table">-->
+<!--        <column xsi:type="int" name="entity_id" padding="10" unsigned="true" nullable="false" identity="true" comment="Entity ID"/>-->
+<!--        <column xsi:type="int" name="plan_id" padding="10" unsigned="true" nullable="false" comment="Plan ID"/>-->
+<!--        <column xsi:type="int" name="product_id" padding="10" unsigned="true" nullable="false" comment="Product ID"/>-->
+<!--        <column xsi:type="int" name="cycles" nullable="false" comment="Cycles"/>-->
+<!--        <column xsi:type="timestamp" name="updated_at" nullable="false" default="CURRENT_TIMESTAMP" on_update="true"/>-->
+<!--        <column xsi:type="timestamp" name="created_at" nullable="false" default="CURRENT_TIMESTAMP" on_update="false"/>-->
+<!--        <constraint xsi:type="primary" referenceId="PRIMARY">-->
+<!--            <column name="entity_id"/>-->
+<!--        </constraint>-->
+<!--        <constraint xsi:type="foreign" referenceId="VINDI_PLAN_ITEMS_PLAN_ID_VINDI_PLANS_ENTITY_ID" table="vindi_plan_items" column="plan_id" referenceTable="vindi_plans" referenceColumn="entity_id" onDelete="CASCADE"/>-->
+<!--    </table>-->
 </schema>

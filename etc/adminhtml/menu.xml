@@ -8,8 +8,8 @@
              sortOrder="9999"
              resource="Magento_Backend::content"
         />
-        <add action="vindi_payment/plan/index"
-             id="Vindi_Payment::vindi_payment_plan"
+        <add action="vindi_payment/vindiplan/index"
+             id="Vindi_Payment::vindi_payment_vindiplan"
              module="Vindi_Payment"
              parent="Vindi_Payment::top_level"
              resource="Magento_Backend::content"

@@ -1,0 +1,214 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+/**
+ * Copyright © Magento, Inc. All rights reserved.
+ * See COPYING.txt for license details.
+ */
+-->
+<form xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Ui:etc/ui_configuration.xsd">
+    <argument name="data" xsi:type="array">
+        <item name="js_config" xsi:type="array">
+            <item name="provider" xsi:type="string">vindi_payment_vindiplan_form.vindi_payment_vindiplan_data_source</item>
+        </item>
+        <item name="label" xsi:type="string" translate="true">Information</item>
+        <item name="reverseMetadataMerge" xsi:type="boolean">true</item>
+    </argument>
+    <settings>
+        <buttons>
+            <button name="save" class="Vindi\Payment\Block\Adminhtml\VindiPlan\Edit\SaveButton"/>
+            <button name="delete" class="Vindi\Payment\Block\Adminhtml\VindiPlan\Edit\DeleteButton"/>
+            <button name="back" class="Vindi\Payment\Block\Adminhtml\VindiPlan\Edit\BackButton"/>
+        </buttons>
+        <layout>
+            <navContainerName>left</navContainerName>
+            <type>tabs</type>
+        </layout>
+        <deps>
+            <dep>vindi_payment_vindiplan_form.vindi_payment_vindiplan_data_source</dep>
+        </deps>
+    </settings>
+    <dataSource name="vindi_payment_vindiplan_data_source">
+        <argument name="data" xsi:type="array">
+            <item name="js_config" xsi:type="array">
+                <item name="component" xsi:type="string">Magento_Ui/js/form/provider</item>
+            </item>
+        </argument>
+        <settings>
+            <!--            <validateUrl path="customer/index/validate"/>-->
+            <submitUrl path="vindi_payment/vindiplan/save"/>
+        </settings>
+        <dataProvider class="Vindi\Payment\Model\VindiPlan\DataProvider" name="vindi_payment_vindiplan_data_source">
+            <settings>
+                <requestFieldName>entity_id</requestFieldName>
+                <primaryFieldName>entity_id</primaryFieldName>
+            </settings>
+        </dataProvider>
+    </dataSource>
+    <fieldset name="settings">
+        <settings>
+            <label translate="true">Settings</label>
+        </settings>
+        <field name="entity_id" formElement="input">
+            <argument name="data" xsi:type="array">
+                <item name="config" xsi:type="array">
+                    <item name="source" xsi:type="string">menu</item>
+                </item>
+            </argument>
+            <settings>
+                <dataType>text</dataType>
+                <visible>false</visible>
+                <dataScope>entity_id</dataScope>
+            </settings>
+        </field>
+        <field name="name" sortOrder="5" formElement="input">
+            <argument name="data" xsi:type="array">
+                <item name="config" xsi:type="array">
+                    <item name="source" xsi:type="string">menu</item>
+                </item>
+            </argument>
+            <settings>
+                <validation>
+                    <rule name="required-entry" xsi:type="boolean">true</rule>
+                </validation>
+                <dataType>text</dataType>
+                <label translate="true">Name</label>
+                <dataScope>name</dataScope>
+            </settings>
+        </field>
+        <field name="code" sortOrder="10" formElement="input">
+            <settings>
+                <dataType>text</dataType>
+                <label translate="true">External Code</label>
+                <dataScope>code</dataScope>
+            </settings>
+        </field>
+        <field name="description" sortOrder="15" formElement="textarea">
+            <settings>
+                <dataType>text</dataType>
+                <label translate="true">Plan Description</label>
+                <dataScope>description</dataScope>
+            </settings>
+        </field>
+        <field name="status" sortOrder="15" formElement="select">
+            <settings>
+                <dataType>select</dataType>
+                <label translate="true">Status</label>
+                <dataScope>status</dataScope>
+                <componentType>field</componentType>
+            </settings>
+            <formElements>
+                <select>
+                    <settings>
+                        <options class="Vindi\Payment\Model\Config\Source\Plan\Status"/>
+                    </settings>
+                </select>
+            </formElements>
+        </field>
+        <field name="interval" sortOrder="20" formElement="select">
+            <settings>
+                <dataType>select</dataType>
+                <label translate="true">Interval Duration</label>
+                <dataScope>interval</dataScope>
+                <componentType>field</componentType>
+                <validation>
+                    <rule name="required-entry" xsi:type="boolean">true</rule>
+                </validation>
+            </settings>
+            <formElements>
+                <select>
+                    <settings>
+                        <options class="Vindi\Payment\Model\Config\Source\Interval"/>
+                    </settings>
+                </select>
+            </formElements>
+        </field>
+        <field name="interval_count" sortOrder="25" formElement="input">
+            <settings>
+                <dataType>text</dataType>
+                <label translate="true">Number of intervals within a period</label>
+                <dataScope>interval_count</dataScope>
+                <validation>
+                    <rule name="required-entry" xsi:type="boolean">true</rule>
+                    <rule name="validate-number" xsi:type="boolean">true</rule>
+                </validation>
+            </settings>
+        </field>
+        <field name="billing_trigger_type" sortOrder="30" formElement="select">
+            <settings>
+                <dataType>select</dataType>
+                <label translate="true">Reference for bill generation date</label>
+                <dataScope>billing_trigger_type</dataScope>
+                <componentType>field</componentType>
+                <validation>
+                    <rule name="required-entry" xsi:type="boolean">true</rule>
+                </validation>
+            </settings>
+            <formElements>
+                <select>
+                    <settings>
+                        <options class="Vindi\Payment\Model\Config\Source\BillingTriggerType"/>
+                    </settings>
+                </select>
+            </formElements>
+        </field>
+        <field name="billing_trigger_day" sortOrder="35" formElement="input">
+            <settings>
+                <dataType>text</dataType>
+                <label translate="true">Day for billing</label>
+                <dataScope>billing_trigger_day</dataScope>
+                <validation>
+                    <rule name="required-entry" xsi:type="boolean">true</rule>
+                    <rule name="validate-number" xsi:type="boolean">true</rule>
+                </validation>
+            </settings>
+        </field>
+        <field name="billing_cycles" sortOrder="40" formElement="input">
+            <settings>
+                <dataType>text</dataType>
+                <label translate="true">Maximum number of periods in a subscription. Null means indefinite duration</label>
+                <dataScope>billing_cycles</dataScope>
+            </settings>
+        </field>
+<!--        <field name="installments" sortOrder="45" formElement="input">-->
+<!--            <settings>-->
+<!--                <dataType>text</dataType>-->
+<!--                <label translate="true">Number of Installments</label>-->
+<!--                <dataScope>installments</dataScope>-->
+<!--                <validation>-->
+<!--                    <rule name="validate-number" xsi:type="boolean">true</rule>-->
+<!--                </validation>-->
+<!--            </settings>-->
+<!--        </field>-->
+<!--        <field name="invoice_split" sortOrder="50" formElement="checkbox">-->
+<!--            <argument name="data" xsi:type="array">-->
+<!--                <item name="config" xsi:type="array">-->
+<!--                    <item name="source" xsi:type="string">menu</item>-->
+<!--                    <item name="default" xsi:type="number">1</item>-->
+<!--                </item>-->
+<!--            </argument>-->
+<!--            <settings>-->
+<!--                <dataType>boolean</dataType>-->
+<!--                <label translate="true">Invoice Split</label>-->
+<!--                <dataScope>invoice_split</dataScope>-->
+<!--            </settings>-->
+<!--            <formElements>-->
+<!--                <checkbox>-->
+<!--                    <settings>-->
+<!--                        <valueMap>-->
+<!--                            <map name="false" xsi:type="number">0</map>-->
+<!--                            <map name="true" xsi:type="number">1</map>-->
+<!--                        </valueMap>-->
+<!--                        <prefer>toggle</prefer>-->
+<!--                    </settings>-->
+<!--                </checkbox>-->
+<!--            </formElements>-->
+<!--        </field>-->
+<!--        <field name="metadata" sortOrder="55" formElement="textarea">-->
+<!--            <settings>-->
+<!--                <dataType>text</dataType>-->
+<!--                <label translate="true">Metadata</label>-->
+<!--                <dataScope>metadata</dataScope>-->
+<!--            </settings>-->
+<!--        </field>-->
+    </fieldset>
+</form>
