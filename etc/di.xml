@@ -55,25 +55,4 @@
             <argument name="resourceModel" xsi:type="string">Vindi\Payment\Model\ResourceModel\VindiPlan</argument>
         </arguments>
     </virtualType>
-
-    <!-- VindiPlanItem-->
-    <preference for="Vindi\Payment\Api\Data\VindiPlanItemInterface" type="Vindi\Payment\Model\VindiPlanItem"/>
-    <preference for="Vindi\Payment\Api\Data\VindiPlanItemSearchResultInterface" type="Vindi\Payment\Model\VindiPlanItemSearchResult"/>
-    <preference for="Vindi\Payment\Api\VindiPlanItemRepositoryInterface" type="Vindi\Payment\Model\VindiPlanItemRepository"/>
-
-    <type name="Magento\Framework\View\Element\UiComponent\DataProvider\CollectionFactory">
-        <arguments>
-            <argument name="collections" xsi:type="array">
-                <item name="vindi_payment_vindiplanitem_listing_data_source" xsi:type="string">Vindi\Payment\Model\ResourceModel\VindiPlanItem\Grid\Collection</item>
-                <item name="vindi_payment_vindiplanitem_data_source" xsi:type="string">Vindi\Payment\Model\ResourceModel\VindiPlanItem\Form\DataProvider</item>
-            </argument>
-        </arguments>
-    </type>
-
-    <virtualType name="Vindi\Payment\Model\ResourceModel\VindiPlanItem\Grid\Collection" type="Magento\Framework\View\Element\UiComponent\DataProvider\SearchResult">
-        <arguments>
-            <argument name="mainTable" xsi:type="string">vindi_plan_items</argument>
-            <argument name="resourceModel" xsi:type="string">Vindi\Payment\Model\ResourceModel\VindiPlanItem</argument>
-        </arguments>
-    </virtualType>
 </config>

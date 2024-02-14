@@ -169,46 +169,5 @@
                 <dataScope>billing_cycles</dataScope>
             </settings>
         </field>
-<!--        <field name="installments" sortOrder="45" formElement="input">-->
-<!--            <settings>-->
-<!--                <dataType>text</dataType>-->
-<!--                <label translate="true">Number of Installments</label>-->
-<!--                <dataScope>installments</dataScope>-->
-<!--                <validation>-->
-<!--                    <rule name="validate-number" xsi:type="boolean">true</rule>-->
-<!--                </validation>-->
-<!--            </settings>-->
-<!--        </field>-->
-<!--        <field name="invoice_split" sortOrder="50" formElement="checkbox">-->
-<!--            <argument name="data" xsi:type="array">-->
-<!--                <item name="config" xsi:type="array">-->
-<!--                    <item name="source" xsi:type="string">menu</item>-->
-<!--                    <item name="default" xsi:type="number">1</item>-->
-<!--                </item>-->
-<!--            </argument>-->
-<!--            <settings>-->
-<!--                <dataType>boolean</dataType>-->
-<!--                <label translate="true">Invoice Split</label>-->
-<!--                <dataScope>invoice_split</dataScope>-->
-<!--            </settings>-->
-<!--            <formElements>-->
-<!--                <checkbox>-->
-<!--                    <settings>-->
-<!--                        <valueMap>-->
-<!--                            <map name="false" xsi:type="number">0</map>-->
-<!--                            <map name="true" xsi:type="number">1</map>-->
-<!--                        </valueMap>-->
-<!--                        <prefer>toggle</prefer>-->
-<!--                    </settings>-->
-<!--                </checkbox>-->
-<!--            </formElements>-->
-<!--        </field>-->
-<!--        <field name="metadata" sortOrder="55" formElement="textarea">-->
-<!--            <settings>-->
-<!--                <dataType>text</dataType>-->
-<!--                <label translate="true">Metadata</label>-->
-<!--                <dataScope>metadata</dataScope>-->
-<!--            </settings>-->
-<!--        </field>-->
     </fieldset>
 </form>
