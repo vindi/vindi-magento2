@@ -151,3 +151,6 @@
 "Reference for bill generation date","Referência para data de geração da cobrança"
 "Day for billing","Dia para geração da cobrança"
 "Maximum number of periods in a subscription. Null means indefinite duration","Número máximo de períodos em uma assinatura. Nulo significa duração indefinida"
+"Remove in store","Remover na loja"
+"Remove in store and at Vindi","Remover na loja e na Vindi"
+

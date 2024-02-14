@@ -84,7 +84,7 @@
                     </confirm>
                     <url path="vindi_payment/vindiplan/massDelete"/>
                     <type>delete</type>
-                    <label translate="true">Delete</label>
+                    <label translate="true">Remove in store</label>
                 </settings>
             </action>
         </massaction>
