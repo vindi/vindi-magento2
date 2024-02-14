@@ -15,6 +15,7 @@ use Magento\Framework\Registry;
 use Magento\Framework\Stdlib\DateTime\TimezoneInterface;
 use Magento\Payment\Helper\Data;
 use Magento\Payment\Model\InfoInterface;
+use Magento\Payment\Model\Method\AbstractMethod as OriginAbstractMethod;
 use Magento\Payment\Model\Method\Logger;
 use Magento\Sales\Api\Data\OrderItemInterface;
 use Magento\Sales\Model\Order;
@@ -23,11 +24,18 @@ use Psr\Log\LoggerInterface;
 use Vindi\Payment\Api\PlanManagementInterface;
 use Vindi\Payment\Api\ProductManagementInterface;
 use Vindi\Payment\Api\SubscriptionInterface;
+use Vindi\Payment\Helper\Api;
 
-abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMethod
+/**
+ * Class AbstractMethod
+ *
+ * @package \Vindi\Payment\Model\Payment
+ */
+abstract class AbstractMethod extends OriginAbstractMethod
 {
+
     /**
-     * @var \Vindi\Payment\Helper\Api
+     * @var Api
      */
     protected $api;
 
@@ -65,23 +73,51 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
      * @var TimezoneInterface
      */
     protected $date;
+
     /**
      * @var ProductManagementInterface
      */
     private $productManagement;
+
     /**
      * @var \Vindi\Payment\Helper\Data
      */
     private $helperData;
+
     /**
      * @var PlanManagementInterface
      */
     private $planManagement;
+
     /**
      * @var SubscriptionInterface
      */
     private $subscriptionRepository;
 
+    /**
+     * @param Context $context
+     * @param Registry $registry
+     * @param ExtensionAttributesFactory $extensionFactory
+     * @param AttributeValueFactory $customAttributeFactory
+     * @param Data $paymentData
+     * @param ScopeConfigInterface $scopeConfig
+     * @param Logger $logger
+     * @param Api $api
+     * @param InvoiceService $invoiceService
+     * @param Customer $customer
+     * @param ProductManagementInterface $productManagement
+     * @param PlanManagementInterface $planManagement
+     * @param SubscriptionInterface $subscriptionRepository
+     * @param Bill $bill
+     * @param Profile $profile
+     * @param PaymentMethod $paymentMethod
+     * @param LoggerInterface $psrLogger
+     * @param TimezoneInterface $date
+     * @param \Vindi\Payment\Helper\Data $helperData
+     * @param AbstractResource|null $resource
+     * @param AbstractDb|null $resourceCollection
+     * @param array $data
+     */
     public function __construct(
         Context $context,
         Registry $registry,
@@ -90,7 +126,7 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
         Data $paymentData,
         ScopeConfigInterface $scopeConfig,
         Logger $logger,
-        \Vindi\Payment\Helper\Api $api,
+        Api $api,
         InvoiceService $invoiceService,
         Customer $customer,
         ProductManagementInterface $productManagement,
@@ -143,9 +179,21 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
      *
      * @param \Magento\Quote\Api\Data\CartInterface|null $quote
      * @return bool
+     * @throws NoSuchEntityException
      */
     public function isAvailable(\Magento\Quote\Api\Data\CartInterface $quote = null)
     {
+        if ($this->getPaymentMethodCode() == PaymentMethod::BANK_SLIP || $this->getPaymentMethodCode() == PaymentMethod::PIX) {
+            foreach ($quote->getItems() as $item) {
+                if ($this->helperData->isVindiPlan($item->getProductId())) {
+                    $product = $this->helperData->getProductById($item->getProductId());
+                    if ($product->getData('vindi_billing_trigger_day') > 0 ||
+                        $product->getData('vindi_billing_trigger_type') == 'end_of_period') {
+                        return false;
+                    }
+                }
+            }
+        }
         return parent::isAvailable($quote);
     }
 
@@ -206,6 +254,7 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
     /**
      * @param \Magento\Framework\DataObject|InfoInterface $payment
      * @param float $amount
+     *
      * @throws LocalizedException
      * @return $this|string
      */
@@ -225,7 +274,8 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
         $body = [
             'customer_id' => $customerId,
             'payment_method_code' => $this->getPaymentMethodCode(),
-            'bill_items' => $productList
+            'bill_items' => $productList,
+            'code' => $order->getIncrementId()
         ];
 
         if ($body['payment_method_code'] === PaymentMethod::CREDIT_CARD) {
@@ -240,6 +290,7 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
         if ($bill = $this->bill->create($body)) {
             $this->handleBankSplitAdditionalInformation($payment, $body, $bill);
             if ($this->successfullyPaid($body, $bill)) {
+                $this->handleBankSplitAdditionalInformation($payment, $body, $bill);
                 $order->setVindiBillId($bill['id']);
                 return $bill['id'];
             }
@@ -284,14 +335,21 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
 
         if ($responseData = $this->subscriptionRepository->create($body)) {
             $bill = $responseData['bill'];
-            $this->handleBankSplitAdditionalInformation($payment, $body, $bill);
-            if ($this->successfullyPaid($body, $bill)) {
-                $order->setVindiBillId($bill['id']);
+            $subscription = $responseData['subscription'];
+            if ($bill) {
+                $this->handleBankSplitAdditionalInformation($payment, $body, $bill);
+            }
+            if ($this->successfullyPaid($body, $bill, $subscription)) {
+                if ($bill) {
+                    $this->handleBankSplitAdditionalInformation($payment, $body, $bill);
+                }
+                $billId = $bill['id'] ?? 0;
+                $order->setVindiBillId($billId);
                 $order->setVindiSubscriptionId($responseData['subscription']['id']);
-                return $bill['id'];
+                return $billId;
             }
 
-            $this->subscriptionRepository->deleteAndCancelBills($responseData['subscription']['id']);
+            $this->subscriptionRepository->deleteAndCancelBills($subscription['id']);
         }
 
         return $this->handleError($order);
@@ -341,25 +399,83 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
             $payment->setAdditionalInformation('print_url', $bill['charges'][0]['print_url']);
             $payment->setAdditionalInformation('due_at', $bill['charges'][0]['due_at']);
         }
+
+        $isValidPix = isset($bill['charges'][0]['last_transaction']['gateway_response_fields']['qrcode_original_path']);
+        if ($body['payment_method_code'] === PaymentMethod::PIX && $isValidPix) {
+            $payment->setAdditionalInformation('qrcode_original_path', $bill['charges'][0]['last_transaction']['gateway_response_fields']['qrcode_original_path']);
+            $payment->setAdditionalInformation('qrcode_path', $bill['charges'][0]['last_transaction']['gateway_response_fields']['qrcode_path']);
+            $payment->setAdditionalInformation('max_days_to_keep_waiting_payment', $bill['charges'][0]['last_transaction']['gateway_response_fields']['max_days_to_keep_waiting_payment']);
+        }
     }
 
     /**
      * @param array $body
      * @param $bill
+     * @param array $subscription
      * @return bool
      */
-    private function successfullyPaid(array $body, $bill)
+    private function successfullyPaid(array $body, $bill, array $subscription = [])
     {
-        if (
-            $body['payment_method_code'] === PaymentMethod::BANK_SLIP
-            || $body['payment_method_code'] === PaymentMethod::DEBIT_CARD
-            || $bill['status'] === Bill::PAID_STATUS
-            || $bill['status'] === Bill::REVIEW_STATUS
-            || reset($bill['charges'])['status'] === Bill::FRAUD_REVIEW_STATUS
-        ) {
-            return true;
+        // nova validação para permitir pedidos com pagamento/fatura pendente
+        if (!$bill) {
+            $billingType = $subscription['billing_trigger_type'] ?? null;
+            if ($billingType != 'day_of_month') {
+                return true;
+            }
         }
 
-        return false;
+        return $this->isValidPaymentMethodCode($body['payment_method_code'])
+            || $this->isValidStatus($bill)
+            || $this->isWaitingPaymentMethodResponse($bill);
+    }
+
+    /**
+     * @param $paymentMethodCode
+     *
+     * @return bool
+     */
+    protected function isValidPaymentMethodCode($paymentMethodCode)
+    {
+        $paymentMethodsCode = [
+            PaymentMethod::BANK_SLIP,
+            PaymentMethod::DEBIT_CARD
+        ];
+
+        return in_array($paymentMethodCode, $paymentMethodsCode);
+    }
+
+    /**
+     * @param $bill
+     *
+     * @return bool
+     */
+    protected function isWaitingPaymentMethodResponse($bill)
+    {
+        if (!$bill) {
+            return false;
+        }
+
+        return reset($bill['charges'])['last_transaction']['status'] === Bill::WAITING_STATUS;
+    }
+
+    /**
+     * @param $bill
+     *
+     * @return bool
+     */
+    protected function isValidStatus($bill)
+    {
+        if (!$bill) {
+            return false;
+        }
+
+        $billStatus = [
+            Bill::PAID_STATUS,
+            Bill::REVIEW_STATUS
+        ];
+
+        $chargeStatus = reset($bill['charges'])['status'] === Bill::FRAUD_REVIEW_STATUS;
+
+        return in_array($bill['status'], $billStatus) || $chargeStatus;
     }
 }

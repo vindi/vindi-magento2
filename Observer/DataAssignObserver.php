@@ -1,6 +1,7 @@
 <?php
 
-namespace Vindi\Payment\Model;
+namespace Vindi\Payment\Observer;
+
 
 use Magento\Framework\Event\Observer;
 use Magento\Payment\Observer\AbstractDataAssignObserver;
@@ -8,13 +9,16 @@ use Magento\Quote\Api\Data\PaymentInterface;
 
 class DataAssignObserver extends AbstractDataAssignObserver
 {
+
     const PAYMENT_METHOD_NONCE = 'payment_method_nonce';
+    const PIX_DOCUMENT = 'document';
 
     /**
      * @var array
      */
     protected $additionalInformationList = [
         self::PAYMENT_METHOD_NONCE,
+        self::PIX_DOCUMENT
     ];
 
     /**

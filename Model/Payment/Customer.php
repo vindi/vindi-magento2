@@ -2,19 +2,38 @@
 
 namespace Vindi\Payment\Model\Payment;
 
+
+use Magento\Customer\Api\CustomerRepositoryInterface;
+use Magento\Framework\Message\ManagerInterface;
+use Magento\Sales\Model\Order;
+use Vindi\Payment\Helper\Api;
+
 class Customer
 {
+
+    /**
+     * @param CustomerRepositoryInterface $customerRepository
+     * @param Api $api
+     * @param ManagerInterface $messageManager
+     */
     public function __construct(
-        \Magento\Customer\Api\CustomerRepositoryInterface $customerRepository,
-        \Vindi\Payment\Helper\Api $api,
-        \Magento\Framework\Message\ManagerInterface $messageManager
+        CustomerRepositoryInterface $customerRepository,
+        Api $api,
+        ManagerInterface $messageManager
     ) {
         $this->customerRepository = $customerRepository;
         $this->api = $api;
         $this->messageManager = $messageManager;
     }
 
-    public function findOrCreate($order)
+    /**
+     * @param Order $order
+     *
+     * @return array|bool|mixed
+     * @throws \Magento\Framework\Exception\LocalizedException
+     * @throws \Magento\Framework\Exception\NoSuchEntityException
+     */
+    public function findOrCreate(Order $order)
     {
         $billing = $order->getBillingAddress();
         $customer = null;
@@ -26,6 +45,19 @@ class Customer
         }
 
         if ($customerId) {
+            if($order->getPayment()->getMethod() == "vindi_pix") {
+                $customerVindi = $this->getVindiCustomerData($customer->getId());
+                $taxVatOrder = str_replace([' ', '-', '.'], '', $order->getPayment()->getAdditionalInformation()['document']);
+                if ($customerVindi['registry_code'] != $taxVatOrder) {
+                    $updateData = [
+                        'registry_code' => $taxVatOrder,
+                    ];
+                    $this->updateVindiCustomer($customerId, $updateData);
+                    $customer->setTaxvat($order->getPayment()->getAdditionalInformation()['document']);
+                    $this->customerRepository->save($customer);
+                }
+            }
+
             return $customerId;
         }
 
@@ -43,7 +75,7 @@ class Customer
         $customerVindi = [
             'name' => $billing->getFirstname() . ' ' . $billing->getLastname(),
             'email' => $billing->getEmail(),
-            'registry_code' => $order->getData('customer_taxvat') ?: '',
+            'registry_code' => $this->getDocumentGuest($order),
             'code' => $customer ? $customer->getId() : '',
             'phones' => $this->formatPhone($billing->getTelephone()),
             'address' => $address
@@ -77,6 +109,25 @@ class Customer
         return false;
     }
 
+
+    /**
+     * Update customer Vindi.
+     *
+     * @param string $query
+     *
+     * @return array|bool|mixed
+     */
+    public function updateVindiCustomer($customerId ,$body)
+    {
+        $response = $this->api->request("customers/{$customerId}", 'PUT', $body);
+
+        if (isset($response['customer']['id'])) {
+            return $response['customer']['id'];
+        }
+
+        return false;
+    }
+
     /**
      * Make an API request to retrieve an existing Customer.
      *
@@ -95,6 +146,29 @@ class Customer
         return false;
     }
 
+    /**
+     * Make an API request to retrieve an existing Customer Data.
+     *
+     * @param string $query
+     *
+     * @return array|bool|mixed
+     */
+    public function getVindiCustomerData($query)
+    {
+        $response = $this->api->request("customers?query=code={$query}", 'GET');
+
+        if ($response && (1 === count($response['customers'])) && isset($response['customers'][0]['id'])) {
+            return $response['customers'][0];
+        }
+
+        return false;
+    }
+
+    /**
+     * @param $phone
+     *
+     * @return string|null
+     */
     public function formatPhone($phone)
     {
         $digits = strlen('55' . preg_replace('/^0|\D+/', '', $phone));
@@ -104,5 +178,19 @@ class Customer
         ];
 
         return array_key_exists($digits, $phone_types) ? $phone_types[$digits] : null;
+    }
+
+    /**
+     * @param \Magento\Sales\Model\Order $order
+     *
+     * @return mixed|string
+     */
+    protected function getDocumentGuest(Order $order)
+    {
+        if($document = $order->getData('customer_taxvat')) {
+            return $document;
+        }
+
+        return $order->getPayment()->getAdditionalInformation('document') ?: '';
     }
 }

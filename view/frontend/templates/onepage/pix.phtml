@@ -1,0 +1,53 @@
+<?php
+
+use Vindi\Payment\Block\Onepage\Pix;
+
+/** @var $block Pix */
+?>
+
+<?php if ($block->canShowPix()) : ?>
+    <div class="checkout-success qr-code">
+        <p>
+            <?= $block->getInfoMessageOnepageSuccess() ?>
+        </p>
+        <object data="<?= $block->getQrCodePix() ?>" type="image/svg+xml" class="qr-code" id="qrcode">
+            <p>
+                <?= $block->getQrCodeWarningMessage() ?>
+            </p>
+            <button
+                id="vindi-pix-button-open"
+                type="button"
+                class="action primary checkout"
+                title="Open QR Code Pix"
+                onclick="window.open('<?= $block->getQrCodePix() ?>', '_blank')">
+                <?php echo __('Open QR Code') ?>
+            </button>
+        </object>
+
+        <div data-bind="scope: 'vindiPix'" class="box-qr">
+            <!-- ko template: getTemplate() --><!-- /ko -->
+            <div id="copied-success" class="copied">
+                <span><?= __('QR Code Key copied') ?></span>
+            </div>
+            <div id="copied-error" class="copied">
+                <span><?= __('Error copying QR Code') ?></span>
+            </div>
+        </div>
+    </div>
+
+    <script type="text/x-magento-init">
+        {
+            "*": {
+                "Magento_Ui/js/core/app": {
+                    "components": {
+                        "vindiPix": {
+                            "component": "Vindi_Payment/js/view/onepage/vindi-pix",
+                            "qrCodeKey": <?= $block->getQrcodeOriginalPath() ?>
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+<?php endif; ?>
