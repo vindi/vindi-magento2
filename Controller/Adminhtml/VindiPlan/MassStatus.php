@@ -26,7 +26,16 @@ class MassStatus extends AbstractMassAction
         foreach ($items as $item) {
             try {
                 $item->setStatus($status);
+
+                $data = [
+                    'code'   => $item->getCode(),
+                    'status' => $status,
+                ];
+
                 $item->save();
+
+                $this->getPlan()->save($data);
+
                 $updated++;
             } catch (Exception $e) {
                 $this->messageManager->addErrorMessage($e->getMessage());

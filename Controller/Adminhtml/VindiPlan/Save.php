@@ -62,40 +62,54 @@ class Save extends Action
             return;
         }
 
+        $existingPlan = null;
+        $entityId = $this->getRequest()->getParam('entity_id');
+
         try {
             $data = [
-                'name'     => $post["settings"]["name"],
-                'status'   => $post["settings"]["status"],
-                'code'     => Data::sanitizeItemSku($post["settings"]["code"]),
-                'interval' => $post["settings"]["interval"],
-                'interval_count' => $post["settings"]["interval_count"],
+                'name'                 => $post["settings"]["name"],
+                'status'               => $post["settings"]["status"],
+                'code'                 => Data::sanitizeItemSku($post["settings"]["name"]),
+                'description'          => $post["settings"]["description"],
+                'interval'             => $post["settings"]["interval"],
+                'interval_count'       => $post["settings"]["interval_count"],
                 'billing_trigger_type' => $post["settings"]["billing_trigger_type"],
                 'billing_trigger_day'  => $post["settings"]["billing_trigger_day"],
-                'billing_cycles' => $post["settings"]["billing_cycles"],
-                'updated_at'     => date('Y-m-d H:i:s'),
-                'created_at'     => date('Y-m-d H:i:s')
+                'billing_cycles'       => empty($post["settings"]["billing_cycles"]) ? null : $post["settings"]["billing_cycles"],
+                'updated_at'           => date('Y-m-d H:i:s'),
+                'created_at'           => date('Y-m-d H:i:s')
             ];
 
-            $existingPlan = $this->vindiPlanRepository->getByCode($data['code']);
-
-            if ($existingPlan && $existingPlan->getId()) {
-                throw new LocalizedException(__('A plan with the same code already exists.'));
+            if (!empty($post['vindi_id'])) {
+                $existingPlan = $this->vindiPlanRepository->getByVindiId($post['vindi_id']);
             }
 
-            $this->plan->save($data);
+            if ($existingPlan && $existingPlan->getId()) {
+                $existingPlan->addData($data);
+                $this->vindiPlanRepository->save($existingPlan);
 
-            $vindiPlan = $this->vindiPlanFactory->create();
-            $vindiPlan->setData($data);
-            $this->vindiPlanRepository->save($vindiPlan);
+                $this->plan->save($data);
 
-            $this->messageManager->addSuccessMessage(__('Plan saved successfully!'));
-            $this->_redirect('*/*/');
+                $this->messageManager->addSuccessMessage(__('Plan updated successfully!'));
+            } else {
+                $vindiId = $this->plan->save($data);
+
+                $vindiPlan = $this->vindiPlanFactory->create();
+                $vindiPlan->setData($data);
+                $vindiPlan->setVindiId($vindiId);
+                $this->vindiPlanRepository->save($vindiPlan);
+
+                $entityId = $vindiPlan->getId();
+
+                $this->messageManager->addSuccessMessage(__('Plan saved successfully!'));
+            }
+
         } catch (LocalizedException $e) {
             $this->messageManager->addErrorMessage($e->getMessage());
-            $this->_redirect('*/*/edit', ['entity_id' => $this->getRequest()->getParam('entity_id')]);
         } catch (\Exception $e) {
             $this->messageManager->addErrorMessage(__('An error occurred while saving the plan.'));
-            $this->_redirect('*/*/edit', ['entity_id' => $this->getRequest()->getParam('entity_id')]);
         }
+
+        $this->_redirect('*/*/edit', ['entity_id' => $entityId]);
     }
 }

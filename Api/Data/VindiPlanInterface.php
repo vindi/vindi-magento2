@@ -11,6 +11,8 @@ namespace Vindi\Payment\Api\Data;
 interface VindiPlanInterface
 {
     const ENTITY_ID             = 'entity_id';
+
+    const VINDI_ID              = 'vindi_id';
     const NAME                  = 'name';
     const INTERVAL              = 'interval';
     const INTERVAL_COUNT        = 'interval_count';
@@ -26,6 +28,8 @@ interface VindiPlanInterface
 
     public function getId();
     public function setId($entityId);
+    public function getVindiId();
+    public function setVindiId($entityId);
     public function getName();
     public function setName($name);
     public function getInterval();

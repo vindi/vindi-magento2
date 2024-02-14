@@ -54,28 +54,6 @@
                     <item name="component" xsi:type="string">Magento_Ui/js/grid/tree-massactions</item>
                 </item>
             </argument>
-            <action name="status">
-                <settings>
-                    <type>status</type>
-                    <label translate="true">Change status</label>
-                    <actions>
-                        <action name="0">
-                            <type>enable</type>
-                            <label translate="true">Enable</label>
-                            <url path="vindi_payment/vindiplan/massStatus">
-                                <param name="status">1</param>
-                            </url>
-                        </action>
-                        <action name="1">
-                            <type>disable</type>
-                            <label translate="true">Disable</label>
-                            <url path="vindi_payment/vindiplan/massStatus">
-                                <param name="status">0</param>
-                            </url>
-                        </action>
-                    </actions>
-                </settings>
-            </action>
             <action name="delete">
                 <settings>
                     <confirm>
@@ -109,6 +87,13 @@
                 </item>
             </argument>
         </column>
+        <column name="vindi_id">
+            <argument name="data" xsi:type="array">
+                <item name="config" xsi:type="array">
+                    <item name="label" xsi:type="string" translate="true">Vindi ID</item>
+                </item>
+            </argument>
+        </column>
         <column name="name">
             <argument name="data" xsi:type="array">
                 <item name="config" xsi:type="array">
@@ -131,8 +116,22 @@
                     <editorType>select</editorType>
                 </editor>
                 <dataType>select</dataType>
-                <label translate="true">Interval</label>
+                <label translate="true">Interval Duration</label>
             </settings>
+        </column>
+        <column name="interval_count">
+            <argument name="data" xsi:type="array">
+                <item name="config" xsi:type="array">
+                    <item name="filter" xsi:type="string">text</item>
+                    <item name="editor" xsi:type="array">
+                        <item name="editorType" xsi:type="string">text</item>
+                        <item name="validation" xsi:type="array">
+                            <item name="required-entry" xsi:type="boolean">true</item>
+                        </item>
+                    </item>
+                    <item name="label" xsi:type="string" translate="true">Number of intervals within a period</item>
+                </item>
+            </argument>
         </column>
         <column name="description">
             <argument name="data" xsi:type="array">

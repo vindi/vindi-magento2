@@ -16,6 +16,7 @@
 	</table>
     <table name="vindi_plans" resource="default" engine="innodb" comment="Vindi Plans Table">
         <column xsi:type="int" name="entity_id" padding="10" unsigned="true" nullable="false" identity="true" comment="Entity ID"/>
+        <column xsi:type="int" name="vindi_id" nullable="false" comment="Vindi ID"/>
         <column xsi:type="varchar" name="name" length="255" nullable="false" comment="Plan Name"/>
         <column xsi:type="varchar" name="interval" length="255" nullable="false" comment="Interval Duration"/>
         <column xsi:type="int" name="interval_count" nullable="false" comment="Number of Intervals"/>
@@ -33,5 +34,8 @@
         <constraint xsi:type="primary" referenceId="PRIMARY">
             <column name="entity_id"/>
         </constraint>
+        <index referenceId="VINDI_PLANS_NAME_INDEX" indexType="fulltext">
+            <column name="name"/>
+        </index>
     </table>
 </schema>

@@ -52,7 +52,7 @@ class Actions extends Column
             foreach ($dataSource['data']['items'] as &$item) {
                 $item[$this->getData('name')]['edit'] = [
                     'href' => $this->urlBuilder->getUrl(
-                        'crudadmin/vindiplan/edit',
+                        'vindi_payment/vindiplan/edit',
                         ['entity_id' => $item['entity_id']]
                     ),
                     'label' => __('Edit'),
@@ -62,10 +62,20 @@ class Actions extends Column
 
                 $item[$this->getData('name')]['delete'] = [
                     'href' => $this->urlBuilder->getUrl(
-                        'crudadmin/vindiplan/delete',
+                        'vindi_payment/vindiplan/delete',
                         ['entity_id' => $item['entity_id']]
                     ),
-                    'label' => __('Delete'),
+                    'label' => __('Remove in store'),
+                    'hidden' => false,
+                    '__disableTmpl' => true
+                ];
+
+                $item[$this->getData('name')]['deletevindi'] = [
+                    'href' => $this->urlBuilder->getUrl(
+                        'vindi_payment/vindiplan/deletevindi',
+                        ['entity_id' => $item['entity_id']]
+                    ),
+                    'label' => __('Remove in store and at Vindi'),
                     'hidden' => false,
                     '__disableTmpl' => true
                 ];

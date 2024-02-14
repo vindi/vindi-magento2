@@ -140,6 +140,30 @@ class VindiPlanRepository implements VindiPlanRepositoryInterface
     }
 
     /**
+     * Retrieve plan by Vindi ID.
+     *
+     * @param string $vindiId
+     * @return VindiPlanInterface|null
+     */
+    public function getByVindiId(string $vindiId): ?VindiPlanInterface
+    {
+        $collection = $this->collectionFactory->create();
+        $collection->addFieldToFilter('vindi_id', $vindiId);
+        $collection->setPageSize(1);
+
+        $item = $collection->getFirstItem();
+
+        if (!$item->getId()) {
+            return null;
+        }
+
+        $vindiplan = $this->vindiplanFactory->create();
+        $this->resourceModel->load($vindiplan, $item->getId());
+
+        return $vindiplan;
+    }
+
+    /**
      * @param SearchCriteriaInterface $searchCriteria
      * @return VindiPlanSearchResultInterface
      */

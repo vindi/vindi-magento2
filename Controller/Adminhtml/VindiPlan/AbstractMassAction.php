@@ -8,6 +8,7 @@ use Magento\Framework\Data\Collection\AbstractDb;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Ui\Component\MassAction\Filter;
 use Vindi\Payment\Model\ResourceModel\VindiPlan\CollectionFactory;
+use Vindi\Payment\Model\Vindi\Plan;
 
 /**
  * Class AbstractMassAction
@@ -26,19 +27,27 @@ abstract class AbstractMassAction extends Action
     protected $collectionFactory;
 
     /**
+     * @var Plan
+     */
+    protected $plan;
+
+    /**
      * AbstractMassAction constructor.
      *
      * @param Context $context
      * @param Filter $filter
      * @param CollectionFactory $collectionFactory
+     * @param Plan $plan
      */
     public function __construct(
         Context $context,
         Filter $filter,
-        CollectionFactory $collectionFactory
+        CollectionFactory $collectionFactory,
+        Plan $plan,
     ) {
         $this->_filter = $filter;
         $this->collectionFactory = $collectionFactory;
+        $this->plan = $plan;
 
         parent::__construct($context);
     }
@@ -62,5 +71,13 @@ abstract class AbstractMassAction extends Action
         $resultRedirect = $this->resultRedirectFactory->create();
 
         return $resultRedirect->setPath($path);
+    }
+
+    /**
+     * @return Plan
+     */
+    protected function getPlan()
+    {
+        return $this->plan;
     }
 }

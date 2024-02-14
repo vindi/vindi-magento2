@@ -68,11 +68,7 @@ class ImportPlans extends Action
                 }
 
                 foreach ($plans["plans"] as $planData) {
-                    if (!empty($planData['code'])) {
-                        $existingPlan = $this->vindiplanRepository->getByCode($planData['code']);
-                    } else {
-                        $existingPlan = $this->vindiplanRepository->getByName($planData['name']);
-                    }
+                    $existingPlan = $this->vindiplanRepository->getByVindiId($planData['id']);
 
                     if ($existingPlan && $existingPlan->getId()) {
                         continue;
@@ -81,13 +77,14 @@ class ImportPlans extends Action
                     $vindiplan = $this->vindiplanFactory->create();
 
                     $vindiplan->setData([
+                        'vindi_id'             => $planData['id'],
                         'name'                 => $planData['name'],
                         'status'               => $planData['status'],
                         'interval'             => $planData['interval'],
                         'interval_count'       => $planData['interval_count'],
                         'billing_trigger_type' => $planData['billing_trigger_type'],
                         'billing_trigger_day'  => $planData['billing_trigger_day'],
-                        'billing_cycles'       => $planData['billing_cycles'],
+                        'billing_cycles'       => empty($planData['billing_cycles']) ? null : $planData['billing_cycles'],
                         'code'                 => $planData['code'],
                         'description'          => $planData['description'],
                         'installments'         => $planData['installments'],
