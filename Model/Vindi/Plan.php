@@ -70,4 +70,17 @@ class Plan implements PlanInterface
     {
         return $this->api->request('plans?per_page=100&page=' . $page, 'GET');
     }
+
+    /**
+     * @param $id
+     * @return void
+     * @throws LocalizedException
+     */
+    public function delete($id)
+    {
+        $response = $this->api->request("plans/{$id}", 'DELETE');
+        if (!$response) {
+            throw new LocalizedException(__('The plan could not be deleted'));
+        }
+    }
 }
