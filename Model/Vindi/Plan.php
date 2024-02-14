@@ -63,10 +63,11 @@ class Plan implements PlanInterface
     }
 
     /**
+     * @param $page
      * @return bool|mixed
      */
-    public function getAllPlans()
+    public function getAllPlans($page = 1)
     {
-        return $this->api->request('plans', 'GET');
+        return $this->api->request('plans?per_page=100&page=' . $page, 'GET');
     }
 }

@@ -57,50 +57,57 @@ class ImportPlans extends Action
     public function execute()
     {
         try {
-            $plans = $this->plan->getAllPlans();
+            $page = 1;
 
-            if (!isset($plans["plans"])) {
-                throw new LocalizedException(__('No plans found.'));
-            }
+            do {
+                $plans = $this->plan->getAllPlans($page);
+                $page++;
 
-            foreach ($plans["plans"] as $planData) {
-                if (!empty($planData['code'])) {
-                    $existingPlan = $this->vindiplanRepository->getByCode($planData['code']);
-                } else {
-                    $existingPlan = $this->vindiplanRepository->getByName($planData['name']);
+                if (!isset($plans["plans"]) || empty($plans["plans"])) {
+                    break;
                 }
 
-                if ($existingPlan->getId()) {
-                    continue;
+                foreach ($plans["plans"] as $planData) {
+                    if (!empty($planData['code'])) {
+                        $existingPlan = $this->vindiplanRepository->getByCode($planData['code']);
+                    } else {
+                        $existingPlan = $this->vindiplanRepository->getByName($planData['name']);
+                    }
+
+                    if ($existingPlan && $existingPlan->getId()) {
+                        continue;
+                    }
+
+                    $vindiplan = $this->vindiplanFactory->create();
+
+                    $vindiplan->setData([
+                        'name'                 => $planData['name'],
+                        'status'               => $planData['status'],
+                        'interval'             => $planData['interval'],
+                        'interval_count'       => $planData['interval_count'],
+                        'billing_trigger_type' => $planData['billing_trigger_type'],
+                        'billing_trigger_day'  => $planData['billing_trigger_day'],
+                        'billing_cycles'       => $planData['billing_cycles'],
+                        'code'                 => $planData['code'],
+                        'description'          => $planData['description'],
+                        'installments'         => $planData['installments'],
+                        'invoice_split'        => $planData['invoice_split'],
+                        'updated_at'           => date('Y-m-d H:i:s'),
+                        'created_at'           => date('Y-m-d H:i:s')
+                    ]);
+
+                    $this->vindiplanRepository->save($vindiplan);
                 }
 
-                $vindiplan = $this->vindiplanFactory->create();
+            } while (!empty($plans["plans"]));
 
-                $vindiplan->setData([
-                    'name'           => $planData['name'],
-                    'status'         => $planData['status'],
-                    'interval'       => $planData['interval'],
-                    'interval_count' => $planData['interval_count'],
-                    'billing_trigger_type' => $planData['billing_trigger_type'],
-                    'billing_trigger_day'  => $planData['billing_trigger_day'],
-                    'billing_cycles' => $planData['billing_cycles'],
-                    'code'           => $planData['code'],
-                    'description'    => $planData['description'],
-                    'installments'   => $planData['installments'],
-                    'invoice_split'  => $planData['invoice_split'],
-                    'updated_at'     => date('Y-m-d H:i:s'),
-                    'created_at'     => date('Y-m-d H:i:s')
-                ]);
-
-                $this->vindiplanRepository->save($vindiplan);
-            }
-
-            $this->messageManager->addSuccessMessage(__('Plans imported successfully!'));
         } catch (LocalizedException $e) {
             $this->messageManager->addErrorMessage($e->getMessage());
         } catch (\Exception $e) {
             $this->messageManager->addErrorMessage(__('An error occurred during the import process.'));
         }
+
+        $this->messageManager->addSuccessMessage(__('Plans imported successfully!'));
 
         return $this->_redirect('*/*/');
     }
