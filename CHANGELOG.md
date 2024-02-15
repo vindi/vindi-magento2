@@ -1,4 +1,10 @@
 # Notas das versões
+
+## [1.4.0 - 15/02/2024](https://github.com/vindi/vindi-magento2/releases/tag/1.4.0)
+- Insere método de pagamento Pix
+- Adiciona filtro nas assinaturas pelo método de pagamento Pix
+- Correção no webhook para pedidos avulsos
+
 ## [1.3.0 - 10/06/2020](https://github.com/vindi/vindi-magento2/releases/tag/1.3.0)
 - Insere produto do tipo plano Vindi para criação de assinaturas
 - Insere criação de assinaturas via checkout
