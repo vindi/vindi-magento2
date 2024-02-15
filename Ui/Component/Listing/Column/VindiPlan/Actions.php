@@ -65,17 +65,7 @@ class Actions extends Column
                         'vindi_payment/vindiplan/delete',
                         ['entity_id' => $item['entity_id']]
                     ),
-                    'label' => __('Remove in store'),
-                    'hidden' => false,
-                    '__disableTmpl' => true
-                ];
-
-                $item[$this->getData('name')]['deletevindi'] = [
-                    'href' => $this->urlBuilder->getUrl(
-                        'vindi_payment/vindiplan/deletevindi',
-                        ['entity_id' => $item['entity_id']]
-                    ),
-                    'label' => __('Remove in store and at Vindi'),
+                    'label' => __('Remove in store (does not delete in Vindi)'),
                     'hidden' => false,
                     '__disableTmpl' => true
                 ];

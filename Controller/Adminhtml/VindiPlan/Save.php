@@ -3,10 +3,11 @@ namespace Vindi\Payment\Controller\Adminhtml\VindiPlan;
 
 use Magento\Backend\App\Action\Context;
 use Magento\Backend\App\Action;
+use Magento\Framework\Exception\LocalizedException;
+use Magento\Framework\Stdlib\DateTime\DateTime;
 use Vindi\Payment\Model\Vindi\Plan;
 use Vindi\Payment\Model\VindiPlanFactory;
 use Vindi\Payment\Model\VindiPlanRepository;
-use Magento\Framework\Exception\LocalizedException;
 use Vindi\Payment\Helper\Data;
 
 /**
@@ -32,25 +33,35 @@ class Save extends Action
     protected $vindiPlanRepository;
 
     /**
+     * @var DateTime
+     */
+    protected $dateTime;
+
+    /**
      * Save constructor.
      * @param Context $context
      * @param Plan $plan
      * @param VindiPlanFactory $vindiPlanFactory
      * @param VindiPlanRepository $vindiPlanRepository
+     * @param DateTime $dateTime
      */
     public function __construct(
         Context $context,
         Plan $plan,
         VindiPlanFactory $vindiPlanFactory,
-        VindiPlanRepository $vindiPlanRepository
+        VindiPlanRepository $vindiPlanRepository,
+        DateTime $dateTime
     ) {
         parent::__construct($context);
         $this->plan                = $plan;
         $this->vindiPlanFactory    = $vindiPlanFactory;
         $this->vindiPlanRepository = $vindiPlanRepository;
+        $this->dateTime            = $dateTime;
     }
 
     /**
+     * Execute method for save plan action
+     *
      * @return \Magento\Framework\App\ResponseInterface|\Magento\Framework\Controller\Result\Redirect|\Magento\Framework\Controller\ResultInterface
      */
     public function execute()
@@ -64,20 +75,21 @@ class Save extends Action
 
         $existingPlan = null;
         $entityId = $this->getRequest()->getParam('entity_id');
+        $code = empty($post["settings"]["code"]) ? Data::sanitizeItemSku($post["settings"]["name"]) : $post["settings"]["code"];
 
         try {
             $data = [
                 'name'                 => $post["settings"]["name"],
                 'status'               => $post["settings"]["status"],
-                'code'                 => Data::sanitizeItemSku($post["settings"]["name"]),
+                'code'                 => $code,
                 'description'          => $post["settings"]["description"],
                 'interval'             => $post["settings"]["interval"],
                 'interval_count'       => $post["settings"]["interval_count"],
                 'billing_trigger_type' => $post["settings"]["billing_trigger_type"],
                 'billing_trigger_day'  => $post["settings"]["billing_trigger_day"],
                 'billing_cycles'       => empty($post["settings"]["billing_cycles"]) ? null : $post["settings"]["billing_cycles"],
-                'updated_at'           => date('Y-m-d H:i:s'),
-                'created_at'           => date('Y-m-d H:i:s')
+                'updated_at'           => $this->dateTime->gmtDate(),
+                'created_at'           => $this->dateTime->gmtDate()
             ];
 
             if (!empty($post['vindi_id'])) {
@@ -92,6 +104,14 @@ class Save extends Action
 
                 $this->messageManager->addSuccessMessage(__('Plan updated successfully!'));
             } else {
+                    $existingPlanByCode = $this->vindiPlanRepository->getByCode($code);
+
+                if ($existingPlanByCode && $existingPlanByCode->getId() && $existingPlanByCode->getId() != $entityId) {
+                    $this->messageManager->addErrorMessage(__('A plan with the same code already exists.'));
+                    $this->_redirect('*/*/edit', ['entity_id' => $entityId]);
+                    return;
+                }
+
                 $vindiId = $this->plan->save($data);
 
                 $vindiPlan = $this->vindiPlanFactory->create();
@@ -103,13 +123,14 @@ class Save extends Action
 
                 $this->messageManager->addSuccessMessage(__('Plan saved successfully!'));
             }
-
-        } catch (LocalizedException $e) {
-            $this->messageManager->addErrorMessage($e->getMessage());
         } catch (\Exception $e) {
-            $this->messageManager->addErrorMessage(__('An error occurred while saving the plan.'));
+            $this->messageManager->addErrorMessage($e->getMessage());
+        } finally {
+            if ($entityId) {
+                $this->_redirect('*/*/edit', ['entity_id' => $entityId]);
+            } else {
+                $this->_redirect('*/*/');
+            }
         }
-
-        $this->_redirect('*/*/edit', ['entity_id' => $entityId]);
     }
 }

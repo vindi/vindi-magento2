@@ -164,6 +164,26 @@ class VindiPlanRepository implements VindiPlanRepositoryInterface
     }
 
     /**
+     * Retrieve all Vindi IDs.
+     *
+     * @return string[]
+     */
+    public function getAllVindiIds(): array
+    {
+        $collection = $this->collectionFactory->create();
+        $collection->addFieldToSelect('vindi_id');
+
+        $vindiIds = [];
+        foreach ($collection as $item) {
+            if (!empty($item->getData('vindi_id'))) {
+                $vindiIds[] = $item->getData('vindi_id');
+            }
+        }
+
+        return $vindiIds;
+    }
+
+    /**
      * @param SearchCriteriaInterface $searchCriteria
      * @return VindiPlanSearchResultInterface
      */

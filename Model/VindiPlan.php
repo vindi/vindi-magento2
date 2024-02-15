@@ -46,7 +46,7 @@ class VindiPlan extends AbstractModel implements VindiPlanInterface
      */
     public function getVindiId()
     {
-        return $this->getData(self::ENTITY_ID);
+        return $this->getData(self::VINDI_ID);
     }
 
     /**

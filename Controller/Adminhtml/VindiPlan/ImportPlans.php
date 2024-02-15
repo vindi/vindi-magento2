@@ -1,12 +1,14 @@
 <?php
 namespace Vindi\Payment\Controller\Adminhtml\VindiPlan;
 
-use Vindi\Payment\Model\VindiPlanFactory;
-use Vindi\Payment\Model\VindiPlanRepository;
+use Magento\Framework\Stdlib\DateTime\DateTime;
 use Magento\Backend\App\Action\Context;
 use Magento\Backend\App\Action;
-use Vindi\Payment\Model\Vindi\Plan;
 use Magento\Framework\Exception\LocalizedException;
+use Psr\Log\LoggerInterface;
+use Vindi\Payment\Model\VindiPlanFactory;
+use Vindi\Payment\Model\VindiPlanRepository;
+use Vindi\Payment\Model\Vindi\Plan;
 
 /**
  * Class ImportPlans
@@ -31,22 +33,38 @@ class ImportPlans extends Action
     protected $vindiplanRepository;
 
     /**
+     * @var DateTime
+     */
+    protected $dateTime;
+
+    /**
+     * @var LoggerInterface
+     */
+    protected $logger;
+
+    /**
      * ImportPlans constructor.
      * @param Context $context
      * @param Plan $plan
      * @param VindiPlanFactory $vindiplanFactory
      * @param VindiPlanRepository $vindiplanRepository
+     * @param DateTime $dateTime
+     * @param LoggerInterface $logger
      */
     public function __construct(
         Context $context,
         Plan $plan,
         VindiPlanFactory $vindiplanFactory,
-        VindiPlanRepository $vindiplanRepository
+        VindiPlanRepository $vindiplanRepository,
+        DateTime $dateTime,
+        LoggerInterface $logger
     ) {
         parent::__construct($context);
-        $this->plan = $plan;
-        $this->vindiplanFactory       = $vindiplanFactory;
-        $this->vindiplanRepository    = $vindiplanRepository;
+        $this->plan                = $plan;
+        $this->vindiplanFactory    = $vindiplanFactory;
+        $this->vindiplanRepository = $vindiplanRepository;
+        $this->dateTime            = $dateTime;
+        $this->logger              = $logger;
     }
 
     /**
@@ -57,6 +75,9 @@ class ImportPlans extends Action
     public function execute()
     {
         try {
+            $importedCount = 0;
+            $existingPlanIds = $this->vindiplanRepository->getAllVindiIds();
+
             $page = 1;
 
             do {
@@ -68,9 +89,7 @@ class ImportPlans extends Action
                 }
 
                 foreach ($plans["plans"] as $planData) {
-                    $existingPlan = $this->vindiplanRepository->getByVindiId($planData['id']);
-
-                    if ($existingPlan && $existingPlan->getId()) {
+                    if (in_array($planData['id'], $existingPlanIds)) {
                         continue;
                     }
 
@@ -89,22 +108,29 @@ class ImportPlans extends Action
                         'description'          => $planData['description'],
                         'installments'         => $planData['installments'],
                         'invoice_split'        => $planData['invoice_split'],
-                        'updated_at'           => date('Y-m-d H:i:s'),
-                        'created_at'           => date('Y-m-d H:i:s')
+                        'updated_at'           => $this->dateTime->gmtDate(),
+                        'created_at'           => $this->dateTime->gmtDate()
                     ]);
 
                     $this->vindiplanRepository->save($vindiplan);
+                    $importedCount++;
                 }
 
             } while (!empty($plans["plans"]));
 
+            if ($importedCount > 0) {
+                $this->messageManager->addSuccessMessage(__('%1 plan(s) imported successfully!', $importedCount));
+            } else {
+                $this->messageManager->addNoticeMessage(__('No new plans were imported.'));
+            }
+
         } catch (LocalizedException $e) {
             $this->messageManager->addErrorMessage($e->getMessage());
+            $this->logger->error('Vindi ImportPlans Controller LocalizedException: ' . $e->getMessage());
         } catch (\Exception $e) {
             $this->messageManager->addErrorMessage(__('An error occurred during the import process.'));
+            $this->logger->error('Vindi ImportPlans Controller Exception: ' . $e->getMessage());
         }
-
-        $this->messageManager->addSuccessMessage(__('Plans imported successfully!'));
 
         return $this->_redirect('*/*/');
     }

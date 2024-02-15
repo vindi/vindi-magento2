@@ -154,4 +154,8 @@
 "Remove in store","Remover na loja"
 "Remove in store and at Vindi","Remover na loja e na Vindi"
 "Plan updated successfully!","Plano atualizado com sucesso!"
+"%1 plan(s) imported successfully!","%1 plano(s) importado(s) com sucesso!"
+"No new plans were imported.","Nenhum plano novo foi importado."
+"A plan with the same code already exists.","Já existe um plano com o mesmo código."
+"Remove in store (does not delete in Vindi)","Remover na loja (não deleta na Vindi)"
 
