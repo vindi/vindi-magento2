@@ -1,0 +1,17 @@
+<page xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:View/Layout/etc/page_configuration.xsd">
+    <body>
+        <referenceBlock name="customer_account_navigation">
+            <block
+                class="Magento\Framework\View\Element\Html\Link\Current"
+                name="customer-account-navigation-vindi-subscriptions"
+                after="customer-account-navigation-orders-link"
+            >
+                <arguments>
+                    <argument name="path" xsi:type="string">vindi_vr/subscription/index</argument>
+                    <argument name="label" xsi:type="string">Vindi - Minhas assinaturas</argument>
+                    <argument name="sortOrder" xsi:type="number">231</argument>
+                </arguments>
+            </block>
+        </referenceBlock>
+    </body>
+</page>

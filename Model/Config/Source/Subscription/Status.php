@@ -1,13 +1,13 @@
 <?php
-namespace Vindi\Payment\Model\Config\Source\Plan;
+namespace Vindi\Payment\Model\Config\Source\Subscription;
 
 use Magento\Framework\Data\OptionSourceInterface;
 
 /**
  * Class Status
- * @package Vindi\Payment\Model\Config\Source\Plan
+ * @package Vindi\Payment\Model\Config\Source\Subscription
  * @author Iago Cedran <iago@bizcommerce.com.br>
- */
+*/
 class Status implements OptionSourceInterface
 {
     /**
@@ -17,8 +17,9 @@ class Status implements OptionSourceInterface
     {
         return [
             ['value' => 'active', 'label'   => __('Active')],
-            ['value' => 'inactive', 'label' => __('Inactive')],
-            ['value' => 'deleted', 'label'  => __('Deleted')]
+            ['value' => 'future', 'label' => __('future')],
+            ['value' => 'canceled', 'label'  => __('canceled')],
+            ['value' => 'expired', 'label'  => __('expired')]
         ];
     }
 }
