@@ -1,0 +1,16 @@
+<page xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../../../../../../lib/internal/Magento/Framework/View/Layout/etc/page_configuration.xsd">
+    <update handle="customer_account"/>
+    <body>
+        <referenceBlock name="page.main.title">
+            <action method="setPageTitle">
+                <argument translate="true" name="title" xsi:type="string">Vindi - Minhas assinaturas</argument>
+            </action>
+        </referenceBlock>
+        <referenceContainer name="content">
+            <block class="Vindi\Payment\Block\SubscriptionList"
+                   name="subscriptions.grid"
+                   template="Vindi_Payment::customer/account/subscription/list.phtml">
+            </block>
+        </referenceContainer>
+    </body>
+</page>

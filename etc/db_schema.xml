@@ -14,4 +14,28 @@
 		<column name="payment_profile" nullable="true" xsi:type="int"/>
 		<column length="20" name="status" nullable="true" xsi:type="varchar"/>
 	</table>
+    <table name="vindi_plans" resource="default" engine="innodb" comment="Vindi Plans Table">
+        <column xsi:type="int" name="entity_id" padding="10" unsigned="true" nullable="false" identity="true" comment="Entity ID"/>
+        <column xsi:type="int" name="vindi_id" nullable="false" comment="Vindi ID"/>
+        <column xsi:type="varchar" name="name" length="255" nullable="false" comment="Plan Name"/>
+        <column xsi:type="varchar" name="interval" length="255" nullable="false" comment="Interval Duration"/>
+        <column xsi:type="int" name="interval_count" nullable="false" comment="Number of Intervals"/>
+        <column xsi:type="varchar" name="billing_trigger_type" length="255" nullable="false" comment="Billing Trigger Type"/>
+        <column xsi:type="int" name="billing_trigger_day" nullable="false" comment="Billing Trigger Day"/>
+        <column xsi:type="int" name="billing_cycles" nullable="true" comment="Billing Cycles"/>
+        <column xsi:type="varchar" name="code" length="255" nullable="false" comment="External Code"/>
+        <column xsi:type="text" name="description" nullable="true" comment="Plan Description"/>
+        <column xsi:type="int" name="installments" nullable="false" default="1" comment="Number of Installments"/>
+        <column xsi:type="boolean" name="invoice_split" nullable="false" comment="Invoice Split"/>
+        <column xsi:type="varchar" name="status" length="255" nullable="false" comment="Plan Status"/>
+        <column xsi:type="text" name="metadata" nullable="true" comment="Metadata"/>
+        <column xsi:type="timestamp" name="updated_at" nullable="false" default="CURRENT_TIMESTAMP" on_update="true"/>
+        <column xsi:type="timestamp" name="created_at" nullable="false" default="CURRENT_TIMESTAMP" on_update="false"/>
+        <constraint xsi:type="primary" referenceId="PRIMARY">
+            <column name="entity_id"/>
+        </constraint>
+        <index referenceId="VINDI_PLANS_NAME_INDEX" indexType="fulltext">
+            <column name="name"/>
+        </index>
+    </table>
 </schema>

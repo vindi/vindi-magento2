@@ -34,4 +34,25 @@
     <type name="Magento\Sales\Model\Order\Payment">
         <plugin name="setOrderStatusOnPlace" type="Vindi\Payment\Plugin\SetOrderStatusOnPlace" />
     </type>
+
+    <!-- VindiPlan-->
+    <preference for="Vindi\Payment\Api\Data\VindiPlanInterface" type="Vindi\Payment\Model\VindiPlan"/>
+    <preference for="Vindi\Payment\Api\Data\VindiPlanSearchResultInterface" type="Vindi\Payment\Model\VindiPlanSearchResult"/>
+    <preference for="Vindi\Payment\Api\VindiPlanRepositoryInterface" type="Vindi\Payment\Model\VindiPlanRepository"/>
+
+    <type name="Magento\Framework\View\Element\UiComponent\DataProvider\CollectionFactory">
+        <arguments>
+            <argument name="collections" xsi:type="array">
+                <item name="vindi_payment_vindiplan_listing_data_source" xsi:type="string">Vindi\Payment\Model\ResourceModel\VindiPlan\Grid\Collection</item>
+                <item name="vindi_payment_vindiplan_data_source" xsi:type="string">Vindi\Payment\Model\ResourceModel\VindiPlan\Form\DataProvider</item>
+            </argument>
+        </arguments>
+    </type>
+
+    <virtualType name="Vindi\Payment\Model\ResourceModel\VindiPlan\Grid\Collection" type="Magento\Framework\View\Element\UiComponent\DataProvider\SearchResult">
+        <arguments>
+            <argument name="mainTable" xsi:type="string">vindi_plans</argument>
+            <argument name="resourceModel" xsi:type="string">Vindi\Payment\Model\ResourceModel\VindiPlan</argument>
+        </arguments>
+    </virtualType>
 </config>
