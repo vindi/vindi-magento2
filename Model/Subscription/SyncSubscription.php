@@ -48,13 +48,16 @@ class SyncSubscription implements SyncSubscriptionInterface
      */
     public function execute()
     {
+        $tableName = $this->resource->getTableName('vindi_subscription');
+
         $subscriptions = $this->getSubscriptions();
+
         if (empty($subscriptions)) {
             return;
         }
 
         $data = $this->extractData($subscriptions);
-        $this->saveData($data);
+        $this->insertMultiple($tableName, $data);
 
         return;
     }
@@ -66,7 +69,7 @@ class SyncSubscription implements SyncSubscriptionInterface
      */
     private function getSubscriptions($page = 1, $subscription = [])
     {
-        $endpoint = 'subscriptions?per_page='. self::LIMIT_PER_PAGE .'&page=' . $page;
+        $endpoint = 'subscriptions?per_page='. self::LIMIT_PER_PAGE . '&sort_by=created_at&sort_order=desc' . '&page=' . $page;
         $request = $this->api->request($endpoint, 'GET');
 
         if (empty($request['subscriptions'])) {
@@ -88,16 +91,39 @@ class SyncSubscription implements SyncSubscriptionInterface
         $data = [];
 
         foreach ($subscriptions as $key => $item) {
+            $subscriptionId = $item['id'];
+            $subscription = $this->getSubscriptionById($subscriptionId);
+
+            if ($subscription) {
+                continue;
+            }
+
+            $customerEmail = isset($subscriptions[$key]["customer"]["email"]) ? $subscriptions[$key]["customer"]["email"] : null;
+
+            if (!$customerEmail) {
+                continue;
+            }
+
+            $customer = $this->getCustomer($customerEmail);
+
+            if (!$customer) {
+                continue;
+            }
+
+            $customerId = isset($customer['entity_id']) ? $customer['entity_id'] : null;
+
             $startAt = new DateTime($item['start_at']);
 
             $data[$key] = [
-                'id' => $item['id'],
-                'client' => $item['customer']['name'],
-                'plan' => $item['plan']['name'],
-                'payment_method' => $item['payment_method']['code'],
+                'id'              => $item['id'],
+                'client'          => $item['customer']['name'],
+                'customer_email'  => $customerEmail,
+                'customer_id'     => $customerId,
+                'plan'            => $item['plan']['name'],
+                'payment_method'  => $item['payment_method']['code'],
                 'payment_profile' => null,
-                'status' => $item['status'],
-                'start_at' => $startAt->format('Y-m-d H:i:s')
+                'status'          => $item['status'],
+                'start_at'        => $startAt->format('Y-m-d H:i:s')
             ];
 
             if (is_array($item['payment_profile'])) {
@@ -109,13 +135,47 @@ class SyncSubscription implements SyncSubscriptionInterface
     }
 
     /**
-     * @param array $data
-     * @return void
+     * @param $email
+     * @return mixed
      */
-    private function saveData(array $data)
+    private function getCustomer($email)
     {
-        $tableName = $this->resource->getTableName('vindi_subscription');
+        return $this->connection->fetchRow(
+            'SELECT entity_id FROM customer_entity WHERE email = :email',
+            [':email' => $email]
+        );
+    }
+
+    /**
+     * @param $id
+     * @return mixed
+     */
+    private function getSubscriptionById($id)
+    {
+        return $this->connection->fetchRow(
+            'SELECT id FROM vindi_subscription WHERE id = :id',
+            [':id' => $id]
+        );
+    }
+
+    /**
+     * @param $tableName
+     */
+    private function truncateTable($tableName)
+    {
         $this->connection->truncateTable($tableName);
+    }
+
+    /**
+     * @param $tableName
+     * @param $data
+     */
+    private function insertMultiple($tableName, $data)
+    {
+        if (empty($data)) {
+            return;
+        }
+
         $this->connection->insertMultiple($tableName, $data);
     }
 }

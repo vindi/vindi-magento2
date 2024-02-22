@@ -6,6 +6,7 @@ use Magento\Framework\View\Element\Template\Context;
 use Vindi\Payment\Model\ResourceModel\Subscription\Collection as SubscriptionCollection;
 use Vindi\Payment\Model\Config\Source\Subscription\Status as SubscriptionStatus;
 use Vindi\Payment\Model\Config\Source\Subscription\PaymentMethod;
+use Magento\Customer\Model\Session as CustomerSession;
 
 /**
  * Class SubscriptionList
@@ -30,11 +31,17 @@ class SubscriptionList extends Template
     protected $paymentMethod;
 
     /**
+     * @var CustomerSession
+     */
+    protected $customerSession;
+
+    /**
      * SubscriptionList constructor.
      * @param Context $context
      * @param SubscriptionCollection $subscriptionCollection
      * @param SubscriptionStatus $planStatus
      * @param PaymentMethod $paymentMethod
+     * @param CustomerSession $customerSession
      * @param array $data
      */
     public function __construct(
@@ -42,13 +49,16 @@ class SubscriptionList extends Template
         SubscriptionCollection $subscriptionCollection,
         SubscriptionStatus $planStatus,
         PaymentMethod $paymentMethod,
+        CustomerSession $customerSession,
         array $data = []
     ) {
         $this->_subscriptionCollection = $subscriptionCollection;
         $this->planStatus = $planStatus;
         $this->paymentMethod = $paymentMethod;
+        $this->customerSession = $customerSession;
         parent::__construct($context, $data);
     }
+
 
     /**
      * @return $this
@@ -82,6 +92,11 @@ class SubscriptionList extends Template
      */
     public function getSubscriptions()
     {
+        if ($this->customerSession->isLoggedIn()) {
+            $customerId = $this->customerSession->getCustomerId();
+            $this->_subscriptionCollection->addFieldToFilter('customer_id', $customerId);
+        }
+
         return $this->_subscriptionCollection;
     }
 

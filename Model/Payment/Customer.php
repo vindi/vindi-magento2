@@ -41,7 +41,7 @@ class Customer
 
         if (!$order->getCustomerIsGuest()) {
             $customer = $this->customerRepository->get($billing->getEmail());
-            $customerId = $this->findVindiCustomer($customer->getId());
+            $customerId = $this->findVindiCustomerByEmail($customer->getEmail());
         }
 
         if ($customerId) {
@@ -138,6 +138,24 @@ class Customer
     public function findVindiCustomer($query)
     {
         $response = $this->api->request("customers?query=code={$query}", 'GET');
+
+        if ($response && (1 === count($response['customers'])) && isset($response['customers'][0]['id'])) {
+            return $response['customers'][0]['id'];
+        }
+
+        return false;
+    }
+
+    /**
+     * Make an API request to retrieve an existing Customer.
+     *
+     * @param string $query
+     *
+     * @return array|bool|mixed
+     */
+    public function findVindiCustomerByEmail($query)
+    {
+        $response = $this->api->request("customers?query=email={$query}", 'GET');
 
         if ($response && (1 === count($response['customers'])) && isset($response['customers'][0]['id'])) {
             return $response['customers'][0]['id'];
