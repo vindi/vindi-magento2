@@ -13,6 +13,8 @@
 		<column length="30" name="payment_method" nullable="true" xsi:type="varchar"/>
 		<column name="payment_profile" nullable="true" xsi:type="int"/>
 		<column length="20" name="status" nullable="true" xsi:type="varchar"/>
+        <column name="customer_id" nullable="true" xsi:type="int" comment="Customer ID"/>
+        <column name="customer_email" length="255"  nullable="true" xsi:type="varchar" comment="Customer Email"/>
 	</table>
     <table name="vindi_plans" resource="default" engine="innodb" comment="Vindi Plans Table">
         <column xsi:type="int" name="entity_id" padding="10" unsigned="true" nullable="false" identity="true" comment="Entity ID"/>

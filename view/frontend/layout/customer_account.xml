@@ -2,14 +2,13 @@
     <body>
         <referenceBlock name="customer_account_navigation">
             <block
-                class="Magento\Framework\View\Element\Html\Link\Current"
+                class="Magento\Customer\Block\Account\SortLinkInterface"
                 name="customer-account-navigation-vindi-subscriptions"
-                after="customer-account-navigation-orders-link"
             >
                 <arguments>
                     <argument name="path" xsi:type="string">vindi_vr/subscription/index</argument>
-                    <argument name="label" xsi:type="string">Vindi - Minhas assinaturas</argument>
-                    <argument name="sortOrder" xsi:type="number">231</argument>
+                    <argument name="label" xsi:type="string">Minhas Assinaturas</argument>
+                    <argument name="sortOrder" xsi:type="number">219</argument>
                 </arguments>
             </block>
         </referenceBlock>
