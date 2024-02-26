@@ -240,6 +240,7 @@ define([
             },
             updateInstallments: function () {
 
+                let ccCheckoutConfig = window.checkoutConfig.payment.vindi_cc;
                 let installments = [];
 
                 if (ccCheckoutConfig) {
