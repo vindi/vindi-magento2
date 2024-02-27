@@ -9,6 +9,7 @@
         <referenceContainer name="content">
             <block class="Vindi\Payment\Block\SubscriptionList"
                    name="subscriptions.grid"
+                   cacheable="false"
                    template="Vindi_Payment::customer/account/subscription/list.phtml">
             </block>
         </referenceContainer>
