@@ -92,8 +92,8 @@ class Save extends Action
                 'created_at'           => $this->dateTime->gmtDate()
             ];
 
-            if (!empty($post['vindi_id'])) {
-                $existingPlan = $this->vindiPlanRepository->getByVindiId($post['vindi_id']);
+            if (!empty($post["settings"]["vindi_id"])) {
+                $existingPlan = $this->vindiPlanRepository->getByVindiId($post["settings"]["vindi_id"]);
             }
 
             if ($existingPlan && $existingPlan->getId()) {
