@@ -8,6 +8,7 @@ $paymentProfiles = $block->getPaymentProfiles();
             <thead>
             <tr>
                 <th><?= __('Card') ?></th>
+                <th><?= __('Holder Name') ?></th> <!-- Adicionando o novo cabeçalho de coluna -->
                 <th><?= __('Action') ?></th>
             </tr>
             </thead>
@@ -25,6 +26,9 @@ $paymentProfiles = $block->getPaymentProfiles();
                         <td>
                             <img class="card-icon" src="<?= $block->getViewFileUrl('Vindi_Payment::images/cc') . '/' . $block->getCreditCardImage($paymentProfile->getCcType()) ?>" alt="<?= $block->escapeHtmlAttr($paymentProfile->getCcType()) ?>">&nbsp;&nbsp;&nbsp;
                             <span><?= $paymentProfile->getCcType() . '****' . $paymentProfile->getCcLast4() ?></span>
+                        </td>
+                        <td>
+                            <?= $block->escapeHtml($paymentProfile->getCcName()) ?> <!-- Exibindo o nome do titular do cartão -->
                         </td>
                         <td>
                             <a href="<?= $block->getUrl('vindi_vr/paymentprofile/edit', ['id' => $paymentProfile->getId()]) ?>" class="text-blue-500 pr-4"><?= __('Edit') ?></a>&nbsp;|
