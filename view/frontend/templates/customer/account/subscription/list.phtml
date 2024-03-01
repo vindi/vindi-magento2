@@ -1,81 +1,5 @@
-<style>
-    .subscriptions-list {
-        font-family: Arial, sans-serif;
-    }
-
-    .subscriptions-list table {
-        width: 100%;
-        border-collapse: collapse;
-        margin-top: 20px;
-    }
-
-    .subscriptions-list th, .subscriptions-list td {
-        padding: 8px;
-        text-align: left;
-    }
-
-    .subscriptions-list th {
-        background-color: #f2f2f2;
-    }
-
-    .subscriptions-list tr:nth-child(even) {
-        background-color: #f9f9f9;
-    }
-
-    .subscriptions-list tr:hover {
-        background-color: #eaeaea;
-    }
-
-    .subscriptions-list .pager {
-        margin: 20px 0;
-        text-align: center;
-        list-style: none;
-        padding: 0;
-    }
-
-    .subscriptions-list .pager .items {
-        display: inline-block;
-        padding-left: 0;
-    }
-
-    .subscriptions-list .pager .items li {
-        display: inline;
-        margin: 0 5px;
-    }
-
-    .subscriptions-list .pager .items li a,
-    .subscriptions-list .pager .items li strong {
-        padding: 5px 10px;
-        border: 1px solid #ddd;
-        background-color: #f9f9f9;
-        color: #333;
-        text-decoration: none;
-    }
-
-    .subscriptions-list .pager .items li.current strong,
-    .subscriptions-list .pager .items li a:hover {
-        background-color: #eaeaea;
-    }
-
-    .subscriptions-list .pager .limiter,
-    .subscriptions-list .pager .toolbar-amount,
-    .subscriptions-list .pager .toolbar-number {
-        display: inline-block;
-        margin: 0 10px;
-    }
-
-    .subscriptions-list .pager .limiter select {
-        padding: 5px;
-        border: 1px solid #ddd;
-    }
-
-    .subscriptions-list .pager .limiter-label,
-    .subscriptions-list .pager .limiter-text {
-        margin-right: 5px;
-    }
-</style>
 <?php
-/** @var \Vindi\Payment\Block\SubscriptionList $block */
+/** @var \Vindi\Payment\Block\Subscription\SubscriptionList $block */
 $subscriptions = $block->getSubscriptions();
 $pageTitle = __("Subscriptions");
 ?>
@@ -87,7 +11,7 @@ $pageTitle = __("Subscriptions");
                 <th><?= __('Client') ?></th>
                 <th><?= __('Plan') ?></th>
                 <th><?= __('Start') ?></th>
-                <th><?= __('Método de Pagamento') ?></th>
+                <th><?= __('Payment Method') ?></th>
                 <th><?= __('Status') ?></th>
             </tr>
             </thead>
@@ -108,5 +32,5 @@ $pageTitle = __("Subscriptions");
         </div>
     </div>
 <?php else: ?>
-    <p><?= __('Não há assinaturas para este cliente.') ?></p>
+    <p><?= __('There are no subscriptions for this customer.') ?></p>
 <?php endif; ?>

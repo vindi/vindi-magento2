@@ -6,7 +6,7 @@ namespace Vindi\Payment\Api\Data;
 /**
  * Interface VindiPlanInterface
  * @package Vindi\Payment\Api\Data
- * @author Iago Cedran <iago@bizcommerce.com.br>
+
  */
 interface VindiPlanInterface
 {

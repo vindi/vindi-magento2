@@ -10,7 +10,7 @@ use Magento\Framework\Api\SearchResults;
 /**
  * Class VindiPlanSearchResult
  * @package Vindi\Payment\Model
- * @author Iago Cedran <iago@bizcommerce.com.br>
+
  */
 class VindiPlanSearchResult extends SearchResults implements VindiPlanSearchResultInterface
 {

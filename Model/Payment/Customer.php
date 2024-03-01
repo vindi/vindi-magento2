@@ -7,23 +7,33 @@ use Magento\Customer\Api\CustomerRepositoryInterface;
 use Magento\Framework\Message\ManagerInterface;
 use Magento\Sales\Model\Order;
 use Vindi\Payment\Helper\Api;
+use Magento\Customer\Api\Data\CustomerInterface;
+use Magento\Customer\Api\AddressRepositoryInterface;
+use Magento\Framework\Exception\NoSuchEntityException;
 
 class Customer
 {
+    /**
+     * @var CustomerRepositoryInterface
+     */
+    protected $addressRepository;
 
     /**
      * @param CustomerRepositoryInterface $customerRepository
      * @param Api $api
      * @param ManagerInterface $messageManager
+     * @param AddressRepositoryInterface $addressRepository
      */
     public function __construct(
         CustomerRepositoryInterface $customerRepository,
         Api $api,
-        ManagerInterface $messageManager
+        ManagerInterface $messageManager,
+        AddressRepositoryInterface $addressRepository
     ) {
         $this->customerRepository = $customerRepository;
         $this->api = $api;
         $this->messageManager = $messageManager;
+        $this->addressRepository = $addressRepository;
     }
 
     /**
@@ -88,6 +98,61 @@ class Customer
             throw new \Magento\Framework\Exception\LocalizedException(
                 __('Failed while registering user. Check the data and try again')
             );
+        }
+
+        return $customerId;
+    }
+
+    /**
+     * Find or create a customer on Vindi based on Magento customer account.
+     *
+     * @param CustomerInterface $customer
+     * @return array|bool|mixed
+     * @throws \Magento\Framework\Exception\LocalizedException
+     */
+    public function findOrCreateFromCustomerAccount(CustomerInterface $customer)
+    {
+        $customerId = $this->findVindiCustomerByEmail($customer->getEmail());
+
+        if ($customerId) {
+            return $customerId;
+        }
+
+        // Assume that the customer has a default billing address set
+        try {
+            $billingAddressId = $customer->getDefaultBilling();
+            $billingAddress = $this->addressRepository->getById($billingAddressId);
+        } catch (NoSuchEntityException $e) {
+            throw new \Magento\Framework\Exception\LocalizedException(
+                __('Billing address not set for customer.')
+            );
+        }
+
+        $address = [
+            'street' => $billingAddress->getStreetLine(1) ?: '',
+            'number' => $billingAddress->getStreetLine(2) ?: '',
+            'additional_details' => $billingAddress->getStreetLine(3) ?: '',
+            'neighborhood' => $billingAddress->getStreetLine(4) ?: '',
+            'zipcode' => $billingAddress->getPostcode(),
+            'city' => $billingAddress->getCity(),
+            'state' => $billingAddress->getRegionCode(),
+            'country' => $billingAddress->getCountryId(),
+        ];
+
+        $customerVindi = [
+            'name' => $customer->getFirstname() . ' ' . $customer->getLastname(),
+            'email' => $customer->getEmail(),
+            'registry_code' => $customer->getTaxvat(),
+            'code' => $customer->getId(),
+            'phones' => $this->formatPhone($billingAddress->getTelephone()),
+            'address' => $address
+        ];
+
+        $customerId = $this->createCustomer($customerVindi);
+
+        if ($customerId === false) {
+            $this->messageManager->addErrorMessage(__('Failed while registering user. Check the data and try again'));
+            return false;
         }
 
         return $customerId;

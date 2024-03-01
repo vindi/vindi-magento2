@@ -13,7 +13,7 @@ use Magento\Framework\Escaper;
 /**
  * Class Actions
  * @package Vindi\Payment\Ui\Component\Listing\Column\VindiPlan
- * @author Iago Cedran <iago@bizcommerce.com.br>
+
  */
 class Actions extends Column
 {

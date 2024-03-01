@@ -1,5 +1,8 @@
 <page xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:View/Layout/etc/page_configuration.xsd">
     <update handle="customer_account" />
+    <head>
+        <css src="Vindi_Payment::css/customer/account/subscription/list.css"/>
+    </head>
     <body>
         <referenceBlock name="page.main.title">
             <action method="setPageTitle">
@@ -7,8 +10,8 @@
             </action>
         </referenceBlock>
         <referenceContainer name="content">
-            <block class="Vindi\Payment\Block\SubscriptionList"
-                   name="subscriptions.grid"
+            <block class="Vindi\Payment\Block\Subscription\SubscriptionList"
+                   name="subscriptions.grid.list"
                    cacheable="false"
                    template="Vindi_Payment::customer/account/subscription/list.phtml">
             </block>

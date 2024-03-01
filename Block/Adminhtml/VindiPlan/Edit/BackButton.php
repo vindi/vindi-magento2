@@ -6,7 +6,7 @@ use Magento\Framework\View\Element\UiComponent\Control\ButtonProviderInterface;
 /**
  * Class BackButton
  * @package Vindi\Payment\Block\Adminhtml\VindiPlan\Edit
- * @author Iago Cedran <iago@bizcommerce.com.br>
+
  */
 class BackButton extends GenericButton implements ButtonProviderInterface
 {

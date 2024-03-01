@@ -6,7 +6,7 @@ use Magento\Framework\View\Element\UiComponent\Control\ButtonProviderInterface;
 /**
  * Class DeleteButton
  * @package Vindi\Payment\Block\Adminhtml\VindiPlan\Edit
- * @author Iago Cedran <iago@bizcommerce.com.br>
+
  */
 class DeleteButton extends GenericButton implements ButtonProviderInterface
 {

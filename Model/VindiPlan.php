@@ -7,7 +7,7 @@ use Magento\Framework\Model\AbstractModel;
 /**
  * Class VindiPlan
  * @package Vindi\Payment\Model
- * @author Iago Cedran <iago@bizcommerce.com.br>
+
  */
 class VindiPlan extends AbstractModel implements VindiPlanInterface
 {

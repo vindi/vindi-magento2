@@ -13,7 +13,6 @@ use Vindi\Payment\Helper\Data;
 /**
  * Class Save
  * @package Vindi\Payment\Controller\Adminhtml\VindiPlan
- * @author Iago Cedran <iago@bizcommerce.com>
  */
 class Save extends Action
 {

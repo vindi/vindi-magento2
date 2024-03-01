@@ -13,7 +13,7 @@ use Magento\Framework\View\Result\PageFactory;
 /**
  * Class Index
  * @package Vindi\Payment\Controller\Subscription
- * @author Iago Cedran <iago@bizcommerce.com.br>
+
 */
 class Index extends Action
 {

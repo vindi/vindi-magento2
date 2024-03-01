@@ -9,7 +9,7 @@ use Magento\Framework\Exception\LocalizedException;
 /**
  * Class MassDelete
  * @package Vindi\Payment\Controller\Adminhtml\Rule
- * @author Iago Cedran <iago@bizcommerce.com.br>
+
  */
 class MassDelete extends AbstractMassAction
 {

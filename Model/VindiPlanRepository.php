@@ -23,7 +23,7 @@ use Vindi\Payment\Model\ResourceModel\VindiPlan\CollectionFactory;
 /**
  * Class VindiPlanRepository
  * @package Vindi\Payment\Model
- * @author Iago Cedran <iago@bizcommerce.com.br>
+
  */
 class VindiPlanRepository implements VindiPlanRepositoryInterface
 {

@@ -4,7 +4,7 @@ namespace Vindi\Payment\Controller\Adminhtml\VindiPlan;
 /**
  * Class Index
  * @package Vindi\Payment\Controller\Adminhtml\VindiPlan
- * @author Iago Cedran <iago@bizcommerce.com.br>
+
  */
 class Index extends \Magento\Backend\App\Action
 {

@@ -25,6 +25,8 @@ use Vindi\Payment\Api\PlanManagementInterface;
 use Vindi\Payment\Api\ProductManagementInterface;
 use Vindi\Payment\Api\SubscriptionInterface;
 use Vindi\Payment\Helper\Api;
+use Vindi\Payment\Model\PaymentProfileFactory;
+use Vindi\Payment\Model\PaymentProfileRepository;
 
 /**
  * Class AbstractMethod
@@ -95,6 +97,16 @@ abstract class AbstractMethod extends OriginAbstractMethod
     private $subscriptionRepository;
 
     /**
+     * @var PaymentProfileFactory
+     */
+    private $paymentProfileFactory;
+
+    /**
+     * @var PaymentProfileRepository
+     */
+    private $paymentProfileRepository;
+
+    /**
      * @param Context $context
      * @param Registry $registry
      * @param ExtensionAttributesFactory $extensionFactory
@@ -108,6 +120,8 @@ abstract class AbstractMethod extends OriginAbstractMethod
      * @param ProductManagementInterface $productManagement
      * @param PlanManagementInterface $planManagement
      * @param SubscriptionInterface $subscriptionRepository
+     * @param PaymentProfileFactory $paymentProfileFactory
+     * @param PaymentProfileRepository $paymentProfileRepository
      * @param Bill $bill
      * @param Profile $profile
      * @param PaymentMethod $paymentMethod
@@ -132,6 +146,8 @@ abstract class AbstractMethod extends OriginAbstractMethod
         ProductManagementInterface $productManagement,
         PlanManagementInterface $planManagement,
         SubscriptionInterface $subscriptionRepository,
+        PaymentProfileFactory $paymentProfileFactory,
+        PaymentProfileRepository $paymentProfileRepository,
         Bill $bill,
         Profile $profile,
         PaymentMethod $paymentMethod,
@@ -167,6 +183,8 @@ abstract class AbstractMethod extends OriginAbstractMethod
         $this->helperData = $helperData;
         $this->planManagement = $planManagement;
         $this->subscriptionRepository = $subscriptionRepository;
+        $this->paymentProfileFactory = $paymentProfileFactory;
+        $this->paymentProfileRepository = $paymentProfileRepository;
     }
 
     /**
@@ -281,6 +299,22 @@ abstract class AbstractMethod extends OriginAbstractMethod
         if ($body['payment_method_code'] === PaymentMethod::CREDIT_CARD) {
             $paymentProfile = $this->profile->create($payment, $customerId, $this->getPaymentMethodCode());
             $body['payment_profile'] = ['id' => $paymentProfile['payment_profile']['id']];
+
+            $paymentProfileModelFactory = $this->paymentProfileFactory->create();
+
+            $paymentProfileModelFactory->setData([
+                'payment_profile_id' => $paymentProfile['payment_profile']['id'],
+                'vindi_customer_id'  => $customerId,
+                'customer_id'        => $order->getCustomerId(),
+                'customer_email'     => $order->getCustomerEmail(),
+                'cc_type'            => $payment->getCcType(),
+                'cc_last_4'          => $payment->getCcLast4(),
+                'status'             => $paymentProfile["payment_profile"]["status"],
+                'token'              => $paymentProfile["payment_profile"]["token"],
+                'type'               => $paymentProfile["payment_profile"]["type"],
+            ]);
+
+            $this->paymentProfileRepository->save($paymentProfileModelFactory);
         }
 
         if ($installments = $payment->getAdditionalInformation('installments')) {
@@ -327,6 +361,22 @@ abstract class AbstractMethod extends OriginAbstractMethod
         if ($body['payment_method_code'] === PaymentMethod::CREDIT_CARD) {
             $paymentProfile = $this->profile->create($payment, $customerId, $this->getPaymentMethodCode());
             $body['payment_profile'] = ['id' => $paymentProfile['payment_profile']['id']];
+
+            $paymentProfileModelFactory = $this->paymentProfileFactory->create();
+
+            $paymentProfileModelFactory->setData([
+                'payment_profile_id' => $paymentProfile['payment_profile']['id'],
+                'vindi_customer_id'  => $customerId,
+                'customer_id'        => $order->getCustomerId(),
+                'customer_email'     => $order->getCustomerEmail(),
+                'cc_type'            => $payment->getCcType(),
+                'cc_last_4'          => $payment->getCcLast4(),
+                'status'             => $paymentProfile["payment_profile"]["status"],
+                'token'              => $paymentProfile["payment_profile"]["token"],
+                'type'               => $paymentProfile["payment_profile"]["type"],
+            ]);
+
+            $this->paymentProfileRepository->save($paymentProfileModelFactory);
         }
 
         if ($installments = $payment->getAdditionalInformation('installments')) {

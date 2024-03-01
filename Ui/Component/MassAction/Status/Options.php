@@ -7,7 +7,7 @@ use JsonSerializable;
 /**
  * Class Options
  * @package Vindi\Payment\Ui\Component\MassAction\Status
- * @author Iago Cedran <iago@bizcommerce.com.br>
+
  */
 class Options implements JsonSerializable
 {

@@ -9,7 +9,7 @@ use Magento\Framework\Exception\LocalizedException;
 /**
  * Class MassStatus
  * @package Vindi\Payment\Controller\Adminhtml\VindiPlan
- * @author Iago Cedran <iago@bizcommerce.com.br>
+
  */
 class MassStatus extends AbstractMassAction
 {

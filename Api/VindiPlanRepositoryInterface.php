@@ -11,7 +11,7 @@ use Magento\Framework\Api\SearchCriteriaInterface;
 /**
  * Interface VindiPlanRepositoryInterface
  * @package Vindi\Payment\Api
- * @author Iago Cedran <iago@bizcommerce.com.br>
+
  */
 interface VindiPlanRepositoryInterface
 {
