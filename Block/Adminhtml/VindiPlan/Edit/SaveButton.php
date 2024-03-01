@@ -7,7 +7,7 @@ use Magento\Ui\Component\Control\Container;
 /**
  * Class SaveButton
  * @package Vindi\Payment\Block\Adminhtml\VindiPlan\Edit
- * @author Iago Cedran <iago@bizcommerce.com.br>
+
  */
 class SaveButton extends GenericButton implements ButtonProviderInterface
 {

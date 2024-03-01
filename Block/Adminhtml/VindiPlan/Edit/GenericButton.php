@@ -8,7 +8,7 @@ use Magento\Framework\Exception\NoSuchEntityException;
 /**
  * Class GenericButton
  * @package Vindi\Payment\Block\Adminhtml\VindiPlan\Edit
- * @author Iago Cedran <iago@bizcommerce.com.br>
+
  */
 class GenericButton
 {

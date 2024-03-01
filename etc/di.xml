@@ -55,4 +55,25 @@
             <argument name="resourceModel" xsi:type="string">Vindi\Payment\Model\ResourceModel\VindiPlan</argument>
         </arguments>
     </virtualType>
+
+    <!-- PaymentProfile-->
+    <preference for="Vindi\Payment\Api\Data\PaymentProfileInterface" type="Vindi\Payment\Model\PaymentProfile"/>
+    <preference for="Vindi\Payment\Api\Data\PaymentProfileSearchResultInterface" type="Vindi\Payment\Model\PaymentProfileSearchResult"/>
+    <preference for="Vindi\Payment\Api\PaymentProfileRepositoryInterface" type="Vindi\Payment\Model\PaymentProfileRepository"/>
+
+    <type name="Magento\Framework\View\Element\UiComponent\DataProvider\CollectionFactory">
+        <arguments>
+            <argument name="collections" xsi:type="array">
+                <item name="vindi_payment_paymentprofile_listing_data_source" xsi:type="string">Vindi\Payment\Model\ResourceModel\PaymentProfile\Grid\Collection</item>
+                <item name="vindi_payment_paymentprofile_data_source" xsi:type="string">Vindi\Payment\Model\ResourceModel\PaymentProfile\Form\DataProvider</item>
+            </argument>
+        </arguments>
+    </type>
+
+    <virtualType name="Vindi\Payment\Model\ResourceModel\PaymentProfile\Grid\Collection" type="Magento\Framework\View\Element\UiComponent\DataProvider\SearchResult">
+        <arguments>
+            <argument name="mainTable" xsi:type="string">vindi_payment_profiles</argument>
+            <argument name="resourceModel" xsi:type="string">Vindi\Payment\Model\ResourceModel\PaymentProfile</argument>
+        </arguments>
+    </virtualType>
 </config>

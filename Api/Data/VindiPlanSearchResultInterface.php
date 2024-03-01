@@ -8,7 +8,7 @@ use Magento\Framework\Api\SearchResultsInterface;
 /**
  * Interface VindiPlanSearchResultInterface
  * @package Vindi\Payment\Api\Data
- * @author Iago Cedran <iago@bizcommerce.com.br>
+
  */
 interface VindiPlanSearchResultInterface extends SearchResultsInterface
 {

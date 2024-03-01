@@ -9,7 +9,7 @@ use Magento\Ui\DataProvider\Modifier\PoolInterface;
 /**
  * Class DataProvider
  * @package Vindi\Payment\Model\VindiPlan
- * @author Iago Cedran <iago@bizcommerce.com.br>
+
  */
 class DataProvider extends \Magento\Ui\DataProvider\ModifierPoolDataProvider
 {
@@ -81,12 +81,12 @@ class DataProvider extends \Magento\Ui\DataProvider\ModifierPoolDataProvider
             $this->loadedData[$vindiplan->getId()] = $result;
         }
 
-        $data = $this->dataPersistor->get('cedran_vindiplan');
+        $data = $this->dataPersistor->get('vindi_payment_vindiplan');
         if (!empty($data)) {
             $block = $this->collection->getNewEmptyItem();
             $block->setData($data);
             $this->loadedData[$vindiplan->getId()] = $vindiplan->getData();
-            $this->dataPersistor->clear('cedran_vindiplan');
+            $this->dataPersistor->clear('vindi_payment_vindiplan');
         }
 
         return $this->loadedData;

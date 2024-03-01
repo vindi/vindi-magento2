@@ -1,0 +1,47 @@
+<?php
+/** @var \Vindi\Payment\Block\PaymentProfile\PaymentProfileList $block */
+$paymentProfiles = $block->getPaymentProfiles();
+?>
+<?php if (count($paymentProfiles)): ?>
+    <div class="paymentProfiles-list">
+        <table>
+            <thead>
+            <tr>
+                <th><?= __('Card') ?></th>
+                <th><?= __('Action') ?></th>
+            </tr>
+            </thead>
+            <tbody>
+            <?php $paymentProfileCount = 0 ?>
+            <?php foreach ($paymentProfiles as $paymentProfile): ?>
+                <?php
+                if (empty($paymentProfile->getCcType()) || empty($paymentProfile->getCcLast4())) {
+                    continue;
+                }
+                $paymentProfileCount++;
+                ?>
+                <?php if ($paymentProfileCount > 0) : ?>
+                    <tr>
+                        <td>
+                            <img class="card-icon" src="<?= $block->getViewFileUrl('Vindi_Payment::images/cc') . '/' . $block->getCreditCardImage($paymentProfile->getCcType()) ?>" alt="<?= $block->escapeHtmlAttr($paymentProfile->getCcType()) ?>">&nbsp;&nbsp;&nbsp;
+                            <span><?= $paymentProfile->getCcType() . '****' . $paymentProfile->getCcLast4() ?></span>
+                        </td>
+                        <td>
+                            <a href="<?= $block->getUrl('vindi_vr/paymentprofile/edit', ['id' => $paymentProfile->getId()]) ?>" class="text-blue-500 pr-4"><?= __('Edit') ?></a>&nbsp;|
+                            <a href="<?= $block->getUrl('vindi_vr/paymentprofile/remove', ['id' => $paymentProfile->getId()]) ?>" class="text-blue-500" onclick="return confirm('<?= __('Are you sure you want to delete this payment profile?') ?>');"><?= __('Remove') ?></a>
+                        </td>
+                    </tr>
+                <?php endif; ?>
+            <?php endforeach; ?>
+            </tbody>
+        </table>
+        <div class="pager">
+            <?= $block->getPagerHtml(); ?>
+        </div>
+    </div>
+<?php else: ?>
+    <p><?= __('No cards available for this customer.') ?></p>
+<?php endif; ?>
+<div class="add-card-button" style="margin-top: 20px; text-align: center;">
+    <a href="<?= $block->getUrl('vindi_vr/paymentprofile/edit') ?>" class="payment-profile-edit button"><?= __('Add Card') ?></a>
+</div>

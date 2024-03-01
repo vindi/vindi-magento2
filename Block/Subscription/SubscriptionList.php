@@ -1,17 +1,17 @@
 <?php
-namespace Vindi\Payment\Block;
+namespace Vindi\Payment\Block\Subscription;
 
+use Magento\Customer\Model\Session as CustomerSession;
 use Magento\Framework\View\Element\Template;
 use Magento\Framework\View\Element\Template\Context;
-use Vindi\Payment\Model\ResourceModel\Subscription\Collection as SubscriptionCollection;
-use Vindi\Payment\Model\Config\Source\Subscription\Status as SubscriptionStatus;
 use Vindi\Payment\Model\Config\Source\Subscription\PaymentMethod;
-use Magento\Customer\Model\Session as CustomerSession;
+use Vindi\Payment\Model\Config\Source\Subscription\Status as SubscriptionStatus;
+use Vindi\Payment\Model\ResourceModel\Subscription\Collection as SubscriptionCollection;
 
 /**
  * Class SubscriptionList
  * @package Vindi\Payment\Block
- * @author Iago Cedran <iago@bizcommerce.com.br>
+
  */
 class SubscriptionList extends Template
 {

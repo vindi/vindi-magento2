@@ -7,7 +7,7 @@ use Magento\Backend\App\Action;
 /**
  * Class Edit
  * @package Vindi\Payment\Controller\Adminhtml\VindiPlan
- * @author Iago Cedran <iago@bizcommerce.com.br>
+
  */
 class Edit extends \Magento\Backend\App\Action implements HttpGetActionInterface
 {

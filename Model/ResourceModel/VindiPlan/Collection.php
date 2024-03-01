@@ -4,7 +4,7 @@ namespace Vindi\Payment\Model\ResourceModel\VindiPlan;
 /**
  * Class Collection
  * @package Vindi\Payment\Model\ResourceModel\VindiPlan
- * @author Iago Cedran <iago@bizcommerce.com.br>
+
  */
 class Collection extends \Magento\Framework\Model\ResourceModel\Db\Collection\AbstractCollection
 {

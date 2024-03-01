@@ -9,7 +9,7 @@ use Magento\Backend\App\Action;
 /**
  * Class Delete
  * @package Vindi\Payment\Controller\Adminhtml\VindiPlan
- * @author Iago Cedran <iago@bizcommerce.com.br>
+
  */
 class Delete extends Action
 {

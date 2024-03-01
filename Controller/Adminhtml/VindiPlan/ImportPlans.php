@@ -13,7 +13,7 @@ use Vindi\Payment\Model\Vindi\Plan;
 /**
  * Class ImportPlans
  * @package Vindi\Payment\Controller\Adminhtml\VindiPlan
- * @author Iago Cedran <iago@bizcommerce.com.br>
+
  */
 class ImportPlans extends Action
 {

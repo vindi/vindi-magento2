@@ -10,7 +10,7 @@ use Magento\Framework\App\Action\HttpGetActionInterface;
 /**
  * Class NewAction
  * @package Vindi\Payment\Controller\Adminhtml\VindiPlan
- * @author Iago Cedran <iago@bizcommerce.com.br>
+
  */
 class NewAction extends \Magento\Cms\Controller\Adminhtml\Block implements HttpGetActionInterface
 {

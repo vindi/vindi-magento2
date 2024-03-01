@@ -6,7 +6,7 @@ use Magento\Framework\Data\OptionSourceInterface;
 /**
  * Class PaymentMethod
  * @package Vindi\Payment\Model\Config\Source\Subscription
- * @author Iago Cedran <iago@bizcommerce.com.br>
+
  */
 class PaymentMethod implements OptionSourceInterface
 {
