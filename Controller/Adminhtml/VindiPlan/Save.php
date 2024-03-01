@@ -74,11 +74,13 @@ class Save extends Action
 
         $existingPlan = null;
         $entityId = $this->getRequest()->getParam('entity_id');
-        $code = empty($post["settings"]["code"]) ? Data::sanitizeItemSku($post["settings"]["name"]) : $post["settings"]["code"];
+        $name = preg_replace('/[^\p{L}\p{N}\s]/u', '', $post["settings"]["name"]);
+        $code = empty($post["settings"]["code"]) ? Data::sanitizeItemSku($name) : $post["settings"]["code"];
 
         try {
             $data = [
-                'name'                 => $post["settings"]["name"],
+                'vindi_id'             => $post["settings"]["vindi_id"],
+                'name'                 => $name,
                 'status'               => $post["settings"]["status"],
                 'code'                 => $code,
                 'description'          => $post["settings"]["description"],
