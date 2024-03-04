@@ -20,7 +20,7 @@ $pageTitle = __("Subscriptions");
                 <tr>
                     <td><?= $subscription->getClient() ?></td>
                     <td><?= $subscription->getPlan() ?></td>
-                    <td><?= $subscription->getStartAt() ?></td>
+                    <td><?= $block->formatDate($subscription->getStartAt(), \IntlDateFormatter::SHORT, false) ?></td>
                     <td><?= $block->getPaymentMethodLabel($subscription->getPaymentMethod()) ?></td>
                     <td><?= $block->getStatusLabel($subscription->getStatus()) ?></td>
                 </tr>
