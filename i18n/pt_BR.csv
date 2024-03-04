@@ -210,3 +210,5 @@
 "Expiration date is invalid.","Data de validade inválida."
 "CVV is invalid.","CVV inválido."
 "Holder Name","Nome do Titular"
+"Please add a billing address to your account before proceeding.","Por favor adicione um endereço de cobrança à sua conta antes de prosseguir."
+"The registry code (CPF/CNPJ) is required for creating a customer on Vindi.","O código de registro (CPF/CNPJ) é obrigatório para criar um cliente na Vindi."

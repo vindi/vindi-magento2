@@ -10,6 +10,7 @@ use Vindi\Payment\Helper\Api;
 use Magento\Customer\Api\Data\CustomerInterface;
 use Magento\Customer\Api\AddressRepositoryInterface;
 use Magento\Framework\Exception\NoSuchEntityException;
+use Magento\Store\Model\StoreManagerInterface;
 
 class Customer
 {
@@ -19,21 +20,29 @@ class Customer
     protected $addressRepository;
 
     /**
+     * @var CustomerRepositoryInterface
+     */
+    protected $customerRepository;
+
+    /**
      * @param CustomerRepositoryInterface $customerRepository
      * @param Api $api
      * @param ManagerInterface $messageManager
      * @param AddressRepositoryInterface $addressRepository
+     * @param StoreManagerInterface $storeManager
      */
     public function __construct(
         CustomerRepositoryInterface $customerRepository,
         Api $api,
         ManagerInterface $messageManager,
-        AddressRepositoryInterface $addressRepository
+        AddressRepositoryInterface $addressRepository,
+        StoreManagerInterface $storeManager
     ) {
         $this->customerRepository = $customerRepository;
         $this->api = $api;
         $this->messageManager = $messageManager;
         $this->addressRepository = $addressRepository;
+        $this->storeManager = $storeManager;
     }
 
     /**
@@ -118,9 +127,14 @@ class Customer
             return $customerId;
         }
 
-        // Assume that the customer has a default billing address set
+        $billingAddressId = $customer->getDefaultBilling();
+        if (!$billingAddressId) {
+            throw new \Magento\Framework\Exception\LocalizedException(
+                __('Please add a billing address to your account before proceeding.')
+            );
+        }
+
         try {
-            $billingAddressId = $customer->getDefaultBilling();
             $billingAddress = $this->addressRepository->getById($billingAddressId);
         } catch (NoSuchEntityException $e) {
             throw new \Magento\Framework\Exception\LocalizedException(
@@ -128,22 +142,59 @@ class Customer
             );
         }
 
+        $billingStreet = $billingAddress->getStreet();
+
+        if (!$billingStreet) {
+            $street = $billingAddress->getStreetLine(1);
+            $number = $billingAddress->getStreetLine(2);
+            $additionalDetails = $billingAddress->getStreetLine(3);
+            $neighborhood = $billingAddress->getStreetLine(4);
+        }
+
+        $street = $billingStreet[0] ?? '';
+        $number = $billingStreet[1] ?? '';
+        $additionalDetails = $billingStreet[2] ?? '';
+        $neighborhood = $billingStreet[3] ?? '';
+
+        $region = $billingAddress->getRegion();
+
+        $state = null;
+        if ($region !== null) {
+            $state = $region->getRegionCode();
+        }
+
+        if (!$state) {
+            $state = $billingAddress->getRegionCode();
+        }
+
         $address = [
-            'street' => $billingAddress->getStreetLine(1) ?: '',
-            'number' => $billingAddress->getStreetLine(2) ?: '',
-            'additional_details' => $billingAddress->getStreetLine(3) ?: '',
-            'neighborhood' => $billingAddress->getStreetLine(4) ?: '',
+            'street' => $street,
+            'number' => $number,
+            'additional_details' => $additionalDetails,
+            'neighborhood' => $neighborhood,
             'zipcode' => $billingAddress->getPostcode(),
             'city' => $billingAddress->getCity(),
-            'state' => $billingAddress->getRegionCode(),
+            'state' => $state,
             'country' => $billingAddress->getCountryId(),
         ];
+
+        $registryCode = $customer->getTaxvat();
+        if (empty($registryCode)) {
+            throw new \Magento\Framework\Exception\LocalizedException(
+                __('The registry code (CPF/CNPJ) is required for creating a customer on Vindi.')
+            );
+        }
+
+        $baseUrl = $this->storeManager->getStore()->getBaseUrl(); //https://magento2.local/
+        $baseUrl = preg_replace("(^https?://)", "", rtrim($baseUrl, "/"));
+        $baseUrl = preg_replace('/[^a-zA-Z0-9]/', '_', $baseUrl);
+        $code = $baseUrl . '_' . $customer->getId();
 
         $customerVindi = [
             'name' => $customer->getFirstname() . ' ' . $customer->getLastname(),
             'email' => $customer->getEmail(),
-            'registry_code' => $customer->getTaxvat(),
-            'code' => $customer->getId(),
+            'registry_code' => $registryCode,
+            'code' => $code,
             'phones' => $this->formatPhone($billingAddress->getTelephone()),
             'address' => $address
         ];
