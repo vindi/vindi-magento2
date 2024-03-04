@@ -53,6 +53,7 @@ class Remove extends Action
      */
     public function execute()
     {
+        /*
         $paymentProfileId = $this->getRequest()->getParam('id');
         if (!is_numeric($paymentProfileId) || $paymentProfileId <= 0) {
             $this->messageManager->addErrorMessage(__('Invalid payment profile ID.'));
@@ -72,6 +73,7 @@ class Remove extends Action
         } catch (\Exception $e) {
             $this->messageManager->addErrorMessage(__('An error occurred while removing the payment profile: ') . $e->getMessage());
         }
+        */
 
         return $this->resultRedirectFactory->create()->setPath('vindi_vr/paymentprofile/index');
     }
