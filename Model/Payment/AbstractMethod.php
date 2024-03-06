@@ -27,6 +27,7 @@ use Vindi\Payment\Api\SubscriptionInterface;
 use Vindi\Payment\Helper\Api;
 use Vindi\Payment\Model\PaymentProfileFactory;
 use Vindi\Payment\Model\PaymentProfileRepository;
+use Magento\Framework\App\ResourceConnection;
 
 /**
  * Class AbstractMethod
@@ -107,6 +108,16 @@ abstract class AbstractMethod extends OriginAbstractMethod
     private $paymentProfileRepository;
 
     /**
+     * @var ResourceConnection
+     */
+    protected $resourceConnection;
+
+    /**
+     * @var \Magento\Framework\DB\Adapter\AdapterInterface
+     */
+    protected $connection;
+
+    /**
      * @param Context $context
      * @param Registry $registry
      * @param ExtensionAttributesFactory $extensionFactory
@@ -148,6 +159,7 @@ abstract class AbstractMethod extends OriginAbstractMethod
         SubscriptionInterface $subscriptionRepository,
         PaymentProfileFactory $paymentProfileFactory,
         PaymentProfileRepository $paymentProfileRepository,
+        ResourceConnection $resourceConnection,
         Bill $bill,
         Profile $profile,
         PaymentMethod $paymentMethod,
@@ -185,6 +197,8 @@ abstract class AbstractMethod extends OriginAbstractMethod
         $this->subscriptionRepository = $subscriptionRepository;
         $this->paymentProfileFactory = $paymentProfileFactory;
         $this->paymentProfileRepository = $paymentProfileRepository;
+        $this->resourceConnection = $resourceConnection;
+        $this->connection = $this->resourceConnection->getConnection();
     }
 
     /**
@@ -386,9 +400,15 @@ abstract class AbstractMethod extends OriginAbstractMethod
         if ($responseData = $this->subscriptionRepository->create($body)) {
             $bill = $responseData['bill'];
             $subscription = $responseData['subscription'];
+
+            if ($subscription) {
+                $this->saveSubscriptionToDatabase($subscription, $order);
+            }
+
             if ($bill) {
                 $this->handleBankSplitAdditionalInformation($payment, $body, $bill);
             }
+
             if ($this->successfullyPaid($body, $bill, $subscription)) {
                 if ($bill) {
                     $this->handleBankSplitAdditionalInformation($payment, $body, $bill);
@@ -403,6 +423,36 @@ abstract class AbstractMethod extends OriginAbstractMethod
         }
 
         return $this->handleError($order);
+    }
+
+    /**
+     * @param array $subscription
+     * @param Order $order
+     * @return void
+     * @throws \Exception
+     */
+    private function saveSubscriptionToDatabase(array $subscription, Order $order)
+    {
+        $tableName = $this->resourceConnection->getTableName('vindi_subscription');
+        $startAt = new \DateTime($subscription['start_at']);
+
+        $data = [
+            'id'              => $subscription['id'],
+            'client'          => $subscription['customer']['name'],
+            'customer_email'  => $subscription['customer']['email'],
+            'customer_id'     => $order->getCustomerId(),
+            'plan'            => $subscription['plan']['name'],
+            'payment_method'  => $subscription['payment_method']['code'],
+            'payment_profile' => $subscription['payment_profile']['id'] ?? null,
+            'status'          => $subscription['status'],
+            'start_at'        => $startAt->format('Y-m-d H:i:s')
+        ];
+
+        try {
+            $this->connection->insert($tableName, $data);
+        } catch (\Exception $e) {
+            $this->psrLogger->error('Error saving subscription to database: ' . $e->getMessage());
+        }
     }
 
     /**
