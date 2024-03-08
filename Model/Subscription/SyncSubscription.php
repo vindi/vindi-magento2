@@ -19,10 +19,12 @@ class SyncSubscription implements SyncSubscriptionInterface
      * @var Api
      */
     private $api;
+
     /**
      * @var ResourceConnection
      */
     private $resource;
+
     /**
      * @var AdapterInterface
      */
@@ -63,22 +65,26 @@ class SyncSubscription implements SyncSubscriptionInterface
     }
 
     /**
-     * @param int $page
-     * @param array $subscription
      * @return array
      */
-    private function getSubscriptions($page = 1, $subscription = [])
+    private function getSubscriptions(): array
     {
-        $endpoint = 'subscriptions?per_page='. self::LIMIT_PER_PAGE . '&sort_by=created_at&sort_order=desc' . '&page=' . $page;
-        $request = $this->api->request($endpoint, 'GET');
+        $page = 1;
+        $subscription = [];
+        do {
+            $hasMore = false;
+            $endpoint = 'subscriptions?per_page=' . self::LIMIT_PER_PAGE . '&sort_by=created_at&sort_order=desc' . '&page=' . $page;
+            $request = $this->api->request($endpoint, 'GET');
 
-        if (empty($request['subscriptions'])) {
-            return $subscription;
-        }
+            if (!empty($request['subscriptions'])) {
+                $subscription = array_merge($subscription, $request['subscriptions']);
+                $hasMore = count($request['subscriptions']) == self::LIMIT_PER_PAGE;
+            }
 
-        $subscription = array_merge($subscription, $request['subscriptions']);
+            $page++;
+        } while ($hasMore);
 
-        return $this->getSubscriptions(++$page, $subscription);
+        return $subscription;
     }
 
     /**

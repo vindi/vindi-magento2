@@ -8,7 +8,7 @@ $paymentProfiles = $block->getPaymentProfiles();
             <thead>
             <tr>
                 <th><?= __('Card') ?></th>
-                <th><?= __('Action') ?></th>
+                <th><?= __('Holder Name') ?></th>
             </tr>
             </thead>
             <tbody>
@@ -27,8 +27,7 @@ $paymentProfiles = $block->getPaymentProfiles();
                             <span><?= $paymentProfile->getCcType() . '****' . $paymentProfile->getCcLast4() ?></span>
                         </td>
                         <td>
-                            <a href="<?= $block->getUrl('vindi_vr/paymentprofile/edit', ['id' => $paymentProfile->getId()]) ?>" class="text-blue-500 pr-4"><?= __('Edit') ?></a>&nbsp;|
-                            <a href="<?= $block->getUrl('vindi_vr/paymentprofile/remove', ['id' => $paymentProfile->getId()]) ?>" class="text-blue-500" onclick="return confirm('<?= __('Are you sure you want to delete this payment profile?') ?>');"><?= __('Remove') ?></a>
+                            <?= $block->escapeHtml($paymentProfile->getCcName()) ?> <!-- Exibindo o nome do titular do cartão -->
                         </td>
                     </tr>
                 <?php endif; ?>

@@ -118,29 +118,29 @@ class Save extends Action
         $customerId = $this->customerSession->getCustomerId();
 
         try {
-            $entityId = isset($data['entity_id']) ? (int) $data['entity_id'] : null;
+            $entityId       = isset($data['entity_id']) ? (int) $data['entity_id'] : null;
             $paymentProfile = $this->paymentProfileFactory->create();
 
             if ($entityId) {
                 $paymentProfile = $this->paymentProfileRepository->getById($entityId);
             }
 
-            if ($paymentProfile && $paymentProfile->getId()) {
-                $vindiData = $this->formatPaymentProfileData($data, $customerId);
-                $this->paymentProfileManager->updatePaymentProfile($paymentProfile->getPaymentProfileId(), $vindiData);
-
-                $this->setCreditCardData($data);
-
-                $paymentProfile->setData([
-                    'cc_number'   => $data['cc_number'],
-                    'cc_exp_date' => $data['cc_exp_date'],
-                    'cc_name'     => $data['cc_name'],
-                    'cc_type'     => $data['cc_type'],
-                    'cc_last_4'   => $data['cc_last_4'],
-                ]);
-
-                $this->messageManager->addSuccessMessage(__('Payment profile updated successfully.'));
-            } else {
+//            if ($paymentProfile && $paymentProfile->getId()) {
+//                $vindiData = $this->formatPaymentProfileData($data, $customerId);
+//                $this->paymentProfileManager->updatePaymentProfile($paymentProfile->getPaymentProfileId(), $vindiData);
+//
+//                $this->setCreditCardData($data);
+//
+//                $paymentProfile->setData([
+//                    'cc_number'   => $data['cc_number'],
+//                    'cc_exp_date' => $data['cc_exp_date'],
+//                    'cc_name'     => $data['cc_name'],
+//                    'cc_type'     => $data['cc_type'],
+//                    'cc_last_4'   => $data['cc_last_4'],
+//                ]);
+//
+//                $this->messageManager->addSuccessMessage(__('Payment profile updated successfully.'));
+//            } else {
                 $vindiData = $this->formatPaymentProfileData($data, $customerId);
 
                 $customer = $this->customerRepository->getById($customerId);
@@ -166,13 +166,13 @@ class Save extends Action
                 ]);
 
                 $this->messageManager->addSuccessMessage(__('New payment profile created successfully.'));
-            }
+//            }
 
             $this->paymentProfileRepository->save($paymentProfile);
 
             $this->dataPersistor->set('vindi_payment_profile', $data);
         } catch (\Exception $e) {
-            $this->messageManager->addErrorMessage(__('An error occurred while saving the payment profile: ') . $e->getMessage());
+            $this->messageManager->addWarningMessage(__('An error occurred while saving the payment profile: ') . '"' . $e->getMessage() . '"');
             $this->dataPersistor->set('vindi_payment_profile', $data);
             $resultRedirect = $this->resultRedirectFactory->create();
             return $resultRedirect->setPath('*/*/edit', ['id' => $entityId]);

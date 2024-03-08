@@ -209,3 +209,8 @@
 "Card number is invalid.","Número do cartão inválido."
 "Expiration date is invalid.","Data de validade inválida."
 "CVV is invalid.","CVV inválido."
+"Holder Name","Nome do Titular"
+"Please add a billing address to your account before proceeding.","Por favor, adicione um endereço de cobrança à sua conta antes de prosseguir."
+"The registry code (CPF/CNPJ) is required for creating a customer on Vindi.","O código de registro (CPF/CNPJ) é obrigatório para criar um cliente na Vindi."
+"An error occurred while saving the payment profile: ","Ocorreu um erro ao salvar o perfil de pagamento: "
+"New payment profile created successfully.","Novo perfil de pagamento criado com sucesso."
