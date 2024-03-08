@@ -70,22 +70,22 @@ document.addEventListener("DOMContentLoaded", function () {
         const cardTypeSelected = document.querySelector('input[name="cc_type"]:checked');
 
         if (!cardTypeSelected) {
-            alert($.mage.__('Card number is invalid.'));
+            alert('Número do cartão inválido.');
             return false;
         }
 
         if (!isValidCardNumber(cardNumber)) {
-            alert($.mage.__('Card number is invalid.'));
+            alert('Número do cartão inválido.');
             return false;
         }
 
         if (!isValidExpiryDate(cardExpDate)) {
-            alert($.mage.__('Expiration date is invalid.'));
+            alert('Data de validade inválida.');
             return false;
         }
 
         if (!isValidCVV(cardCVV, cardTypeSelected.value)) {
-            alert($.mage.__('CVV is invalid.'));
+            alert('CVV inválido.');
             return false;
         }
 
