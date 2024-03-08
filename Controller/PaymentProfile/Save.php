@@ -172,7 +172,7 @@ class Save extends Action
 
             $this->dataPersistor->set('vindi_payment_profile', $data);
         } catch (\Exception $e) {
-            $this->messageManager->addErrorMessage(__('An error occurred while saving the payment profile: ') . $e->getMessage());
+            $this->messageManager->addWarningMessage(__('An error occurred while saving the payment profile: ') . '"' . $e->getMessage() . '"');
             $this->dataPersistor->set('vindi_payment_profile', $data);
             $resultRedirect = $this->resultRedirectFactory->create();
             return $resultRedirect->setPath('*/*/edit', ['id' => $entityId]);
