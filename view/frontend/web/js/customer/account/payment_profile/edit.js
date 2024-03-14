@@ -137,7 +137,7 @@ document.addEventListener("DOMContentLoaded", function () {
             return false;
         }
 
-        const charactersSpecialProhibited = /[!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?]+/;
+        const charactersSpecialProhibited = /[!@#$%^*()_+\-=[\]{};':"\\|,.<>/?]+/;
         if (charactersSpecialProhibited.test(cardName)) {
             return false;
         }
