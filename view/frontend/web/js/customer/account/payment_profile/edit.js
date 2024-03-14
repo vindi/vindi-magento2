@@ -22,7 +22,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
     const cardNumberInput     = document.getElementById('cc_number');
     const cardExpirationInput = document.getElementById('cc_exp_date');
-    const cardTypeInputs      = document.querySelectorAll('.card-type-input');
+    const cardTypeInputs    = document.querySelectorAll('.card-type-input');
     const form                = document.getElementById('payment-profile-form');
 
     cardTypeInputs.forEach(input => {
@@ -67,6 +67,7 @@ document.addEventListener("DOMContentLoaded", function () {
         const cardNumber       = document.getElementById('cc_number').value.replace(/-/g, '');
         const cardExpDate      = document.getElementById('cc_exp_date').value;
         const cardCVV          = document.getElementById('cc_cvv').value;
+        const cardNameInput= document.getElementById('cc_name');
         const cardTypeSelected = document.querySelector('input[name="cc_type"]:checked');
 
         if (!cardTypeSelected) {
@@ -86,6 +87,11 @@ document.addEventListener("DOMContentLoaded", function () {
 
         if (!isValidCVV(cardCVV, cardTypeSelected.value)) {
             alert('CVV inválido.');
+            return false;
+        }
+
+        if (!isValidCardName(cardNameInput.value)) {
+            alert("O nome do cartão não pode conter números ou caracteres especiais.");
             return false;
         }
 
@@ -123,5 +129,19 @@ document.addEventListener("DOMContentLoaded", function () {
     function isValidCVV(cvv, cardType) {
         const cvvLength = cvv.length;
         return (cardType === 'amex' && cvvLength === 4) || (['visa', 'mastercard'].includes(cardType) && cvvLength === 3);
+    }
+
+    function isValidCardName(cardName) {
+        const hasNumber = /\d/.test(cardName);
+        if (hasNumber) {
+            return false;
+        }
+
+        const charactersSpecialProhibited = /[!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?]+/;
+        if (charactersSpecialProhibited.test(cardName)) {
+            return false;
+        }
+
+        return true;
     }
 });
