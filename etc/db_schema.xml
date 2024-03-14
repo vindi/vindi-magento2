@@ -31,6 +31,9 @@
         <column xsi:type="boolean" name="invoice_split" nullable="false" comment="Invoice Split"/>
         <column xsi:type="varchar" name="status" length="255" nullable="false" comment="Plan Status"/>
         <column xsi:type="text" name="metadata" nullable="true" comment="Metadata"/>
+        <column xsi:type="varchar" name="duration" length="255" nullable="true" comment="Duration"/>
+        <column xsi:type="varchar" name="billing_trigger_day_type_on_period" length="255" nullable="true" comment="Billing Trigger Day Type On Period"/>
+        <column xsi:type="varchar" name="billing_trigger_day_based_on_period" length="255" nullable="true" comment="Billing Trigger Day Based On Period"/>
         <column xsi:type="timestamp" name="updated_at" nullable="false" default="CURRENT_TIMESTAMP" on_update="true"/>
         <column xsi:type="timestamp" name="created_at" nullable="false" default="CURRENT_TIMESTAMP" on_update="false"/>
         <constraint xsi:type="primary" referenceId="PRIMARY">

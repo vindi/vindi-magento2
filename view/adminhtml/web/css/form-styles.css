@@ -1,0 +1,63 @@
+.admin__fieldset {
+    display: flex;
+    flex-wrap: wrap;
+}
+
+.admin__field {
+    flex: 0 0 100%;
+}
+
+.admin__field[data-index="interval_count"],
+.admin__field[data-index="billing_trigger_day_type_on_period"] {
+    flex: 0 0 auto;
+    display: flex;
+}
+
+.admin__field[data-index="interval_count"] .admin__field-label {
+    width: calc((100vw)* 0.165 - 30px);
+}
+
+.admin__field[data-index="billing_trigger_day_type_on_period"] .admin__field-label {
+    width: calc((100vw)* 0.19 - 30px);
+}
+
+.admin__field[data-index="billing_trigger_day_type_on_period"] .admin__field-control {
+    display: flex;
+}
+
+.admin__field[data-index="billing_trigger_day_type_on_period"] .admin__control-select {
+    width: 150px;
+    margin-right: 10px;
+}
+
+.admin__field[data-index="billing_trigger_day_based_on_period"] .admin__field-control {
+    width: auto;
+    max-width: 400px;
+}
+
+.admin__field[data-index="interval_count"] .admin__field-control {
+    width: 70px;
+    margin-right: 20px;
+}
+
+.admin__field[data-index="interval"],
+.admin__field[data-index="billing_trigger_day_based_on_period"] {
+    flex: 1 1 auto;
+}
+
+.admin__field[data-index="interval"] .admin__field-label,
+.admin__field[data-index="billing_trigger_day_based_on_period"] .admin__field-label {
+    display: none;
+}
+
+.admin__field[data-index="billing_cycles"] .admin__control-text {
+    width: 70px;
+}
+
+.admin__field[data-index="billing_trigger_day_based_on_period_description"] .admin__field-control input {
+    display: none;
+}
+
+.admin__field[data-index="billing_trigger_day_based_on_period_description"] .admin__field-note {
+    display: block; /* ou 'display: flex;', dependendo da estrutura */
+}

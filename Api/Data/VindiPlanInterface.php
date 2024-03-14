@@ -25,6 +25,9 @@ interface VindiPlanInterface
     const INVOICE_SPLIT         = 'invoice_split';
     const STATUS                = 'status';
     const METADATA              = 'metadata';
+    const DURATION = 'duration';
+    const BILLING_TRIGGER_DAY_TYPE_ON_PERIOD = 'billing_trigger_day_type_on_period';
+    const BILLING_TRIGGER_DAY_BASED_ON_PERIOD = 'billing_trigger_day_based_on_period';
 
     public function getId();
     public function setId($entityId);
@@ -54,4 +57,13 @@ interface VindiPlanInterface
     public function setStatus($status);
     public function getMetadata();
     public function setMetadata($metadata);
+
+    public function getDuration();
+    public function setDuration($duration);
+
+    public function getBillingTriggerDayTypeOnPeriod();
+    public function setBillingTriggerDayTypeOnPeriod($billingTriggerDayTypeOnPeriod);
+
+    public function getBillingTriggerDayBasedOnPeriod();
+    public function setBillingTriggerDayBasedOnPeriod($billingTriggerDayBasedOnPeriod);
 }

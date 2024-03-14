@@ -8,7 +8,7 @@ use Magento\Eav\Model\Entity\Attribute\Source\AbstractSource;
  * Class Interval
  * @package Vindi\Payment\Model\Config\Source
  */
-class Interval extends AbstractSource
+class Duration extends AbstractSource
 {
     /**
      * Get all options
@@ -18,8 +18,8 @@ class Interval extends AbstractSource
     {
         if ($this->_options === null) {
             $this->_options = [
-                ['label' => __('month(s)'), 'value' => 'months'],
-                ['label' => __('day(s)'), 'value' => 'days']
+                ['label' => __('defined'), 'value'   => 'Por tempo definido'],
+                ['label' => __('undefined'), 'value' => 'Por tempo indefinido']
             ];
         }
 
@@ -34,8 +34,8 @@ class Interval extends AbstractSource
     public function toOptionArray()
     {
         return [
-            ['value' => 'days', 'label' => __('Day')],
-            ['value' => 'months', 'label' => __('Month')]
+            ['value' => 'defined', 'label'   => __('Por tempo definido')],
+            ['value' => 'undefined', 'label' => __('Por tempo indefinido')]
         ];
     }
 }
