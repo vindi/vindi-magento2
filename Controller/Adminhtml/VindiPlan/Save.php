@@ -94,10 +94,12 @@ class Save extends Action
             }
 
             if ($existingPlan && $existingPlan->getId()) {
+                $this->plan->save($data);
+
+                $data = $this->prepareDataForMagentoStore($data);
+
                 $existingPlan->addData($data);
                 $this->vindiPlanRepository->save($existingPlan);
-
-                $this->plan->save($data);
 
                 $this->messageManager->addSuccessMessage(__('Plan updated successfully!'));
             } else {
@@ -110,6 +112,8 @@ class Save extends Action
                 }
 
                 $vindiId = $this->plan->save($data);
+
+                $data = $this->prepareDataForMagentoStore($data);
 
                 $vindiPlan = $this->vindiPlanFactory->create();
                 $vindiPlan->setData($data);
@@ -221,6 +225,29 @@ class Save extends Action
 
         if (!empty($post["settings"]["installments"])) {
             $data['installments'] = $post["settings"]["installments"];
+        }
+
+        return $data;
+    }
+
+    /**
+     * Prepares the data to be saved based on the POST inputs for Magento store.
+     *
+     * @param array $post The POST data received.
+     * @return array The data prepared for saving.
+     */
+    private function prepareDataForMagentoStore($data)
+    {
+        if (!empty($post["settings"]["duration"])) {
+            $data['duration'] = $post["settings"]["duration"];
+        }
+
+        if (!empty($post["settings"]["billing_trigger_day_type_on_period"])) {
+            $data['billing_trigger_day_type_on_period'] = $post["settings"]["billing_trigger_day_type_on_period"];
+        }
+
+        if (!empty($post["settings"]["billing_trigger_day_based_on_period"])) {
+            $data['billing_trigger_day_based_on_period'] = $post["settings"]["billing_trigger_day_based_on_period"];
         }
 
         return $data;
