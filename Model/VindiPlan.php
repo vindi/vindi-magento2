@@ -192,6 +192,36 @@ class VindiPlan extends AbstractModel implements VindiPlanInterface
         return $this->setData(self::METADATA, $metadata);
     }
 
+    public function getDuration()
+    {
+        return $this->getData(self::DURATION);
+    }
+
+    public function setDuration($duration)
+    {
+        return $this->setData(self::DURATION, $duration);
+    }
+
+    public function getBillingTriggerDayTypeOnPeriod()
+    {
+        return $this->getData(self::BILLING_TRIGGER_DAY_TYPE_ON_PERIOD);
+    }
+
+    public function setBillingTriggerDayTypeOnPeriod($billingTriggerDayTypeOnPeriod)
+    {
+        return $this->setData(self::BILLING_TRIGGER_DAY_TYPE_ON_PERIOD, $billingTriggerDayTypeOnPeriod);
+    }
+
+    public function getBillingTriggerDayBasedOnPeriod()
+    {
+        return $this->getData(self::BILLING_TRIGGER_DAY_BASED_ON_PERIOD);
+    }
+
+    public function setBillingTriggerDayBasedOnPeriod($billingTriggerDayBasedOnPeriod)
+    {
+        return $this->setData(self::BILLING_TRIGGER_DAY_BASED_ON_PERIOD, $billingTriggerDayBasedOnPeriod);
+    }
+
     /**
      * @return array|mixed|string|null
      */

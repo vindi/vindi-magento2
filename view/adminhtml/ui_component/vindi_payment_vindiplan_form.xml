@@ -60,14 +60,6 @@
                 <dataScope>entity_id</dataScope>
             </settings>
         </field>
-        <field name="vindi_id" sortOrder="3" formElement="input">
-            <settings>
-                <dataType>text</dataType>
-                <label translate="true">Vindi ID</label>
-                <dataScope>vindi_id</dataScope>
-                <disabled>true</disabled>
-            </settings>
-        </field>
         <field name="name" sortOrder="5" formElement="input">
             <argument name="data" xsi:type="array">
                 <item name="config" xsi:type="array">
@@ -81,29 +73,20 @@
                 <dataType>text</dataType>
                 <label translate="true">Name</label>
                 <dataScope>name</dataScope>
+                <notice translate="true">
+                    Plan name.
+                </notice>
             </settings>
         </field>
-        <field name="code" sortOrder="10" formElement="input">
-            <settings>
-                <dataType>text</dataType>
-                <label translate="true">External Code</label>
-                <dataScope>code</dataScope>
-                <disabled>true</disabled>
-            </settings>
-        </field>
-        <field name="description" sortOrder="15" formElement="textarea">
-            <settings>
-                <dataType>text</dataType>
-                <label translate="true">Plan Description</label>
-                <dataScope>description</dataScope>
-            </settings>
-        </field>
-        <field name="status" sortOrder="15" formElement="select">
+        <field name="status" sortOrder="10" formElement="select">
             <settings>
                 <dataType>select</dataType>
                 <label translate="true">Status</label>
                 <dataScope>status</dataScope>
                 <componentType>field</componentType>
+                <notice translate="true">
+                    Inactive plans will not be available for new sales, but existing subscriptions will continue to be charged and renewed normally.
+                </notice>
             </settings>
             <formElements>
                 <select>
@@ -113,15 +96,32 @@
                 </select>
             </formElements>
         </field>
-        <field name="interval" sortOrder="20" formElement="select">
+        <field name="description" sortOrder="15" formElement="textarea">
             <settings>
-                <dataType>select</dataType>
-                <label translate="true">Interval Duration</label>
-                <dataScope>interval</dataScope>
-                <componentType>field</componentType>
+                <dataType>text</dataType>
+                <label translate="true">Observations</label>
+                <dataScope>description</dataScope>
+                <notice translate="true">
+                    Free text field for internal notes. It will not be displayed to customers.
+                </notice>
+            </settings>
+        </field>
+        <field name="interval_count" sortOrder="20" formElement="input">
+            <settings>
+                <dataType>text</dataType>
+                <label translate="true">Charge every</label>
+                <dataScope>interval_count</dataScope>
                 <validation>
                     <rule name="required-entry" xsi:type="boolean">true</rule>
+                    <rule name="validate-number" xsi:type="boolean">true</rule>
                 </validation>
+            </settings>
+        </field>
+        <field name="interval" sortOrder="25" formElement="select">
+            <settings>
+                <dataType>select</dataType>
+                <dataScope>interval</dataScope>
+                <componentType>field</componentType>
             </settings>
             <formElements>
                 <select>
@@ -131,21 +131,49 @@
                 </select>
             </formElements>
         </field>
-        <field name="interval_count" sortOrder="25" formElement="input">
+        <field name="duration" sortOrder="30" formElement="select">
+            <argument name="data" xsi:type="array">
+                <item name="options" xsi:type="object">Vindi\Payment\Model\Config\Source\Duration</item>
+                <item name="config" xsi:type="array">
+                    <item name="dataType" xsi:type="string">int</item>
+                    <item name="component" xsi:type="string">Vindi_Payment/js/form/element/duration</item>
+                    <item name="label" xsi:type="string" translate="true">Duration</item>
+                    <item name="formElement" xsi:type="string">select</item>
+                    <item name="source" xsi:type="string">duration</item>
+                    <item name="dataScope" xsi:type="string">duration</item>
+                </item>
+            </argument>
             <settings>
-                <dataType>text</dataType>
-                <label translate="true">Number of intervals within a period</label>
-                <dataScope>interval_count</dataScope>
                 <validation>
                     <rule name="required-entry" xsi:type="boolean">true</rule>
-                    <rule name="validate-number" xsi:type="boolean">true</rule>
                 </validation>
+                <notice translate="true">
+                    Example: To create a monthly plan that lasts for a year, select "Charge every 1 month 12 times". To create an unlimited weekly plan, select "Charge every 7 days indefinitely". To create a weekly plan, for example, select to charge every 06 months.
+                </notice>
             </settings>
         </field>
-        <field name="billing_trigger_type" sortOrder="30" formElement="select">
+        <field name="billing_cycles" sortOrder="35" formElement="input">
+            <argument name="data" xsi:type="array">
+                <item name="config" xsi:type="array">
+                    <item name="source" xsi:type="string">menu</item>
+                </item>
+            </argument>
+            <settings>
+                <validation>
+                    <rule name="required-entry" xsi:type="boolean">true</rule>
+                </validation>
+                <dataType>text</dataType>
+                <label translate="true">Number of periods to be charged</label>
+                <dataScope>billing_cycles</dataScope>
+                <notice translate="true">
+                    Use positive values starting from 1. If left empty, the period will be indefinite.
+                </notice>
+            </settings>
+        </field>
+        <field name="billing_trigger_type" sortOrder="40" formElement="select">
             <settings>
                 <dataType>select</dataType>
-                <label translate="true">Reference for bill generation date</label>
+                <label translate="true">Billing method</label>
                 <dataScope>billing_trigger_type</dataScope>
                 <componentType>field</componentType>
                 <validation>
@@ -155,27 +183,116 @@
             <formElements>
                 <select>
                     <settings>
-                        <options class="Vindi\Payment\Model\Config\Source\BillingTriggerType"/>
+                        <options class="Vindi\Payment\Model\Config\Source\BillingMethod"/>
                     </settings>
                 </select>
             </formElements>
         </field>
-        <field name="billing_trigger_day" sortOrder="35" formElement="input">
+        <field name="billing_trigger_day" sortOrder="45" formElement="select">
             <settings>
-                <dataType>text</dataType>
-                <label translate="true">Day for billing</label>
+                <dataType>select</dataType>
+                <label translate="true">Billing setup</label>
                 <dataScope>billing_trigger_day</dataScope>
+                <componentType>field</componentType>
+                <notice translate="true">
+                    Billing will be carried out on the day of the month present in the period when the customer subscribed. For example, if set to the 5th and the customer subscribed on the 6th, the billing will take place on the 5th of the following month.
+                </notice>
+            </settings>
+            <formElements>
+                <select>
+                    <settings>
+                        <options class="Vindi\Payment\Model\Config\Source\BillingTriggerDaysOfTheMonth"/>
+                    </settings>
+                </select>
+            </formElements>
+        </field>
+        <field name="billing_trigger_day_type_on_period" sortOrder="50" formElement="select">
+            <settings>
+                <dataType>select</dataType>
+                <label translate="true">Billing setup</label>
+                <dataScope>billing_trigger_day_type_on_period</dataScope>
+                <componentType>field</componentType>
+                <notice translate="true">
+                    of
+                </notice>
+            </settings>
+            <formElements>
+                <select>
+                    <settings>
+                        <options class="Vindi\Payment\Model\Config\Source\BillingTriggerDay"/>
+                    </settings>
+                </select>
+            </formElements>
+        </field>
+        <field name="billing_trigger_day_based_on_period" sortOrder="55" formElement="select">
+            <settings>
+                <dataType>select</dataType>
+                <dataScope>billing_trigger_day_based_on_period</dataScope>
+                <componentType>field</componentType>
                 <validation>
                     <rule name="required-entry" xsi:type="boolean">true</rule>
-                    <rule name="validate-number" xsi:type="boolean">true</rule>
                 </validation>
             </settings>
+            <formElements>
+                <select>
+                    <settings>
+                        <options class="Vindi\Payment\Model\Config\Source\BillingTriggerTypeWithoutDayOfMount"/>
+                    </settings>
+                </select>
+            </formElements>
         </field>
-        <field name="billing_cycles" sortOrder="40" formElement="input">
+        <field name="billing_trigger_day_based_on_period_description" sortOrder="56" formElement="input">
+            <argument name="data" xsi:type="array">
+                <item name="config" xsi:type="array">
+                    <item name="source" xsi:type="string">menu</item>
+                </item>
+            </argument>
             <settings>
                 <dataType>text</dataType>
-                <label translate="true">Maximum number of periods in a subscription. Null means indefinite duration</label>
-                <dataScope>billing_cycles</dataScope>
+                <dataScope>billing_trigger_day_based_on_period_description</dataScope>
+                <notice translate="true">
+                    Billing will be based on the period created at the time of subscription: e.g., Charge exactly on the day the subscription period starts, or in a trial example, charge 07 days after the start of the subscription period.
+                </notice>
+            </settings>
+        </field>
+        <field name="installments" sortOrder="59" formElement="select">
+            <settings>
+                <dataType>select</dataType>
+                <label translate="true">Installments</label>
+                <dataScope>installments</dataScope>
+                <componentType>field</componentType>
+                <validation>
+                    <rule name="required-entry" xsi:type="boolean">true</rule>
+                </validation>
+            </settings>
+            <formElements>
+                <select>
+                    <settings>
+                        <options class="Vindi\Payment\Model\Config\Source\Installments"/>
+                    </settings>
+                </select>
+            </formElements>
+        </field>
+        <field name="code" sortOrder="60" formElement="input">
+            <settings>
+                <dataType>text</dataType>
+                <label translate="true">External Code</label>
+                <dataScope>code</dataScope>
+                <disabled>true</disabled>
+                <notice translate="true">
+                    Identification code of the plan in Vindi, it will be generated automatically when creating the plan.
+                </notice>
+            </settings>
+        </field>
+        <field name="vindi_id" sortOrder="65" formElement="input">
+            <settings>
+                <dataType>text</dataType>
+                <label translate="true">Vindi ID</label>
+                <dataScope>vindi_id</dataScope>
+                <disabled>true</disabled>
+                <notice translate="true">
+                    Identification ID of the plan in Vindi, this ID will be generated automatically when creating the plan.
+                </notice>
             </settings>
         </field>
     </fieldset>
