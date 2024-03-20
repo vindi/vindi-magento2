@@ -43,12 +43,53 @@ class Profile
         return $paymentProfile;
     }
 
+    /**
+     * @param $payment
+     * @param $customerId
+     * @param $paymentMethodCode
+     * @return bool|mixed
+     * @throws \Magento\Framework\Exception\LocalizedException
+     */
+    public function createFromCustomerAccount($payment, $customerId, $paymentMethodCode)
+    {
+        $payment['customer_id'] = $customerId;
+        $paymentProfile = $this->createPaymentProfileFromCustomerAccount($payment);
+
+        if ($paymentProfile === false) {
+            throw new \Magento\Framework\Exception\LocalizedException(__('Error while informing credit card data. Verify data and try again'));
+        }
+
+        $verifyMethod = $this->helperData->getShouldVerifyProfile();
+
+        if ($verifyMethod && !$this->verifyPaymentProfile($paymentProfile['payment_profile']['id'])) {
+            throw new \Magento\Framework\Exception\LocalizedException(__('Impossible to validate your credit card'));
+        }
+        return $paymentProfile;
+    }
+
+    /**
+     * @param $body
+     * @return bool|mixed
+     */
     private function createPaymentProfile($body)
     {
-        // Protect credit card number.
         $dataToLog = $body;
         $dataToLog['card_number'] = '**** *' . substr($dataToLog['card_number'], -3);
         $dataToLog['card_cvv'] = '***';
+
+        return $this->api->request('payment_profiles', 'POST', $body, $dataToLog);
+    }
+
+    /**
+     * @param $body
+     * @return bool|mixed
+     */
+    private function createPaymentProfileFromCustomerAccount($body)
+    {
+        $dataToLog = $body;
+        $dataToLog['card_number']  = '**** *' . substr($dataToLog['card_number'], -3);
+        $dataToLog['card_cvv']     = '***';
+        $body['allow_as_fallback'] = true;
 
         return $this->api->request('payment_profiles', 'POST', $body, $dataToLog);
     }
@@ -57,5 +98,31 @@ class Profile
     {
         $verify_status = $this->api->request('payment_profiles/' . $paymentProfileId . '/verify', 'POST');
         return ($verify_status['transaction']['status'] === 'success');
+    }
+
+    /**
+     * @param $paymentProfileId
+     * @param $dataToUpdate
+     * @return bool|mixed
+     */
+    public function updatePaymentProfile($paymentProfileId, $dataToUpdate)
+    {
+        $body = [
+            "body" => $dataToUpdate,
+            "allow_as_fallback" => true
+        ];
+
+        $updateStatus = $this->api->request('payment_profiles/' . $paymentProfileId, 'PUT', $body);
+        return $updateStatus;
+    }
+
+    /**
+     * @param $paymentProfileId
+     * @return bool|mixed
+     */
+    public function deletePaymentProfile($paymentProfileId)
+    {
+        $deleteStatus = $this->api->request('payment_profiles/' . $paymentProfileId, 'DELETE');
+        return $deleteStatus;
     }
 }

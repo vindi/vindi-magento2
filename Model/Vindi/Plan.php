@@ -61,4 +61,13 @@ class Plan implements PlanInterface
 
         return false;
     }
+
+    /**
+     * @param $page
+     * @return bool|mixed
+     */
+    public function getAllPlans($page = 1)
+    {
+        return $this->api->request('plans?per_page=100&page=' . $page, 'GET');
+    }
 }

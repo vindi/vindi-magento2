@@ -4,5 +4,8 @@
         <route frontName="vindiPayment" id="vindiPayment">
             <module name="Vindi_Payment"/>
         </route>
+        <route frontName="vindi_vr" id="vindi_vr">
+            <module name="Vindi_Payment" />
+        </route>
     </router>
 </config>

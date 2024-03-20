@@ -6,7 +6,16 @@
              title="Vindi"
              module="Vindi_Payment"
              sortOrder="9999"
-             resource="Magento_Backend::content" />
+             resource="Magento_Backend::content"
+        />
+        <add action="vindi_payment/vindiplan/index"
+             id="Vindi_Payment::vindi_payment_vindiplan"
+             module="Vindi_Payment"
+             parent="Vindi_Payment::top_level"
+             resource="Magento_Backend::content"
+             sortOrder="10"
+             title="Plans"
+        />
         <add action="vindi_payment/subscription/index"
              id="Vindi_Payment::vindi_payment_subscription"
              module="Vindi_Payment"

@@ -57,7 +57,7 @@ define([
                         'cc_ss_start_month': this.creditCardSsStartMonth(),
                         'cc_ss_start_year': this.creditCardSsStartYear(),
                         'cc_cvv': this.creditCardVerificationNumber(),
-                        'cc_installments': this.selectedInstallments(),
+                        'cc_installments': this.selectedInstallments() ? this.selectedInstallments() : 1
                     }
                 };
 
@@ -95,29 +95,39 @@ define([
                     this.messageContainer.addErrorMessage({'message': $t('Please enter the Credit Card Type.')});
                     return false;
                 }
+
                 if (!this.creditCardExpYear() || this.creditCardExpYear() == '') {
                     this.messageContainer.addErrorMessage({'message': $t('Please enter the Credit Card Expiry Year.')});
                     return false;
                 }
+
                 if (!this.creditCardExpMonth() || this.creditCardExpMonth() == '') {
                     this.messageContainer.addErrorMessage({'message': $t('Please enter the Credit Card Expiry Month.')});
                     return false;
                 }
+
                 if (!this.creditCardNumber() || this.creditCardNumber() == '') {
                     this.messageContainer.addErrorMessage({'message': $t('Please enter the Credit Card Number.')});
                     return false;
                 }
+
                 if (!this.creditCardOwner() || this.creditCardOwner() == '') {
                     this.messageContainer.addErrorMessage({'message': $t('Please enter the Credit Card Owner Name.')});
                     return false;
                 }
+
                 if (!this.creditCardVerificationNumber() || this.creditCardVerificationNumber() == '') {
                     this.messageContainer.addErrorMessage({'message': $t('Please enter the Credit Card CVV.')});
                     return false;
                 }
-                if (!this.selectedInstallments() || this.selectedInstallments() == '') {
-                    this.messageContainer.addErrorMessage({'message': $t('Please enter the number of Installments.')});
-                    return false;
+
+                if (this.installmentsAllowed()) {
+                    if (!this.selectedInstallments() || this.selectedInstallments() == '') {
+                        this.messageContainer.addErrorMessage({'message': $t('Please enter the number of Installments.')});
+                        return false;
+                    }
+                } else {
+                    this.selectedInstallments(1);
                 }
 
                 return true;
@@ -224,7 +234,12 @@ define([
                     }
                 });
             },
+            installmentsAllowed: function () {
+                let isAllowed = parseInt(window.checkoutConfig.payment.vindi_cc.isInstallmentsAllowedInStore);
+                return isAllowed !== 0 ? true : false;
+            },
             updateInstallments: function () {
+
                 let ccCheckoutConfig = window.checkoutConfig.payment.vindi_cc;
                 let installments = [];
 
@@ -242,7 +257,7 @@ define([
                     }
 
                     let grandTotal = totals.getSegment('grand_total').value;
-                    if (maxInstallmentsNumber > 1 && allowInstallments == true) {
+                    if (maxInstallmentsNumber > 1 && this.installmentsAllowed()) {
                         let installmentsTimes = Math.floor(grandTotal / minInstallmentsValue);
 
                         for (let i = 1; i <= maxInstallmentsNumber; i++) {

@@ -1,0 +1,65 @@
+<?php
+/** @var \Vindi\Payment\Block\PaymentProfile\Edit $block */
+$currentProfile  = $block->getCurrentPaymentProfile();
+
+$cardType    = $currentProfile ? $currentProfile->getCcType()    : '';
+$cardNumber  = $currentProfile ? $currentProfile->getCcNumber()  : '';
+$cardExpDate = $currentProfile ? $currentProfile->getCcExpDate() : '';
+$cardName    = $currentProfile ? $currentProfile->getCcName()    : '';
+?>
+<div class="payment-profile-edit">
+    <div>
+        <p class="title"><?= $currentProfile ? __('Update Your Card') : __('Create Your Card') ?></p>
+        <hr>
+        <form id="payment-profile-form" action="<?= $block->getUrl('vindi_vr/paymentprofile/save') ?>" method="POST">
+            <input type="hidden" name="form_key" value="<?= $block->getFormKey() ?>">
+            <input type="hidden" name="entity_id" value="<?= $currentProfile ? $currentProfile->getId() : '' ?>">
+
+            <div>
+                <input type="radio" id="visa" name="cc_type" value="visa" class="card-type-input" <?= $cardType == 'visa' ? 'checked' : '' ?>>
+                <label for="visa" class="card-type-label">
+                    <img src="<?= $block->getViewFileUrl('Vindi_Payment::images/cc/vi.png') ?>" alt="<?= __('Visa') ?>">
+                </label>
+
+                <input type="radio" id="mastercard" name="cc_type" value="mastercard" class="card-type-input" <?= $cardType == 'mastercard' ? 'checked' : '' ?>>
+                <label for="mastercard" class="card-type-label">
+                    <img src="<?= $block->getViewFileUrl('Vindi_Payment::images/cc/mc.png') ?>" alt="<?= __('MasterCard') ?>">
+                </label>
+
+                <input type="radio" id="amex" name="cc_type" value="amex" class="card-type-input" <?= $cardType == 'amex' ? 'checked' : '' ?>>
+                <label for="amex" class="card-type-label">
+                    <img src="<?= $block->getViewFileUrl('Vindi_Payment::images/cc/ae.png') ?>" alt="<?= __('American Express') ?>">
+                </label>
+            </div>
+
+            <div>
+                <label for="cc_number"><?= __('Card Number') ?>*</label>
+                <input id="cc_number" name="cc_number" type="text" autocomplete="cc-number" required placeholder="<?= __('Card Number') ?>" value="<?= htmlspecialchars($cardNumber) ?>">
+            </div>
+
+            <div class="form-row">
+                <div>
+                    <label for="cc_exp_date"><?= __('Expiration Date') ?>*</label>
+                    <input id="cc_exp_date" name="cc_exp_date" type="text" autocomplete="cc-exp" required placeholder="<?= __('MM/YY') ?>" value="<?= htmlspecialchars($cardExpDate) ?>">
+                </div>
+                <div>
+                    <label for="cc_cvv"><?= __('CVV') ?>*</label>
+                    <input id="cc_cvv" name="cc_cvv" type="text" autocomplete="cc-csc" required placeholder="<?= __('CVV') ?>" value="">
+                </div>
+            </div>
+
+            <div>
+                <label for="cc_name"><?= __('Cardholder Name') ?>*</label>
+                <input id="cc_name" name="cc_name" type="text" autocomplete="cc-name" required placeholder="<?= __('Cardholder Name') ?>" value="<?= htmlspecialchars($cardName) ?>">
+            </div>
+
+            <button type="submit">
+                <?= $currentProfile ? __('Update Card') : __('Add Card') ?>
+            </button>
+        </form>
+
+        <div style="margin-top: 20px;">
+            <button type="button" onclick="window.location.href='<?= $block->getUrl('vindi_vr/paymentprofile/index') ?>'" style="background-color: #555; color: white; padding: 10px 20px; border: none; border-radius: 4px; cursor: pointer; font-size: 16px;"><?= __('Back') ?></button>
+        </div>
+    </div>
+</div>
