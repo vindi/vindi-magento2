@@ -134,6 +134,7 @@
     </div>
     <!-- /ko -->
 
+    <!-- ko if: (installmentsAllowed())-->
     <div class="field date required" data-bind="attr: {id: getCode() + '_installments'}">
         <label data-bind="attr: {for: getCode() + '_installments'}" class="label">
             <span><!-- ko i18n: 'Installments' --><!-- /ko --></span>
@@ -159,4 +160,5 @@
             </div>
         </div>
     </div>
+    <!-- /ko -->
 </fieldset>
