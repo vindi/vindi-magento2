@@ -13,7 +13,11 @@
                 <?php echo __('Open QR Code') ?>
             </button>
         </object>
-        <p style="word-break: break-all;"><?= $block->getQrcodeOriginalPath() ?></p>
+
+        <div class="checkout-success qr-code">
+            <span>QRCode</span>
+            <p style="word-break: break-all;"><?= $block->getQrcodeOriginalPath() ?></p>
+        </div>
 
         <div data-bind="scope: 'vindiPix'" class="box-qr">
             <!-- ko template: getTemplate() --><!-- /ko -->
