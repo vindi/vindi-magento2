@@ -1,19 +1,6 @@
-<?php
-
-use Vindi\Payment\Block\Onepage\Pix;
-
-/** @var $block Pix */
-?>
-
-<?php if ($block->canShowPix()) : ?>
+<?php if ($block->canShowBankSlipPixInfo()) : ?>
     <div class="checkout-success qr-code">
-        <p>
-            <?= $block->getInfoMessageOnepageSuccess() ?>
-        </p>
         <object data="<?= $block->getQrCodePix() ?>" type="image/svg+xml" class="qr-code" id="qrcode">
-            <p>
-                <?= $block->getQrCodeWarningMessage() ?>
-            </p>
             <button
                 id="vindi-pix-button-open"
                 type="button"
@@ -24,14 +11,21 @@ use Vindi\Payment\Block\Onepage\Pix;
             </button>
         </object>
 
-        <p style="word-break: break-all;"><?= $block->getQrcodeOriginalPath() ?></p>
+        <div>
+            <span>QRCode</span>
+            <p style="word-break: break-all;"><?= $block->getQrcodeOriginalPath() ?></p>
+        </div>
 
         <div data-bind="scope: 'vindiPix'" class="box-qr">
             <!-- ko template: getTemplate() --><!-- /ko -->
-            <div id="copied-success" class="copied" style="display: none">
-                <span><?= __('QR Code Key copied') ?></span>
-            </div>
         </div>
+        <div id="copied-success" class="copied" style="display: none">
+            <span><?= __('QR Code Key copied') ?></span>
+        </div>
+
+        <p>
+            <?= sprintf(__('Print Url: %s'), '<a target="_blank" href="'. $block->getPrintUrl() . '">'. __('click here') . '</a>') ?>
+        </p>
     </div>
 
     <script type="text/x-magento-init">
@@ -41,12 +35,11 @@ use Vindi\Payment\Block\Onepage\Pix;
                     "components": {
                         "vindiPix": {
                             "component": "Vindi_Payment/js/view/onepage/vindi-pix",
-                            "qrCodeKey": "<?= $block->getQrcodeOriginalPath() ?>"
+                            "qrCodeKey": <?= $block->getQrcodeOriginalPath() ?>
                         }
                     }
                 }
             }
         }
     </script>
-
 <?php endif; ?>
