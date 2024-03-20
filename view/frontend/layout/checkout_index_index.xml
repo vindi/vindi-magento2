@@ -20,16 +20,16 @@
                                                                     <item name="component" xsi:type="string">Vindi_Payment/js/view/payment/vindi</item>
                                                                     <item name="methods" xsi:type="array">
                                                                         <item name="vindi" xsi:type="array">
-                                                                            <item name="isBillingAddressRequired" xsi:type="boolean">false
-                                                                            </item>
+                                                                            <item name="isBillingAddressRequired" xsi:type="boolean">false</item>
                                                                         </item>
                                                                         <item name="vindi_bankslip" xsi:type="array">
-                                                                            <item name="isBillingAddressRequired" xsi:type="boolean">false
-                                                                            </item>
+                                                                            <item name="isBillingAddressRequired" xsi:type="boolean">false</item>
+                                                                        </item>
+                                                                        <item name="vindi_bankslippix" xsi:type="array">
+                                                                            <item name="isBillingAddressRequired" xsi:type="boolean">false</item>
                                                                         </item>
                                                                         <item name="vindi_pix" xsi:type="array">
-                                                                            <item name="isBillingAddressRequired" xsi:type="boolean">false
-                                                                            </item>
+                                                                            <item name="isBillingAddressRequired" xsi:type="boolean">false</item>
                                                                         </item>
                                                                     </item>
                                                                 </item>
