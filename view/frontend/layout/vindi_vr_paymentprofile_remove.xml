@@ -1,7 +1,7 @@
 <page xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:View/Layout/etc/page_configuration.xsd">
-<update handle="customer_account"/>
+    <update handle="customer_account"/>
     <head>
-        <css src="Vindi_Payment::css/customer/account/payment_profile/list.css"/>
+        <css src="Vindi_Payment::css/customer/account/payment_profile/remove.css"/>
     </head>
     <body>
         <referenceBlock name="page.main.title">
@@ -10,10 +10,10 @@
             </action>
         </referenceBlock>
         <referenceContainer name="content">
-            <block class="Vindi\Payment\Block\PaymentProfile\PaymentProfileList"
-                   name="payment_profile.grid.list"
+            <block class="Vindi\Payment\Block\PaymentProfile\Remove"
+                   name="payment_profile.remove"
                    cacheable="false"
-                   template="Vindi_Payment::customer/account/payment_profile/list.phtml">
+                   template="Vindi_Payment::customer/account/payment_profile/remove.phtml">
             </block>
         </referenceContainer>
     </body>
