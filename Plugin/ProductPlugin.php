@@ -16,6 +16,11 @@ class ProductPlugin
     {
         if ($subject->getData('vindi_enable_recurrence') === '1') {
             $recurrenceDataJson = $subject->getData('vindi_recurrence_data');
+
+            if (empty($recurrenceDataJson)) {
+                return $result;
+            }
+
             $recurrenceData = json_decode($recurrenceDataJson, true);
 
             if (is_array($recurrenceData) && !empty($recurrenceData)) {

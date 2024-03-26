@@ -22,18 +22,21 @@ class AddCustomOptionToQuoteItem
     ) {
         if ($request instanceof \Magento\Framework\DataObject) {
             $additionalOptions = [];
+
             if ($request->getData('selected_plan_id')) {
                 $additionalOptions[] = [
                     'label' => __('Selected Plan ID'),
                     'value' => $request->getData('selected_plan_id'),
                 ];
             }
+
             if ($request->getData('selected_plan_price')) {
                 $additionalOptions[] = [
                     'label' => __('Selected Plan Price'),
                     'value' => $request->getData('selected_plan_price'),
                 ];
             }
+
             if ($request->getData('selected_plan_installments')) {
                 $additionalOptions[] = [
                     'label' => __('Selected Plan Installments'),

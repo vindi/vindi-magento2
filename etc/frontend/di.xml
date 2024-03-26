@@ -15,5 +15,6 @@
     </type>
     <type name="Magento\Catalog\Model\Product">
         <plugin name="vindi_payment_customprice_product" type="Vindi\Payment\Plugin\ProductPlugin" sortOrder="10" disabled="false"/>
+        <plugin name="vindi_payment_hidecartbutton" type="Vindi\Payment\Plugin\HideCartButton" sortOrder="32"/>
     </type>
 </config>

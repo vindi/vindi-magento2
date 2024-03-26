@@ -2,8 +2,13 @@
 /** @var \Vindi\Payment\Block\Product\ProductRecurrence $block */
 $product = $block->getCurrentProduct();
 
-if ($product) {
+if ($product && $product->getData('vindi_enable_recurrence') === '1') {
     $recurrenceDataJson = $product->getData('vindi_recurrence_data');
+
+    if (empty($recurrenceDataJson)) {
+        return;
+    }
+
     $recurrenceData = json_decode($recurrenceDataJson, true);
 
     if ($recurrenceData && is_array($recurrenceData)) : ?>
