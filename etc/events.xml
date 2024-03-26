@@ -7,4 +7,7 @@
     <event name="catalog_product_save_after">
         <observer name="vindi_plan_sync" instance="Vindi\Payment\Observer\ProductSaveObserver" />
     </event>
+    <event name="catalog_product_save_before">
+        <observer name="vindi_payment_save_recurrence_data" instance="Vindi\Payment\Observer\SaveRecurrenceData" />
+    </event>
 </config>

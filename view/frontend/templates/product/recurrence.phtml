@@ -1,0 +1,121 @@
+<?php
+/** @var \Vindi\Payment\Block\Product\ProductRecurrence $block */
+$product = $block->getCurrentProduct();
+
+if ($product) {
+    $recurrenceDataJson = $product->getData('vindi_recurrence_data');
+    $recurrenceData = json_decode($recurrenceDataJson, true);
+
+    if ($recurrenceData && is_array($recurrenceData)) : ?>
+        <div class="recurrence-options">
+            <div id="recurrence-warning" class="message message-warning warning" style="display: none;">
+                <div>
+                    <?= __('Por favor, selecione uma opção de recorrência antes de adicionar ao carrinho.') ?>
+                </div>
+            </div>
+            <p><?= __('Escolha uma opção de recorrência:') ?></p>
+            <div class="recurrence-buttons">
+                <?php foreach ($recurrenceData as $index => $data) : ?>
+                    <?php $installments = $block->getPlanInstallmentsById($data['plan']); ?>
+                    <?php $planName = $block->getPlanNameById($data['plan']); ?>
+                    <input type="radio" id="recurrence_option_<?= $block->escapeHtmlAttr($index) ?>"
+                           name="recurrence_option" value="<?= $block->escapeHtmlAttr($data['plan']) ?>" class="recurrence-input" hidden>
+                    <label for="recurrence_option_<?= $block->escapeHtmlAttr($index) ?>" class="recurrence-label" data-price="<?= $block->escapeHtmlAttr($data['price']) ?>" data-installments="<?= $block->escapeHtmlAttr($installments) ?>">
+                        <?= $block->escapeHtml($planName) ?>
+                    </label>
+                <?php endforeach; ?>
+            </div>
+        </div>
+    <?php endif; ?>
+<?php } ?>
+<script>
+    require([
+        'jquery',
+        'Magento_Catalog/js/price-utils'
+    ], function ($, priceUtils) {
+        $(document).ready(function () {
+            var priceFormat = <?php echo json_encode($block->getPriceFormat()); ?>;
+            var productId = <?= $product->getId(); ?>;
+
+            function showWarning(show) {
+                $('#recurrence-warning').css('display', show ? 'block' : 'none');
+            }
+
+            function updatePrice() {
+                var selectedInput = $('.recurrence-input:checked');
+                if (!selectedInput.length) {
+                    return;
+                }
+
+                showWarning(false);
+
+                var priceValue = parseFloat($('label[for="' + selectedInput.attr('id') + '"]').data('price'));
+                var installments = parseInt($('label[for="' + selectedInput.attr('id') + '"]').data('installments'), 10);
+
+                if (isNaN(priceValue)) {
+                    console.error("Preço não é um número válido.");
+                    return;
+                }
+
+                var formattedPrice = priceUtils.formatPrice(priceValue, priceFormat);
+                var priceHtml = "<span class='price-prefix'>Por apenas<br></span>" +
+                    "<span class='main-price'>" + formattedPrice + "</span>";
+
+                if (installments > 1) {
+                    var installmentValue = priceValue / installments;
+                    var formattedInstallmentValue = priceUtils.formatPrice(installmentValue, priceFormat);
+                    priceHtml += "<br><span class='installment-info'>em até " + installments + "x de " + formattedInstallmentValue + "</span>";
+                }
+
+                $('#product-price-' + productId + ' .price').html(priceHtml);
+            }
+
+            function addPlanDetailsToCartForm() {
+                var selectedPlan = $('.recurrence-input:checked');
+                if (selectedPlan.length) {
+                    var planId = selectedPlan.val();
+                    var planPrice = $('label[for="' + selectedPlan.attr('id') + '"]').data('price');
+                    var installments = $('label[for="' + selectedPlan.attr('id') + '"]').data('installments');
+
+                    $('#selected_plan_id, #selected_plan_price, #selected_plan_installments').remove();
+
+                    $('<input>').attr({
+                        type: 'hidden',
+                        name: 'selected_plan_id',
+                        value: planId
+                    }).appendTo('form#product_addtocart_form');
+
+                    $('<input>').attr({
+                        type: 'hidden',
+                        name: 'selected_plan_price',
+                        value: planPrice
+                    }).appendTo('form#product_addtocart_form');
+
+                    $('<input>').attr({
+                        type: 'hidden',
+                        name: 'selected_plan_installments',
+                        value: installments
+                    }).appendTo('form#product_addtocart_form');
+                }
+            }
+
+            $('#product-addtocart-button').click(function (e) {
+                e.preventDefault();
+
+                if (!$('.recurrence-input:checked').length) {
+                    showWarning(true);
+                    return;
+                }
+
+                addPlanDetailsToCartForm();
+                $('form#product_addtocart_form').submit();
+            });
+
+            updatePrice();
+
+            $('.recurrence-input').change(function () {
+                updatePrice();
+            });
+        });
+    });
+</script>
