@@ -1,11 +1,19 @@
 <?php
-
 namespace Vindi\Payment\Plugin;
 
 use Magento\Catalog\Model\Product;
 
+/**
+ * Class HideCartButton
+ * @package Vindi\Payment\Plugin
+ */
 class HideCartButton
 {
+    /**
+     * @param Product $product
+     * @param $result
+     * @return bool
+     */
     public function afterIsSaleable(Product $product, $result)
     {
         if ($product->hasData('vindi_enable_recurrence')) {
@@ -13,7 +21,7 @@ class HideCartButton
                 return false;
             }
         }
-        
+
         return $result;
     }
 }
