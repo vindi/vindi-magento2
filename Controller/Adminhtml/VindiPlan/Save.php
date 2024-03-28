@@ -96,7 +96,7 @@ class Save extends Action
             if ($existingPlan && $existingPlan->getId()) {
                 $this->plan->save($data);
 
-                $data = $this->prepareDataForMagentoStore($data);
+                $data = $this->prepareDataForMagentoStore($data, $post);
 
                 $existingPlan->addData($data);
                 $this->vindiPlanRepository->save($existingPlan);
@@ -113,7 +113,7 @@ class Save extends Action
 
                 $vindiId = $this->plan->save($data);
 
-                $data = $this->prepareDataForMagentoStore($data);
+                $data = $this->prepareDataForMagentoStore($data, $post);
 
                 $vindiPlan = $this->vindiPlanFactory->create();
                 $vindiPlan->setData($data);
@@ -231,12 +231,13 @@ class Save extends Action
     }
 
     /**
-     * Prepares the data to be saved based on the POST inputs for Magento store.
+     * Prepares the data to be saved in the Magento store based on the POST inputs.
      *
+     * @param array $data The data prepared for saving.
      * @param array $post The POST data received.
-     * @return array The data prepared for saving.
+     * @return array The data prepared for saving in the Magento store.
      */
-    private function prepareDataForMagentoStore($data)
+    private function prepareDataForMagentoStore($data, $post)
     {
         if (!empty($post["settings"]["duration"])) {
             $data['duration'] = $post["settings"]["duration"];
