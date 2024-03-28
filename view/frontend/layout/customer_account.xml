@@ -7,7 +7,7 @@
             >
                 <arguments>
                     <argument name="path" xsi:type="string">vindi_vr/subscription/index</argument>
-                    <argument name="label" xsi:type="string">Minhas Assinaturas</argument>
+                    <argument name="label" xsi:type="string" translate="true">My Subscriptions</argument>
                     <argument name="sortOrder" xsi:type="number">219</argument>
                 </arguments>
             </block>
@@ -17,7 +17,7 @@
             >
                 <arguments>
                     <argument name="path" xsi:type="string">vindi_vr/paymentprofile/index</argument>
-                    <argument name="label" xsi:type="string">Meus Cartões</argument>
+                    <argument name="label" xsi:type="string" translate="true">My Saved Cards</argument>
                     <argument name="sortOrder" xsi:type="number">150</argument>
                 </arguments>
             </block>

@@ -72,31 +72,15 @@ class ApiKeyValidator extends ConfigValue
      */
     public function beforeSave()
     {
-        $apiKey = $this->helperData->getModuleGeneralConfig("api_key");
+        $allowedStatus = ['active', 'trial'];
         $value = $this->getValue();
-
-        if ($value) {
-            if (!$apiKey) {
-                throw new LocalizedException(
-                    __("The api key was not set on the module basic configuration")
-                );
-            }
-
+       if ($value) {
             $data = $this->api->request("merchants/current", "GET");
-
-            if (isset($data['merchant']['status']) && $data['merchant']['status'] != 'active') {
+            if (isset($data['merchant']['status']) && !in_array($data['merchant']['status'], $allowedStatus)) {
                 throw new LocalizedException(
-                    __("The api key is invalid or the merchant is inactive")
+                    __("The api key is invalid or the merchant is not active, neither in trial")
                 );
             }
         }
-    }
-
-    /**
-     * @return ConfigValue|void
-     */
-    protected function _afterLoad()
-    {
-        return;
     }
 }

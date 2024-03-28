@@ -6,7 +6,7 @@
     <body>
         <referenceBlock name="page.main.title">
             <action method="setPageTitle">
-                <argument translate="true" name="title" xsi:type="string">Minhas Assinaturas</argument>
+                <argument translate="true" name="title" xsi:type="string">My Subscriptions</argument>
             </action>
         </referenceBlock>
         <referenceContainer name="content">
