@@ -9,28 +9,36 @@ use Magento\Framework\App\RequestInterface;
 use Magento\Framework\App\ResponseInterface;
 use Magento\Framework\Exception\NotFoundException;
 use Magento\Framework\View\Result\PageFactory;
-use Vindi\Payment\Model\Payment\Profile as PaymentProfileManager;
-use Vindi\Payment\Model\PaymentProfileFactory;
 
+/**
+ * Class Index
+ * @package Vindi\Payment\Controller\PaymentProfile
+
+ */
 class Remove extends Action
 {
+    /**
+     * @var PageFactory
+     */
     protected $resultPageFactory;
-    protected $customerSession;
-    protected $paymentProfileFactory;
-    protected $paymentProfileManager;
 
+    /**
+     * @var Session
+     */
+    protected $customerSession;
+
+    /**
+     * @param Context $context
+     * @param PageFactory $resultPageFactory
+     */
     public function __construct(
         Context $context,
         PageFactory $resultPageFactory,
-        Session $customerSession,
-        PaymentProfileFactory $paymentProfileFactory,
-        PaymentProfileManager $paymentProfileManager
+        Session $customerSession
     ) {
         parent::__construct($context);
         $this->resultPageFactory = $resultPageFactory;
         $this->customerSession = $customerSession;
-        $this->paymentProfileFactory = $paymentProfileFactory;
-        $this->paymentProfileManager = $paymentProfileManager;
     }
 
     /**
@@ -49,33 +57,13 @@ class Remove extends Action
     }
 
     /**
-     * @return ResponseInterface|\Magento\Framework\Controller\Result\Redirect|\Magento\Framework\Controller\ResultInterface
+     * Execute method.
+     *
+     * @return \Magento\Framework\App\ResponseInterface|\Magento\Framework\Controller\ResultInterface
      */
     public function execute()
     {
-        /*
-        $paymentProfileId = $this->getRequest()->getParam('id');
-        if (!is_numeric($paymentProfileId) || $paymentProfileId <= 0) {
-            $this->messageManager->addErrorMessage(__('Invalid payment profile ID.'));
-            return $this->resultRedirectFactory->create()->setPath('vindi_vr/paymentprofile/index');
-        }
-
-        $paymentProfileId = (int) $paymentProfileId;
-        try {
-            $paymentProfile = $this->paymentProfileFactory->create()->load($paymentProfileId);
-            if ($paymentProfile->getId()) {
-                $this->paymentProfileManager->deletePaymentProfile($paymentProfile->getPaymentProfileId());
-                $paymentProfile->delete();
-                $this->messageManager->addSuccessMessage(__('Payment profile successfully removed.'));
-            } else {
-                $this->messageManager->addErrorMessage(__('Payment profile not found.'));
-            }
-        } catch (\Exception $e) {
-            $this->messageManager->addErrorMessage(__('An error occurred while removing the payment profile: ') . $e->getMessage());
-        }
-        */
-
-        return $this->resultRedirectFactory->create()->setPath('vindi_vr/paymentprofile/index');
+        $resultPage = $this->resultPageFactory->create();
+        return $resultPage;
     }
-
 }

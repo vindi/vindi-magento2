@@ -49,6 +49,16 @@ class PaymentProfileRepository implements PaymentProfileRepositoryInterface
         return $paymentProfile;
     }
 
+    public function getByProfileId($profileId)
+    {
+        $paymentProfile = $this->paymentProfileFactory->create();
+        $this->resource->load($paymentProfile, $profileId, 'payment_profile_id');
+        if (!$paymentProfile->getId()) {
+            throw new NoSuchEntityException(__('Payment profile with id "%1" does not exist.', $profileId));
+        }
+        return $paymentProfile;
+    }
+
     public function getById($entityId)
     {
         $paymentProfile = $this->paymentProfileFactory->create();

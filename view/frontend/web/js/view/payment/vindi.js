@@ -18,6 +18,10 @@ define(
                 component: 'Vindi_Payment/js/view/payment/method-renderer/vindi-bankslip'
             },
             {
+                type: 'vindi_bankslippix',
+                component: 'Vindi_Payment/js/view/payment/method-renderer/vindi-bankslippix'
+            },
+            {
                 type: 'vindi_pix',
                 component: 'Vindi_Payment/js/view/payment/method-renderer/vindi-pix'
             }

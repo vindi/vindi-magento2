@@ -122,7 +122,16 @@ class Profile
      */
     public function deletePaymentProfile($paymentProfileId)
     {
-        $deleteStatus = $this->api->request('payment_profiles/' . $paymentProfileId, 'DELETE');
-        return $deleteStatus;
+        return $this->api->request('payment_profiles/' . $paymentProfileId, 'DELETE');
+    }
+
+    /**
+     * @param $paymentProfileId
+     * @return bool|mixed
+     */
+    public function getPaymentProfile($customerId, $firstSix, $lastFour)
+    {
+        $query = "customer_id={$customerId} card_number_first_six={$firstSix} card_number_last_four={$lastFour} status=active";
+        return $this->api->request('payment_profiles/?query=' . urlencode($query) . '&sort_order=desc', 'GET');
     }
 }

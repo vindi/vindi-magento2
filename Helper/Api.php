@@ -78,7 +78,7 @@ class Api extends AbstractHelper
             return false;
         }
         $url = $this->base_path . $endpoint;
-        $body = json_encode($data);
+        $body = !empty($data) ? json_encode($data) : '';
         $requestId = number_format(microtime(true), 2, '', '');
         $dataToLog = null !== $dataToLog ? json_encode($dataToLog) : $body;
         $this->logger->info(__(sprintf(
@@ -103,9 +103,11 @@ class Api extends AbstractHelper
             CURLOPT_URL => $url,
             CURLOPT_CUSTOMREQUEST => $method
         ];
+
         if (!empty($body)) {
             $ch_options[CURLOPT_POSTFIELDS] = $body;
         }
+
         curl_setopt_array($ch, $ch_options);
         $response = curl_exec($ch);
         $statusCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
@@ -174,6 +176,10 @@ class Api extends AbstractHelper
      */
     private function getErrorMessage($error, $endpoint)
     {
-        return "Erro em $endpoint: {$error['id']}: {$error['parameter']} - {$error['message']}";
+        try {
+            return "Erro em $endpoint: {$error['id']}: {$error['parameter']} - {$error['message']}";
+        } catch (\Exception $e) {
+            return "Erro em $endpoint";
+        }
     }
 }

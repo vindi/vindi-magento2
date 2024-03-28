@@ -25,6 +25,7 @@ use Vindi\Payment\Api\PlanManagementInterface;
 use Vindi\Payment\Api\ProductManagementInterface;
 use Vindi\Payment\Api\SubscriptionInterface;
 use Vindi\Payment\Helper\Api;
+use Vindi\Payment\Model\PaymentProfile;
 use Vindi\Payment\Model\PaymentProfileFactory;
 use Vindi\Payment\Model\PaymentProfileRepository;
 use Magento\Framework\App\ResourceConnection;
@@ -36,7 +37,6 @@ use Magento\Framework\App\ResourceConnection;
  */
 abstract class AbstractMethod extends OriginAbstractMethod
 {
-
     /**
      * @var Api
      */
@@ -215,12 +215,18 @@ abstract class AbstractMethod extends OriginAbstractMethod
      */
     public function isAvailable(\Magento\Quote\Api\Data\CartInterface $quote = null)
     {
-        if ($this->getPaymentMethodCode() == PaymentMethod::BANK_SLIP || $this->getPaymentMethodCode() == PaymentMethod::PIX) {
+        if (
+            $this->getPaymentMethodCode() == PaymentMethod::BANK_SLIP
+            || $this->getPaymentMethodCode() == PaymentMethod::BANK_SLIP_PIX
+            || $this->getPaymentMethodCode() == PaymentMethod::PIX
+        ) {
             foreach ($quote->getItems() as $item) {
                 if ($this->helperData->isVindiPlan($item->getProductId())) {
                     $product = $this->helperData->getProductById($item->getProductId());
-                    if ($product->getData('vindi_billing_trigger_day') > 0 ||
-                        $product->getData('vindi_billing_trigger_type') == 'end_of_period') {
+                    if (
+                        $product->getData('vindi_billing_trigger_day') > 0 ||
+                        $product->getData('vindi_billing_trigger_type') == 'end_of_period'
+                    ) {
                         return false;
                     }
                 }
@@ -311,24 +317,8 @@ abstract class AbstractMethod extends OriginAbstractMethod
         ];
 
         if ($body['payment_method_code'] === PaymentMethod::CREDIT_CARD) {
-            $paymentProfile = $this->profile->create($payment, $customerId, $this->getPaymentMethodCode());
-            $body['payment_profile'] = ['id' => $paymentProfile['payment_profile']['id']];
-
-            $paymentProfileModelFactory = $this->paymentProfileFactory->create();
-
-            $paymentProfileModelFactory->setData([
-                'payment_profile_id' => $paymentProfile['payment_profile']['id'],
-                'vindi_customer_id'  => $customerId,
-                'customer_id'        => $order->getCustomerId(),
-                'customer_email'     => $order->getCustomerEmail(),
-                'cc_type'            => $payment->getCcType(),
-                'cc_last_4'          => $payment->getCcLast4(),
-                'status'             => $paymentProfile["payment_profile"]["status"],
-                'token'              => $paymentProfile["payment_profile"]["token"],
-                'type'               => $paymentProfile["payment_profile"]["type"],
-            ]);
-
-            $this->paymentProfileRepository->save($paymentProfileModelFactory);
+            $paymentProfile = $this->createPaymentProfile($order, $payment, $customerId);
+            $body['payment_profile'] = ['id' => $paymentProfile->getData('payment_profile_id')];
         }
 
         if ($installments = $payment->getAdditionalInformation('installments')) {
@@ -373,24 +363,8 @@ abstract class AbstractMethod extends OriginAbstractMethod
         ];
 
         if ($body['payment_method_code'] === PaymentMethod::CREDIT_CARD) {
-            $paymentProfile = $this->profile->create($payment, $customerId, $this->getPaymentMethodCode());
-            $body['payment_profile'] = ['id' => $paymentProfile['payment_profile']['id']];
-
-            $paymentProfileModelFactory = $this->paymentProfileFactory->create();
-
-            $paymentProfileModelFactory->setData([
-                'payment_profile_id' => $paymentProfile['payment_profile']['id'],
-                'vindi_customer_id'  => $customerId,
-                'customer_id'        => $order->getCustomerId(),
-                'customer_email'     => $order->getCustomerEmail(),
-                'cc_type'            => $payment->getCcType(),
-                'cc_last_4'          => $payment->getCcLast4(),
-                'status'             => $paymentProfile["payment_profile"]["status"],
-                'token'              => $paymentProfile["payment_profile"]["token"],
-                'type'               => $paymentProfile["payment_profile"]["type"],
-            ]);
-
-            $this->paymentProfileRepository->save($paymentProfileModelFactory);
+            $paymentProfile = $this->createPaymentProfile($order, $payment, $customerId);
+            $body['payment_profile'] = ['id' => $paymentProfile->getData('payment_profile_id')];
         }
 
         if ($installments = $payment->getAdditionalInformation('installments')) {
@@ -495,16 +469,25 @@ abstract class AbstractMethod extends OriginAbstractMethod
      */
     protected function handleBankSplitAdditionalInformation(InfoInterface $payment, array $body, $bill)
     {
-        if ($body['payment_method_code'] === PaymentMethod::BANK_SLIP) {
+        if (
+            $body['payment_method_code'] === PaymentMethod::BANK_SLIP
+            || $body['payment_method_code'] === PaymentMethod::BANK_SLIP_PIX
+        ) {
             $payment->setAdditionalInformation('print_url', $bill['charges'][0]['print_url']);
             $payment->setAdditionalInformation('due_at', $bill['charges'][0]['due_at']);
         }
 
         $isValidPix = isset($bill['charges'][0]['last_transaction']['gateway_response_fields']['qrcode_original_path']);
-        if ($body['payment_method_code'] === PaymentMethod::PIX && $isValidPix) {
-            $payment->setAdditionalInformation('qrcode_original_path', $bill['charges'][0]['last_transaction']['gateway_response_fields']['qrcode_original_path']);
-            $payment->setAdditionalInformation('qrcode_path', $bill['charges'][0]['last_transaction']['gateway_response_fields']['qrcode_path']);
-            $payment->setAdditionalInformation('max_days_to_keep_waiting_payment', $bill['charges'][0]['last_transaction']['gateway_response_fields']['max_days_to_keep_waiting_payment']);
+        if (
+            $isValidPix
+            && (
+                $body['payment_method_code'] === PaymentMethod::PIX
+                || $body['payment_method_code'] === PaymentMethod::BANK_SLIP_PIX
+            )
+        ) {
+            foreach ($bill['charges'][0]['last_transaction']['gateway_response_fields'] as $key => $value) {
+                $payment->setAdditionalInformation($key, $value);
+            }
         }
     }
 
@@ -577,5 +560,32 @@ abstract class AbstractMethod extends OriginAbstractMethod
         $chargeStatus = reset($bill['charges'])['status'] === Bill::FRAUD_REVIEW_STATUS;
 
         return in_array($bill['status'], $billStatus) || $chargeStatus;
+    }
+
+    /**
+     * @throws \Magento\Framework\Exception\CouldNotSaveException
+     */
+    public function createPaymentProfile(Order $order, InfoInterface $payment, $customerId)
+    {
+        $paymentProfile = $this->profile->create($payment, $customerId, $this->getPaymentMethodCode());
+        $paymentProfileData = $paymentProfile['payment_profile'];
+
+        $paymentProfileModel = $this->paymentProfileFactory->create();
+        $paymentProfileModel->setData([
+            'payment_profile_id' => $paymentProfileData['id'],
+            'vindi_customer_id' => $customerId,
+            'customer_id' => $order->getCustomerId(),
+            'customer_email' => $order->getCustomerEmail(),
+            'cc_name' => $payment->getCcOwner(),
+            'cc_type' => $payment->getCcType(),
+            'cc_last_4' => $payment->getCcLast4(),
+            'status' => $paymentProfileData["status"],
+            'token' => $paymentProfileData["token"],
+            'type' => $paymentProfileData["type"],
+        ]);
+
+        $this->paymentProfileRepository->save($paymentProfileModel);
+
+        return $paymentProfileModel;
     }
 }
