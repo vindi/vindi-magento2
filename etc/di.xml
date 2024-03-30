@@ -76,4 +76,8 @@
             <argument name="resourceModel" xsi:type="string">Vindi\Payment\Model\ResourceModel\PaymentProfile</argument>
         </arguments>
     </virtualType>
+
+    <type name="Magento\Catalog\Block\Product\View">
+        <plugin name="vindi_payment_disable_qty_rendering" type="Vindi\Payment\Plugin\DisableQtyRendering" sortOrder="10" disabled="false"/>
+    </type>
 </config>

@@ -147,9 +147,7 @@
                 <validation>
                     <rule name="required-entry" xsi:type="boolean">true</rule>
                 </validation>
-                <notice translate="true">
-                    Example: To create a monthly plan that lasts for a year, select "Charge every 1 month 12 times". To create an unlimited weekly plan, select "Charge every 7 days indefinitely". To create a weekly plan, for example, select to charge every 06 months.
-                </notice>
+                <notice translate="true">Example: To create a monthly plan that lasts for a year, select 'Charge every 1 month 12 times'. To create an unlimited weekly plan, select 'Charge every 7 days indefinitely'. To create a weekly plan, for example, select to charge every 06 months.</notice>
             </settings>
         </field>
         <field name="billing_cycles" sortOrder="35" formElement="input">
@@ -161,6 +159,7 @@
             <settings>
                 <validation>
                     <rule name="required-entry" xsi:type="boolean">true</rule>
+                    <rule name="validate-number" xsi:type="boolean">true</rule>
                 </validation>
                 <dataType>text</dataType>
                 <label translate="true">Number of periods to be charged</label>

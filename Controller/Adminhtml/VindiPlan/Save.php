@@ -8,6 +8,7 @@ use Vindi\Payment\Helper\Data;
 use Vindi\Payment\Model\Vindi\Plan;
 use Vindi\Payment\Model\VindiPlanFactory;
 use Vindi\Payment\Model\VindiPlanRepository;
+use Magento\Backend\Model\Session;
 
 /**
  * Class Save
@@ -36,25 +37,33 @@ class Save extends Action
     protected $dateTime;
 
     /**
+     * @var Session
+     */
+    protected $session;
+
+    /**
      * Save constructor.
      * @param Context $context
      * @param Plan $plan
      * @param VindiPlanFactory $vindiPlanFactory
      * @param VindiPlanRepository $vindiPlanRepository
      * @param DateTime $dateTime
+     * @param Session $session
      */
     public function __construct(
         Context $context,
         Plan $plan,
         VindiPlanFactory $vindiPlanFactory,
         VindiPlanRepository $vindiPlanRepository,
-        DateTime $dateTime
+        DateTime $dateTime,
+        Session $session
     ) {
         parent::__construct($context);
         $this->plan                = $plan;
         $this->vindiPlanFactory    = $vindiPlanFactory;
         $this->vindiPlanRepository = $vindiPlanRepository;
         $this->dateTime            = $dateTime;
+        $this->session             = $session;
     }
 
     /**
@@ -74,10 +83,11 @@ class Save extends Action
 
         if ($validationResult !== true) {
             $this->messageManager->addWarningMessage($validationResult);
+            $this->session->setFormData($post);
             if ($entityId) {
                 $this->_redirect('*/*/edit', ['entity_id' => $entityId]);
             } else {
-                $this->_redirect('*/*/');
+                $this->_redirect('*/*/new');
             }
             return;
         }
@@ -96,7 +106,7 @@ class Save extends Action
             if ($existingPlan && $existingPlan->getId()) {
                 $this->plan->save($data);
 
-                $data = $this->prepareDataForMagentoStore($data);
+                $data = $this->prepareDataForMagentoStore($data, $post);
 
                 $existingPlan->addData($data);
                 $this->vindiPlanRepository->save($existingPlan);
@@ -107,13 +117,14 @@ class Save extends Action
 
                 if ($existingPlanByCode && $existingPlanByCode->getId() && $existingPlanByCode->getId() != $entityId) {
                     $this->messageManager->addErrorMessage(__('A plan with the same code already exists.'));
+                    $this->session->setFormData($post);
                     $this->_redirect('*/*/edit', ['entity_id' => $entityId]);
                     return;
                 }
 
                 $vindiId = $this->plan->save($data);
 
-                $data = $this->prepareDataForMagentoStore($data);
+                $data = $this->prepareDataForMagentoStore($data, $post);
 
                 $vindiPlan = $this->vindiPlanFactory->create();
                 $vindiPlan->setData($data);
@@ -126,6 +137,13 @@ class Save extends Action
             }
         } catch (\Exception $e) {
             $this->messageManager->addErrorMessage($e->getMessage());
+            $this->session->setFormData($post);
+            if ($entityId) {
+                $this->_redirect('*/*/edit', ['entity_id' => $entityId]);
+            } else {
+                $this->_redirect('*/*/new');
+            }
+            return;
         } finally {
             if ($entityId) {
                 $this->_redirect('*/*/edit', ['entity_id' => $entityId]);
@@ -231,12 +249,13 @@ class Save extends Action
     }
 
     /**
-     * Prepares the data to be saved based on the POST inputs for Magento store.
+     * Prepares the data to be saved in the Magento store based on the POST inputs.
      *
+     * @param array $data The data prepared for saving.
      * @param array $post The POST data received.
-     * @return array The data prepared for saving.
+     * @return array The data prepared for saving in the Magento store.
      */
-    private function prepareDataForMagentoStore($data)
+    private function prepareDataForMagentoStore($data, $post)
     {
         if (!empty($post["settings"]["duration"])) {
             $data['duration'] = $post["settings"]["duration"];
