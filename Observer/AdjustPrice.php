@@ -1,6 +1,7 @@
 <?php
 namespace Vindi\Payment\Observer;
 
+use Magento\Framework\Event\Observer;
 use Magento\Framework\Event\ObserverInterface;
 
 /**
@@ -10,17 +11,28 @@ use Magento\Framework\Event\ObserverInterface;
 class AdjustPrice implements ObserverInterface
 {
     /**
-     * @param \Magento\Framework\Event\Observer $observer
+     * Run observer method to adjust the price of the product.
+     *
+     * @param Observer $observer
      */
-    public function execute(\Magento\Framework\Event\Observer $observer)
+    public function execute(Observer $observer)
     {
         $item = $observer->getEvent()->getData('quote_item');
-        $additionalOptions = $item->getProduct()->getCustomOption('additional_options');
+        if ($item->getParentItem()) {
+            $item = $item->getParentItem();
+        }
 
+        $product = $item->getProduct();
+
+        if ($product->getData('vindi_enable_recurrence') != '1') {
+            return;
+        }
+
+        $additionalOptions = $product->getCustomOption('additional_options');
         if ($additionalOptions) {
             $options = json_decode($additionalOptions->getValue(), true);
             foreach ($options as $option) {
-                if ($option['label'] == 'Selected Plan Price') {
+                if (isset($option['code']) && $option['code'] === 'plan_price') {
                     $price = $option['value'];
                     $item->setCustomPrice($price);
                     $item->setOriginalCustomPrice($price);

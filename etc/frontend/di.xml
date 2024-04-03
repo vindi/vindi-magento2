@@ -17,4 +17,7 @@
         <plugin name="vindi_payment_customprice_product" type="Vindi\Payment\Plugin\ProductPlugin" sortOrder="10" disabled="false"/>
         <plugin name="vindi_payment_hidecartbutton" type="Vindi\Payment\Plugin\HideCartButton" sortOrder="32"/>
     </type>
+    <type name="Magento\Framework\Pricing\Render\Amount">
+        <plugin name="vindi_payment_custom_price_template" type="Vindi\Payment\Plugin\CustomPriceTemplate" sortOrder="10"/>
+    </type>
 </config>

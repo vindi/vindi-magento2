@@ -80,4 +80,7 @@
     <type name="Magento\Catalog\Block\Product\View">
         <plugin name="vindi_payment_disable_qty_rendering" type="Vindi\Payment\Plugin\DisableQtyRendering" sortOrder="10" disabled="false"/>
     </type>
+    <type name="Magento\Catalog\Model\Product">
+        <plugin name="vindi_recurrence_post_product_save" type="Vindi\Payment\Plugin\PostProductSave"/>
+    </type>
 </config>
