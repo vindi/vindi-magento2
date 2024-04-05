@@ -10,8 +10,12 @@ use Magento\Framework\View\Element\Template\Context;
 use Magento\Framework\Pricing\Helper\Data as PriceHelper;
 use Magento\Framework\Locale\FormatInterface as LocaleFormat;
 use Vindi\Payment\Api\VindiPlanRepositoryInterface;
-use Vindi\Payment\Api\Data\VindiPlanInterface;
 
+/**
+ * Class ProductRecurrence
+ *
+ * @package Vindi\Payment\Block\Product
+ */
 class ProductRecurrence extends Template
 {
     /**
@@ -43,13 +47,14 @@ class ProductRecurrence extends Template
     protected $_localeFormat;
 
     /**
-     * Constructor
+     * ProductRecurrence constructor.
      *
      * @param Context $context
      * @param Registry $registry
      * @param VindiPlanRepositoryInterface $vindiPlanRepository
      * @param PriceHelper $priceHelper
      * @param LocaleFormat $localeFormat
+     * @param \Magento\Catalog\Model\ProductRepository $productRepository
      * @param array $data
      */
     public function __construct(
@@ -134,5 +139,29 @@ class ProductRecurrence extends Template
         } catch (NoSuchEntityException $e) {
             return 0;
         }
+    }
+
+    /**
+     * Checks whether there is price variation between the child products of a configurable item.
+     *
+     * @return bool
+     */
+    public function hasPriceVariationForConfigurable()
+    {
+        $product = $this->getCurrentProduct();
+        if ($product->getTypeId() !== 'configurable') {
+            return false;
+        }
+
+        $productTypeInstance = $product->getTypeInstance();
+        $usedProducts = $productTypeInstance->getUsedProducts($product);
+
+        $prices = [];
+        foreach ($usedProducts as $child) {
+            $prices[] = $child->getFinalPrice();
+        }
+
+        $uniquePrices = array_unique($prices);
+        return count($uniquePrices) > 1;
     }
 }

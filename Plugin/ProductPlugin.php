@@ -1,38 +1,81 @@
 <?php
 namespace Vindi\Payment\Plugin;
 
+use Magento\Catalog\Model\Product;
+use Magento\Catalog\Api\ProductRepositoryInterface;
+use Magento\ConfigurableProduct\Model\ResourceModel\Product\Type\Configurable as ConfigurableProductTypeInstance;
+use Magento\Framework\Exception\NoSuchEntityException;
+use Vindi\Payment\Helper\RecurrencePrice;
+
 /**
- * Class AddCustomOptionToQuoteItem
+ * Class ProductPlugin
  * @package Vindi\Payment\Plugin
  */
 class ProductPlugin
 {
     /**
-     * @param \Magento\Catalog\Model\Product $subject
-     * @param $result
-     * @return mixed
+     * @var ProductRepositoryInterface
      */
-    public function afterGetPrice(\Magento\Catalog\Model\Product $subject, $result)
+    protected $productRepository;
+
+    /**
+     * @var ConfigurableProductTypeInstance
+     */
+    protected $configurableProductTypeInstance;
+
+    /**
+     * @var RecurrencePrice
+     */
+    protected $recurrencePriceHelper;
+
+    /**
+     * ProductPlugin constructor.
+     *
+     * @param ProductRepositoryInterface $productRepository
+     * @param ConfigurableProductTypeInstance $configurableProductTypeInstance
+     * @param RecurrencePrice $recurrencePriceHelper
+     */
+    public function __construct(
+        ProductRepositoryInterface $productRepository,
+        ConfigurableProductTypeInstance $configurableProductTypeInstance,
+        RecurrencePrice $recurrencePriceHelper
+    ) {
+        $this->productRepository = $productRepository;
+        $this->configurableProductTypeInstance = $configurableProductTypeInstance;
+        $this->recurrencePriceHelper = $recurrencePriceHelper;
+    }
+
+    /**
+     * After Get Price Plugin
+     *
+     * @param Product $subject
+     * @param float $result
+     * @return float
+     */
+    public function afterGetPrice(Product $subject, $result)
     {
-        if ($subject->getData('vindi_enable_recurrence') === '1') {
-            $recurrenceDataJson = $subject->getData('vindi_recurrence_data');
+        $minPrice = $this->recurrencePriceHelper->getMinRecurrencePrice($subject);
+        return $minPrice ?? $result;
+    }
 
-            if (empty($recurrenceDataJson)) {
-                return $result;
-            }
-
-            $recurrenceData = json_decode($recurrenceDataJson, true);
-
-            if (is_array($recurrenceData) && !empty($recurrenceData)) {
-                $prices = array_column($recurrenceData, 'price');
-                $minPrice = min($prices);
-
-                if ($minPrice > 0) {
-                    return $minPrice;
-                }
+    /**
+     * Returns the parent product if it exists.
+     *
+     * @param Product $product
+     * @return Product|null
+     */
+    protected function getParentProduct(Product $product)
+    {
+        $parentIds = $this->configurableProductTypeInstance->getParentIdsByChild($product->getId());
+        if (!empty($parentIds)) {
+            $productId = array_shift($parentIds);
+            try {
+                return $this->productRepository->getById($productId);
+            } catch (NoSuchEntityException $e) {
+                return null;
             }
         }
 
-        return $result;
+        return null;
     }
 }

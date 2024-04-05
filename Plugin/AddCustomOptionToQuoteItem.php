@@ -1,6 +1,8 @@
 <?php
 namespace Vindi\Payment\Plugin;
 
+use Magento\Framework\Exception\LocalizedException;
+
 /**
  * Class AddCustomOptionToQuoteItem
  * @package Vindi\Payment\Plugin
@@ -8,11 +10,14 @@ namespace Vindi\Payment\Plugin;
 class AddCustomOptionToQuoteItem
 {
     /**
+     * Before add product to quote, add custom options if the product has vindi_recurrence_can_show set to 1.
+     *
      * @param \Magento\Quote\Model\Quote $subject
-     * @param $product
-     * @param null $request
+     * @param mixed $product
+     * @param \Magento\Framework\DataObject|null $request
      * @param string $processMode
      * @return array
+     * @throws LocalizedException
      */
     public function beforeAddProduct(
         \Magento\Quote\Model\Quote $subject,
@@ -20,32 +25,36 @@ class AddCustomOptionToQuoteItem
                                    $request = null,
                                    $processMode = \Magento\Catalog\Model\Product\Type\AbstractType::PROCESS_MODE_FULL
     ) {
-        if ($request instanceof \Magento\Framework\DataObject) {
-            $additionalOptions = [];
+        if ($product->getData('vindi_enable_recurrence') == '1') {
+            if ($request instanceof \Magento\Framework\DataObject) {
+                $additionalOptions = [];
 
-            if ($request->getData('selected_plan_id')) {
+                $selectedPlanId = $request->getData('selected_plan_id');
+                if (empty($selectedPlanId)) {
+                    throw new LocalizedException(__('A plan must be selected for this product.'));
+                }
+
                 $additionalOptions[] = [
-                    'label' => __('Selected Plan ID'),
-                    'value' => $request->getData('selected_plan_id'),
+                    'label' => __('Plan ID'),
+                    'value' => $selectedPlanId,
+                    'code'  => 'plan_id'
                 ];
-            }
 
-            if ($request->getData('selected_plan_price')) {
                 $additionalOptions[] = [
-                    'label' => __('Selected Plan Price'),
+                    'label' => __('Price'),
                     'value' => $request->getData('selected_plan_price'),
+                    'code'  => 'plan_price'
                 ];
-            }
 
-            if ($request->getData('selected_plan_installments')) {
                 $additionalOptions[] = [
-                    'label' => __('Selected Plan Installments'),
+                    'label' => __('Installments'),
                     'value' => $request->getData('selected_plan_installments'),
+                    'code'  => 'plan_installments'
                 ];
-            }
 
-            if (!empty($additionalOptions)) {
-                $product->addCustomOption('additional_options', json_encode($additionalOptions));
+                if (!empty($additionalOptions)) {
+                    $product->addCustomOption('additional_options', json_encode($additionalOptions));
+                }
             }
         }
 

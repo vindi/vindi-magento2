@@ -52,11 +52,10 @@ class AddRecurrenceAttributes implements DataPatchInterface
     public function apply()
     {
         $eavSetup = $this->eavSetupFactory->create(['setup' => $this->moduleDataSetup]);
-        $entityTypeId = $eavSetup->getEntityTypeId(\Magento\Catalog\Model\Product::ENTITY);
-
         $this->addAttributes($eavSetup);
 
         $categorySetup = $this->categorySetupFactory->create(['setup' => $this->moduleDataSetup]);
+        $entityTypeId = $eavSetup->getEntityTypeId(\Magento\Catalog\Model\Product::ENTITY);
         $attributeSetIds = $eavSetup->getAllAttributeSetIds($entityTypeId);
 
         foreach ($attributeSetIds as $attributeSetId) {
@@ -72,6 +71,8 @@ class AddRecurrenceAttributes implements DataPatchInterface
      */
     protected function addAttributes($eavSetup)
     {
+        $applicableProductTypes = 'simple,configurable,virtual';
+
         $eavSetup->addAttribute(
             \Magento\Catalog\Model\Product::ENTITY,
             'vindi_enable_recurrence',
@@ -94,7 +95,7 @@ class AddRecurrenceAttributes implements DataPatchInterface
                 'visible_on_front' => false,
                 'used_in_product_listing' => true,
                 'unique' => false,
-                'apply_to' => ''
+                'apply_to' => $applicableProductTypes
             ]
         );
 
@@ -120,7 +121,7 @@ class AddRecurrenceAttributes implements DataPatchInterface
                 'visible_on_front' => false,
                 'used_in_product_listing' => true,
                 'unique' => false,
-                'apply_to' => ''
+                'apply_to' => $applicableProductTypes
             ]
         );
     }

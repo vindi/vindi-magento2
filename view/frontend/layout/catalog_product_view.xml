@@ -4,8 +4,8 @@
         <css src="Vindi_Payment::css/recurrence.css"/>
     </head>
     <body>
-        <referenceContainer name="product.info.form.content">
-            <block class="Vindi\Payment\Block\Product\ProductRecurrence" name="recurrence.product.page" template="Vindi_Payment::product/recurrence.phtml" before="product.info.addtocart"/>
+        <referenceContainer name="product.info.main">
+            <block class="Vindi\Payment\Block\Product\ProductRecurrence" name="recurrence.product.page" template="Vindi_Payment::product/recurrence.phtml" after="product.info.price"/>
         </referenceContainer>
     </body>
 </page>

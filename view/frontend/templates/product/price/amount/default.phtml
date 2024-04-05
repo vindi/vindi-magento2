@@ -1,0 +1,45 @@
+<?php
+/** @var $block \Magento\Framework\Pricing\Render\Amount */
+
+$product = $block->getSaleableItem();
+$minPrice = $block->getDisplayValue();
+
+if ($product && $product->getTypeId() === 'configurable' && $product->getData('vindi_enable_recurrence') === '1') {
+    $objectManager = \Magento\Framework\App\ObjectManager::getInstance();
+    $minPriceHelper = $objectManager->get(\Vindi\Payment\Helper\RecurrencePrice::class);
+
+    $minRecurrencePrice = $minPriceHelper->getMinRecurrencePrice($product);
+    $minPrice = $minRecurrencePrice !== null ? $minRecurrencePrice : $minPrice;
+    $shouldDisplayCustomPrice = $minRecurrencePrice !== null;
+} else {
+    $shouldDisplayCustomPrice = false;
+}
+?>
+<span class="price-container <?= $block->escapeHtmlAttr($block->getAdjustmentCssClasses()) ?>"
+        <?= $block->getSchema() ? ' itemprop="offers" itemscope itemtype="http://schema.org/Offer"' : '' ?>>
+    <?php if ($block->getDisplayLabel()) :?>
+        <span class="price-label"><?= $block->escapeHtml($block->getDisplayLabel()) ?></span>
+    <?php endif; ?>
+    <?php if ($shouldDisplayCustomPrice) :?>
+        <span <?php if ($block->getPriceId()) :?> id="<?= $block->escapeHtmlAttr($block->getPriceId()) ?>"<?php endif;?>
+            <?= ($block->getPriceDisplayLabel()) ? 'data-label="' . $block->escapeHtmlAttr($block->getPriceDisplayLabel() . $block->getPriceDisplayInclExclTaxes()) . '"' : '' ?>
+            data-price-amount="<?= $block->escapeHtmlAttr($minPrice) ?>"
+            class="price-wrapper <?= $block->escapeHtmlAttr($block->getPriceWrapperCss()) ?>"
+        ><?= $block->escapeHtml($block->formatCurrency($minPrice, (bool)$block->getIncludeContainer()), ['span']) ?></span>
+    <?php else: ?>
+        <span <?php if ($block->getPriceId()) :?> id="<?= $block->escapeHtmlAttr($block->getPriceId()) ?>"<?php endif;?>
+            <?= ($block->getPriceDisplayLabel()) ? 'data-label="' . $block->escapeHtmlAttr($block->getPriceDisplayLabel() . $block->getPriceDisplayInclExclTaxes()) . '"' : '' ?>
+            data-price-amount="<?= $block->escapeHtmlAttr($block->getDisplayValue()) ?>"
+            data-price-type="<?= $block->escapeHtmlAttr($block->getPriceType()) ?>"
+            class="price-wrapper <?= $block->escapeHtmlAttr($block->getPriceWrapperCss()) ?>"
+        ><?= $block->escapeHtml($block->formatCurrency($block->getDisplayValue(), (bool)$block->getIncludeContainer()), ['span']) ?></span>
+    <?php endif; ?>
+
+    <?php if ($block->hasAdjustmentsHtml()) :?>
+        <?= $block->getAdjustmentsHtml() ?>
+    <?php endif; ?>
+    <?php if ($block->getSchema()) :?>
+        <meta itemprop="price" content="<?= $block->escapeHtmlAttr($block->getDisplayValue()) ?>" />
+        <meta itemprop="priceCurrency" content="<?= $block->escapeHtmlAttr($block->getDisplayCurrencyCode()) ?>" />
+    <?php endif; ?>
+</span>
