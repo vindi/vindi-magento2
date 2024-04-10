@@ -29,6 +29,7 @@ use Vindi\Payment\Model\PaymentProfile;
 use Vindi\Payment\Model\PaymentProfileFactory;
 use Vindi\Payment\Model\PaymentProfileRepository;
 use Magento\Framework\App\ResourceConnection;
+use Vindi\Payment\Model\VindiPlanRepository;
 
 /**
  * Class AbstractMethod
@@ -118,6 +119,13 @@ abstract class AbstractMethod extends OriginAbstractMethod
     protected $connection;
 
     /**
+     * @var VindiPlanRepository
+     */
+    protected $vindiPlanRepository;
+
+    /**
+     * AbstractMethod constructor.
+     *
      * @param Context $context
      * @param Registry $registry
      * @param ExtensionAttributesFactory $extensionFactory
@@ -133,6 +141,7 @@ abstract class AbstractMethod extends OriginAbstractMethod
      * @param SubscriptionInterface $subscriptionRepository
      * @param PaymentProfileFactory $paymentProfileFactory
      * @param PaymentProfileRepository $paymentProfileRepository
+     * @param ResourceConnection $resourceConnection
      * @param Bill $bill
      * @param Profile $profile
      * @param PaymentMethod $paymentMethod
@@ -141,6 +150,7 @@ abstract class AbstractMethod extends OriginAbstractMethod
      * @param \Vindi\Payment\Helper\Data $helperData
      * @param AbstractResource|null $resource
      * @param AbstractDb|null $resourceCollection
+     * @param VindiPlanRepository $vindiPlanRepository
      * @param array $data
      */
     public function __construct(
@@ -157,6 +167,7 @@ abstract class AbstractMethod extends OriginAbstractMethod
         ProductManagementInterface $productManagement,
         PlanManagementInterface $planManagement,
         SubscriptionInterface $subscriptionRepository,
+        VindiPlanRepository $vindiPlanRepository,
         PaymentProfileFactory $paymentProfileFactory,
         PaymentProfileRepository $paymentProfileRepository,
         ResourceConnection $resourceConnection,
@@ -194,6 +205,7 @@ abstract class AbstractMethod extends OriginAbstractMethod
         $this->productManagement = $productManagement;
         $this->helperData = $helperData;
         $this->planManagement = $planManagement;
+        $this->vindiPlanRepository = $vindiPlanRepository;
         $this->subscriptionRepository = $subscriptionRepository;
         $this->paymentProfileFactory = $paymentProfileFactory;
         $this->paymentProfileRepository = $paymentProfileRepository;
@@ -350,7 +362,14 @@ abstract class AbstractMethod extends OriginAbstractMethod
         $order = $payment->getOrder();
         $customerId = $this->customer->findOrCreate($order);
 
-        $planId = $this->planManagement->create($orderItem->getProductId());
+        $options = $orderItem->getProductOptions();
+        if (!empty($options['info_buyRequest']['selected_plan_id'])) {
+            $planId    = $options['info_buyRequest']['selected_plan_id'];
+            $vindiPlan = $this->vindiPlanRepository->getById($planId);
+            $planId    = $vindiPlan->getVindiId();
+        } else {
+            $planId = $this->planManagement->create($orderItem->getProductId());
+        }
 
         $productItems = $this->productManagement->findOrCreateProductsToSubscription($order);
 
@@ -368,7 +387,7 @@ abstract class AbstractMethod extends OriginAbstractMethod
         }
 
         if ($installments = $payment->getAdditionalInformation('installments')) {
-            $body['installments'] = (int)$installments;
+            $body['installments'] = (int) $installments;
         }
 
         if ($responseData = $this->subscriptionRepository->create($body)) {
@@ -430,6 +449,8 @@ abstract class AbstractMethod extends OriginAbstractMethod
     }
 
     /**
+     * Check whether the order is a subscription, based on the product or product purchase options.
+     *
      * @param Order $order
      * @return OrderItemInterface|bool
      */
@@ -440,12 +461,18 @@ abstract class AbstractMethod extends OriginAbstractMethod
                 if ($this->helperData->isVindiPlan($item->getProductId())) {
                     return $item;
                 }
+
+                $options = $item->getProductOptions();
+                if (!empty($options['info_buyRequest']['selected_plan_id'])) {
+                    return $item;
+                }
             } catch (NoSuchEntityException $e) {
             }
         }
 
         return false;
     }
+
 
     /**
      * @param Order $order
