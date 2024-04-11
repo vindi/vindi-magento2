@@ -19,11 +19,6 @@ class Customer
      */
     protected $addressRepository;
 
-    /**
-     * @var CustomerRepositoryInterface
-     */
-    protected $customerRepository;
-
     /** @var CustomerRepositoryInterface */
     protected $customerRepository;
 
