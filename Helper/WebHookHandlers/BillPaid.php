@@ -8,6 +8,8 @@ use Vindi\Payment\Helper\Data;
 
 class BillPaid
 {
+    private $logger;
+
     /**
      * @var \Magento\Sales\Api\OrderRepositoryInterface
      */
@@ -21,6 +23,9 @@ class BillPaid
      * @var \Magento\Framework\Api\SearchCriteriaBuilder
      */
     private $searchCriteriaBuilder;
+
+    private $order;
+    private $helperData;
 
     public function __construct(
         \Psr\Log\LoggerInterface $logger,
@@ -146,7 +151,7 @@ class BillPaid
 
         try {
             return reset($orderList);
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             $this->logger->error(__('Order #%1 not found', $incrementId));
             $this->logger->error($e->getMessage());
         }

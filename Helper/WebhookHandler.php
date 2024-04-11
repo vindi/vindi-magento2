@@ -107,5 +107,6 @@ class WebhookHandler
                 $this->logger->warning(__(sprintf('Webhook event ignored by plugin: "%s".', $type)));
                 break;
         }
+        return false;
     }
 }
