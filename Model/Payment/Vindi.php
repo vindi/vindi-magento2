@@ -92,7 +92,7 @@ class Vindi extends \Vindi\Payment\Model\Payment\AbstractMethod
             [
                 'cc_type' => $additionalData->getCcType(),
                 'cc_owner' => $additionalData->getCcOwner(),
-                'cc_last_4' => substr($additionalData->getCcNumber(), -4),
+                'cc_last_4' => substr((string) $additionalData->getCcNumber(), -4),
                 'cc_number' => $additionalData->getCcNumber(),
                 'cc_cid' => $additionalData->getCcCvv(),
                 'cc_exp_month' => $additionalData->getCcExpMonth(),

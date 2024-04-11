@@ -8,7 +8,8 @@ $paymentProfiles = $block->getPaymentProfiles();
             <thead>
             <tr>
                 <th><?= __('Card') ?></th>
-                <th><?= __('Holder Name') ?></th>
+                <th><?= __('Holder Name') ?></th> <!-- Adicionando o novo cabeçalho de coluna -->
+                <th><?= __('Action') ?></th>
             </tr>
             </thead>
             <tbody>
@@ -28,6 +29,9 @@ $paymentProfiles = $block->getPaymentProfiles();
                         </td>
                         <td>
                             <?= $block->escapeHtml($paymentProfile->getCcName()) ?> <!-- Exibindo o nome do titular do cartão -->
+                        </td>
+                        <td>
+                            <a href="<?= $block->getUrl('vindi_vr/paymentprofile/remove', ['id' => $paymentProfile->getId()]) ?>" class="text-blue-500"><?= __('Remove') ?></a>
                         </td>
                     </tr>
                 <?php endif; ?>
