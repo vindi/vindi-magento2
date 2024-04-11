@@ -22,6 +22,8 @@ class PaymentMethod
      */
     private $api;
 
+    private $acceptBankSlip;
+
     /**
      * @param Api $api
      */
