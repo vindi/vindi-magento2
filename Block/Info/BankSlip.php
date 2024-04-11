@@ -10,7 +10,9 @@ class BankSlip extends \Magento\Payment\Block\Info
      */
     protected $_template = 'Vindi_Payment::info/bankslip.phtml';
 
-    protected $_currency;
+    protected $currency;
+
+    protected $paymentMethod;
 
     public function __construct(
         PaymentMethod $paymentMethod,
@@ -21,7 +23,7 @@ class BankSlip extends \Magento\Payment\Block\Info
 
         parent::__construct($context, $data);
         $this->paymentMethod = $paymentMethod;
-        $this->_currency = $currency;
+        $this->currency = $currency;
     }
 
     public function getOrder()

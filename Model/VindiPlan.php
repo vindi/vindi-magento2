@@ -11,6 +11,8 @@ use Magento\Framework\Model\AbstractModel;
  */
 class VindiPlan extends AbstractModel implements VindiPlanInterface
 {
+    const CACHE_TAG = 'vindi_payment_vindiplan';
+
     protected function _construct()
     {
         $this->_init(\Vindi\Payment\Model\ResourceModel\VindiPlan::class);

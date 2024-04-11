@@ -47,25 +47,15 @@ class ChargeRejected
                 'All payment tries were rejected. Motive: "%s".',
                 $gatewayMessage
             )), true);
-            $order->setStatus(\Magento\Sales\Model\Order::STATE_CANCELED, true, __(sprintf(
-                'All payment tries were rejected. Motive: "%s".',
-                $gatewayMessage
-            )), true);
-            $this->logger->info(__(sprintf(
-                'All payment tries were rejected. Motive: "%s".',
-                $order->getId(),
-                $gatewayMessage
-            )));
+            $order->setStatus(\Magento\Sales\Model\Order::STATE_CANCELED);
+            $this->logger->info(
+                __('All payment tries were rejected. Motive: "%1".', $gatewayMessage)
+            );
         } else {
-            $order->addStatusHistoryComment(__(sprintf(
-                'Payment try rejected. Motive: "%s". A new try will be made',
-                $gatewayMessage
-            )));
-            $this->logger->info(__(sprintf(
-                'Payment try rejected. Motive: "%s". A new try will be made',
-                $order->getId(),
-                $gatewayMessage
-            )));
+            $order->addStatusHistoryComment(
+                __('Payment try rejected. Motive: "%s". A new try will be made', $gatewayMessage)
+            );
+            $this->logger->info(__('Payment try rejected. Motive: "%1". A new try will be made', $gatewayMessage));
         }
 
         $order->save();

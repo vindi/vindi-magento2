@@ -74,8 +74,7 @@ class Save extends Action
         $post = $this->getRequest()->getPostValue();
 
         if (!$post) {
-            $this->_redirect('*/*/');
-            return;
+            return $this->_redirect('*/*/');
         }
 
         $entityId         = $this->getRequest()->getParam('entity_id');
@@ -85,11 +84,10 @@ class Save extends Action
             $this->messageManager->addWarningMessage($validationResult);
             $this->session->setFormData($post);
             if ($entityId) {
-                $this->_redirect('*/*/edit', ['entity_id' => $entityId]);
+                return $this->_redirect('*/*/edit', ['entity_id' => $entityId]);
             } else {
-                $this->_redirect('*/*/new');
+                return $this->_redirect('*/*/new');
             }
-            return;
         }
 
         $existingPlan = null;
@@ -118,8 +116,7 @@ class Save extends Action
                 if ($existingPlanByCode && $existingPlanByCode->getId() && $existingPlanByCode->getId() != $entityId) {
                     $this->messageManager->addErrorMessage(__('A plan with the same code already exists.'));
                     $this->session->setFormData($post);
-                    $this->_redirect('*/*/edit', ['entity_id' => $entityId]);
-                    return;
+                    return $this->_redirect('*/*/edit', ['entity_id' => $entityId]);
                 }
 
                 $vindiId = $this->plan->save($data);
@@ -139,16 +136,16 @@ class Save extends Action
             $this->messageManager->addErrorMessage($e->getMessage());
             $this->session->setFormData($post);
             if ($entityId) {
-                $this->_redirect('*/*/edit', ['entity_id' => $entityId]);
+                return $this->_redirect('*/*/edit', ['entity_id' => $entityId]);
             } else {
-                $this->_redirect('*/*/new');
+                return $this->_redirect('*/*/new');
             }
             return;
         } finally {
             if ($entityId) {
-                $this->_redirect('*/*/edit', ['entity_id' => $entityId]);
+                return $this->_redirect('*/*/edit', ['entity_id' => $entityId]);
             } else {
-                $this->_redirect('*/*/');
+                return $this->_redirect('*/*/');
             }
         }
     }

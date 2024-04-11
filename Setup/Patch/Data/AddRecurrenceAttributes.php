@@ -62,6 +62,8 @@ class AddRecurrenceAttributes implements DataPatchInterface
             $attributeGroupId = $this->ensureAttributeGroupExists($categorySetup, $attributeSetId, 'Recurrence');
             $this->assignAttributesToGroup($eavSetup, $entityTypeId, $attributeSetId, $attributeGroupId);
         }
+
+        return $this;
     }
 
     /**

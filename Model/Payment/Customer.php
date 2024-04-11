@@ -19,10 +19,17 @@ class Customer
      */
     protected $addressRepository;
 
-    /**
-     * @var CustomerRepositoryInterface
-     */
+    /** @var CustomerRepositoryInterface */
     protected $customerRepository;
+
+    /** @var Api  */
+    protected $api;
+
+    /** @var ManagerInterface  */
+    protected $messageManager;
+
+    /** @var StoreManagerInterface  */
+    protected $storeManager;
 
     /**
      * @param CustomerRepositoryInterface $customerRepository

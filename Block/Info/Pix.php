@@ -26,7 +26,7 @@ class Pix extends Info
     /**
      * @var Data
      */
-    protected $_currency;
+    protected $currency;
 
     /**
      * @var PixConfigurationInterface
@@ -37,6 +37,8 @@ class Pix extends Info
      * @var Json
      */
     protected $json;
+
+    protected $paymentMethod;
 
     /**
      * @param PaymentMethod $paymentMethod
@@ -56,7 +58,7 @@ class Pix extends Info
     ) {
         parent::__construct($context, $data);
         $this->paymentMethod = $paymentMethod;
-        $this->_currency = $currency;
+        $this->currency = $currency;
         $this->pixConfiguration = $pixConfiguration;
         $this->json = $json;
     }
