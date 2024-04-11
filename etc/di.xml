@@ -83,4 +83,7 @@
     <type name="Magento\Catalog\Model\Product">
         <plugin name="vindi_recurrence_post_product_save" type="Vindi\Payment\Plugin\PostProductSave"/>
     </type>
+    <type name="Magento\Checkout\Model\Cart">
+        <plugin name="vindi_recurrence_prevent_add_product_with_recurrence" type="Vindi\Payment\Plugin\PreventAddProduct"/>
+    </type>
 </config>
