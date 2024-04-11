@@ -28,6 +28,9 @@ class Customer
     /** @var ManagerInterface  */
     protected $messageManager;
 
+    /** @var StoreManagerInterface  */
+    protected $storeManager;
+
     /**
      * @param CustomerRepositoryInterface $customerRepository
      * @param Api $api
