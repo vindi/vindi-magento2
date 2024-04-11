@@ -284,7 +284,7 @@ abstract class AbstractMethod extends OriginAbstractMethod
     public function authorize(InfoInterface $payment, $amount)
     {
         parent::authorize($payment, $amount);
-        $this->processPayment($payment, $amount);
+        return $this->processPayment($payment, $amount);
     }
 
     /**
@@ -298,7 +298,7 @@ abstract class AbstractMethod extends OriginAbstractMethod
     public function capture(InfoInterface $payment, $amount)
     {
         parent::capture($payment, $amount);
-        $this->processPayment($payment, $amount);
+        return $this->processPayment($payment, $amount);
     }
 
     /**

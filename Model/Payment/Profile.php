@@ -9,6 +9,8 @@ class Profile
     private $api;
     private $helperData;
 
+    private $paymentMethod;
+
     public function __construct(\Vindi\Payment\Helper\Api $api, Data $helperData, PaymentMethod $paymentMethod)
     {
         $this->api = $api;

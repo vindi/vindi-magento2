@@ -25,7 +25,7 @@ class BankSlipPix extends Info
     /**
      * @var Data
      */
-    protected $_currency;
+    protected $currency;
 
     /**
      * @var PixConfigurationInterface
@@ -36,6 +36,8 @@ class BankSlipPix extends Info
      * @var Json
      */
     protected $json;
+
+    protected $paymentMethod;
 
     /**
      * @param PaymentMethod $paymentMethod
@@ -55,7 +57,7 @@ class BankSlipPix extends Info
     ) {
         parent::__construct($context, $data);
         $this->paymentMethod = $paymentMethod;
-        $this->_currency = $currency;
+        $this->currency = $currency;
         $this->pixConfiguration = $pixConfiguration;
         $this->json = $json;
     }
