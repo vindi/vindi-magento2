@@ -1,4 +1,5 @@
 <?php
+
 namespace Vindi\Payment\Model\ResourceModel;
 
 use Vindi\Payment\Model\VindiPlanFactory;
@@ -18,6 +19,9 @@ class VindiPlan extends \Magento\Framework\Model\ResourceModel\Db\AbstractDb
      * @var VindiPlanFactory
      */
     protected $vindiplanFactory;
+    private $readFactory;
+
+    private $filesystem;
 
     /**
      * VindiPlan constructor.

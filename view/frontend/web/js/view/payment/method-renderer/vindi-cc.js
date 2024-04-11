@@ -33,6 +33,7 @@ define([
         return Component.extend({
             defaults: {
                 template: 'Vindi_Payment/payment/vindi',
+                paymentProfiles: [],
                 creditCardType: '',
                 creditCardExpYear: '',
                 creditCardExpMonth: '',
@@ -41,6 +42,7 @@ define([
                 creditCardSsStartMonth: '',
                 creditCardSsStartYear: '',
                 creditCardVerificationNumber: '',
+                selectedPaymentProfile: null,
                 selectedCardType: null,
                 selectedInstallments: null,
                 creditCardInstallments: ko.observableArray([])
@@ -49,6 +51,7 @@ define([
                 var data = {
                     'method': this.getCode(),
                     'additional_data': {
+                        'payment_profile': this.selectedPaymentProfile(),
                         'cc_type': this.selectedCardType(),
                         'cc_exp_year': this.creditCardExpYear(),
                         'cc_exp_month': this.creditCardExpMonth(),

@@ -1,6 +1,7 @@
 <?php
 namespace Vindi\Payment\Plugin;
 
+use Magento\Catalog\Model\Product\Type\AbstractType;
 use Magento\Framework\Exception\LocalizedException;
 
 /**
@@ -13,7 +14,7 @@ class AddCustomOptionToQuoteItem
      * Before add product to quote, add custom options if the product has vindi_recurrence_can_show set to 1.
      *
      * @param \Magento\Quote\Model\Quote $subject
-     * @param mixed $product
+     * @param $product
      * @param \Magento\Framework\DataObject|null $request
      * @param string $processMode
      * @return array
@@ -21,9 +22,9 @@ class AddCustomOptionToQuoteItem
      */
     public function beforeAddProduct(
         \Magento\Quote\Model\Quote $subject,
-                                   $product,
-                                   $request = null,
-                                   $processMode = \Magento\Catalog\Model\Product\Type\AbstractType::PROCESS_MODE_FULL
+        $product,
+        $request = null,
+        $processMode = AbstractType::PROCESS_MODE_FULL
     ) {
         if ($product->getData('vindi_enable_recurrence') == '1') {
             if ($request instanceof \Magento\Framework\DataObject) {
@@ -52,6 +53,7 @@ class AddCustomOptionToQuoteItem
                     'code'  => 'plan_installments'
                 ];
 
+                //@phpstan-ignore-next-line
                 if (!empty($additionalOptions)) {
                     $product->addCustomOption('additional_options', json_encode($additionalOptions));
                 }

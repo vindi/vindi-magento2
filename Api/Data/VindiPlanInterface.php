@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace Vindi\Payment\Api\Data;
@@ -10,24 +11,26 @@ namespace Vindi\Payment\Api\Data;
  */
 interface VindiPlanInterface
 {
-    const ENTITY_ID             = 'entity_id';
+    public const ENTITY_ID  = 'entity_id';
 
-    const VINDI_ID              = 'vindi_id';
-    const NAME                  = 'name';
-    const INTERVAL              = 'interval';
-    const INTERVAL_COUNT        = 'interval_count';
-    const BILLING_TRIGGER_TYPE  = 'billing_trigger_type';
-    const BILLING_TRIGGER_DAY   = 'billing_trigger_day';
-    const BILLING_CYCLES        = 'billing_cycles';
-    const CODE                  = 'code';
-    const DESCRIPTION           = 'description';
-    const INSTALLMENTS          = 'installments';
-    const INVOICE_SPLIT         = 'invoice_split';
-    const STATUS                = 'status';
-    const METADATA              = 'metadata';
-    const DURATION = 'duration';
-    const BILLING_TRIGGER_DAY_TYPE_ON_PERIOD = 'billing_trigger_day_type_on_period';
-    const BILLING_TRIGGER_DAY_BASED_ON_PERIOD = 'billing_trigger_day_based_on_period';
+    public const VINDI_ID = 'vindi_id';
+    public const NAME = 'name';
+    public const INTERVAL = 'interval';
+    public const INTERVAL_COUNT = 'interval_count';
+    public const BILLING_TRIGGER_TYPE = 'billing_trigger_type';
+    public const BILLING_TRIGGER_DAY = 'billing_trigger_day';
+    public const BILLING_CYCLES = 'billing_cycles';
+    public const CODE = 'code';
+    public const DESCRIPTION = 'description';
+    public const INSTALLMENTS = 'installments';
+    public const INVOICE_SPLIT = 'invoice_split';
+    public const STATUS = 'status';
+    public const METADATA = 'metadata';
+    public const DURATION = 'duration';
+    public const BILLING_TRIGGER_DAY_TYPE_ON_PERIOD = 'billing_trigger_day_type_on_period';
+    public const BILLING_TRIGGER_DAY_BASED_ON_PERIOD = 'billing_trigger_day_based_on_period';
+    public const CREATED_AT = 'created_at';
+    public const UPDATED_AT = 'updated_at';
 
     public function getId();
     public function setId($entityId);
