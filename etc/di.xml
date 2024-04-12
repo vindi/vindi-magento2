@@ -85,5 +85,6 @@
     </type>
     <type name="Magento\Checkout\Model\Cart">
         <plugin name="vindi_recurrence_prevent_add_product_with_recurrence" type="Vindi\Payment\Plugin\PreventAddProduct"/>
+        <plugin name="vindi_recurrence_restrict_quantity_update_for_recurrence_product" type="Vindi\Payment\Plugin\RestrictQuantityUpdate"/>
     </type>
 </config>

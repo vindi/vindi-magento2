@@ -269,3 +269,10 @@
 "Choose a recurrence option:","Escolha uma opção de recorrência:"
 "Price is not a valid number.","Preço não é um número válido."
 "It is not possible to add more products, as there is already a recurring product in the cart.","Não é possível adicionar mais produtos, pois já existe um produto recorrente no carrinho."
+"It is not possible to increase the quantity of the recurring product in the cart.","Não é possível aumentar a quantidade do produto recorrente no carrinho."
+"Subscription products can only be purchased one at a time.","Produtos de assinatura só podem ser comprados um de cada vez."
+"There is already a subscription product in the cart.","Já existe um produto de assinatura no carrinho."
+"Please note, each subscription product can be purchased only in a quantity of one per order for your convenience.","Por favor, observe que cada produto de assinatura pode ser comprado apenas em uma quantidade de um por pedido para sua conveniência."
+"Each subscription product can be purchased only in a single unit per transaction.","Cada produto de assinatura pode ser comprado apenas em uma unidade por transação."
+"Your cart already contains a subscription product. Only one subscription product is allowed per transaction.","Seu carrinho já contém um produto de assinatura. Apenas um produto de assinatura é permitido por transação."
+
