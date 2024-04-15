@@ -276,3 +276,5 @@
 "Each subscription product can be purchased only in a single unit per transaction.","Cada produto de assinatura pode ser comprado apenas em uma unidade por transação."
 "Your cart already contains a subscription product. Only one subscription product is allowed per transaction.","Seu carrinho já contém um produto de assinatura. Apenas um produto de assinatura é permitido por transação."
 "The number of installments cannot be greater than the number of installments of the plan.","A quantidade de parcelas não pode ser maior que a quantidade de parcelas do plano."
+"In cash","À vista"
+"Customer will choose in checkout","Cliente escolherá na finalização"

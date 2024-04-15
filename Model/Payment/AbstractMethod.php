@@ -358,69 +358,73 @@ abstract class AbstractMethod extends OriginAbstractMethod
      */
     private function handleSubscriptionOrder(InfoInterface $payment, OrderItemInterface $orderItem)
     {
-        /** @var Order $order */
-        $order = $payment->getOrder();
-        $customerId = $this->customer->findOrCreate($order);
+        try {
+            $order = $payment->getOrder();
+            $customerId = $this->customer->findOrCreate($order);
 
-        $vindiPlan = null;
-
-        $options = $orderItem->getProductOptions();
-        if (!empty($options['info_buyRequest']['selected_plan_id'])) {
-            $planId    = $options['info_buyRequest']['selected_plan_id'];
-            $vindiPlan = $this->vindiPlanRepository->getById($planId);
-            $planId    = $vindiPlan->getVindiId();
-        } else {
-            $planId = $this->planManagement->create($orderItem->getProductId());
-        }
-
-        $productItems = $this->productManagement->findOrCreateProductsToSubscription($order);
-
-        $body = [
-            'customer_id' => $customerId,
-            'payment_method_code' => $this->getPaymentMethodCode(),
-            'plan_id' => $planId,
-            'product_items' => $productItems,
-            'code' => $order->getIncrementId()
-        ];
-
-        $installments = $payment->getAdditionalInformation('installments');
-
-        if ($body['payment_method_code'] === PaymentMethod::CREDIT_CARD) {
-            $paymentProfile = $this->createPaymentProfile($order, $payment, $customerId);
-            $body['payment_profile'] = ['id' => $paymentProfile->getData('payment_profile_id')];
-
-            if ($vindiPlan && ((int) $installments > (int) $vindiPlan->getInstallments())) {
-                throw new LocalizedException(__('The number of installments cannot be greater than the number of installments of the plan.'));
-            }
-        }
-
-        if ($installments) {
-            $body['installments'] = (int) $installments;
-        }
-
-        if ($responseData = $this->subscriptionRepository->create($body)) {
-            $bill = $responseData['bill'];
-            $subscription = $responseData['subscription'];
-
-            if ($subscription) {
-                $this->saveSubscriptionToDatabase($subscription, $order);
+            $vindiPlan = null;
+            $options = $orderItem->getProductOptions();
+            if (!empty($options['info_buyRequest']['selected_plan_id'])) {
+                $planId = $options['info_buyRequest']['selected_plan_id'];
+                $vindiPlan = $this->vindiPlanRepository->getById($planId);
+                $planId = $vindiPlan->getVindiId();
+            } else {
+                $planId = $this->planManagement->create($orderItem->getProductId());
             }
 
-            if ($bill) {
-                $this->handleBankSplitAdditionalInformation($payment, $body, $bill);
+            $productItems = $this->productManagement->findOrCreateProductsToSubscription($order);
+
+            $body = [
+                'customer_id' => $customerId,
+                'payment_method_code' => $this->getPaymentMethodCode(),
+                'plan_id' => $planId,
+                'product_items' => $productItems,
+                'code' => $order->getIncrementId()
+            ];
+
+            $installments = $payment->getAdditionalInformation('installments');
+
+            if ($body['payment_method_code'] === PaymentMethod::CREDIT_CARD) {
+                $paymentProfile = $this->createPaymentProfile($order, $payment, $customerId);
+                if ($paymentProfile) {
+                    $body['payment_profile'] = ['id' => $paymentProfile->getData('payment_profile_id')];
+                }
+
+                if ($vindiPlan && $vindiPlan->getInstallments() != null) {
+                    if ((int) $installments > (int) $vindiPlan->getInstallments()) {
+                        throw new LocalizedException(__('The number of installments cannot be greater than the number of installments of the plan.'));
+                    }
+                }
             }
 
-            if ($this->successfullyPaid($body, $bill, $subscription)) {
+            if ($installments) {
+                $body['installments'] = (int) $installments;
+            }
+
+            $responseData = $this->subscriptionRepository->create($body);
+            if ($responseData) {
+                $bill = $responseData['bill'];
+                $subscription = $responseData['subscription'];
+
+                if ($subscription) {
+                    $this->saveSubscriptionToDatabase($subscription, $order);
+                }
+
                 if ($bill) {
                     $this->handleBankSplitAdditionalInformation($payment, $body, $bill);
                 }
-                $billId = $bill['id'] ?? 0;
-                $order->setVindiBillId($billId);
-                $order->setVindiSubscriptionId($responseData['subscription']['id']);
-                return $billId;
-            }
 
-            $this->subscriptionRepository->deleteAndCancelBills($subscription['id']);
+                if ($this->successfullyPaid($body, $bill, $subscription)) {
+                    $billId = $bill['id'] ?? 0;
+                    $order->setVindiBillId($billId);
+                    $order->setVindiSubscriptionId($responseData['subscription']['id']);
+                    return $billId;
+                } else {
+                    $this->subscriptionRepository->deleteAndCancelBills($subscription['id']);
+                }
+            }
+        } catch (\Exception $e) {
+            return $this->handleError($order);
         }
 
         return $this->handleError($order);

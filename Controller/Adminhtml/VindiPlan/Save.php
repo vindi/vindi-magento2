@@ -240,6 +240,8 @@ class Save extends Action
 
         if (!empty($post["settings"]["installments"])) {
             $data['installments'] = $post["settings"]["installments"];
+        } else {
+            $data['installments'] = 1;
         }
 
         return $data;
@@ -254,6 +256,10 @@ class Save extends Action
      */
     private function prepareDataForMagentoStore($data, $post)
     {
+        if (isset($post["settings"]["installments"])) {
+            $data['installments'] = empty($post["settings"]["installments"]) ? null : $post["settings"]["installments"];
+        }
+
         if (!empty($post["settings"]["duration"])) {
             $data['duration'] = $post["settings"]["duration"];
         }
