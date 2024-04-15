@@ -362,6 +362,8 @@ abstract class AbstractMethod extends OriginAbstractMethod
         $order = $payment->getOrder();
         $customerId = $this->customer->findOrCreate($order);
 
+        $vindiPlan = null;
+
         $options = $orderItem->getProductOptions();
         if (!empty($options['info_buyRequest']['selected_plan_id'])) {
             $planId    = $options['info_buyRequest']['selected_plan_id'];
@@ -381,12 +383,18 @@ abstract class AbstractMethod extends OriginAbstractMethod
             'code' => $order->getIncrementId()
         ];
 
+        $installments = $payment->getAdditionalInformation('installments');
+
         if ($body['payment_method_code'] === PaymentMethod::CREDIT_CARD) {
             $paymentProfile = $this->createPaymentProfile($order, $payment, $customerId);
             $body['payment_profile'] = ['id' => $paymentProfile->getData('payment_profile_id')];
+
+            if ($vindiPlan && ((int) $installments > (int) $vindiPlan->getInstallments())) {
+                throw new LocalizedException(__('The number of installments cannot be greater than the number of installments of the plan.'));
+            }
         }
 
-        if ($installments = $payment->getAdditionalInformation('installments')) {
+        if ($installments) {
             $body['installments'] = (int) $installments;
         }
 
