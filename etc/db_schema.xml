@@ -27,7 +27,7 @@
         <column xsi:type="int" name="billing_cycles" nullable="true" comment="Billing Cycles"/>
         <column xsi:type="varchar" name="code" length="255" nullable="false" comment="External Code"/>
         <column xsi:type="text" name="description" nullable="true" comment="Plan Description"/>
-        <column xsi:type="int" name="installments" nullable="false" default="1" comment="Number of Installments"/>
+        <column xsi:type="int" name="installments" nullable="true" default="1" comment="Number of Installments"/>
         <column xsi:type="boolean" name="invoice_split" nullable="false" comment="Invoice Split"/>
         <column xsi:type="varchar" name="status" length="255" nullable="false" comment="Plan Status"/>
         <column xsi:type="text" name="metadata" nullable="true" comment="Metadata"/>

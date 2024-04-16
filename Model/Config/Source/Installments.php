@@ -18,7 +18,8 @@ class Installments extends AbstractSource
     {
         if ($this->_options === null) {
             $this->_options = [
-                ['label' => __('À vista'), 'value' => 1]
+                ['label' => __('Customer will choose in checkout'), 'value' => null],
+                ['label' => __('In cash'), 'value' => 1]
             ];
 
             $this->_options = array_merge($this->_options, $this->getRangeOptions());

@@ -260,9 +260,6 @@
                 <label translate="true">Installments</label>
                 <dataScope>installments</dataScope>
                 <componentType>field</componentType>
-                <validation>
-                    <rule name="required-entry" xsi:type="boolean">true</rule>
-                </validation>
             </settings>
             <formElements>
                 <select>
