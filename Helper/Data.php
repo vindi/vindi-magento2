@@ -151,8 +151,8 @@ class Data extends AbstractHelper
             "[^a-zA-Z0-9-]",
             "-",
             strtr(
-                utf8_decode(trim(preg_replace('/[ -]+/', '-', $code))),
-                utf8_decode("áàãâéêíóôõúüñçÁÀÃÂÉÊÍÓÔÕÚÜÑÇ"),
+                mb_convert_encoding(trim(preg_replace('/[ -]+/', '-', $code)), 'ISO-8859-1', 'UTF-8'),
+                mb_convert_encoding("áàãâéêíóôõúüñçÁÀÃÂÉÊÍÓÔÕÚÜÑÇ", 'ISO-8859-1', 'UTF-8'),
                 "aaaaeeiooouuncAAAAEEIOOOUUNC-"
             )
         ));

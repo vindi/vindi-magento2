@@ -1,12 +1,10 @@
 <?php
 
-namespace Vindi\Payment\Model\Pix;
-
+namespace Vindi\Payment\Model\BankslipPix;
 
 use Magento\Checkout\Model\ConfigProviderInterface;
 use Magento\Customer\Model\Session as CustomerSession;
 use Vindi\Payment\Api\PixConfigurationInterface;
-
 
 /**
  * Class ConfigProvider
@@ -50,8 +48,8 @@ class ConfigProvider implements ConfigProviderInterface
 
         return [
             'payment' => [
-                'vindi_pix' => [
-                    'enabledDocument' => $this->pixConfiguration->isEnabledDocument(),
+                'vindi_bankslippix' => [
+                    'enabledDocument' => true,
                     'info_message' => $this->pixConfiguration->getInfoMessage(),
                     'customer_taxvat' => $customerTaxvat
                 ]
