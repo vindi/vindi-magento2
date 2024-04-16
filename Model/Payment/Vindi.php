@@ -5,6 +5,7 @@ namespace Vindi\Payment\Model\Payment;
 use Magento\Framework\DataObject;
 use Magento\Quote\Api\Data\PaymentInterface;
 use Vindi\Payment\Block\Info\Cc;
+use Vindi\Payment\Model\PaymentProfile;
 
 class Vindi extends \Vindi\Payment\Model\Payment\AbstractMethod
 {
@@ -84,28 +85,36 @@ class Vindi extends \Vindi\Payment\Model\Payment\AbstractMethod
             $additionalData = new DataObject($additionalData ?: []);
         }
 
+        $ccType = $additionalData->getCcType();
+        $ccOwner = $additionalData->getCcOwner();
+        $ccLast4 = substr((string) $additionalData->getCcNumber(), -4);
+
         $info = $this->getInfoInstance();
-
         $info->setAdditionalInformation('installments', $additionalData->getCcInstallments());
+        $paymentProfileId = (string) $additionalData->getData('payment_profile');
+        if ($paymentProfileId) {
+            $info->setAdditionalInformation('payment_profile', $paymentProfileId);
+            $paymentProfile = $this->getPaymentProfile((int) $paymentProfileId);
+            $ccType = $paymentProfile->getCcType();
+            $ccOwner = $paymentProfile->getCcName();
+            $ccLast4 = $paymentProfile->getCcLast4();
+        }
 
-        $info->addData(
-            [
-                'cc_type' => $additionalData->getCcType(),
-                'cc_owner' => $additionalData->getCcOwner(),
-                'cc_last_4' => substr((string) $additionalData->getCcNumber(), -4),
-                'cc_number' => $additionalData->getCcNumber(),
-                'cc_cid' => $additionalData->getCcCvv(),
-                'cc_exp_month' => $additionalData->getCcExpMonth(),
-                'cc_exp_year' => $additionalData->getCcExpYear(),
-                'cc_ss_issue' => $additionalData->getCcSsIssue(),
-                'cc_ss_start_month' => $additionalData->getCcSsStartMonth(),
-                'cc_ss_start_year' => $additionalData->getCcSsStartYear()
-            ]
-        );
 
-        parent::assignData($data);
+        $info->addData([
+            'cc_type' => $ccType,
+            'cc_owner' => $ccOwner,
+            'cc_last_4' => $ccLast4,
+            'cc_number' => (string) $additionalData->getCcNumber(),
+            'cc_cid' => (string) $additionalData->getCcCvv(),
+            'cc_exp_month' => (string) $additionalData->getCcExpMonth(),
+            'cc_exp_year' => (string) $additionalData->getCcExpYear(),
+            'cc_ss_issue' => (string) $additionalData->getCcSsIssue(),
+            'cc_ss_start_month' => (string) $additionalData->getCcSsStartMonth(),
+            'cc_ss_start_year' => (string) $additionalData->getCcSsStartYear()
+        ]);
 
-        return $this;
+        return parent::assignData($data);
     }
 
     /**
@@ -119,14 +128,18 @@ class Vindi extends \Vindi\Payment\Model\Payment\AbstractMethod
     public function validate()
     {
         $info = $this->getInfoInstance();
-        $ccNumber = $info->getCcNumber();
-        // remove credit card non-numbers
-        $ccNumber = preg_replace('/\D/', '', $ccNumber);
+        $paymentProfile = $info->getAdditionalInformation('payment_profile');
 
-        $info->setCcNumber($ccNumber);
+        if (!$paymentProfile) {
+            $ccNumber = $info->getCcNumber();
+            // remove credit card non-numbers
+            $ccNumber = preg_replace('/\D/', '', (string)$ccNumber);
 
-        if (!$this->paymentMethod->isCcTypeValid($info->getCcType())) {
-            throw new \Exception(__('Credit card type is not allowed for this payment method.'));
+            $info->setCcNumber($ccNumber);
+
+            if (!$this->paymentMethod->isCcTypeValid($info->getCcType())) {
+                throw new \Exception(__('Credit card type is not allowed for this payment method.'));
+            }
         }
 
         return $this;

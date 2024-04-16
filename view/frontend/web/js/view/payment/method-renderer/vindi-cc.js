@@ -150,7 +150,6 @@ define([
                 //Set credit card number to credit card data object
                 this.creditCardNumber.subscribe(function (value) {
                     var result;
-                    self.selectedCardType(null);
 
                     if (value == '' || value == null) {
                         return false;
@@ -290,6 +289,26 @@ define([
             },
             getFormattedPrice: function (price) {
                 return priceUtils.formatPrice(price, quote.getPriceFormat());
+            },
+
+            getPaymentProfiles: function () {
+                let paymentProfiles = [];
+                const savedCards = window.checkoutConfig.payment?.vindi_cc?.saved_cards;
+
+                if (savedCards) {
+                    savedCards.forEach(function (card) {
+                        paymentProfiles.push({
+                            'value': card.id,
+                            'text': `${card.card_type.toUpperCase()} xxxx-${card.card_number}`
+                        });
+                    });
+                }
+
+                return paymentProfiles;
+            },
+
+            hasPaymentProfiles: function () {
+                return this.getPaymentProfiles().length > 0;
             }
         });
     }
