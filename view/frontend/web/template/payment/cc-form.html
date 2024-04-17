@@ -8,7 +8,7 @@
     <!-- ko if: (hasPaymentProfiles()) -->
     <div class="field number required">
         <label data-bind="attr: {for: getCode() + '_cc_number'}" class="label">
-            <span><!-- ko i18n: 'New Card' --><!-- /ko --></span>
+            <span><!-- ko i18n: 'Your saved cards' --><!-- /ko --></span>
         </label>
         <div class="control">
             <select name="payment[payment_profile]"
@@ -18,7 +18,7 @@
                                 options: getPaymentProfiles(),
                                 optionsValue: 'value',
                                 optionsText: 'text',
-                                optionsCaption: $t('Select a saved credit card'),
+                                optionsCaption: $t('New Card.'),
                                 value: selectedPaymentProfile"></select>
         </div>
     </div>
