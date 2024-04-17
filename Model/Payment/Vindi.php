@@ -132,13 +132,15 @@ class Vindi extends \Vindi\Payment\Model\Payment\AbstractMethod
 
         if (!$paymentProfile) {
             $ccNumber = $info->getCcNumber();
-            // remove credit card non-numbers
-            $ccNumber = preg_replace('/\D/', '', (string)$ccNumber);
+            if ($ccNumber) {
+                // remove credit card non-numbers
+                $ccNumber = preg_replace('/\D/', '', (string)$ccNumber);
 
-            $info->setCcNumber($ccNumber);
+                $info->setCcNumber($ccNumber);
 
-            if (!$this->paymentMethod->isCcTypeValid($info->getCcType())) {
-                throw new \Exception(__('Credit card type is not allowed for this payment method.'));
+                if (!$this->paymentMethod->isCcTypeValid($info->getCcType())) {
+                    throw new \Exception(__('Credit card type is not allowed for this payment method.'));
+                }
             }
         }
 
