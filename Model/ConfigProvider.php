@@ -190,13 +190,22 @@ class ConfigProvider implements ConfigProviderInterface
 
     public function getPaymentProfiles(): array
     {
+        $paymentProfiles = [];
         if ($this->customerSession->isLoggedIn()) {
             $customerId = $this->customerSession->getCustomerId();
             $this->paymentProfileCollection->addFieldToFilter('customer_id', $customerId);
-            return $this->paymentProfileCollection->getItems();
+            $this->paymentProfileCollection->addFieldToFilter('cc_type', ['neq' => '']);
+            $this->paymentProfileCollection->addFieldToFilter('cc_type', ['neq' => null]);
+            foreach ($this->paymentProfileCollection as $paymentProfile) {
+                $paymentProfiles[] = [
+                    'id' => $paymentProfile->getId(),
+                    'card_number' => (string) $paymentProfile->getCcLast4(),
+                    'card_type' => (string) $paymentProfile->getCcType()
+                ];
+            }
         }
 
-        return [];
+        return $paymentProfiles;
     }
 
     /**
