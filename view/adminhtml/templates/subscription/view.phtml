@@ -177,4 +177,40 @@ use Vindi\Payment\Block\Adminhtml\Subscription\View;
         </table>
     </div>
 </section>
+<section class="admin__page-section">
+    <div class="admin__page-section-title">
+        <span class="title"><?= __('Orders') ?></span>
+    </div>
+    <div class="admin__table-wrapper">
+        <table class="data-table admin__table-primary">
+            <thead>
+            <tr class="headings">
+                <th class="col-order-id"><?= __('Order ID') ?></th>
+                <th class="col-increment-id"><?= __('Increment ID') ?></th>
+                <th class="col-created-at"><?= __('Created At') ?></th>
+                <th class="col-total"><?= __('Total') ?></th>
+                <th class="col-status"><?= __('Status') ?></th>
+                <th class="col-view"><?= __('View') ?></th>
+            </tr>
+            </thead>
+            <tbody>
+            <?php foreach ($block->getLinkedOrders() as $order): ?>
+                <tr>
+                    <td><?= $block->escapeHtml($order['order_id']); ?></td>
+                    <td><?= $block->escapeHtml($order['increment_id']); ?></td>
+                    <td><?= $block->escapeHtml($order['created_at']); ?></td>
+                    <td><?= $block->escapeHtml($order['total']); ?></td>
+                    <td><?= $block->escapeHtml($order['status']); ?></td>
+                    <td><a href="<?= $block->getUrl('sales/order/view', ['order_id' => $order['order_id']]); ?>"><?= __('View') ?></a></td>
+                </tr>
+            <?php endforeach; ?>
+            <?php if (empty($block->getLinkedOrders())): ?>
+                <tr>
+                    <td colspan="6" class="empty"><span><?= __('No orders found.') ?></span></td>
+                </tr>
+            <?php endif; ?>
+            </tbody>
+        </table>
+    </div>
+</section>
 

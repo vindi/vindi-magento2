@@ -63,4 +63,16 @@
             <column name="entity_id"/>
         </constraint>
     </table>
+    <table name="vindi_subscription_orders" resource="default" engine="innodb" comment="Subscription Orders Table">
+        <column xsi:type="int" name="entity_id" padding="10" unsigned="true" nullable="false" identity="true" comment="Entity ID"/>
+        <column xsi:type="varchar" length="255" name="order_id" nullable="false" comment="Order ID"/>
+        <column xsi:type="varchar" length="255" name="increment_id" nullable="false" comment="Increment ID"/>
+        <column name="subscription_id" xsi:type="int" padding="10" unsigned="true" nullable="false" comment="Subscription ID"/>
+        <column name="created_at" xsi:type="datetime" nullable="false" comment="Creation Date"/>
+        <column name="total" xsi:type="decimal" precision="12" scale="4" nullable="false" comment="Total Amount"/>
+        <column name="status" xsi:type="varchar" length="20" nullable="false" comment="Order Status"/>
+        <constraint xsi:type="primary" referenceId="PRIMARY">
+            <column name="entity_id"/>
+        </constraint>
+    </table>
 </schema>
