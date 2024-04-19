@@ -8,6 +8,7 @@ use Magento\Backend\Block\Widget\Container;
 use Magento\Backend\Block\Widget\Context;
 use Magento\Framework\Registry;
 use Vindi\Payment\Helper\Api;
+use Vindi\Payment\Model\ResourceModel\SubscriptionOrder\CollectionFactory as SubscriptionOrderCollectionFactory;
 
 /**
  * Class View
@@ -33,21 +34,29 @@ class View extends Container
     private $registry;
 
     /**
+     * @var SubscriptionOrderCollectionFactory
+     */
+    private $subscriptionsOrderCollectionFactory;
+
+    /**
      * View constructor.
      * @param Context $context
      * @param Registry $registry
+     * @param SubscriptionOrderCollectionFactory $subscriptionsOrderCollectionFactory
      * @param Api $api
      * @param array $data
      */
     public function __construct(
         Context $context,
         Registry $registry,
+        SubscriptionOrderCollectionFactory $subscriptionsOrderCollectionFactory,
         Api $api,
         array $data = []
     ) {
         parent::__construct($context, $data);
         $this->api = $api;
         $this->registry = $registry;
+        $this->subscriptionsOrderCollectionFactory = $subscriptionsOrderCollectionFactory;
     }
 
     /**
@@ -321,6 +330,22 @@ class View extends Container
         }
 
         return 0;
+    }
+
+    /**
+     * @return array
+     */
+    public function getLinkedOrders()
+    {
+        $subscriptionId = $this->getSubscriptionId();
+        if (!$subscriptionId) {
+            return [];
+        }
+
+        $collection = $this->subscriptionsOrderCollectionFactory->create();
+        $collection->addFieldToFilter('subscription_id', $subscriptionId);
+
+        return $collection->getItems();
     }
 
     /**

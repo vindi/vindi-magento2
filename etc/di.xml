@@ -87,4 +87,25 @@
         <plugin name="vindi_recurrence_prevent_add_product_with_recurrence" type="Vindi\Payment\Plugin\PreventAddProduct"/>
         <plugin name="vindi_recurrence_restrict_quantity_update_for_recurrence_product" type="Vindi\Payment\Plugin\RestrictQuantityUpdate"/>
     </type>
+
+    <!-- SubscriptionOrder-->
+    <preference for="Vindi\Payment\Api\Data\SubscriptionOrderInterface" type="Vindi\Payment\Model\SubscriptionOrder"/>
+    <preference for="Vindi\Payment\Api\Data\SubscriptionOrderSearchResultInterface" type="Vindi\Payment\Model\SubscriptionOrderSearchResult"/>
+    <preference for="Vindi\Payment\Api\SubscriptionOrderRepositoryInterface" type="Vindi\Payment\Model\SubscriptionOrderRepository"/>
+
+    <type name="Magento\Framework\View\Element\UiComponent\DataProvider\CollectionFactory">
+        <arguments>
+            <argument name="collections" xsi:type="array">
+                <item name="vindi_payment_subscriptionorder_listing_data_source" xsi:type="string">Vindi\Payment\Model\ResourceModel\SubscriptionOrder\Grid\Collection</item>
+                <item name="vindi_payment_subscriptionorder_data_source" xsi:type="string">Vindi\Payment\Model\ResourceModel\SubscriptionOrder\Form\DataProvider</item>
+            </argument>
+        </arguments>
+    </type>
+
+    <virtualType name="Vindi\Payment\Model\ResourceModel\SubscriptionOrder\Grid\Collection" type="Magento\Framework\View\Element\UiComponent\DataProvider\SearchResult">
+        <arguments>
+            <argument name="mainTable" xsi:type="string">vindi_subscription_orders</argument>
+            <argument name="resourceModel" xsi:type="string">Vindi\Payment\Model\ResourceModel\SubscriptionOrder</argument>
+        </arguments>
+    </virtualType>
 </config>

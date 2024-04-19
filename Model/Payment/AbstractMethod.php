@@ -425,6 +425,7 @@ abstract class AbstractMethod extends OriginAbstractMethod
                     $billId = $bill['id'] ?? 0;
                     $order->setVindiBillId($billId);
                     $order->setVindiSubscriptionId($responseData['subscription']['id']);
+                    $this->saveOrderToSubscriptionOrdersTable($order);
                     return $billId;
                 } else {
                     $this->subscriptionRepository->deleteAndCancelBills($subscription['id']);
@@ -633,5 +634,27 @@ abstract class AbstractMethod extends OriginAbstractMethod
         $this->paymentProfileRepository->save($paymentProfileModel);
 
         return $paymentProfileModel;
+    }
+
+    /**
+     * @param Order $order
+     * @param $billId
+     */
+    private function saveOrderToSubscriptionOrdersTable(Order $order)
+    {
+        $tableName = $this->resourceConnection->getTableName('vindi_subscription_orders');
+
+        $data = [
+            'increment_id'    => $order->getIncrementId(),
+            'subscription_id' => $order->getVindiSubscriptionId(),
+            'created_at'      => $this->date->date()->format('Y-m-d H:i:s'),
+            'total'           => $order->getGrandTotal()
+        ];
+
+        try {
+            $this->connection->insert($tableName, $data);
+        } catch (\Exception $e) {
+            $this->psrLogger->error('Error saving order to subscription orders table: ' . $e->getMessage());
+        }
     }
 }
