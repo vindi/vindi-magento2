@@ -101,7 +101,7 @@ class Customer
         $customerVindi = [
             'name' => $billing->getFirstname() . ' ' . $billing->getLastname(),
             'email' => $billing->getEmail(),
-            'registry_code' => $this->getDocumentGuest($order),
+            'registry_code' => $this->getDocument($order),
             'code' => $customer ? $customer->getId() : '',
             'phones' => $this->formatPhone($billing->getTelephone()),
             'address' => $address
@@ -326,12 +326,12 @@ class Customer
      *
      * @return mixed|string
      */
-    protected function getDocumentGuest(Order $order)
+    protected function getDocument(Order $order)
     {
-        if($document = $order->getData('customer_taxvat')) {
-            return $document;
+        $document = (string) $order->getPayment()->getAdditionalInformation('document');
+        if(!$document) {
+            $document = (string) $order->getData('customer_taxvat');
         }
-
-        return $order->getPayment()->getAdditionalInformation('document') ?: '';
+        return $document;
     }
 }

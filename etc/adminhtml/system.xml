@@ -107,14 +107,6 @@
                         <label>Title</label>
                         <config_path>payment/vindi_pix/title</config_path>
                     </field>
-                    <field id="enabled_document" showInDefault="1" showInStore="1" showInWebsite="1" sortOrder="30" translate="label"
-                           type="select">
-                        <label>Enabled document</label>
-                        <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
-                        <backend_model>Vindi\Payment\Model\Config\Backend\ApiKeyValidator</backend_model>
-                        <comment>When enabled, it will only be possible to finalize the order with the document informed when selecting the payment method. When disabled, the client will not be asked for the document, but it will still be necessary to send the document when creating the order in VINDI, otherwise it will be rejected by the API.</comment>
-                        <config_path>payment/vindi_pix/enabled_document</config_path>
-                    </field>
                 </group>
                 <group id="vindi_bankslip" showInDefault="1" showInStore="1" showInWebsite="1" sortOrder="300" translate="label comment">
                     <label>Boleto Bancário</label>

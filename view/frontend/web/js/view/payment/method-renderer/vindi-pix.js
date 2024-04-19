@@ -17,6 +17,11 @@ define(
                 taxvat: taxvat
             },
 
+            initialize: function () {
+                this._super();
+                this.taxvat.value(window?.checkoutConfig?.payment?.vindi_pix?.customer_taxvat);
+            },
+
             getInfoMessage: function () {
                 return window?.checkoutConfig?.payment?.vindi_pix?.info_message;
             },

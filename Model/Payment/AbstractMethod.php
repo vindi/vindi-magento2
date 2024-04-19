@@ -81,32 +81,32 @@ abstract class AbstractMethod extends OriginAbstractMethod
     /**
      * @var ProductManagementInterface
      */
-    private $productManagement;
+    protected $productManagement;
 
     /**
      * @var \Vindi\Payment\Helper\Data
      */
-    private $helperData;
+    protected $helperData;
 
     /**
      * @var PlanManagementInterface
      */
-    private $planManagement;
+    protected $planManagement;
 
     /**
      * @var SubscriptionInterface
      */
-    private $subscriptionRepository;
+    protected $subscriptionRepository;
 
     /**
      * @var PaymentProfileFactory
      */
-    private $paymentProfileFactory;
+    protected $paymentProfileFactory;
 
     /**
      * @var PaymentProfileRepository
      */
-    private $paymentProfileRepository;
+    protected $paymentProfileRepository;
 
     /**
      * @var ResourceConnection
@@ -329,7 +329,9 @@ abstract class AbstractMethod extends OriginAbstractMethod
         ];
 
         if ($body['payment_method_code'] === PaymentMethod::CREDIT_CARD) {
-            $paymentProfile = $this->createPaymentProfile($order, $payment, $customerId);
+            $paymentProfile = ($payment->getAdditionalInformation('payment_profile'))
+                ? $this->getPaymentProfile((int) $payment->getAdditionalInformation('payment_profile'))
+                : $this->createPaymentProfile($order, $payment, $customerId);
             $body['payment_profile'] = ['id' => $paymentProfile->getData('payment_profile_id')];
         }
 
@@ -350,13 +352,18 @@ abstract class AbstractMethod extends OriginAbstractMethod
         return $this->handleError($order);
     }
 
+    protected function getPaymentProfile(int $paymentProfileId): PaymentProfile
+    {
+        return $this->paymentProfileRepository->getById($paymentProfileId);
+    }
+
     /**
      * @param InfoInterface $payment
      * @param OrderItemInterface $orderItem
      * @return mixed
      * @throws LocalizedException
      */
-    private function handleSubscriptionOrder(InfoInterface $payment, OrderItemInterface $orderItem)
+    protected function handleSubscriptionOrder(InfoInterface $payment, OrderItemInterface $orderItem)
     {
         try {
             $order = $payment->getOrder();
@@ -437,7 +444,7 @@ abstract class AbstractMethod extends OriginAbstractMethod
      * @return void
      * @throws \Exception
      */
-    private function saveSubscriptionToDatabase(array $subscription, Order $order)
+    protected function saveSubscriptionToDatabase(array $subscription, Order $order)
     {
         $tableName = $this->resourceConnection->getTableName('vindi_subscription');
         $startAt = new \DateTime($subscription['start_at']);
@@ -467,7 +474,7 @@ abstract class AbstractMethod extends OriginAbstractMethod
      * @param Order $order
      * @return OrderItemInterface|bool
      */
-    private function isSubscriptionOrder(Order $order)
+    protected function isSubscriptionOrder(Order $order)
     {
         foreach ($order->getItems() as $item) {
             try {
@@ -491,7 +498,7 @@ abstract class AbstractMethod extends OriginAbstractMethod
      * @param Order $order
      * @throws LocalizedException
      */
-    private function handleError(Order $order)
+    protected function handleError(Order $order)
     {
         $this->psrLogger->error(__(sprintf('Error on order payment %d.', $order->getId())));
         $message = __('There has been a payment confirmation error. Verify data and try again');
@@ -537,7 +544,7 @@ abstract class AbstractMethod extends OriginAbstractMethod
      * @param array $subscription
      * @return bool
      */
-    private function successfullyPaid(array $body, $bill, array $subscription = [])
+    protected function successfullyPaid(array $body, $bill, array $subscription = [])
     {
         // nova validação para permitir pedidos com pagamento/fatura pendente
         if (!$bill) {

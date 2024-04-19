@@ -80,6 +80,7 @@ define([
                         'creditCardSsStartMonth',
                         'creditCardSsStartYear',
                         'selectedCardType',
+                        'selectedPaymentProfile',
                         'selectedInstallments'
                     ]);
                 return this;
@@ -94,34 +95,38 @@ define([
             },
 
             validate: function () {
-                if (!this.selectedCardType() || this.selectedCardType() == '') {
-                    this.messageContainer.addErrorMessage({'message': $t('Please enter the Credit Card Type.')});
-                    return false;
-                }
 
-                if (!this.creditCardExpYear() || this.creditCardExpYear() == '') {
-                    this.messageContainer.addErrorMessage({'message': $t('Please enter the Credit Card Expiry Year.')});
-                    return false;
-                }
+                if (this.selectedPaymentProfile() == null || this.selectedPaymentProfile() == '') {
 
-                if (!this.creditCardExpMonth() || this.creditCardExpMonth() == '') {
-                    this.messageContainer.addErrorMessage({'message': $t('Please enter the Credit Card Expiry Month.')});
-                    return false;
-                }
+                    if (!this.selectedCardType() || this.selectedCardType() == '') {
+                        this.messageContainer.addErrorMessage({'message': $t('Please enter the Credit Card Type.')});
+                        return false;
+                    }
 
-                if (!this.creditCardNumber() || this.creditCardNumber() == '') {
-                    this.messageContainer.addErrorMessage({'message': $t('Please enter the Credit Card Number.')});
-                    return false;
-                }
+                    if (!this.creditCardExpYear() || this.creditCardExpYear() == '') {
+                        this.messageContainer.addErrorMessage({'message': $t('Please enter the Credit Card Expiry Year.')});
+                        return false;
+                    }
 
-                if (!this.creditCardOwner() || this.creditCardOwner() == '') {
-                    this.messageContainer.addErrorMessage({'message': $t('Please enter the Credit Card Owner Name.')});
-                    return false;
-                }
+                    if (!this.creditCardExpMonth() || this.creditCardExpMonth() == '') {
+                        this.messageContainer.addErrorMessage({'message': $t('Please enter the Credit Card Expiry Month.')});
+                        return false;
+                    }
 
-                if (!this.creditCardVerificationNumber() || this.creditCardVerificationNumber() == '') {
-                    this.messageContainer.addErrorMessage({'message': $t('Please enter the Credit Card CVV.')});
-                    return false;
+                    if (!this.creditCardNumber() || this.creditCardNumber() == '') {
+                        this.messageContainer.addErrorMessage({'message': $t('Please enter the Credit Card Number.')});
+                        return false;
+                    }
+
+                    if (!this.creditCardOwner() || this.creditCardOwner() == '') {
+                        this.messageContainer.addErrorMessage({'message': $t('Please enter the Credit Card Owner Name.')});
+                        return false;
+                    }
+
+                    if (!this.creditCardVerificationNumber() || this.creditCardVerificationNumber() == '') {
+                        this.messageContainer.addErrorMessage({'message': $t('Please enter the Credit Card CVV.')});
+                        return false;
+                    }
                 }
 
                 if (this.installmentsAllowed()) {
@@ -145,7 +150,6 @@ define([
                 //Set credit card number to credit card data object
                 this.creditCardNumber.subscribe(function (value) {
                     var result;
-                    self.selectedCardType(null);
 
                     if (value == '' || value == null) {
                         return false;
@@ -285,6 +289,26 @@ define([
             },
             getFormattedPrice: function (price) {
                 return priceUtils.formatPrice(price, quote.getPriceFormat());
+            },
+
+            getPaymentProfiles: function () {
+                let paymentProfiles = [];
+                const savedCards = window.checkoutConfig.payment?.vindi_cc?.saved_cards;
+
+                if (savedCards) {
+                    savedCards.forEach(function (card) {
+                        paymentProfiles.push({
+                            'value': card.id,
+                            'text': `${card.card_type.toUpperCase()} xxxx-${card.card_number}`
+                        });
+                    });
+                }
+
+                return paymentProfiles;
+            },
+
+            hasPaymentProfiles: function () {
+                return this.getPaymentProfiles().length > 0;
             }
         });
     }
