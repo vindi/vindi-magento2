@@ -7,6 +7,7 @@ use Exception;
 use Magento\Backend\Block\Widget\Container;
 use Magento\Backend\Block\Widget\Context;
 use Magento\Framework\Registry;
+use Magento\Framework\Pricing\PriceCurrencyInterface;
 use Vindi\Payment\Helper\Api;
 use Vindi\Payment\Model\ResourceModel\SubscriptionOrder\CollectionFactory as SubscriptionOrderCollectionFactory;
 
@@ -39,11 +40,17 @@ class View extends Container
     private $subscriptionsOrderCollectionFactory;
 
     /**
+     * @var PriceCurrencyInterface
+     */
+    protected $priceHelper;
+
+    /**
      * View constructor.
      * @param Context $context
      * @param Registry $registry
      * @param SubscriptionOrderCollectionFactory $subscriptionsOrderCollectionFactory
      * @param Api $api
+     * @param PriceCurrencyInterface $priceHelper
      * @param array $data
      */
     public function __construct(
@@ -51,12 +58,14 @@ class View extends Container
         Registry $registry,
         SubscriptionOrderCollectionFactory $subscriptionsOrderCollectionFactory,
         Api $api,
+        PriceCurrencyInterface $priceHelper,
         array $data = []
     ) {
         parent::__construct($context, $data);
         $this->api = $api;
         $this->registry = $registry;
         $this->subscriptionsOrderCollectionFactory = $subscriptionsOrderCollectionFactory;
+        $this->priceHelper = $priceHelper;
     }
 
     /**
@@ -346,6 +355,15 @@ class View extends Container
         $collection->addFieldToFilter('subscription_id', $subscriptionId);
 
         return $collection->getItems();
+    }
+
+    /**
+     * @param $amount
+     * @return string
+     */
+    public function formatPrice($amount)
+    {
+        return $this->priceHelper->format($amount, false);
     }
 
     /**
