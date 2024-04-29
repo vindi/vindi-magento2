@@ -13,37 +13,48 @@ use Vindi\Payment\Api\VindiPlanRepositoryInterface;
 
 /**
  * Class ProductRecurrence
+ *
  * @package Vindi\Payment\Block\Product
  */
 class ProductRecurrence extends Template
 {
     /**
+     * Core registry
+     *
      * @var Registry
      */
-    protected Registry $_registry;
+    protected $_registry;
 
     /**
+     * Vindi plan repository interface
+     *
      * @var VindiPlanRepositoryInterface
      */
-    protected VindiPlanRepositoryInterface $vindiPlanRepository;
+    protected $vindiPlanRepository;
 
     /**
+     * Price helper
+     *
      * @var PriceHelper
      */
-    protected PriceHelper $priceHelper;
+    protected $priceHelper;
 
     /**
+     * Locale format
+     *
      * @var LocaleFormat
      */
-    protected LocaleFormat $_localeFormat;
+    protected $_localeFormat;
 
     /**
      * ProductRecurrence constructor.
+     *
      * @param Context $context
      * @param Registry $registry
      * @param VindiPlanRepositoryInterface $vindiPlanRepository
      * @param PriceHelper $priceHelper
      * @param LocaleFormat $localeFormat
+     * @param \Magento\Catalog\Model\ProductRepository $productRepository
      * @param array $data
      */
     public function __construct(
@@ -62,67 +73,111 @@ class ProductRecurrence extends Template
     }
 
     /**
+     * Returns the current product from the registry.
+     *
      * @return Product|null
      */
-    public function getCurrentProduct(): ?Product
+    public function getCurrentProduct()
     {
         return $this->_registry->registry('current_product');
     }
 
     /**
-     * @return bool
-     */
-    public function getPlanNameById(int $planId): string
-    {
-        return $this->getPlan($planId)?->getName() ?? '';
-    }
-
-    /**
-     * @param int $planId
-     * @return \Vindi\Payment\Model\Plan|null
-     */
-    public function getPlanById(int $planId): ?\Vindi\Payment\Model\Plan
-    {
-        return $this->getPlan($planId);
-    }
-
-    /**
+     * Returns the name of a plan by its ID.
+     *
      * @param int $planId
      * @return string
      */
-    public function getPlanPriceById(int $planId): string
+    public function getPlanNameById($planId)
     {
-        $plan = $this->getPlan($planId);
-        return $plan ? $this->priceHelper->currency($plan->getPrice(), true, false) : '';
+        try {
+            $plan = $this->vindiPlanRepository->getById($planId);
+            return $plan->getName();
+        } catch (NoSuchEntityException $e) {
+            return '';
+        }
     }
 
     /**
+     * Returns the plan by its ID.
+     *
+     * @param int $planId
+     * @return string
+     */
+    public function getPlanById($planId)
+    {
+        try {
+            $plan = $this->vindiPlanRepository->getById($planId);
+            return $plan;
+        } catch (NoSuchEntityException $e) {
+            return '';
+        }
+    }
+
+    /**
+     * Returns the formatted price for a plan by its ID.
+     *
+     * @param int $planId
+     * @return string
+     */
+    public function getPlanPriceById($planId)
+    {
+        try {
+            $plan = $this->vindiPlanRepository->getById($planId);
+            $price = $plan->getPrice();
+            return $this->priceHelper->currency($price, true, false);
+        } catch (NoSuchEntityException $e) {
+            return '';
+        }
+    }
+
+    /**
+     * Retrieve price format configuration.
+     *
      * @return array
      */
-    public function getPriceFormat(): array
+    public function getPriceFormat()
     {
         return $this->_localeFormat->getPriceFormat();
     }
 
     /**
+     * Returns the number of installments for a plan by its ID.
+     *
      * @param int $planId
      * @return int
      */
-    public function getPlanInstallmentsById(int $planId): int
+    public function getPlanInstallmentsById($planId)
     {
-        return $this->getPlan($planId)?->getInstallments() ?? 0;
+        try {
+            $plan = $this->vindiPlanRepository->getById($planId);
+            return (int)$plan->getInstallments();
+        } catch (NoSuchEntityException $e) {
+            return 0;
+        }
     }
 
     /**
-     * @param int $planId
-     * @return \Vindi\Payment\Model\Plan|null
+     * Checks whether there is price variation between the child products of a configurable item.
+     *
+     * @return bool
      */
-    private function getPlan(int $planId): ?\Vindi\Payment\Model\Plan
+    public function hasPriceVariationForConfigurable()
     {
-        try {
-            return $this->vindiPlanRepository->getById($planId);
-        } catch (NoSuchEntityException $e) {
-            return null;
+        $product = $this->getCurrentProduct();
+        if ($product->getTypeId() !== 'configurable') {
+            return false;
         }
+
+        $productTypeInstance = $product->getTypeInstance();
+        $usedProducts = $productTypeInstance->getUsedProducts($product);
+
+        $prices = [];
+        foreach ($usedProducts as $child) {
+            $prices[] = $child->getFinalPrice();
+        }
+
+        $uniquePrices = array_unique($prices);
+        return count($uniquePrices) > 1;
     }
 }
