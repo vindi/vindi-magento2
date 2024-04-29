@@ -22,6 +22,8 @@ interface VindiPlanInterface
     public const BILLING_CYCLES = 'billing_cycles';
     public const CODE = 'code';
     public const DESCRIPTION = 'description';
+
+    public const DESCRIPTION_DISPLAY_ON_PRODUCT_PAGE = 'description_display_on_product_page';
     public const INSTALLMENTS = 'installments';
     public const INVOICE_SPLIT = 'invoice_split';
     public const STATUS = 'status';
@@ -52,6 +54,9 @@ interface VindiPlanInterface
     public function setCode($code);
     public function getDescription();
     public function setDescription($description);
+
+    public function getDescriptionDisplayOnProductPage();
+    public function setDescriptionDisplayOnProductPage($descriptionDisplayOnProductPage);
     public function getInstallments();
     public function setInstallments($installments);
     public function getInvoiceSplit();

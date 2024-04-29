@@ -1,0 +1,36 @@
+<?php
+/**
+ * @var $block \Vindi\Payment\Block\Adminhtml\Order\View\Tab\Subscription
+ */
+?>
+<div class="fieldset-wrapper order-information">
+    <div class="fieldset-wrapper-title">
+       <span class="title"><?php /* @escapeNotVerified */
+           echo __('Subscription Information') ?></span>
+    </div>
+    <table class="admin__table-secondary">
+        <tbody>
+        <?php echo $block->getChildHtml(); ?>
+        <tr>
+            <th><?php /* @escapeNotVerified */
+                echo __('Order:') ?></th>
+            <td><?= $block->getOrder()->getIncrementId(); ?></td>
+        </tr>
+        <tr>
+            <th><?php /* @escapeNotVerified */
+                echo __('Customer Email:') ?></th>
+            <td><?= $block->getOrder()->getCustomerEmail(); ?></td>
+        </tr>
+        <tr>
+            <th><?php /* @escapeNotVerified */
+                echo __('Subscription ID:') ?></th>
+            <td><?= $block->getSubscriptionId(); ?></td>
+        </tr>
+        <tr>
+            <th><?php /* @escapeNotVerified */
+                echo __('Subscription Link:') ?></th>
+            <td><a href="<?= $block->getSubscriptionViewUrl() ?>" target="_blank"><?= __('View Subscription') ?></a></td>
+        </tr>
+        </tbody>
+    </table>
+</div>

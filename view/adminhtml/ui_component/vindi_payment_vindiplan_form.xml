@@ -101,10 +101,27 @@
                 <dataType>text</dataType>
                 <label translate="true">Observations</label>
                 <dataScope>description</dataScope>
-                <notice translate="true">
-                    Free text field for internal notes. It will not be displayed to customers.
-                </notice>
+                <notice translate="true">Free text field for internal notes.</notice>
             </settings>
+        </field>
+        <field name="description_display_on_product_page" sortOrder="16" formElement="checkbox">
+            <settings>
+                <dataType>boolean</dataType>
+                <label translate="true">Display 'Notes' on product page</label>
+                <dataScope>description_display_on_product_page</dataScope>
+                <notice translate="true">The purpose of this display is to enable the display of additional information to the customer, if the retailer deems it necessary.</notice>
+            </settings>
+            <formElements>
+                <checkbox>
+                    <settings>
+                        <valueMap>
+                            <map name="false" xsi:type="number">0</map>
+                            <map name="true" xsi:type="number">1</map>
+                        </valueMap>
+                        <prefer>toggle</prefer>
+                    </settings>
+                </checkbox>
+            </formElements>
         </field>
         <field name="interval_count" sortOrder="20" formElement="input">
             <settings>

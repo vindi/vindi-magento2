@@ -99,6 +99,22 @@ class ProductRecurrence extends Template
     }
 
     /**
+     * Returns the plan by its ID.
+     *
+     * @param int $planId
+     * @return string
+     */
+    public function getPlanById($planId)
+    {
+        try {
+            $plan = $this->vindiPlanRepository->getById($planId);
+            return $plan;
+        } catch (NoSuchEntityException $e) {
+            return '';
+        }
+    }
+
+    /**
      * Returns the formatted price for a plan by its ID.
      *
      * @param int $planId

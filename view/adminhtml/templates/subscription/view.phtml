@@ -198,8 +198,8 @@ use Vindi\Payment\Block\Adminhtml\Subscription\View;
                 <tr>
                     <td><?= $block->escapeHtml($order['order_id']); ?></td>
                     <td><?= $block->escapeHtml($order['increment_id']); ?></td>
-                    <td><?= $block->escapeHtml($order['created_at']); ?></td>
-                    <td><?= $block->escapeHtml($order['total']); ?></td>
+                    <td><?= $block->escapeHtml((new IntlDateFormatter('pt_BR', IntlDateFormatter::MEDIUM, IntlDateFormatter::NONE))->format(new DateTime($order['created_at']))); ?></td>
+                    <td><?= $block->escapeHtml($block->formatPrice($order['total'])); ?></td>
                     <td><?= $block->escapeHtml($order['status']); ?></td>
                     <td><a href="<?= $block->getUrl('sales/order/view', ['order_id' => $order['order_id']]); ?>"><?= __('View') ?></a></td>
                 </tr>
