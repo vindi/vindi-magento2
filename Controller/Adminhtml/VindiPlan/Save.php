@@ -256,6 +256,10 @@ class Save extends Action
      */
     private function prepareDataForMagentoStore($data, $post)
     {
+        if (isset($post["settings"]["description_display_on_product_page"])) {
+            $data['description_display_on_product_page'] = (int) $post["settings"]["description_display_on_product_page"];
+        }
+
         if (isset($post["settings"]["installments"])) {
             $data['installments'] = empty($post["settings"]["installments"]) ? null : $post["settings"]["installments"];
         }

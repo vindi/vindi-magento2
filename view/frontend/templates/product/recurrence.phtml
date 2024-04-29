@@ -18,15 +18,23 @@ if ($product && $product->getData('vindi_enable_recurrence') === '1') {
                 <p><?= __('Choose a recurrence option:') ?></p>
                 <div class="recurrence-buttons">
                     <?php foreach ($recurrenceData as $index => $data) : ?>
-                        <?php $installments = $block->getPlanInstallmentsById($data['plan']); ?>
-                        <?php $planName = $block->getPlanNameById($data['plan']); ?>
+                        <?php
+                        $installments = $block->getPlanInstallmentsById($data['plan']);
+                        $plan = $block->getPlanById($data['plan']);
+                        $planName = $plan ? $plan->getName() : $data['plan'];
+                        $shouldDisplayDescription = $plan && $plan->getDescriptionDisplayOnProductPage() === '1';
+                        $description = $plan ? $plan->getDescription() : '';
+                        ?>
                         <input type="radio" id="recurrence_option_<?= $block->escapeHtmlAttr($index) ?>"
-                               name="recurrence_option" value="<?= $block->escapeHtmlAttr($data['plan']) ?>" class="recurrence-input" hidden>
-                        <label for="recurrence_option_<?= $block->escapeHtmlAttr($index) ?>" class="recurrence-label" data-price="<?= $block->escapeHtmlAttr($data['price']) ?>" data-installments="<?= $block->escapeHtmlAttr($installments) ?>">
+                               name="recurrence_option" value="<?= $block->escapeHtmlAttr($data['plan']) ?>" class="recurrence-input" hidden
+                               data-description="<?= $block->escapeHtml($shouldDisplayDescription ? $description : '') ?>">
+                        <label for="recurrence_option_<?= $block->escapeHtmlAttr($index) ?>" class="recurrence-label"
+                               data-price="<?= $block->escapeHtmlAttr($data['price']) ?>" data-installments="<?= $block->escapeHtmlAttr($installments) ?>">
                             <?= $block->escapeHtml($planName) ?>
                         </label>
                     <?php endforeach; ?>
                 </div>
+                <div id="recurrence-description" class="recurrence-description" style="display: none;"></div>
             </div>
         <?php endif; ?>
     <?php } ?>
@@ -46,6 +54,7 @@ if ($product && $product->getData('vindi_enable_recurrence') === '1') {
                 function updatePrice() {
                     var selectedInput = $('.recurrence-input:checked');
                     if (!selectedInput.length) {
+                        $('#recurrence-description').hide();
                         return;
                     }
 
@@ -70,6 +79,14 @@ if ($product && $product->getData('vindi_enable_recurrence') === '1') {
                     }
 
                     $('#product-price-' + productId + ' .price').html(priceHtml);
+
+                    // Update and display the description based on the selected plan
+                    var description = selectedInput.data('description');
+                    if (description) {
+                        $('#recurrence-description').html(description).show();
+                    } else {
+                        $('#recurrence-description').hide();
+                    }
                 }
 
                 function addPlanDetailsToCartForm() {
