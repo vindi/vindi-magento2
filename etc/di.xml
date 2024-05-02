@@ -108,4 +108,13 @@
             <argument name="resourceModel" xsi:type="string">Vindi\Payment\Model\ResourceModel\SubscriptionOrder</argument>
         </arguments>
     </virtualType>
+
+    <type name="Magento\Payment\Model\MethodList">
+        <plugin name="vindi_payment_filter_recurring_payments" type="Vindi\Payment\Plugin\FilterRecurringPayments" sortOrder="10"/>
+    </type>
+    <type name="Vindi\Payment\Plugin\FilterRecurringPayments">
+        <arguments>
+            <argument name="checkoutSession" xsi:type="object">Magento\Checkout\Model\Session</argument>
+        </arguments>
+    </type>
 </config>

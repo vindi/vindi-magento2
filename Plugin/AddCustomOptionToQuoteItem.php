@@ -22,9 +22,9 @@ class AddCustomOptionToQuoteItem
      */
     public function beforeAddProduct(
         \Magento\Quote\Model\Quote $subject,
-        $product,
-        $request = null,
-        $processMode = AbstractType::PROCESS_MODE_FULL
+                                   $product,
+                                   $request = null,
+                                   $processMode = AbstractType::PROCESS_MODE_FULL
     ) {
         if ($product->getData('vindi_enable_recurrence') == '1') {
             if ($request instanceof \Magento\Framework\DataObject) {
@@ -53,7 +53,6 @@ class AddCustomOptionToQuoteItem
                     'code'  => 'plan_installments'
                 ];
 
-                //@phpstan-ignore-next-line
                 if (!empty($additionalOptions)) {
                     $product->addCustomOption('additional_options', json_encode($additionalOptions));
                 }

@@ -234,7 +234,7 @@
 "Information", "Informação"
 "Settings", "Configurações"
 "Name", "Nome"
-"Plan name.", "Nome do plano."
+"Plan name. As a suggestion, use an informative plan name such as: Monthly, Quarterly, etc.", "Nome do plano. Como sugestão, utilize um nome de plano informativo, como por exemplo: Mensal, Trimestral, etc."
 "Status", "Status"
 "Inactive plans will not be available for new sales, but existing subscriptions will continue to be charged and renewed normally.", "Planos inativos não estarão disponíveis para novas vendas, porém assinaturas existentes continuarão sendo cobradas e renovadas normalmente."
 "Observations", "Observações"
@@ -291,4 +291,5 @@
 "Order:","Pedido:"
 "Customer Email:","E-mail do Cliente:"
 "View Subscription","Ver Assinatura"
+"Can be used for recurring purchases?","Pode ser usado para compras recorrentes?"
 

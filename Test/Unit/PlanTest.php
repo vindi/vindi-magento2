@@ -26,7 +26,7 @@ class PlanTest extends TestCase
      */
     private $productRepository;
 
-    public function setUp()
+    public function setUp(): void
     {
         $this->objectManager = new ObjectManager($this);
         $this->productRepository = $this->getMockBuilder(ProductRepositoryInterface::class)

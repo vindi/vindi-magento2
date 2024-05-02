@@ -9,7 +9,7 @@ class OrderTest extends \PHPUnit\Framework\TestCase
     protected $customerRepositoryInterface;
     protected $managerInterface;
 
-    public function setUp()
+    public function setUp(): void
     {
         $this->objectManager               = new \Magento\Framework\TestFramework\Unit\Helper\ObjectManager($this);
         $this->customerRepositoryInterface = $this->getMockBuilder(\Magento\Customer\Api\CustomerRepositoryInterface::class)->disableOriginalConstructor()->getMock();
