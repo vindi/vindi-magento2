@@ -73,9 +73,7 @@
                 <dataType>text</dataType>
                 <label translate="true">Name</label>
                 <dataScope>name</dataScope>
-                <notice translate="true">
-                    Plan name.
-                </notice>
+                <notice translate="true">Plan name. As a suggestion, use an informative plan name such as: Monthly, Quarterly, etc.</notice>
             </settings>
         </field>
         <field name="status" sortOrder="10" formElement="select">

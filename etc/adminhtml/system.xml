@@ -5,59 +5,8 @@
         <section id="payment">
             <group id="vindi" showInDefault="1" showInStore="1" showInWebsite="1" sortOrder="10" translate="label">
                 <label>Vindi Recurring (VR)</label>
-                <group id="configuration" showInDefault="1" showInStore="1" showInWebsite="1" sortOrder="10" translate="label">
-                    <label>General</label>
-                    <field id="mode" showInDefault="1" showInStore="1" showInWebsite="1" sortOrder="20"
-                           translate="label"
-                           type="select">
-                        <label>Mode</label>
-                        <source_model>Vindi\Payment\Model\Config\Source\Mode</source_model>
-                        <config_path>vindiconfiguration/general/mode</config_path>
-                    </field>
-                    <field id="api_key" showInDefault="1" showInStore="1" showInWebsite="1" sortOrder="40" translate="label"
-                           type="text">
-                        <label>Api Key</label>
-                        <validate>required-entry</validate>
-                        <config_path>vindiconfiguration/general/api_key</config_path>
-                    </field>
-                    <field id="webhook_key" showInDefault="1" showInStore="1" showInWebsite="1" sortOrder="50"
-                           translate="label" type="text">
-                        <label>Webhook Key</label>
-                        <comment model="Vindi\Payment\Model\WebhookKey"/>
-                        <frontend_model>Vindi\Payment\Block\System\Config\Form\Field\Disable</frontend_model>
-                        <config_path>vindiconfiguration/general/webhook_key</config_path>
-                    </field>
-                    <field id="order_status" showInDefault="1" showInStore="1" showInWebsite="1" sortOrder="100"
-                           translate="label" type="select">
-                        <label>New Order Status</label>
-                        <source_model>Magento\Sales\Model\Config\Source\Order\Status</source_model>
-                        <config_path>vindiconfiguration/general/order_status</config_path>
-                    </field>
-                    <field id="paid_order_status" showInDefault="1" showInStore="1" showInWebsite="1" sortOrder="110"
-                           translate="label" type="select">
-                        <label>Paid Order Status</label>
-                        <source_model>Magento\Sales\Model\Config\Source\Order\Status</source_model>
-                        <config_path>vindiconfiguration/general/paid_order_status</config_path>
-                    </field>
-
-                    <field id="info_message" showInDefault="1" showInStore="1" showInWebsite="1" sortOrder="100" translate="label" type="text">
-                        <label>PIX Payment method message</label>
-                        <comment>Message when selecting the payment method on the checkout screen.</comment>
-                        <config_path>checkout/vindi_pix/info_message</config_path>
-                    </field>
-                    <field id="qr_code_warning_message" showInDefault="1" showInStore="1" showInWebsite="1" sortOrder="120" translate="label" type="text">
-                        <label>QR Code warning message</label>
-                        <comment>Message if the qr code is not resized.</comment>
-                        <config_path>checkout/vindi_pix/qr_code_warning_message</config_path>
-                    </field>
-                    <field id="info_message_onepage_success" showInDefault="1" showInStore="1" showInWebsite="1" sortOrder="110" translate="label" type="text">
-                        <label>Message on onepage success</label>
-                        <comment>Message that will be presented to the customer on the success screen, after completing the order.</comment>
-                        <config_path>checkout/vindi_pix/info_message_onepage_success</config_path>
-                    </field>
-                </group>
                 <group id="vindi_cc" showInDefault="1" showInStore="1" showInWebsite="1" sortOrder="100" translate="label">
-                    <label>Credit Card!</label>
+                    <label>Credit Card</label>
                     <field id="active" showInDefault="1" showInStore="1" showInWebsite="1" sortOrder="10" translate="label"
                            type="select">
                         <label>Enabled</label>
@@ -65,32 +14,15 @@
                         <backend_model>Vindi\Payment\Model\Config\Backend\ApiKeyValidator</backend_model>
                         <config_path>payment/vindi/active</config_path>
                     </field>
-                    <field id="title" showInDefault="1" showInStore="1" showInWebsite="1" sortOrder="30" translate="label"
+                    <field id="title" showInDefault="1" showInStore="1" showInWebsite="1" sortOrder="20" translate="label"
                            type="text">
                         <label>Title</label>
                         <config_path>payment/vindi/title</config_path>
                     </field>
-                    <field id="allow_installments" showInDefault="1" showInStore="1" showInWebsite="1" sortOrder="70"
-                           translate="label" type="select">
-                        <label>Allow Installments</label>
+                    <field id="recurring" showInDefault="1" showInStore="1" showInWebsite="1" sortOrder="30" translate="label" type="select">
+                        <label>Can be used for recurring purchases?</label>
                         <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
-                        <config_path>payment/vindi/allow_installments</config_path>
-                    </field>
-                    <field id="max_installments" showInDefault="1" showInStore="1" showInWebsite="1" sortOrder="80"
-                           translate="label" type="text">
-                        <label>Max Installments</label>
-                        <config_path>payment/vindi/max_installments</config_path>
-                    </field>
-                    <field id="min_installment_value" showInDefault="1" showInStore="1" showInWebsite="1" sortOrder="90"
-                           translate="label" type="text">
-                        <label>Min Installment Value</label>
-                        <config_path>payment/vindi/min_installment_value</config_path>
-                    </field>
-                    <field id="verify_method" showInDefault="1" showInStore="1" showInWebsite="1" sortOrder="110"
-                           translate="label" type="select">
-                        <label>Verify Profile?</label>
-                        <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
-                        <config_path>payment/vindi/verify_method</config_path>
+                        <config_path>payment/vindi/recurring</config_path>
                     </field>
                 </group>
                 <group id="vindi_pix" showInDefault="1" showInStore="1" showInWebsite="1" sortOrder="200" translate="label comment">
@@ -107,6 +39,11 @@
                         <label>Title</label>
                         <config_path>payment/vindi_pix/title</config_path>
                     </field>
+                    <field id="recurring" showInDefault="1" showInStore="1" showInWebsite="1" sortOrder="30" translate="label" type="select">
+                        <label>Can be used for recurring purchases?</label>
+                        <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                        <config_path>payment/vindi_pix/recurring</config_path>
+                    </field>
                 </group>
                 <group id="vindi_bankslip" showInDefault="1" showInStore="1" showInWebsite="1" sortOrder="300" translate="label comment">
                     <label>Boleto Bancário</label>
@@ -122,6 +59,11 @@
                         <label>Title</label>
                         <config_path>payment/vindi_bankslip/title</config_path>
                     </field>
+                    <field id="recurring" showInDefault="1" showInStore="1" showInWebsite="1" sortOrder="30" translate="label" type="select">
+                        <label>Can be used for recurring purchases?</label>
+                        <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                        <config_path>payment/vindi_bankslip/recurring</config_path>
+                    </field>
                 </group>
                 <group id="vindi_bankslippix" showInDefault="1" showInStore="1" showInWebsite="1" sortOrder="400" translate="label comment">
                     <label>Bolepix</label>
@@ -136,6 +78,11 @@
                            type="text">
                         <label>Title</label>
                         <config_path>payment/vindi_bankslippix/title</config_path>
+                    </field>
+                    <field id="recurring" showInDefault="1" showInStore="1" showInWebsite="1" sortOrder="30" translate="label" type="select">
+                        <label>Can be used for recurring purchases?</label>
+                        <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                        <config_path>payment/vindi_bankslippix/recurring</config_path>
                     </field>
                 </group>
             </group>
