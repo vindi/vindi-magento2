@@ -57,7 +57,7 @@
                     </field>
                 </group>
                 <group id="vindi_cc" showInDefault="1" showInStore="1" showInWebsite="1" sortOrder="100" translate="label">
-                    <label>Credit Card!</label>
+                    <label>Credit Card</label>
                     <field id="active" showInDefault="1" showInStore="1" showInWebsite="1" sortOrder="10" translate="label"
                            type="select">
                         <label>Enabled</label>
