@@ -28,7 +28,7 @@
              title="Configuration"
              module="Vindi_Payment"
              sortOrder="20"
-             action="adminhtml/system_config/edit/section/payment/"
+             action="adminhtml/system_config/edit/section/vindiconfiguration"
              parent="Vindi_Payment::top_level"
              resource="Magento_Backend::content"/>
     </menu>
