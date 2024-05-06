@@ -24,6 +24,14 @@
              sortOrder="10"
              title="Subscriptions"
         />
+        <add id="Vindi_Payment::payment_methods"
+             title="Payment Methods"
+             module="Vindi_Payment"
+             sortOrder="15"
+             action="adminhtml/system_config/edit/section/payment/"
+             parent="Vindi_Payment::top_level"
+             resource="Magento_Backend::content"/>
+
         <add id="Vindi_Payment::configuration"
              title="Configuration"
              module="Vindi_Payment"
