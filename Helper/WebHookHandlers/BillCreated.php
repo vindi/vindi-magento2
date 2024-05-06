@@ -2,13 +2,35 @@
 
 namespace Vindi\Payment\Helper\WebHookHandlers;
 
+
+
+/**
+ * Class BillCreated
+ */
 class BillCreated
 {
+    /**
+     * @var \Psr\Log\LoggerInterface
+     */
     private $logger;
 
-    public function __construct(\Psr\Log\LoggerInterface $logger)
-    {
+    /**
+     * @var OrderCreator
+     */
+    private $orderCreator;
+
+    /**
+     * Constructor
+     *
+     * @param \Psr\Log\LoggerInterface $logger
+     * @param OrderCreator $orderCreator
+     */
+    public function __construct(
+        \Psr\Log\LoggerInterface $logger,
+        OrderCreator $orderCreator
+    ) {
         $this->logger = $logger;
+        $this->orderCreator = $orderCreator;
     }
 
     /**
@@ -28,10 +50,12 @@ class BillCreated
             return false;
         }
 
-        if (!isset($bill['subscription']) || $bill['subscription'] === null) {
+        if (!isset($bill['subscription']) || $bill['subscription'] === null || !isset($bill['subscription']['id'])) {
             $this->logger->info(__(sprintf('Ignoring the event "bill_created" for single sell')));
             return false;
         }
+
+        $this->orderCreator->createOrderFromBill($bill);
 
         return true;
     }
