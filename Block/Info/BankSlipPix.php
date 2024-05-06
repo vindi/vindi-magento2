@@ -2,7 +2,6 @@
 
 namespace Vindi\Payment\Block\Info;
 
-
 use Magento\Backend\Block\Template\Context;
 use Magento\Framework\Pricing\Helper\Data;
 use Magento\Framework\Serialize\Serializer\Json;
@@ -15,13 +14,13 @@ use Vindi\Payment\Model\Payment\PaymentMethod;
  *
  * @package Vindi\Payment\Block\Info
  */
-class Pix extends Info
+class BankSlipPix extends Info
 {
 
     /**
      * @var string
      */
-    protected $_template = 'Vindi_Payment::info/pix.phtml';
+    protected $_template = 'Vindi_Payment::info/bankslippix.phtml';
 
     /**
      * @var Data
@@ -70,9 +69,7 @@ class Pix extends Info
     public function getBillId()
     {
         $order = $this->getOrder();
-        $billId = $order->getVindiBillId() ?? null;
-
-        return $billId;
+        return $order->getVindiBillId() ?? null;
     }
 
     /**
@@ -100,9 +97,9 @@ class Pix extends Info
      * @return bool
      * @throws \Magento\Framework\Exception\LocalizedException
      */
-    public function canShowPixInfo()
+    public function canShowBankSlipPixInfo()
     {
-        $paymentMethod = $this->getOrder()->getPayment()->getMethod() === \Vindi\Payment\Model\Payment\Pix::CODE;
+        $paymentMethod = $this->getOrder()->getPayment()->getMethod() === \Vindi\Payment\Model\Payment\BankSlipPix::CODE;
         $daysToPayment = $this->getMaxDaysToPayment();
 
         if (!$daysToPayment) {
@@ -177,5 +174,15 @@ class Pix extends Info
     protected function getMaxDaysToPayment()
     {
         return $this->getOrder()->getPayment()->getAdditionalInformation('max_days_to_keep_waiting_payment');
+    }
+
+    public function getPrintUrl()
+    {
+        return $this->getOrder()->getPayment()->getAdditionalInformation('print_url');
+    }
+
+    public function getDueDate()
+    {
+        return $this->getOrder()->getPayment()->getAdditionalInformation('due_at');
     }
 }

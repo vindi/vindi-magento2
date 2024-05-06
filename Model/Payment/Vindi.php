@@ -126,7 +126,7 @@ class Vindi extends \Vindi\Payment\Model\Payment\AbstractMethod
         $info->setCcNumber($ccNumber);
 
         if (!$this->paymentMethod->isCcTypeValid($info->getCcType())) {
-            return $this->addError(__('Credit card type is not allowed for this payment method.'));
+            throw new \Exception(__('Credit card type is not allowed for this payment method.'));
         }
 
         return $this;

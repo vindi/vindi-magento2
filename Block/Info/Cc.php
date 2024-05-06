@@ -12,7 +12,9 @@ class Cc extends \Magento\Payment\Block\Info
      */
     protected $_template = 'Vindi_Payment::info/cc.phtml';
 
-    protected $_currency;
+    protected $currency;
+
+    protected $paymentMethod;
 
     public function __construct(
         PaymentMethod $paymentMethod,
@@ -23,7 +25,7 @@ class Cc extends \Magento\Payment\Block\Info
 
         parent::__construct($context, $data);
         $this->paymentMethod = $paymentMethod;
-        $this->_currency = $currency;
+        $this->currency = $currency;
     }
 
     public function getOrder()
