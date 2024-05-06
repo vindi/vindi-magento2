@@ -53,7 +53,7 @@ class Webhook extends Action
         $this->_pageFactory = $pageFactory;
         $this->webhookHandler = $webhookHandler;
         $this->helperData = $helperData;
-        return parent::__construct($context);
+        parent::__construct($context);
     }
 
     /**
@@ -63,16 +63,16 @@ class Webhook extends Action
     {
         if (!$this->validateRequest()) {
             $ip = $this->webhookHandler->getRemoteIp();
-
             $this->logger->error(__(sprintf('Invalid webhook attempt from IP %s', $ip)));
-
-            return;
+            return $this->getResponse()->setHttpResponseCode(500);
         }
 
         $body = file_get_contents('php://input');
         $this->logger->info(__(sprintf("Webhook New Event!\n%s", $body)));
 
         $this->webhookHandler->handle($body);
+
+        return $this->getResponse()->setHttpResponseCode(200);
     }
 
     /**

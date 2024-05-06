@@ -4,6 +4,8 @@ namespace Vindi\Payment\Helper\WebHookHandlers;
 
 class BillCreated
 {
+    private $logger;
+
     public function __construct(\Psr\Log\LoggerInterface $logger)
     {
         $this->logger = $logger;
@@ -30,5 +32,7 @@ class BillCreated
             $this->logger->info(__(sprintf('Ignoring the event "bill_created" for single sell')));
             return false;
         }
+
+        return true;
     }
 }

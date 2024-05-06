@@ -37,10 +37,11 @@ use Vindi\Payment\Block\Info\Pix;
                 </button>
             </object>
 
+            <p style="word-break: break-all;"><?= $block->getQrcodeOriginalPath() ?></p>
+
             <div data-bind="scope: 'vindiPix'">
                 <!-- ko template: getTemplate() --><!-- /ko -->
             </div>
-
         </dd>
 </dl>
 

@@ -183,7 +183,11 @@ abstract class AbstractMethod extends OriginAbstractMethod
      */
     public function isAvailable(\Magento\Quote\Api\Data\CartInterface $quote = null)
     {
-        if ($this->getPaymentMethodCode() == PaymentMethod::BANK_SLIP || $this->getPaymentMethodCode() == PaymentMethod::PIX) {
+        if (
+            $this->getPaymentMethodCode() == PaymentMethod::BANK_SLIP
+            || $this->getPaymentMethodCode() == PaymentMethod::BANK_SLIP_PIX
+            || $this->getPaymentMethodCode() == PaymentMethod::PIX
+        ) {
             foreach ($quote->getItems() as $item) {
                 if ($this->helperData->isVindiPlan($item->getProductId())) {
                     $product = $this->helperData->getProductById($item->getProductId());
@@ -234,7 +238,7 @@ abstract class AbstractMethod extends OriginAbstractMethod
     public function authorize(InfoInterface $payment, $amount)
     {
         parent::authorize($payment, $amount);
-        $this->processPayment($payment, $amount);
+        return $this->processPayment($payment, $amount);
     }
 
     /**
@@ -248,7 +252,7 @@ abstract class AbstractMethod extends OriginAbstractMethod
     public function capture(InfoInterface $payment, $amount)
     {
         parent::capture($payment, $amount);
-        $this->processPayment($payment, $amount);
+        return $this->processPayment($payment, $amount);
     }
 
     /**
@@ -395,16 +399,25 @@ abstract class AbstractMethod extends OriginAbstractMethod
      */
     protected function handleBankSplitAdditionalInformation(InfoInterface $payment, array $body, $bill)
     {
-        if ($body['payment_method_code'] === PaymentMethod::BANK_SLIP) {
+        if (
+            $body['payment_method_code'] === PaymentMethod::BANK_SLIP
+            || $body['payment_method_code'] === PaymentMethod::BANK_SLIP_PIX
+        ) {
             $payment->setAdditionalInformation('print_url', $bill['charges'][0]['print_url']);
             $payment->setAdditionalInformation('due_at', $bill['charges'][0]['due_at']);
         }
 
         $isValidPix = isset($bill['charges'][0]['last_transaction']['gateway_response_fields']['qrcode_original_path']);
-        if ($body['payment_method_code'] === PaymentMethod::PIX && $isValidPix) {
-            $payment->setAdditionalInformation('qrcode_original_path', $bill['charges'][0]['last_transaction']['gateway_response_fields']['qrcode_original_path']);
-            $payment->setAdditionalInformation('qrcode_path', $bill['charges'][0]['last_transaction']['gateway_response_fields']['qrcode_path']);
-            $payment->setAdditionalInformation('max_days_to_keep_waiting_payment', $bill['charges'][0]['last_transaction']['gateway_response_fields']['max_days_to_keep_waiting_payment']);
+        if (
+            $isValidPix
+            && (
+                $body['payment_method_code'] === PaymentMethod::PIX
+                || $body['payment_method_code'] === PaymentMethod::BANK_SLIP_PIX
+            )
+        ) {
+            foreach ($bill['charges'][0]['last_transaction']['gateway_response_fields'] as $key => $value) {
+                $payment->setAdditionalInformation($key, $value);
+            }
         }
     }
 

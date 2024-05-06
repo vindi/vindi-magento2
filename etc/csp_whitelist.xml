@@ -1,0 +1,59 @@
+<?xml version="1.0"?>
+<!--
+/**
+ *
+ * DISCLAIMER
+ *
+ * Do not edit or add to this file if you wish to upgrade this extension to newer
+ * version in the future.
+ *
+ * @category    Vindi
+ * @package     Vindi_VP
+ *
+ *
+ */
+-->
+<csp_whitelist xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Csp:etc/csp_whitelist.xsd">
+    <policies>
+        <policy id="object-src">
+            <values>
+                <value id="vindi-payments-object-cloudfront" type="host">*.cloudfront.net/</value>
+                <value id="vindi-payments-object-yapay" type="host">*.yapay.com.br/</value>
+                <value id="vindi-payments-object-yapay-br" type="host">*.vindi.com.br/</value>
+            </values>
+        </policy>
+        <policy id="script-src">
+            <values>
+                <value id="vindi-payments-yapay" type="host">*.yapay.com.br/</value>
+                <value id="vindi-payments-yapay-br" type="host">*.vindi.com.br/</value>
+            </values>
+        </policy>
+        <policy id="frame-src">
+            <values>
+                <value id="vindi-payments-frame" type="host">*.yapay.com.br/</value>
+                <value id="vindi-payments-frame-cloudfront" type="host">*.cloudfront.net/</value>
+            </values>
+        </policy>
+        <policy id="frame-ancestors">
+            <values>
+                <value id="vindi-payments-frame-ancestors" type="host">*.yapay.com.br/</value>
+                <value id="vindi-payments-frame-ancestors-cloudfront" type="host">*.cloudfront.net/</value>
+            </values>
+        </policy>
+        <policy id="img-src">
+            <values>
+                <value id="vindi-payments-img-cloudfront" type="host">*.cloudfront.net/</value>
+                <value id="vindi-payments-img" type="host">*.yapay.com.br/</value>
+                <value id="vindi-payments-img-yapay-br" type="host">*.vindi.com.br/</value>
+            </values>
+        </policy>
+        <policy id="connect-src">
+            <values>
+                <value id="vindi-payments-connect-cloudfront" type="host">*.cloudfront.net/</value>
+                <value id="vindi-payments-connect" type="host">*.yapay.com.br/</value>
+                <value id="vindi-payments-connect-yapay-br" type="host">*.vindi.com.br/</value>
+            </values>
+        </policy>
+    </policies>
+</csp_whitelist>
+

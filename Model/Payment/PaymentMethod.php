@@ -10,6 +10,9 @@ class PaymentMethod
 {
 
     const BANK_SLIP = 'bank_slip';
+
+    const BANK_SLIP_PIX = 'pix_bank_slip';
+
     const PIX = 'pix';
     const CREDIT_CARD = 'credit_card';
     const DEBIT_CARD = 'debit_card';
@@ -18,6 +21,8 @@ class PaymentMethod
      * @var \Vindi\Payment\Helper\Api
      */
     private $api;
+
+    private $acceptBankSlip;
 
     /**
      * @param Api $api

@@ -4,16 +4,16 @@
     <default>
         <payment>
             <vindi>
-                <active>1</active>
+                <active>0</active>
                 <model>Vindi\Payment\Model\Payment\Vindi</model>
                 <allow_installments>0</allow_installments>
-                <title>Vindi</title>
+                <title>Vindi - Cartão de Crédito</title>
                 <allowspecific>0</allowspecific>
                 <payment_action>authorize</payment_action>
                 <group>offline</group>
             </vindi>
             <vindi_bankslip>
-                <active>1</active>
+                <active>0</active>
                 <model>Vindi\Payment\Model\Payment\BankSlip</model>
                 <title>Vindi - Boleto Bancário</title>
                 <allowspecific>0</allowspecific>
@@ -29,6 +29,14 @@
                 <payment_action>authorize</payment_action>
                 <group>offline</group>
             </vindi_pix>
+            <vindi_bankslippix>
+                <active>0</active>
+                <model>Vindi\Payment\Model\Payment\BankSlipPix</model>
+                <title>Vindi - Bolepix</title>
+                <allowspecific>0</allowspecific>
+                <payment_action>authorize</payment_action>
+                <group>offline</group>
+            </vindi_bankslippix>
         </payment>
         <vindiconfiguration>
             <general>
@@ -39,10 +47,15 @@
         </vindiconfiguration>
         <checkout>
             <vindi_pix>
-                <info_message>Os dados para o pagamento, serão exibidos após finalizar o pedido.</info_message>
+                <info_message>Os dados para o pagamento serão exibidos após finalizar o pedido.</info_message>
                 <info_message_onepage_success>Seu pedido foi concluído, abaixo segue as informações do PIX para realizar o pagamento.</info_message_onepage_success>
-                <qr-code-warning-message>Seu navegador não da suporte a renderização do QRCode. Use o código do PIX para realizar o pagamento ou acesse o link abaixo para acessar o QR Code.</qr-code-warning-message>
+                <qr_code_warning_message>Seu navegador não da suporte a renderização do QRCode. Use o código do PIX para realizar o pagamento ou acesse o link abaixo para acessar o QR Code.</qr_code_warning_message>
             </vindi_pix>
+            <vindi_bankslippix>
+                <info_message>Os dados para o pagamento serão exibidos após finalizar o pedido.</info_message>
+                <info_message_onepage_success>Seu pedido foi concluído, abaixo segue as informações para realizar o pagamento.</info_message_onepage_success>
+                <qr_code_warning_message>Seu navegador não da suporte a renderização do QRCode. Use o código do PIX para realizar o pagamento ou acesse o link abaixo para acessar o QR Code.</qr_code_warning_message>
+            </vindi_bankslippix>
         </checkout>
     </default>
 </config>
