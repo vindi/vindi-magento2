@@ -1,4 +1,5 @@
 <?php
+
 namespace Vindi\Payment\Helper\WebHookHandlers;
 
 use Magento\Sales\Model\OrderFactory;
@@ -59,8 +60,13 @@ class OrderCreator
     public function createOrderFromBill($billData)
     {
         try {
-            $subscriptionId = $billData['subscription']['id'];
-            $originalOrder  = $this->getOrderFromSubscriptionId($subscriptionId);
+            if (empty($billData['bill']) || empty($billData['bill']['subscription'])) {
+                throw new LocalizedException(__('Invalid bill data structure.'));
+            }
+
+            $bill = $billData['bill'];
+            $subscriptionId = $bill['subscription']['id'];
+            $originalOrder = $this->getOrderFromSubscriptionId($subscriptionId);
 
             if ($originalOrder) {
                 $newOrder = $this->replicateOrder($originalOrder, $billData);
@@ -70,7 +76,6 @@ class OrderCreator
 
             return false;
         } catch (\Exception $e) {
-            // Log the exception or handle it as per your needs
             return false;
         }
     }
@@ -91,7 +96,7 @@ class OrderCreator
     }
 
     /**
-     * Replicate an order with new details
+     * Replicate an order from an existing order
      *
      * @param Order $originalOrder
      * @param array $billData
@@ -99,17 +104,15 @@ class OrderCreator
      */
     protected function replicateOrder(Order $originalOrder, $billData)
     {
-        // Clone the original order
         $newOrder = clone $originalOrder;
         $newOrder->setId(null);
         $newOrder->setIncrementId(null);
-        $newOrder->setVindiBillId($billData['id']);
-        $newOrder->setVindiSubscriptionId($billData['subscription']['id']);
+        $newOrder->setVindiBillId($billData['bill']['id']);
+        $newOrder->setVindiSubscriptionId($billData['bill']['subscription']['id']);
         $newOrder->setCreatedAt(null);
         $newOrder->setState(Order::STATE_NEW);
-        $newOrder->setStatus(Order::STATE_NEW);
+        $newOrder->setStatus('pending');
 
-        // Replicate billing and shipping addresses
         $billingAddress = clone $originalOrder->getBillingAddress();
         $billingAddress->setId(null)->setParentId(null);
         $newOrder->setBillingAddress($billingAddress);
@@ -120,26 +123,53 @@ class OrderCreator
             $newOrder->setShippingAddress($shippingAddress);
         }
 
-        // Replicate items
         $newOrderItems = [];
-        foreach ($originalOrder->getAllVisibleItems() as $item) {
-            $newItem = clone $item;
+        foreach ($originalOrder->getAllVisibleItems() as $originalItem) {
+            $newItem = clone $originalItem;
             $newItem->setId(null)->setOrderId(null);
             $newOrderItems[] = $newItem;
         }
         $newOrder->setItems($newOrderItems);
 
-        // Replicate payment
         $originalPayment = $originalOrder->getPayment();
         $newPayment = clone $originalPayment;
         $newPayment->setId(null)->setOrderId(null);
         $newOrder->setPayment($newPayment);
 
-        // Reset additional fields if needed
-        $newOrder->setTotalPaid(0);
-        $newOrder->setBaseTotalPaid(0);
+        $newOrder->setTotalPaid(null);
+        $newOrder->setBaseTotalPaid(null);
         $newOrder->setTotalDue($newOrder->getGrandTotal());
         $newOrder->setBaseTotalDue($newOrder->getBaseGrandTotal());
+
+        $subtotal = 0;
+        $grandTotal = 0;
+        foreach ($newOrderItems as $item) {
+            $subtotal += $item->getRowTotal();
+            $grandTotal += $item->getRowTotal() + $item->getTaxAmount() - $item->getDiscountAmount();
+        }
+
+        $taxAmount = $originalOrder->getTaxAmount();
+        $baseTaxAmount = $originalOrder->getBaseTaxAmount();
+        $newOrder->setTaxAmount($taxAmount);
+        $newOrder->setBaseTaxAmount($baseTaxAmount);
+
+        $shippingAmount = $originalOrder->getShippingAmount();
+        $baseShippingAmount = $originalOrder->getBaseShippingAmount();
+        $newOrder->setShippingAmount($shippingAmount);
+        $newOrder->setBaseShippingAmount($baseShippingAmount);
+
+        $discountAmount = $originalOrder->getDiscountAmount();
+        $baseDiscountAmount = $originalOrder->getBaseDiscountAmount();
+        $newOrder->setDiscountAmount($discountAmount);
+        $newOrder->setBaseDiscountAmount($baseDiscountAmount);
+
+        $grandTotal += $taxAmount + $shippingAmount - $discountAmount;
+        $newOrder->setSubtotal($subtotal);
+        $newOrder->setBaseSubtotal($subtotal);
+        $newOrder->setGrandTotal($grandTotal);
+        $newOrder->setBaseGrandTotal($grandTotal);
+        $newOrder->setTotalDue($grandTotal);
+        $newOrder->setBaseTotalDue($grandTotal);
 
         return $newOrder;
     }
