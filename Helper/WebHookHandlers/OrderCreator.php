@@ -7,6 +7,7 @@ use Magento\Sales\Model\Order;
 use Magento\Sales\Model\Service\OrderService;
 use Magento\Framework\Exception\LocalizedException;
 use Vindi\Payment\Model\SubscriptionOrderRepository;
+use Vindi\Payment\Model\SubscriptionOrderFactory;
 use Vindi\Payment\Model\Payment\Bill as PaymentBill;
 
 class OrderCreator
@@ -22,6 +23,11 @@ class OrderCreator
     protected $subscriptionOrderRepository;
 
     /**
+     * @var SubscriptionOrderFactory
+     */
+    protected $subscriptionOrderFactory;
+
+    /**
      * @var OrderService
      */
     protected $orderService;
@@ -32,21 +38,23 @@ class OrderCreator
     protected $paymentBill;
 
     /**
-     * Constructor
-     *
+     * OrderCreator constructor.
      * @param OrderFactory $orderFactory
      * @param SubscriptionOrderRepository $subscriptionOrderRepository
+     * @param SubscriptionOrderFactory $subscriptionOrderFactory
      * @param OrderService $orderService
      * @param PaymentBill $paymentBill
      */
     public function __construct(
         OrderFactory $orderFactory,
         SubscriptionOrderRepository $subscriptionOrderRepository,
+        SubscriptionOrderFactory $subscriptionOrderFactory,
         OrderService $orderService,
         PaymentBill $paymentBill
     ) {
         $this->orderFactory = $orderFactory;
         $this->subscriptionOrderRepository = $subscriptionOrderRepository;
+        $this->subscriptionOrderFactory = $subscriptionOrderFactory;
         $this->orderService = $orderService;
         $this->paymentBill = $paymentBill;
     }
@@ -69,8 +77,11 @@ class OrderCreator
             $originalOrder = $this->getOrderFromSubscriptionId($subscriptionId);
 
             if ($originalOrder) {
-                $newOrder = $this->replicateOrder($originalOrder, $billData);
+                $newOrder = $this->replicateOrder($originalOrder, $bill);
                 $newOrder->save();
+
+                $this->registerSubscriptionOrder($newOrder, $subscriptionId);
+
                 return true;
             }
 
@@ -89,9 +100,11 @@ class OrderCreator
     protected function getOrderFromSubscriptionId($subscriptionId)
     {
         $subscriptionOrder = $this->subscriptionOrderRepository->getBySubscriptionId($subscriptionId);
+
         if ($subscriptionOrder) {
             return $this->orderFactory->create()->load($subscriptionOrder->getOrderId());
         }
+
         return null;
     }
 
@@ -107,8 +120,8 @@ class OrderCreator
         $newOrder = clone $originalOrder;
         $newOrder->setId(null);
         $newOrder->setIncrementId(null);
-        $newOrder->setVindiBillId($billData['bill']['id']);
-        $newOrder->setVindiSubscriptionId($billData['bill']['subscription']['id']);
+        $newOrder->setVindiBillId($billData['id']);
+        $newOrder->setVindiSubscriptionId($billData['subscription']['id']);
         $newOrder->setCreatedAt(null);
         $newOrder->setState(Order::STATE_NEW);
         $newOrder->setStatus('pending');
@@ -172,5 +185,28 @@ class OrderCreator
         $newOrder->setBaseTotalDue($grandTotal);
 
         return $newOrder;
+    }
+
+    /**
+     * Register the new order in the subscription orders table
+     *
+     * @param Order $order
+     * @param int $subscriptionId
+     */
+    protected function registerSubscriptionOrder(Order $order, $subscriptionId)
+    {
+        try {
+            $subscriptionOrder = $this->subscriptionOrderFactory->create();
+
+            $subscriptionOrder->setOrderId($order->getId());
+            $subscriptionOrder->setIncrementId($order->getIncrementId());
+            $subscriptionOrder->setSubscriptionId($subscriptionId);
+            $subscriptionOrder->setCreatedAt((new \DateTime())->format('Y-m-d H:i:s'));
+            $subscriptionOrder->setTotal($order->getGrandTotal());
+            $subscriptionOrder->setStatus($order->getStatus());
+
+            $this->subscriptionOrderRepository->save($subscriptionOrder);
+        } catch (\Exception $e) {
+        }
     }
 }
