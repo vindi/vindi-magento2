@@ -5,7 +5,6 @@ namespace Vindi\Payment\Model;
 
 use Magento\Framework\Api\SearchCriteriaInterface;
 use Magento\Framework\Api\SearchCriteria\CollectionProcessorInterface;
-
 use Magento\Framework\Exception\CouldNotDeleteException;
 use Magento\Framework\Exception\CouldNotSaveException;
 use Magento\Framework\Exception\NoSuchEntityException;
@@ -14,8 +13,6 @@ use Vindi\Payment\Api\Data\SubscriptionOrderSearchResultInterface;
 use Vindi\Payment\Api\Data\SubscriptionOrderSearchResultInterfaceFactory;
 use Vindi\Payment\Api\Data\SubscriptionOrderInterface;
 use Vindi\Payment\Api\Data\SubscriptionOrderInterfaceFactory;
-
-
 use Vindi\Payment\Model\ResourceModel\SubscriptionOrder as ResourceModel;
 use Vindi\Payment\Model\ResourceModel\SubscriptionOrder\Collection;
 use Vindi\Payment\Model\ResourceModel\SubscriptionOrder\CollectionFactory;
@@ -40,7 +37,7 @@ class SubscriptionOrderRepository implements SubscriptionOrderRepositoryInterfac
     /**
      * @var SubscriptionOrderInterfaceFactory
      */
-    private $subscriptionorderFactory;
+    private $subscriptionOrderFactory;
 
     /**
      * @var CollectionProcessorInterface
@@ -55,26 +52,28 @@ class SubscriptionOrderRepository implements SubscriptionOrderRepositoryInterfac
     /**
      * SubscriptionOrder constructor.
      * @param ResourceModel $resourceModel
-     * @param SubscriptionOrderInterfaceFactory $subscriptionorderFactory
+     * @param SubscriptionOrderInterfaceFactory $subscriptionOrderFactory
      * @param CollectionFactory $collectionFactory
      * @param CollectionProcessorInterface $collectionProcessor
      * @param SubscriptionOrderSearchResultInterfaceFactory $searchResultsFactory
      */
     public function __construct(
         ResourceModel $resourceModel,
-        SubscriptionOrderInterfaceFactory $subscriptionorderFactory,
+        SubscriptionOrderInterfaceFactory $subscriptionOrderFactory,
         CollectionFactory $collectionFactory,
         CollectionProcessorInterface $collectionProcessor,
         SubscriptionOrderSearchResultInterfaceFactory $searchResultsFactory
     ) {
-        $this->resourceModel        = $resourceModel;
-        $this->subscriptionorderFactory          = $subscriptionorderFactory;
-        $this->collectionFactory    = $collectionFactory;
-        $this->collectionProcessor  = $collectionProcessor;
+        $this->resourceModel = $resourceModel;
+        $this->subscriptionOrderFactory = $subscriptionOrderFactory;
+        $this->collectionFactory = $collectionFactory;
+        $this->collectionProcessor = $collectionProcessor;
         $this->searchResultsFactory = $searchResultsFactory;
     }
 
     /**
+     * Retrieve subscription order by entity ID
+     *
      * @param int $entityId
      * @return SubscriptionOrderInterface
      * @throws NoSuchEntityException
@@ -82,16 +81,44 @@ class SubscriptionOrderRepository implements SubscriptionOrderRepositoryInterfac
     public function getById(int $entityId): SubscriptionOrderInterface
     {
         try {
-            /** @var SubscriptionOrderInterface $subscriptionorder */
-            $subscriptionorder = $this->subscriptionorderFactory->create();
-            $this->resourceModel->load($subscriptionorder, $entityId);
+            /** @var SubscriptionOrderInterface $subscriptionOrder */
+            $subscriptionOrder = $this->subscriptionOrderFactory->create();
+            $this->resourceModel->load($subscriptionOrder, $entityId);
+            if (!$subscriptionOrder->getId()) {
+                throw new NoSuchEntityException(__('No subscription order found for the given entity ID.'));
+            }
         } catch (\Exception $e) {
-            throw new NoSuchEntityException(__('Error during load subscriptionorder by Entity ID'));
+            throw new NoSuchEntityException(__('Error during load subscription order by entity ID'));
         }
-        return $subscriptionorder;
+        return $subscriptionOrder;
     }
 
     /**
+     * Retrieve subscription order by subscription ID
+     *
+     * @param int $subscriptionId
+     * @return SubscriptionOrderInterface
+     * @throws NoSuchEntityException
+     */
+    public function getBySubscriptionId(int $subscriptionId): SubscriptionOrderInterface
+    {
+        /** @var Collection $collection */
+        $collection = $this->collectionFactory->create();
+        $collection->addFieldToFilter('subscription_id', $subscriptionId);
+
+        /** @var SubscriptionOrderInterface $subscriptionOrder */
+        $subscriptionOrder = $collection->getFirstItem();
+
+        if (!$subscriptionOrder || !$subscriptionOrder->getId()) {
+            throw new NoSuchEntityException(__('No subscription order found for the given subscription ID.'));
+        }
+
+        return $subscriptionOrder;
+    }
+
+    /**
+     * Retrieve a list of subscription orders matching the search criteria
+     *
      * @param SearchCriteriaInterface $searchCriteria
      * @return SubscriptionOrderSearchResultInterface
      */
@@ -112,30 +139,34 @@ class SubscriptionOrderRepository implements SubscriptionOrderRepositoryInterfac
     }
 
     /**
-     * @param SubscriptionOrderInterface $subscriptionorder
+     * Save a subscription order
+     *
+     * @param SubscriptionOrderInterface $subscriptionOrder
      * @return void
      * @throws CouldNotSaveException
      */
-    public function save(SubscriptionOrderInterface $subscriptionorder): void
+    public function save(SubscriptionOrderInterface $subscriptionOrder): void
     {
         try {
-            $this->resourceModel->save($subscriptionorder);
+            $this->resourceModel->save($subscriptionOrder);
         } catch (\Exception $e) {
-            throw new CouldNotSaveException(__('Error when saving subscriptionorder'));
+            throw new CouldNotSaveException(__('Error when saving subscription order'));
         }
     }
 
     /**
-     * @param SubscriptionOrderInterface $subscriptionorder
+     * Delete a subscription order
+     *
+     * @param SubscriptionOrderInterface $subscriptionOrder
      * @return void
      * @throws CouldNotDeleteException
      */
-    public function delete(SubscriptionOrderInterface $subscriptionorder): void
+    public function delete(SubscriptionOrderInterface $subscriptionOrder): void
     {
         try {
-            $this->resourceModel->delete($subscriptionorder);
+            $this->resourceModel->delete($subscriptionOrder);
         } catch (\Exception $e) {
-            throw new CouldNotDeleteException(__('Could not delete subscriptionorder.'));
+            throw new CouldNotDeleteException(__('Could not delete subscription order.'));
         }
     }
 }

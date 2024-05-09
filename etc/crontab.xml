@@ -5,5 +5,8 @@
         <job instance="Vindi\Payment\Cron\SyncSubscriptions" method="execute" name="vindi_payment_sync_subscriptions">
             <schedule>0 * * * *</schedule>
         </job>
+        <job name="vindi_payment_process_order_creation_queue" instance="Vindi\Payment\Cron\ProcessOrderCreationQueue" method="execute">
+            <schedule>*/2 * * * *</schedule>
+        </job>
     </group>
 </config>
