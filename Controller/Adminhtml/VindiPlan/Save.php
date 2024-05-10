@@ -268,7 +268,7 @@ class Save extends Action
             $data['duration'] = $post["settings"]["duration"];
         }
 
-        if (!empty($post["settings"]["billing_trigger_day_type_on_period"])) {
+        if (isset($post["settings"]["billing_trigger_day_type_on_period"])) {
             $data['billing_trigger_day_type_on_period'] = $post["settings"]["billing_trigger_day_type_on_period"];
         }
 
