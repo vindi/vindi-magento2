@@ -294,7 +294,6 @@
 "Can be used for recurring purchases?","Pode ser usado para compras recorrentes?"
 "We are finalizing the processing of your payment via Pix.", "Estamos finalizando o processamento do seu pagamento via Pix."
 "How does it work?", "Como funciona?"
-"You will receive the QR Code to make the payment according to the scheduled date of your next recurrence, on the day <strong>...</strong>. This QR Code will be sent to your registered email and will also be available in your client area on our website.", "Você receberá o QR Code para efetuar o pagamento conforme a data programada de sua próxima recorrência, no dia <strong>...</strong>. Esse QR Code será enviado para o seu e-mail cadastrado e também estará disponível em sua área do cliente em nosso site."
 "Why this wait?", "Por que essa espera?"
 "This ensures that the charge is aligned with the cycle of your subscription and that you always have full control over the payments.", "Isso garante que a cobrança seja alinhada com o ciclo de sua assinatura e você tenha sempre o controle total sobre os pagamentos."
 "What to do now?", "O que fazer agora?"
@@ -309,3 +308,12 @@
 "You can access your order details and complete the payment by visiting the following link:", "Você pode acessar os detalhes do seu pedido e concluir o pagamento visitando o seguinte link:"
 "Thank you for your trust in our services!", "Obrigado pela confiança em nossos serviços!"
 "QR Code and/or Bank Slip Available for Payment","QR Code e/ou Boleto Disponível para Pagamento"
+"You will receive the QRCode to make the payment according to the scheduled date of your next recurrence. This QRCode will be sent to your registered email and will also be available in your client area on our website.","Você receberá o QRCode para fazer o pagamento de acordo com a data agendada de sua próxima recorrência. Este QRCode será enviado para seu e-mail cadastrado e também estará disponível na sua área de cliente em nosso site."
+"You will receive the QRCode to make the payment according to the scheduled date of your next recurrence, on the day","Você receberá o QRCode para fazer o pagamento de acordo com a data agendada de sua próxima recorrência, no dia"
+"This QRCode will be sent to your registered email and will also be available in your client area on our website.","Este QRCode será enviado para seu e-mail cadastrado e também estará disponível na sua área de cliente em nosso site."
+"You will receive the BankSlip to make the payment according to the scheduled date of your next recurrence, on the day","Você receberá o Boleto para fazer o pagamento de acordo com a data agendada de sua próxima recorrência, no dia"
+"This BankSlip will be sent to your registered email and will also be available in your client area on our website.","Este Boleto será enviado para seu e-mail cadastrado e também estará disponível na sua área de cliente em nosso site."
+"You will receive the BankSlip to make the payment according to the scheduled date of your next recurrence. This BankSlip will be sent to your registered email and will also be available in your client area on our website.","Você receberá o Boleto para fazer o pagamento de acordo com a data agendada de sua próxima recorrência. Este Boleto será enviado para seu e-mail cadastrado e também estará disponível na sua área de cliente em nosso site."
+
+
+
