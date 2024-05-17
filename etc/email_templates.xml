@@ -1,0 +1,4 @@
+<?xml version="1.0"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Email:etc/email_templates.xsd">
+    <template id="vindi_payment_qrcode_available_email_template" label="Vindi Payment QR Code Available Email" file="qrcode_available_email.html" type="html" module="Vindi_Payment" area="frontend"/>
+</config>

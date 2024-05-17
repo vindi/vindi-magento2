@@ -412,9 +412,10 @@ abstract class AbstractMethod extends OriginAbstractMethod
             if ($responseData) {
                 $bill = $responseData['bill'];
                 $subscription = $responseData['subscription'];
+                $billId = !$bill ? null : $bill['id'];
 
                 if ($subscription) {
-                    $this->saveSubscriptionToDatabase($subscription, $order);
+                    $this->saveSubscriptionToDatabase($subscription, $order, $billId);
                 }
 
                 if ($bill) {
@@ -441,10 +442,9 @@ abstract class AbstractMethod extends OriginAbstractMethod
     /**
      * @param array $subscription
      * @param Order $order
-     * @return void
-     * @throws \Exception
+     * @param null $billId
      */
-    protected function saveSubscriptionToDatabase(array $subscription, Order $order)
+    protected function saveSubscriptionToDatabase(array $subscription, Order $order, $billId = null)
     {
         $tableName = $this->resourceConnection->getTableName('vindi_subscription');
         $startAt = new \DateTime($subscription['start_at']);
@@ -460,6 +460,15 @@ abstract class AbstractMethod extends OriginAbstractMethod
             'status'          => $subscription['status'],
             'start_at'        => $startAt->format('Y-m-d H:i:s')
         ];
+
+        if ($billId) {
+            $data['bill_id'] = $billId;
+        }
+
+        if (isset($subscription['next_billing_at'])) {
+            $nextBillingAt = new \DateTime($subscription['next_billing_at']);
+            $data['next_billing_at'] = $nextBillingAt->format('Y-m-d H:i:s');
+        }
 
         try {
             $this->connection->insert($tableName, $data);
@@ -568,7 +577,9 @@ abstract class AbstractMethod extends OriginAbstractMethod
     {
         $paymentMethodsCode = [
             PaymentMethod::BANK_SLIP,
-            PaymentMethod::DEBIT_CARD
+            PaymentMethod::DEBIT_CARD,
+            PaymentMethod::PIX,
+            PaymentMethod::BANK_SLIP_PIX
         ];
 
         return in_array($paymentMethodCode, $paymentMethodsCode);

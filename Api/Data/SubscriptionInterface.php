@@ -15,6 +15,8 @@ interface SubscriptionInterface
     const STATUS = 'status';
     const START_AT = 'start_at';
     const PLAN = 'plan';
+    const NEXT_BILLING_AT = 'next_billing_at';
+    const BILL_ID = 'bill_id';
 
     /**
      * Get id
@@ -106,4 +108,10 @@ interface SubscriptionInterface
      * @return \Vindi\Payment\Api\Data\SubscriptionInterface
      */
     public function setStatus($status);
+
+    public function getNextBillingAt();
+    public function setNextBillingAt($nextBillingAt);
+
+    public function getBillId();
+    public function setBillId($billId);
 }

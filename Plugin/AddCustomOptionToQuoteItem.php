@@ -47,11 +47,13 @@ class AddCustomOptionToQuoteItem
                     'code'  => 'plan_price'
                 ];
 
-                $additionalOptions[] = [
-                    'label' => __('Installments'),
-                    'value' => $request->getData('selected_plan_installments'),
-                    'code'  => 'plan_installments'
-                ];
+                if ($request->getData('selected_plan_installments') > 0) {
+                    $additionalOptions[] = [
+                        'label' => __('Installments'),
+                        'value' => $request->getData('selected_plan_installments'),
+                        'code'  => 'plan_installments'
+                    ];
+                }
 
                 if (!empty($additionalOptions)) {
                     $product->addCustomOption('additional_options', json_encode($additionalOptions));

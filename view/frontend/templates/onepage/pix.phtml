@@ -1,5 +1,4 @@
 <?php
-
 use Vindi\Payment\Block\Onepage\Pix;
 
 /** @var $block Pix */
@@ -10,43 +9,63 @@ use Vindi\Payment\Block\Onepage\Pix;
         <p>
             <?= $block->getInfoMessageOnepageSuccess() ?>
         </p>
-        <object data="<?= $block->getQrCodePix() ?>" type="image/svg+xml" class="qr-code" id="qrcode">
-            <p>
-                <?= $block->getQrCodeWarningMessage() ?>
-            </p>
-            <button
-                id="vindi-pix-button-open"
-                type="button"
-                class="action primary checkout"
-                title="Open QR Code Pix"
-                onclick="window.open('<?= $block->getQrCodePix() ?>', '_blank')">
-                <?php echo __('Open QR Code') ?>
-            </button>
-        </object>
 
-        <p style="word-break: break-all;"><?= $block->getQrcodeOriginalPath() ?></p>
+        <?php if ($block->getQrCodePix()) : ?>
+            <object data="<?= $block->getQrCodePix() ?>" type="image/svg+xml" class="qr-code" id="qrcode">
+                <p>
+                    <?= $block->getQrCodeWarningMessage() ?>
+                </p>
+                <button
+                    id="vindi-pix-button-open"
+                    type="button"
+                    class="action primary checkout"
+                    title="Open QR Code Pix"
+                    onclick="window.open('<?= $block->getQrCodePix() ?>', '_blank')">
+                    <?= __('Open QR Code') ?>
+                </button>
+            </object>
 
-        <div data-bind="scope: 'vindiPix'" class="box-qr">
-            <!-- ko template: getTemplate() --><!-- /ko -->
-            <div id="copied-success" class="copied" style="display: none">
-                <span><?= __('QR Code Key copied') ?></span>
+            <p style="word-break: break-all;"><?= $block->getQrcodeOriginalPath() ?></p>
+
+            <div data-bind="scope: 'vindiPix'" class="box-qr">
+                <!-- ko template: getTemplate() --><!-- /ko -->
+                <div id="copied-success" class="copied" style="display: none">
+                    <span><?= __('QR Code Key copied') ?></span>
+                </div>
             </div>
-        </div>
+        <?php else: ?>
+            <div class="pix-subscription-info" style="text-align: center; display: flex; justify-content: center; flex-direction: column; align-items: center;">
+                <p><?= __('We are finalizing the processing of your payment via Pix.') ?></p>
+                <h2><?= __('How does it work?') ?></h2>
+                <?php $nextBillingDate = $block->getNextBillingDate(); ?>
+                <?php if ($nextBillingDate): ?>
+                    <p><?= __('You will receive the QR Code to make the payment according to the scheduled date of your next recurrence, on the day <strong>' . $nextBillingDate . '</strong>. This QR Code will be sent to your registered email and will also be available in your client area on our website.') ?></p>
+                <?php else: ?>
+                    <p><?= __('You will receive the QR Code to make the payment according to the scheduled date of your next recurrence. This QR Code will be sent to your registered email and will also be available in your client area on our website.') ?></p>
+                <?php endif; ?>
+                <h2><?= __('Why this wait?') ?></h2>
+                <p><?= __('This ensures that the charge is aligned with the cycle of your subscription and that you always have full control over the payments.') ?></p>
+                <h2><?= __('What to do now?') ?></h2>
+                <p><?= __('No further action is needed now. Just stay tuned to your email and our website on the mentioned date to make the payment. If you have any questions or need assistance, we are always available to help!') ?></p>
+                <p><?= __('We appreciate your trust and are looking forward to continuing to offer you the best service.') ?></p>
+            </div>
+        <?php endif; ?>
     </div>
 
-    <script type="text/x-magento-init">
-        {
-            "*": {
-                "Magento_Ui/js/core/app": {
-                    "components": {
-                        "vindiPix": {
-                            "component": "Vindi_Payment/js/view/onepage/vindi-pix",
-                            "qrCodeKey": "<?= $block->getQrcodeOriginalPath() ?>"
+    <?php if ($block->getQrcodeOriginalPath()): ?>
+        <script type="text/x-magento-init">
+            {
+                "*": {
+                    "Magento_Ui/js/core/app": {
+                        "components": {
+                            "vindiPix": {
+                                "component": "Vindi_Payment/js/view/onepage/vindi-pix",
+                                "qrCodeKey": "<?= $block->getQrcodeOriginalPath() ?>"
+                            }
                         }
                     }
                 }
             }
-        }
-    </script>
-
+        </script>
+    <?php endif; ?>
 <?php endif; ?>
