@@ -4,6 +4,8 @@ namespace Vindi\Payment\Helper\WebHookHandlers;
 
 use Vindi\Payment\Api\OrderCreationQueueRepositoryInterface;
 use Vindi\Payment\Model\OrderCreationQueueFactory;
+use Magento\Sales\Model\OrderRepository;
+use Vindi\Payment\Helper\EmailSender;
 
 /**
  * Class BillCreated
@@ -31,21 +33,32 @@ class BillCreated
     private $orderCreationQueueFactory;
 
     /**
-     * @param \Psr\Log\LoggerInterface $logger
-     * @param OrderCreator $orderCreator
-     * @param OrderCreationQueueRepositoryInterface $orderCreationQueueRepository
-     * @param OrderCreationQueueFactory $orderCreationQueueFactory
+     * @var OrderRepository
+     */
+    private $orderRepository;
+
+    /**
+     * @var EmailSender
+     */
+    private $emailSender;
+
+    /**
+     * Constructor for initializing class dependencies.
      */
     public function __construct(
         \Psr\Log\LoggerInterface $logger,
         OrderCreator $orderCreator,
         OrderCreationQueueRepositoryInterface $orderCreationQueueRepository,
-        OrderCreationQueueFactory $orderCreationQueueFactory
+        OrderCreationQueueFactory $orderCreationQueueFactory,
+        OrderRepository $orderRepository,
+        EmailSender $emailSender
     ) {
         $this->logger = $logger;
         $this->orderCreator = $orderCreator;
         $this->orderCreationQueueRepository = $orderCreationQueueRepository;
         $this->orderCreationQueueFactory = $orderCreationQueueFactory;
+        $this->orderRepository = $orderRepository;
+        $this->emailSender = $emailSender;
     }
 
     /**
@@ -66,17 +79,28 @@ class BillCreated
         }
 
         if (!isset($bill['subscription']) || $bill['subscription'] === null || !isset($bill['subscription']['id'])) {
-            $this->logger->info(__(sprintf('Ignoring the event "bill_created" for single sell')));
+            $this->logger->info(__('Ignoring the event "bill_created" for single sell'));
             return false;
         }
 
-        $queueItem = $this->orderCreationQueueFactory->create();
+        $originalOrder = $this->orderCreator->getOrderFromSubscriptionId($bill['subscription']['id']);
+        if ($originalOrder && ($originalOrder->getPayment()->getMethod() === 'vindi_pix' || $originalOrder->getPayment()->getMethod() === 'vindi_bankslippix')) {
+            $vindiBillId = (int) $originalOrder->getData('vindi_bill_id');
+            if ($vindiBillId === null || $vindiBillId === '' || $vindiBillId === 0) {
+                $originalOrder->setData('vindi_bill_id', $bill['id']);
+                $this->orderRepository->save($originalOrder);
+                $this->logger->info(__('Vindi bill ID set for the order.'));
 
+                $this->emailSender->sendQrCodeAvailableEmail($originalOrder);
+                return true;
+            }
+        }
+
+        $queueItem = $this->orderCreationQueueFactory->create();
         $queueItem->setData([
             'bill_data' => json_encode($data),
             'status'    => 'pending'
         ]);
-
         $this->orderCreationQueueRepository->save($queueItem);
 
         return true;

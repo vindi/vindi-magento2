@@ -223,15 +223,11 @@ class Save extends Action
         }
 
         if (!empty($post["settings"]["billing_trigger_type"])) {
-            if ($post["settings"]['billing_trigger_type'] != 'day_of_month') {
-                $data['billing_trigger_type'] = $post["settings"]["billing_trigger_day_based_on_period"];
-            } else {
-                $data['billing_trigger_type'] = $post["settings"]["billing_trigger_type"];
+            if ($post["settings"]['billing_trigger_type'] == 'day_of_month') {
+                $data['billing_trigger_day'] = $post["settings"]["billing_trigger_day"] ?? null;
+            } elseif ($post["settings"]['billing_trigger_type'] == 'based_on_period') {
+                $data['billing_trigger_day'] = $post["settings"]["billing_trigger_day_type_on_period"] ?? null;
             }
-        }
-
-        if (!empty($post["settings"]["billing_trigger_day"])) {
-            $data['billing_trigger_day'] = $post["settings"]["billing_trigger_day"];
         }
 
         if (isset($post["settings"]["billing_cycles"]) && $post["settings"]["billing_cycles"] !== '') {
@@ -268,7 +264,7 @@ class Save extends Action
             $data['duration'] = $post["settings"]["duration"];
         }
 
-        if (!empty($post["settings"]["billing_trigger_day_type_on_period"])) {
+        if (isset($post["settings"]["billing_trigger_day_type_on_period"])) {
             $data['billing_trigger_day_type_on_period'] = $post["settings"]["billing_trigger_day_type_on_period"];
         }
 

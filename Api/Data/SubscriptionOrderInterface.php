@@ -31,4 +31,5 @@ interface SubscriptionOrderInterface
     public function setTotal($total);
     public function getStatus();
     public function setStatus($status);
+
 }

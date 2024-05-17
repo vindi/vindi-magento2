@@ -4,6 +4,7 @@ namespace Vindi\Payment\Helper\WebHookHandlers;
 
 use Magento\Sales\Model\OrderFactory;
 use Magento\Sales\Model\Order;
+use Magento\Sales\Model\OrderRepository;
 use Magento\Sales\Model\Service\OrderService;
 use Magento\Framework\Exception\LocalizedException;
 use Vindi\Payment\Model\SubscriptionOrderRepository;
@@ -38,32 +39,37 @@ class OrderCreator
     protected $paymentBill;
 
     /**
+     * @var OrderRepository
+     */
+    private $orderRepository;
+
+    /**
      * OrderCreator constructor.
      * @param OrderFactory $orderFactory
      * @param SubscriptionOrderRepository $subscriptionOrderRepository
      * @param SubscriptionOrderFactory $subscriptionOrderFactory
      * @param OrderService $orderService
      * @param PaymentBill $paymentBill
+     * @param OrderRepository $orderRepository
      */
     public function __construct(
         OrderFactory $orderFactory,
         SubscriptionOrderRepository $subscriptionOrderRepository,
         SubscriptionOrderFactory $subscriptionOrderFactory,
         OrderService $orderService,
-        PaymentBill $paymentBill
+        PaymentBill $paymentBill,
+        OrderRepository $orderRepository
     ) {
         $this->orderFactory = $orderFactory;
         $this->subscriptionOrderRepository = $subscriptionOrderRepository;
         $this->subscriptionOrderFactory = $subscriptionOrderFactory;
         $this->orderService = $orderService;
         $this->paymentBill = $paymentBill;
+        $this->orderRepository = $orderRepository;
     }
 
     /**
      * Create an order from bill data
-     *
-     * @param array $billData
-     * @return bool
      */
     public function createOrderFromBill($billData)
     {
@@ -78,9 +84,11 @@ class OrderCreator
 
             if ($originalOrder) {
                 $newOrder = $this->replicateOrder($originalOrder, $bill);
-                $newOrder->save();
+                $this->orderRepository->save($newOrder);
 
                 $this->registerSubscriptionOrder($newOrder, $subscriptionId);
+
+                $this->updatePaymentDetails($newOrder, $billData);
 
                 return true;
             }
@@ -93,11 +101,8 @@ class OrderCreator
 
     /**
      * Fetch original order using subscription ID
-     *
-     * @param int $subscriptionId
-     * @return Order|null
      */
-    protected function getOrderFromSubscriptionId($subscriptionId)
+    public function getOrderFromSubscriptionId($subscriptionId)
     {
         $subscriptionOrder = $this->subscriptionOrderRepository->getBySubscriptionId($subscriptionId);
 
@@ -110,10 +115,6 @@ class OrderCreator
 
     /**
      * Replicate an order from an existing order
-     *
-     * @param Order $originalOrder
-     * @param array $billData
-     * @return Order
      */
     protected function replicateOrder(Order $originalOrder, $billData)
     {
@@ -189,9 +190,6 @@ class OrderCreator
 
     /**
      * Register the new order in the subscription orders table
-     *
-     * @param Order $order
-     * @param int $subscriptionId
      */
     protected function registerSubscriptionOrder(Order $order, $subscriptionId)
     {
@@ -207,6 +205,23 @@ class OrderCreator
 
             $this->subscriptionOrderRepository->save($subscriptionOrder);
         } catch (\Exception $e) {
+        }
+    }
+
+    /**
+     * Update payment details in the order
+     */
+    protected function updatePaymentDetails(Order $order, $billData)
+    {
+        if (($order->getPayment()->getMethod() === 'vindi_pix' || $order->getPayment()->getMethod() === 'vindi_bankslippix')
+            && !empty($billData['bill']['charges'][0]['last_transaction']['gateway_response_fields'])) {
+            $transactionDetails = $billData['bill']['charges'][0]['last_transaction']['gateway_response_fields'];
+            $additionalInformation = $order->getPayment()->getAdditionalInformation();
+            $additionalInformation['qrcode_original_path'] = $transactionDetails['qrcode_original_path'];
+            $additionalInformation['qrcode_path'] = $transactionDetails['qrcode_path'];
+            $additionalInformation['max_days_to_keep_waiting_payment'] = $transactionDetails['max_days_to_keep_waiting_payment'];
+            $order->getPayment()->setAdditionalInformation($additionalInformation);
+            $this->orderRepository->save($order);
         }
     }
 }
