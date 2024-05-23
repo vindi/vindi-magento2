@@ -160,6 +160,10 @@ class Save extends Action
     {
         $settings = $post['settings'] ?? [];
 
+        if (empty($settings['billing_trigger_type'])) {
+            return __('Billing method cannot be empty.');
+        }
+
         if ($settings["billing_trigger_type"] == 'day_of_month' && !empty($settings["interval_count"]) && $settings["interval_count"] > 1) {
             return __('This billing method only supports monthly plans, i.e., month-to-month.');
         }
@@ -223,10 +227,12 @@ class Save extends Action
         }
 
         if (!empty($post["settings"]["billing_trigger_type"])) {
+            $data['billing_trigger_type'] = $post["settings"]["billing_trigger_type"];
             if ($post["settings"]['billing_trigger_type'] == 'day_of_month') {
                 $data['billing_trigger_day'] = $post["settings"]["billing_trigger_day"] ?? null;
             } elseif ($post["settings"]['billing_trigger_type'] == 'based_on_period') {
-                $data['billing_trigger_day'] = $post["settings"]["billing_trigger_day_type_on_period"] ?? null;
+                $data['billing_trigger_day']  = $post["settings"]["billing_trigger_day_type_on_period"] ?? null;
+                $data['billing_trigger_type'] = $post["settings"]['billing_trigger_day_based_on_period'] ?? null;
             }
         }
 

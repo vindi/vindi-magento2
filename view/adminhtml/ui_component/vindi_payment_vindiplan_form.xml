@@ -34,7 +34,7 @@
             </item>
         </argument>
         <settings>
-            <!--            <validateUrl path="customer/index/validate"/>-->
+            <!-- <validateUrl path="customer/index/validate"/> -->
             <submitUrl path="vindi_payment/vindiplan/save"/>
         </settings>
         <dataProvider class="Vindi\Payment\Model\VindiPlan\DataProvider" name="vindi_payment_vindiplan_data_source">
