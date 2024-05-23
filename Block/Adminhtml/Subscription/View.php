@@ -262,7 +262,7 @@ class View extends Container
     public function getCycleLabel($cycle)
     {
         if (is_null($cycle)) {
-            return 'Permanente';
+            return __('Permanent');
         }
 
         return $cycle;

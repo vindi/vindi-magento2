@@ -555,7 +555,6 @@ abstract class AbstractMethod extends OriginAbstractMethod
      */
     protected function successfullyPaid(array $body, $bill, array $subscription = [])
     {
-        // nova validação para permitir pedidos com pagamento/fatura pendente
         if (!$bill) {
             $billingType = $subscription['billing_trigger_type'] ?? null;
             if ($billingType != 'day_of_month') {

@@ -17,7 +17,7 @@ $pageTitle = __("Subscriptions");
             </thead>
             <tbody>
             <?php foreach ($subscriptions as $subscription): ?>
-                <tr>
+                <tr onclick="window.location='<?= $block->getUrl('vindi_vr/subscription/details', ['id' => $subscription->getId()]) ?>';" style="cursor: pointer;">
                     <td><?= $subscription->getClient() ?></td>
                     <td><?= $subscription->getPlan() ?></td>
                     <td><?= $block->formatDate($subscription->getStartAt(), \IntlDateFormatter::SHORT, false) ?></td>

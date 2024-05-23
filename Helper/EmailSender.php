@@ -79,7 +79,7 @@ class EmailSender
             ];
 
             $this->transportBuilder
-                ->setTemplateIdentifier('vindi_payment_qrcode_available_email_template') // ID of Email template
+                ->setTemplateIdentifier('vindi_payment_qrcode_available_email_template')
                 ->setTemplateOptions([
                     'area' => \Magento\Framework\App\Area::AREA_FRONTEND,
                     'store' => $store->getId(),

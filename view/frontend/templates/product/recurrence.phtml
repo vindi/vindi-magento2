@@ -80,7 +80,6 @@ if ($product && $product->getData('vindi_enable_recurrence') === '1') {
 
                     $('#product-price-' + productId + ' .price').html(priceHtml);
 
-                    // Update and display the description based on the selected plan
                     var description = selectedInput.data('description');
                     if (description) {
                         $('#recurrence-description').html(description).show();

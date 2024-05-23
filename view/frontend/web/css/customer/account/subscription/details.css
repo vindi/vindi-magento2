@@ -1,0 +1,165 @@
+/* Body and container styles */
+/*body {*/
+/*    background-color: #f7fafc;*/
+/*    color: #1a202c;*/
+/*    font-family: sans-serif;*/
+/*}*/
+/*.container {*/
+/*    max-width: 1024px;*/
+/*    margin: 2rem auto;*/
+/*    padding: 2rem;*/
+/*    background-color: white;*/
+/*    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);*/
+/*}*/
+
+/* Title and subtitle styles */
+.title {
+    font-size: 1.875rem;
+    font-weight: 400;
+    margin-bottom: 1rem;
+}
+.subtitle {
+    font-size: 1.25rem;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+}
+
+/* Divider styles */
+.divider {
+    margin-bottom: 1rem;
+    border: none;
+    height: 1px;
+    background-color: #e2e8f0;
+}
+
+/* Grid layout for details */
+.grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1rem;
+    margin-bottom: 2rem;
+}
+.grid div {
+    display: flex;
+    flex-direction: column;
+}
+.label {
+    font-weight: 700;
+    margin-bottom: 0.2rem;
+}
+.grid div p:nth-child(2) {
+    margin-top: 0;
+}
+
+/* Flexbox layout */
+.flex {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+}
+.flex img {
+    margin-right: 1rem;
+}
+.text-blue {
+    color: #d1d5db; /* Changed from light blue to light gray */
+}
+
+/* Table styles */
+table {
+    width: 100%;
+    background-color: white;
+    margin-bottom: 2rem;
+    border-collapse: collapse;
+}
+table th, table td {
+    padding: 0.5rem;
+    text-align: left;
+    border: 1px solid #e2e8f0;
+}
+table th {
+    font-weight: 700;
+    background-color: #f2f2f2;
+}
+table tr:nth-child(even) {
+    background-color: #f9fafb;
+}
+
+/* Address styles */
+.address {
+    margin-bottom: 2rem;
+}
+.address p {
+    margin: 0.5rem 0;
+}
+
+/* Button styles */
+.button {
+    background-color: white;
+    color: black;
+    border: 1px solid black;
+    padding: 0.5rem 1rem;
+    cursor: pointer;
+}
+.button:hover {
+    background-color: #e2e8f0;
+}
+
+/* Section styles */
+.admin__page-section {
+    margin-bottom: 2rem;
+}
+.admin__page-section-title, .admin__page-section-item-title {
+    font-size: 1.5rem;
+    font-weight: 500;
+    margin-bottom: 1rem;
+}
+.admin__page-section-content {
+    padding: 1rem;
+    background-color: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 0.5rem;
+}
+.admin__table-secondary {
+    width: 100%;
+    margin-bottom: 1.5rem;
+}
+.admin__table-primary {
+    width: 100%;
+    margin-bottom: 1.5rem;
+    border: 1px solid #e2e8f0;
+    border-radius: 0.5rem;
+}
+.data-table th, .data-table td {
+    padding: 0.75rem;
+    border: 1px solid #e2e8f0;
+}
+.data-table th {
+    background-color: #f2f2f2;
+    font-weight: 600;
+}
+.data-table td {
+    background-color: #ffffff;
+}
+.data-table tr:nth-child(even) td {
+    background-color: #f9fafb;
+}
+
+/* Additional utility classes */
+.empty {
+    text-align: center;
+    color: #6b7280;
+}
+.option-value {
+    display: block;
+}
+.price-excl-tax .price {
+    font-weight: 600;
+    color: #1a202c;
+}
+.last {
+    text-align: right;
+}
+.border-t {
+    border-top: 1px solid #e2e8f0;
+}
