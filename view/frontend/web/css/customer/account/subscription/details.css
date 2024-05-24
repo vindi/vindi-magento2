@@ -163,3 +163,21 @@ table tr:nth-child(even) {
 .border-t {
     border-top: 1px solid #e2e8f0;
 }
+
+/* Back button styles */
+.back-button-container {
+    margin: 1rem 0;
+    text-align: left;
+}
+.back-button {
+    background-color: #f2f2f2;
+    color: #333;
+    padding: 0.5rem 1rem;
+    text-decoration: none;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    display: inline-block;
+}
+.back-button:hover {
+    background-color: #e2e8f0;
+}

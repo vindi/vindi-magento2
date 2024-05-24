@@ -1,9 +1,16 @@
 <?php
 
 use Vindi\Payment\Block\Subscription\Details;
+use Vindi\Payment\Model\Payment\PaymentMethod;
 
 /** @var Details $block */
+
+$subscription = $block->getSubscription();
 ?>
+<div class="back-button-container">
+    <a href="javascript:history.back()" class="back-button"><?= __('< Back') ?></a>
+</div>
+
 <section class="admin__page-section order-view-account-information">
     <div class="admin__page-section-content">
         <div class="admin__page-section-item order-information">
@@ -55,7 +62,12 @@ use Vindi\Payment\Block\Subscription\Details;
                     </tr>
                     <tr>
                         <th><?= __('Payment Method') ?></th>
-                        <td><strong><?php echo $block->escapeHtml($block->getPaymentMethod()) ?></strong></td>
+                        <td>
+                            <strong><?= $block->getPaymentMethodLabel($subscription->getPaymentMethod()) ?></strong><br>
+                            <?php if ($subscription->getData('payment_method') != PaymentMethod::CREDIT_CARD && $subscription->getData('payment_method') != PaymentMethod::DEBIT_CARD) : ?>
+                                <?= $block->getPaymentMethodImage() ?>
+                            <?php endif; ?>
+                        </td>
                     </tr>
                     </tbody>
                 </table>
@@ -192,25 +204,41 @@ use Vindi\Payment\Block\Subscription\Details;
 
 <section class="admin__page-section">
     <div class="admin__page-section-title">
-        <span class="title"><?= __('Payment Methods') ?></span>
+        <span class="title"><?= __('Payment Method') ?></span>
     </div>
     <div class="admin__page-section-content">
-        <?php if (!empty($block->getFilteredPaymentProfiles())): ?>
+        <?php if (!empty($subscription)): ?>
             <table class="admin__table-secondary">
                 <tbody>
-                <?php foreach($block->getFilteredPaymentProfiles() as $key => $profile): ?>
-                    <tr class="<?php echo ($key % 2) ? 'even' : 'odd'?>">
+                <?php if ($subscription->getData('payment_method') == PaymentMethod::CREDIT_CARD || $subscription->getData('payment_method') == PaymentMethod::DEBIT_CARD) : ?>
+                    <?php if (!empty($block->getFilteredPaymentProfiles())) : ?>
+                        <?php foreach($block->getFilteredPaymentProfiles() as $key => $profile): ?>
+                            <tr class="<?php echo ($key % 2) ? 'even' : 'odd'?>">
+                                <td class="col-product">
+                                    <div class="option-value">
+                                        <img src="<?= $block->getViewFileUrl('Vindi_Payment::images/cc') . '/' . $block->getCreditCardImage($profile->getCcType()) ?>" alt="<?= __('Card') . ' ' . $block->escapeHtml($profile['cc_type']) ?>" style="width: 80px; height: auto;">&nbsp;&nbsp;
+                                        <?= $block->escapeHtml($profile['cc_type']) ?>••••<?= $block->escapeHtml($profile['cc_last_4']) ?>
+                                    </div>
+                                </td>
+                                <td>
+                                    <?= $block->escapeHtml($profile['cc_name']) ?>
+                                </td>
+                                <td class="last">
+                                    <a href="#"><?= __('Edit method') ?></a>
+                                </td>
+                            </tr>
+                        <?php endforeach; ?>
+                    <?php endif; ?>
+                <?php else : ?>
+                    <tr class="even">
                         <td class="col-product">
-                            <div class="option-value">
-                                <img src="https://placehold.co/40x40?text=<?= __('Card') ?>" alt="<?= __('Card') . ' ' . $block->escapeHtml($profile['cc_type']) ?>">
-                                <?= $block->escapeHtml($profile['cc_type']) ?>••••<?= $block->escapeHtml($profile['cc_last_4']) ?>
-                            </div>
+                            <?= $block->getPaymentMethodImage() ?>
                         </td>
                         <td class="last">
-                            <a href="#" class="text-blue"><?= __('Edit method') ?></a>
+                            <a href="#"><?= __('Edit method') ?></a>
                         </td>
                     </tr>
-                <?php endforeach; ?>
+                <?php endif; ?>
                 </tbody>
             </table>
         <?php else: ?>
@@ -291,7 +319,7 @@ use Vindi\Payment\Block\Subscription\Details;
                 <p><?php echo $block->escapeHtml($shippingAddress->getCountryId()) ?></p>
                 <p>T: <?php echo $block->escapeHtml($shippingAddress->getTelephone()) ?></p>
             </div>
-<!--            <a href="#" class="text-blue">--><?php //= __('Edit Address') ?><!--</a>-->
+            <!-- <a href="#" class="text-blue">--><?php //= __('Edit Address') ?><!--</a>-->
         </div>
     <?php endif; ?>
 <?php endif; ?>
@@ -324,3 +352,7 @@ use Vindi\Payment\Block\Subscription\Details;
         }
     });
 </script>
+<br>
+<div class="back-button-container">
+    <a href="javascript:history.back()" class="back-button"><?= __('< Back') ?></a>
+</div>

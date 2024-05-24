@@ -199,7 +199,6 @@
 "Client","Cliente"
 "Plan","Plano"
 "Start","Início"
-"Payment Method","Método de Pagamento"
 "Status","Status"
 "There are no subscriptions for this customer.","Não há assinaturas para este cliente."
 "Card","Cartão"
@@ -386,3 +385,4 @@
 "Are you sure you want to cancel your subscription?", "Tem certeza de que deseja cancelar sua assinatura?"
 "Permanent","Permanente"
 "Billing method cannot be empty.","O método de cobrança não pode estar vazio."
+"< Back","< Voltar"

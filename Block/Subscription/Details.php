@@ -6,6 +6,7 @@ use Exception;
 use Magento\Framework\View\Element\Template;
 use Magento\Framework\View\Element\Template\Context;
 use Magento\Customer\Model\Session as CustomerSession;
+use Vindi\Payment\Model\Config\Source\Subscription\PaymentMethod;
 use Vindi\Payment\Model\ResourceModel\Subscription\CollectionFactory as SubscriptionCollectionFactory;
 use Vindi\Payment\Model\ResourceModel\PaymentProfile\CollectionFactory as PaymentProfileCollectionFactory;
 use Magento\Sales\Model\ResourceModel\Order\CollectionFactory as OrderCollectionFactory;
@@ -15,6 +16,9 @@ use Vindi\Payment\Helper\Api;
 use Vindi\Payment\Model\ResourceModel\SubscriptionOrder\CollectionFactory as SubscriptionOrderCollectionFactory;
 use Magento\Framework\Registry;
 use Vindi\Payment\Model\Config\Source\OrderStatus;
+use Magento\Payment\Helper\Data as PaymentHelper;
+use Vindi\Payment\Model\Config\Source\CardImages as CardImagesSource;
+use Vindi\Payment\Model\Config\Source\Subscription\PaymentMethod as SourcePaymentMethod;
 
 /**
  * Class Details
@@ -22,67 +26,24 @@ use Vindi\Payment\Model\Config\Source\OrderStatus;
  */
 class Details extends Template
 {
-    /**
-     * @var CustomerSession
-     */
     protected $customerSession;
-
-    /**
-     * @var SubscriptionCollectionFactory
-     */
     protected $subscriptionCollectionFactory;
-
-    /**
-     * @var PaymentProfileCollectionFactory
-     */
     protected $paymentProfileCollectionFactory;
-
-    /**
-     * @var OrderCollectionFactory
-     */
     protected $orderCollectionFactory;
-
-    /**
-     * @var AddressRepositoryInterface
-     */
     protected $addressRepository;
-
-    /**
-     * @var Api
-     */
     private $api;
-
-    /**
-     * @var PriceCurrencyInterface
-     */
     protected $priceHelper;
-
-    /**
-     * @var Registry
-     */
     private $registry;
-
-    /**
-     * @var SubscriptionOrderCollectionFactory
-     */
     private $subscriptionsOrderCollectionFactory;
-
-    /**
-     * @var array
-     */
     private $subscriptionData = null;
-
-    /**
-     * @var array
-     */
     private $periods = null;
-
-    /**
-     * @var OrderStatus
-     */
     private $orderStatus;
+    private $paymentHelper;
+    private $paymentMethod;
+    private $creditCardTypeSource;
 
     /**
+     * Details constructor.
      * @param Context $context
      * @param CustomerSession $customerSession
      * @param SubscriptionCollectionFactory $subscriptionCollectionFactory
@@ -94,6 +55,9 @@ class Details extends Template
      * @param Registry $registry
      * @param SubscriptionOrderCollectionFactory $subscriptionsOrderCollectionFactory
      * @param OrderStatus $orderStatus
+     * @param PaymentHelper $paymentHelper
+     * @param SourcePaymentMethod $paymentMethod
+     * @param CardImagesSource $creditCardTypeSource
      * @param array $data
      */
     public function __construct(
@@ -108,6 +72,9 @@ class Details extends Template
         Registry $registry,
         SubscriptionOrderCollectionFactory $subscriptionsOrderCollectionFactory,
         OrderStatus $orderStatus,
+        PaymentHelper $paymentHelper,
+        SourcePaymentMethod $paymentMethod,
+        CardImagesSource $creditCardTypeSource,
         array $data = []
     ) {
         parent::__construct($context, $data);
@@ -121,6 +88,9 @@ class Details extends Template
         $this->registry = $registry;
         $this->subscriptionsOrderCollectionFactory = $subscriptionsOrderCollectionFactory;
         $this->orderStatus = $orderStatus;
+        $this->paymentHelper = $paymentHelper;
+        $this->paymentMethod = $paymentMethod;
+        $this->creditCardTypeSource = $creditCardTypeSource;
     }
 
     /**
@@ -371,14 +341,56 @@ class Details extends Template
     }
 
     /**
-     * Get payment method
+     * Get payment method label
+     *
+     * @param $paymentMethodValue
+     * @return mixed
+     */
+    public function getPaymentMethodLabel($paymentMethodValue)
+    {
+        $options = $this->paymentMethod->toOptionArray();
+        foreach ($options as $option) {
+            if ($option['value'] == $paymentMethodValue) {
+                return $option['label'];
+            }
+        }
+        return $paymentMethodValue;
+    }
+
+    /**
+     * Get payment method image
      *
      * @return string
      */
-    public function getPaymentMethod()
+    public function getPaymentMethodImage()
     {
         $data = $this->getSubscriptionData();
-        return $data['payment_method']['name'] ?? '-';
+
+        $paymentMethodCode = '';
+
+        if (isset($data['payment_method']['code'])) {
+            $paymentMethodCode = $data['payment_method']['code'];
+            $imageUrl = '';
+
+            switch ($paymentMethodCode) {
+                case 'pix':
+                case 'pix_bank_slip':
+                    $imageUrl = $this->getViewFileUrl('Vindi_Payment::images/payment_methods/pix.png');
+                    break;
+                case 'bank_slip':
+                    $imageUrl = $this->getViewFileUrl('Vindi_Payment::images/payment_methods/bankslip.png');
+                    break;
+                case 'credit_card':
+                case 'debit_card':
+                    return '';
+                default:
+                    return '';
+            }
+
+            return '<img src="' . $imageUrl . '" alt="' . $paymentMethodCode . '" style="width: 200px; height: auto;" />';
+        }
+
+        return '';
     }
 
     /**
@@ -494,9 +506,9 @@ class Details extends Template
             return [];
         }
 
-        $paymentProfileId = $this->getSubscription()->getPaymentProfileId();
+        $paymentProfileId = $this->getSubscription()->getPaymentProfile();
         $paymentProfileCollection = $this->paymentProfileCollectionFactory->create();
-        $paymentProfileCollection->addFieldToFilter('entity_id', $paymentProfileId);
+        $paymentProfileCollection->addFieldToFilter('payment_profile_id', $paymentProfileId);
 
         return $paymentProfileCollection->getItems();
     }
@@ -530,5 +542,23 @@ class Details extends Template
     public function getOrderStatusLabel($status)
     {
         return $this->orderStatus->getLabel($status);
+    }
+
+    /**
+     * Get credit card image
+     *
+     * @param string $ccType
+     * @return string|null
+     */
+    public function getCreditCardImage($ccType)
+    {
+        $creditCardOptionArray = $this->creditCardTypeSource->toOptionArray();
+
+        foreach ($creditCardOptionArray as $creditCardOption) {
+            if ($creditCardOption['label']->getText() == $ccType) {
+                return $creditCardOption['value'];
+            }
+        }
+        return null;
     }
 }
