@@ -8,7 +8,7 @@ use Vindi\Payment\Model\Payment\PaymentMethod;
 $subscription = $block->getSubscription();
 ?>
 <div class="back-button-container">
-    <a href="javascript:history.back()" class="back-button"><?= __('< Back') ?></a>
+    <button type="button" id="custom-back-button" class="back-button"><?= __('< Back') ?></button>
 </div>
 
 <section class="admin__page-section order-view-account-information">
@@ -65,7 +65,7 @@ $subscription = $block->getSubscription();
                         <td>
                             <strong><?= $block->getPaymentMethodLabel($subscription->getPaymentMethod()) ?></strong><br>
                             <?php if ($subscription->getData('payment_method') != PaymentMethod::CREDIT_CARD && $subscription->getData('payment_method') != PaymentMethod::DEBIT_CARD) : ?>
-                                <?= $block->getPaymentMethodImage() ?>
+                                <div class="non-card-method-image"><?= $block->getPaymentMethodImage() ?></div>
                             <?php endif; ?>
                         </td>
                     </tr>
@@ -206,45 +206,55 @@ $subscription = $block->getSubscription();
     <div class="admin__page-section-title">
         <span class="title"><?= __('Payment Method') ?></span>
     </div>
-    <div class="admin__page-section-content">
-        <?php if (!empty($subscription)): ?>
-            <table class="admin__table-secondary">
-                <tbody>
-                <?php if ($subscription->getData('payment_method') == PaymentMethod::CREDIT_CARD || $subscription->getData('payment_method') == PaymentMethod::DEBIT_CARD) : ?>
-                    <?php if (!empty($block->getFilteredPaymentProfiles())) : ?>
-                        <?php foreach($block->getFilteredPaymentProfiles() as $key => $profile): ?>
+    <?php if (!empty($subscription)): ?>
+        <?php if ($subscription->getData('payment_method') == PaymentMethod::CREDIT_CARD || $subscription->getData('payment_method') == PaymentMethod::DEBIT_CARD) : ?>
+            <div>
+                <div class="paymentProfiles-list">
+                    <table>
+                        <thead>
+                        <tr>
+                            <th><?= __('Card') ?></th>
+                            <th><?= __('Holder Name') ?></th>
+                            <th><?= __('Action') ?></th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <?php foreach ($block->getFilteredPaymentProfiles() as $key => $profile): ?>
                             <tr class="<?php echo ($key % 2) ? 'even' : 'odd'?>">
-                                <td class="col-product">
-                                    <div class="option-value">
-                                        <img src="<?= $block->getViewFileUrl('Vindi_Payment::images/cc') . '/' . $block->getCreditCardImage($profile->getCcType()) ?>" alt="<?= __('Card') . ' ' . $block->escapeHtml($profile['cc_type']) ?>" style="width: 80px; height: auto;">&nbsp;&nbsp;
-                                        <?= $block->escapeHtml($profile['cc_type']) ?>••••<?= $block->escapeHtml($profile['cc_last_4']) ?>
-                                    </div>
+                                <td>
+                                    <img class="card-icon" src="<?= $block->getViewFileUrl('Vindi_Payment::images/cc') . '/' . $block->getCreditCardImage($profile->getCcType()) ?>" alt="<?= $block->escapeHtmlAttr($profile->getCcType()) ?>">&nbsp;&nbsp;&nbsp;
+                                    <span><?= $profile->getCcType() . '****' . $block->escapeHtml($profile->getCcLast4()) ?></span>
                                 </td>
                                 <td>
-                                    <?= $block->escapeHtml($profile['cc_name']) ?>
+                                    <?= $block->escapeHtml($profile->getCcName()) ?>
                                 </td>
-                                <td class="last">
-                                    <a href="#"><?= __('Edit method') ?></a>
+                                <td>
+                                    <a href="<?= $block->getUrl('vindi_vr/subscription/editpayment', ['id' => $block->getRequest()->getParam('id')]) ?>"><?= __('Edit method') ?></a>
                                 </td>
                             </tr>
                         <?php endforeach; ?>
-                    <?php endif; ?>
-                <?php else : ?>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        <?php else : ?>
+            <div class="admin__page-section-content">
+                <table class="admin__table-secondary">
+                    <tbody>
                     <tr class="even">
-                        <td class="col-product">
-                            <?= $block->getPaymentMethodImage() ?>
-                        </td>
-                        <td class="last">
-                            <a href="#"><?= __('Edit method') ?></a>
+                        <td class="col-product non-card-method-image-container">
+                            <div class="non-card-method-image"><?= $block->getPaymentMethodImage() ?></div>
                         </td>
                     </tr>
-                <?php endif; ?>
-                </tbody>
-            </table>
-        <?php else: ?>
-            <p class="empty"><span><?= __('No payment methods found.') ?></span></p>
+                    </tbody>
+                </table>
+            </div>
         <?php endif; ?>
-    </div>
+    <?php else: ?>
+        <div class="admin__page-section-content">
+            <p class="empty"><span><?= __('No payment methods found.') ?></span></p>
+        </div>
+    <?php endif; ?>
 </section>
 
 <section class="admin__page-section">
@@ -337,14 +347,26 @@ $subscription = $block->getSubscription();
                 window.location.href = url.build("<?php echo $cancelSubscriptionUrl ?>");
             }
         });
+
+        function handleBackButton() {
+            var previousPage = document.referrer;
+            var subscriptionIndexUrl = url.build('vindi_vr/subscription/index');
+            if (previousPage.includes('vindi_vr/subscription/index')) {
+                history.back();
+            } else {
+                window.location.href = subscriptionIndexUrl;
+            }
+        }
+
+        $('#custom-back-button, #bottom-back-button').on('click', handleBackButton);
     });
 </script>
 <script>
     document.addEventListener("DOMContentLoaded", function() {
-        var minhasAssinaturas = document.querySelector('.minhas-assinaturas');
+        var subscriptionsElement = document.querySelector('.minhas-assinaturas, .my-subscriptions');
 
-        if (minhasAssinaturas) {
-            var currentLi = minhasAssinaturas.closest('li');
+        if (subscriptionsElement) {
+            var currentLi = subscriptionsElement.closest('li');
 
             if (currentLi) {
                 currentLi.classList.add('current');
@@ -354,5 +376,5 @@ $subscription = $block->getSubscription();
 </script>
 <br>
 <div class="back-button-container">
-    <a href="javascript:history.back()" class="back-button"><?= __('< Back') ?></a>
+    <button type="button" id="bottom-back-button" class="back-button"><?= __('< Back') ?></button>
 </div>

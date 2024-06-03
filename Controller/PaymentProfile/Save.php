@@ -15,6 +15,9 @@ use Vindi\Payment\Model\PaymentProfileFactory;
 use Vindi\Payment\Model\PaymentProfileRepository;
 use Magento\Customer\Api\CustomerRepositoryInterface;
 use Vindi\Payment\Model\Payment\Customer as VindiCustomer;
+use Vindi\Payment\Model\SubscriptionFactory;
+use Vindi\Payment\Model\ResourceModel\Subscription as SubscriptionResource;
+use Vindi\Payment\Helper\Api;
 
 /**
  * Class Save
@@ -63,6 +66,21 @@ class Save extends Action
     protected $vindiCustomer;
 
     /**
+     * @var SubscriptionFactory
+     */
+    protected $subscriptionFactory;
+
+    /**
+     * @var SubscriptionResource
+     */
+    protected $subscriptionResource;
+
+    /**
+     * @var Api
+     */
+    protected $api;
+
+    /**
      * @param Context $context
      * @param PageFactory $resultPageFactory
      * @param Session $customerSession
@@ -72,6 +90,9 @@ class Save extends Action
      * @param DataPersistorInterface $dataPersistor
      * @param CustomerRepositoryInterface $customerRepository
      * @param VindiCustomer $vindiCustomer
+     * @param SubscriptionFactory $subscriptionFactory
+     * @param SubscriptionResource $subscriptionResource
+     * @param Api $api
      */
     public function __construct(
         Context $context,
@@ -82,7 +103,10 @@ class Save extends Action
         PaymentProfileManager $paymentProfileManager,
         DataPersistorInterface $dataPersistor,
         CustomerRepositoryInterface $customerRepository,
-        VindiCustomer $vindiCustomer
+        VindiCustomer $vindiCustomer,
+        SubscriptionFactory $subscriptionFactory,
+        SubscriptionResource $subscriptionResource,
+        Api $api
     ) {
         parent::__construct($context);
         $this->resultPageFactory = $resultPageFactory;
@@ -93,8 +117,10 @@ class Save extends Action
         $this->dataPersistor = $dataPersistor;
         $this->customerRepository = $customerRepository;
         $this->vindiCustomer = $vindiCustomer;
+        $this->subscriptionFactory = $subscriptionFactory;
+        $this->subscriptionResource = $subscriptionResource;
+        $this->api = $api;
     }
-
 
     /**
      * Dispatch request
@@ -111,6 +137,12 @@ class Save extends Action
         return parent::dispatch($request);
     }
 
+    /**
+     * Execute action
+     *
+     * @return ResponseInterface
+     * @throws \Exception
+     */
     public function execute()
     {
         $request    = $this->getRequest();
@@ -119,57 +151,46 @@ class Save extends Action
 
         try {
             $entityId       = isset($data['entity_id']) ? (int) $data['entity_id'] : null;
+            $subscriptionId = isset($data['subscription_id']) ? (int) $data['subscription_id'] : null;
             $paymentProfile = $this->paymentProfileFactory->create();
 
             if ($entityId) {
                 $paymentProfile = $this->paymentProfileRepository->getById($entityId);
             }
 
-//            if ($paymentProfile && $paymentProfile->getId()) {
-//                $vindiData = $this->formatPaymentProfileData($data, $customerId);
-//                $this->paymentProfileManager->updatePaymentProfile($paymentProfile->getPaymentProfileId(), $vindiData);
-//
-//                $this->setCreditCardData($data);
-//
-//                $paymentProfile->setData([
-//                    'cc_number'   => $data['cc_number'],
-//                    'cc_exp_date' => $data['cc_exp_date'],
-//                    'cc_name'     => $data['cc_name'],
-//                    'cc_type'     => $data['cc_type'],
-//                    'cc_last_4'   => $data['cc_last_4'],
-//                ]);
-//
-//                $this->messageManager->addSuccessMessage(__('Payment profile updated successfully.'));
-//            } else {
-                $vindiData = $this->formatPaymentProfileData($data, $customerId);
+            $vindiData = $this->formatPaymentProfileData($data, $customerId);
 
-                $customer = $this->customerRepository->getById($customerId);
-                $customerVindiId = $this->vindiCustomer->findOrCreateFromCustomerAccount($customer);
+            $customer = $this->customerRepository->getById($customerId);
+            $customerVindiId = $this->vindiCustomer->findOrCreateFromCustomerAccount($customer);
 
-                $vindiPaymentProfile = $this->paymentProfileManager->createFromCustomerAccount($vindiData, $customerVindiId, 'credit_card');
+            $vindiPaymentProfile = $this->paymentProfileManager->createFromCustomerAccount($vindiData, $customerVindiId, 'credit_card');
 
-                $this->setCreditCardData($data);
+            $this->setCreditCardData($data);
 
-                $paymentProfile->setData([
-                    'payment_profile_id' => $vindiPaymentProfile['payment_profile']['id'],
-                    'vindi_customer_id'  => $customerVindiId,
-                    'customer_id'        => $customerId,
-                    'customer_email'     => $customer->getEmail(),
-                    'cc_number'          => $data['cc_number'],
-                    'cc_exp_date'        => $data['cc_exp_date'],
-                    'cc_name'            => $data['cc_name'],
-                    'cc_type'            => $data['cc_type'],
-                    'cc_last_4'          => $data['cc_last_4'],
-                    'status'             => $vindiPaymentProfile["payment_profile"]["status"],
-                    'token'              => $vindiPaymentProfile["payment_profile"]["token"],
-                    'type'               => $vindiPaymentProfile["payment_profile"]["type"]
-                ]);
-
-                $this->messageManager->addSuccessMessage(__('New payment profile created successfully.'));
-//            }
+            $paymentProfile->setData([
+                'payment_profile_id' => $vindiPaymentProfile['payment_profile']['id'],
+                'vindi_customer_id'  => $customerVindiId,
+                'customer_id'        => $customerId,
+                'customer_email'     => $customer->getEmail(),
+                'cc_number'          => $data['cc_number'],
+                'cc_exp_date'        => $data['cc_exp_date'],
+                'cc_name'            => $data['cc_name'],
+                'cc_type'            => $data['cc_type'],
+                'cc_last_4'          => $data['cc_last_4'],
+                'status'             => $vindiPaymentProfile["payment_profile"]["status"],
+                'token'              => $vindiPaymentProfile["payment_profile"]["token"],
+                'type'               => $vindiPaymentProfile["payment_profile"]["type"]
+            ]);
 
             $this->paymentProfileRepository->save($paymentProfile);
 
+            if ($subscriptionId) {
+                if ($this->updateVindiPaymentProfile($vindiPaymentProfile['payment_profile']['id'], $subscriptionId)) {
+                    $this->updateSubscriptionPaymentProfile($subscriptionId, $vindiPaymentProfile['payment_profile']['id']);
+                }
+            }
+
+            $this->messageManager->addSuccessMessage(__('New payment profile created successfully.'));
             $this->dataPersistor->set('vindi_payment_profile', $data);
         } catch (\Exception $e) {
             $this->messageManager->addWarningMessage(__('An error occurred while saving the payment profile: ') . '"' . $e->getMessage() . '"');
@@ -183,6 +204,8 @@ class Save extends Action
     }
 
     /**
+     * Format payment profile data
+     *
      * @param array $data
      * @param int $customerId
      * @return array
@@ -210,6 +233,8 @@ class Save extends Action
     }
 
     /**
+     * Mask credit card number
+     *
      * @param $cardNumber
      * @return string
      */
@@ -225,6 +250,8 @@ class Save extends Action
     }
 
     /**
+     * Set credit card data
+     *
      * @param $data
      * @return void
      */
@@ -232,5 +259,48 @@ class Save extends Action
     {
         $data['cc_last_4'] = substr($data['cc_number'], -4);
         $data['cc_number'] = $this->maskCreditCardNumber($data['cc_number']);
+    }
+
+    /**
+     * Update the subscription with the new payment profile
+     *
+     * @param int $subscriptionId
+     * @param int $paymentProfileId
+     * @throws \Exception
+     */
+    private function updateSubscriptionPaymentProfile($subscriptionId, $paymentProfileId)
+    {
+        $subscription = $this->subscriptionFactory->create();
+        $this->subscriptionResource->load($subscription, $subscriptionId);
+
+        if (!$subscription->getId()) {
+            throw new \Exception(__('Subscription not found.'));
+        }
+
+        $subscription->setPaymentProfile($paymentProfileId);
+        $this->subscriptionResource->save($subscription);
+    }
+
+    /**
+     * Update Vindi payment profile
+     *
+     * @param int $paymentProfileId
+     * @param int $subscriptionId
+     * @return bool
+     */
+    private function updateVindiPaymentProfile($paymentProfileId, $subscriptionId)
+    {
+        try {
+            $this->api->request('subscriptions/' . $subscriptionId, 'PUT', [
+                'payment_profile' => [
+                    'id' => $paymentProfileId
+                ]
+            ]);
+
+            return true;
+        } catch (\Exception $e) {
+            $this->messageManager->addErrorMessage(__('Failed to update Vindi payment profile: ') . '"' . $e->getMessage() . '"');
+            return false;
+        }
     }
 }

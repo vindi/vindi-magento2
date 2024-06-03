@@ -1,17 +1,3 @@
-/* Body and container styles */
-/*body {*/
-/*    background-color: #f7fafc;*/
-/*    color: #1a202c;*/
-/*    font-family: sans-serif;*/
-/*}*/
-/*.container {*/
-/*    max-width: 1024px;*/
-/*    margin: 2rem auto;*/
-/*    padding: 2rem;*/
-/*    background-color: white;*/
-/*    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);*/
-/*}*/
-
 /* Title and subtitle styles */
 .title {
     font-size: 1.875rem;
@@ -170,14 +156,98 @@ table tr:nth-child(even) {
     text-align: left;
 }
 .back-button {
-    background-color: #f2f2f2;
-    color: #333;
-    padding: 0.5rem 1rem;
-    text-decoration: none;
-    border: 1px solid #ccc;
-    border-radius: 5px;
-    display: inline-block;
+    background-color: #555;
+    color: white;
+    padding: 8px 16px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
 }
 .back-button:hover {
-    background-color: #e2e8f0;
+    background-color: #004494;
+}
+
+/* Payment Profiles styles */
+.paymentProfiles-list {
+    font-family: Arial, sans-serif;
+}
+
+.paymentProfiles-list table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+}
+
+.paymentProfiles-list th, .paymentProfiles-list td {
+    padding: 8px;
+    text-align: left;
+}
+
+.paymentProfiles-list th {
+    background-color: #f2f2f2;
+}
+
+.paymentProfiles-list tr:nth-child(even) {
+    background-color: #f9f9f9;
+}
+
+.paymentProfiles-list tr:hover {
+    background-color: #eaeaea;
+}
+
+.paymentProfiles-list .pager {
+    margin: 20px 0;
+    text-align: center;
+    list-style: none;
+    padding: 0;
+}
+
+.paymentProfiles-list .pager .items {
+    display: inline-block;
+    padding-left: 0;
+}
+
+.paymentProfiles-list .pager .items li {
+    display: inline;
+    margin: 0 5px;
+}
+
+.paymentProfiles-list .pager .items li a,
+.paymentProfiles-list .pager .items li strong {
+    padding: 5px 10px;
+    border: 1px solid #ddd;
+    background-color: #f9f9f9;
+    color: #333;
+    text-decoration: none;
+}
+
+.paymentProfiles-list .pager .items li.current strong,
+.paymentProfiles-list .pager .items li a:hover {
+    background-color: #eaeaea;
+}
+
+.paymentProfiles-list .pager .limiter,
+.paymentProfiles-list .pager .toolbar-amount,
+.paymentProfiles-list .pager .toolbar-number {
+    display: inline-block;
+    margin: 0 10px;
+}
+
+.paymentProfiles-list .pager .limiter select {
+    padding: 5px;
+    border: 1px solid #ddd;
+}
+
+.paymentProfiles-list .pager .limiter-label,
+.paymentProfiles-list .pager .limiter-text {
+    margin-right: 5px;
+}
+
+/* Non-card method image styles */
+.non-card-method-image-container {
+    text-align: center;
+}
+.non-card-method-image {
+    display: inline-block;
 }

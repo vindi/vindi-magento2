@@ -1,28 +1,34 @@
 <?php
-namespace Vindi\Payment\Block\PaymentProfile;
 
-use Magento\Customer\Model\Session as CustomerSession;
+namespace Vindi\Payment\Block\Subscription;
+
 use Magento\Framework\View\Element\Template;
-use Magento\Framework\View\Element\Template\Context;
+use Magento\Customer\Model\Session;
 use Vindi\Payment\Model\Config\Source\CardImages as CardImagesSource;
 use Vindi\Payment\Model\ResourceModel\PaymentProfile\Collection as PaymentProfileCollection;
+use Vindi\Payment\Model\ResourceModel\Subscription as SubscriptionResource;
 
 /**
- * Class PaymentProfileList
- * @package Vindi\Payment\Block
-
+ * Class EditPayment
+ *
+ * @package Vindi\Payment\Block\Subscription
  */
-class PaymentProfileList extends Template
+class EditPayment extends Template
 {
     /**
      * @var PaymentProfileCollection
      */
-    protected $_paymentProfileCollection;
+    protected $paymentProfileCollection;
 
     /**
-     * @var CustomerSession
+     * @var Session
      */
     protected $customerSession;
+
+    /**
+     * @var SubscriptionResource
+     */
+    protected $subscriptionResource;
 
     /**
      * @var CardImagesSource
@@ -30,26 +36,33 @@ class PaymentProfileList extends Template
     protected $creditCardTypeSource;
 
     /**
-     * @param Context $context
+     * EditPayment constructor.
+     *
+     * @param Template\Context $context
      * @param PaymentProfileCollection $paymentProfileCollection
-     * @param CustomerSession $customerSession
+     * @param Session $customerSession
+     * @param SubscriptionResource $subscriptionResource
      * @param CardImagesSource $creditCardTypeSource
      * @param array $data
      */
     public function __construct(
-        Context $context,
+        Template\Context $context,
         PaymentProfileCollection $paymentProfileCollection,
-        CustomerSession $customerSession,
+        Session $customerSession,
+        SubscriptionResource $subscriptionResource,
         CardImagesSource $creditCardTypeSource,
         array $data = []
     ) {
-        $this->_paymentProfileCollection = $paymentProfileCollection;
+        $this->paymentProfileCollection = $paymentProfileCollection;
         $this->customerSession = $customerSession;
+        $this->subscriptionResource = $subscriptionResource;
         $this->creditCardTypeSource = $creditCardTypeSource;
         parent::__construct($context, $data);
     }
 
     /**
+     * Prepare layout
+     *
      * @return $this
      */
     protected function _prepareLayout()
@@ -59,7 +72,7 @@ class PaymentProfileList extends Template
             $pager = $this->getLayout()->createBlock(
                 'Magento\Theme\Block\Html\Pager',
                 'custom.paymentProfile.list.pager'
-            )->setAvailableLimit([10=>10, 20=>20, 50=>50])->setShowPerPage(true)->setCollection(
+            )->setAvailableLimit([10 => 10, 20 => 20, 50 => 50])->setShowPerPage(true)->setCollection(
                 $this->getPaymentProfiles()
             );
             $this->setChild('pager', $pager);
@@ -69,6 +82,8 @@ class PaymentProfileList extends Template
     }
 
     /**
+     * Get pager HTML
+     *
      * @return string
      */
     public function getPagerHtml()
@@ -77,22 +92,36 @@ class PaymentProfileList extends Template
     }
 
     /**
+     * Get payment profiles
+     *
      * @return PaymentProfileCollection
      */
     public function getPaymentProfiles()
     {
         if ($this->customerSession->isLoggedIn()) {
             $customerId = $this->customerSession->getCustomerId();
-            $this->_paymentProfileCollection->addFieldToFilter('customer_id', $customerId)
-                ->setOrder('created_at', 'DESC');
+            $this->paymentProfileCollection->addFieldToFilter('customer_id', $customerId)
+                ->setOrder('created_at', 'DESC'); // Order by 'created_at' field in descending order
         }
 
-        return $this->_paymentProfileCollection;
+        return $this->paymentProfileCollection;
     }
 
     /**
-     * @param $ccType
-     * @return mixed|void
+     * Get subscription ID
+     *
+     * @return int
+     */
+    public function getSubscriptionId()
+    {
+        return $this->getRequest()->getParam('id');
+    }
+
+    /**
+     * Get credit card image
+     *
+     * @param string $ccType
+     * @return string
      */
     public function getCreditCardImage($ccType)
     {
