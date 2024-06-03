@@ -6,7 +6,9 @@ use Magento\Framework\App\Helper\AbstractHelper;
 use Magento\Framework\App\Helper\Context;
 use Magento\Framework\Message\ManagerInterface;
 use Magento\Framework\Module\ModuleListInterface;
-use Psr\Log\LoggerInterface;
+use Vindi\Payment\Logger\Logger;
+use Vindi\Payment\Model\LogFactory;
+use Vindi\Payment\Model\ResourceModel\Log as LogResource;
 
 /**
  * Class Api
@@ -28,13 +30,21 @@ class Api extends AbstractHelper
      */
     private $moduleList;
     /**
-     * @var LoggerInterface
+     * @var Logger
      */
     private $logger;
     /**
      * @var ManagerInterface
      */
     private $messageManager;
+    /**
+     * @var LogFactory
+     */
+    private $logFactory;
+    /**
+     * @var LogResource
+     */
+    private $logResource;
     /**
      * @var string
      */
@@ -45,21 +55,27 @@ class Api extends AbstractHelper
      * @param Context $context
      * @param Data $helperData
      * @param ModuleListInterface $moduleList
-     * @param LoggerInterface $logger
+     * @param Logger $logger
      * @param ManagerInterface $messageManager
+     * @param LogFactory $logFactory
+     * @param LogResource $logResource
      */
     public function __construct(
         Context $context,
         Data $helperData,
         ModuleListInterface $moduleList,
-        LoggerInterface $logger,
-        ManagerInterface $messageManager
+        Logger $logger,
+        ManagerInterface $messageManager,
+        LogFactory $logFactory,
+        LogResource $logResource
     ) {
         parent::__construct($context);
         $this->helperData = $helperData;
         $this->moduleList = $moduleList;
         $this->logger = $logger;
         $this->messageManager = $messageManager;
+        $this->logFactory = $logFactory;
+        $this->logResource = $logResource;
 
         $this->apiKey = $helperData->getModuleGeneralConfig("api_key");
         $this->base_path = $helperData->getBaseUrl();
@@ -77,10 +93,13 @@ class Api extends AbstractHelper
         if (!$this->apiKey) {
             return false;
         }
-        $url = $this->base_path . $endpoint;
+
+        $url  = $this->base_path . $endpoint;
         $body = !empty($data) ? json_encode($data) : '';
+
         $requestId = number_format(microtime(true), 2, '', '');
         $dataToLog = null !== $dataToLog ? json_encode($dataToLog) : $body;
+
         $this->logger->info(__(sprintf(
             '[Request #%s]: New Api Request.\n%s %s\n%s',
             $requestId,
@@ -88,7 +107,9 @@ class Api extends AbstractHelper
             $url,
             $dataToLog
         )));
+
         $ch = curl_init();
+
         $ch_options = [
             CURLOPT_HTTPHEADER => [
                 'Content-Type: application/json',
@@ -109,34 +130,55 @@ class Api extends AbstractHelper
         }
 
         curl_setopt_array($ch, $ch_options);
-        $response = curl_exec($ch);
+
+        $response   = curl_exec($ch);
         $statusCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+
         $body = substr($response, curl_getinfo($ch, CURLINFO_HEADER_SIZE));
+
         if (curl_errno($ch) || $response === false) {
             $this->logger->error(
                 __(sprintf('[Request #%s]: Error while executing request!\n%s', $requestId, print_r($response, true)))
             );
             curl_close($ch);
+            $this->logApiRequest($endpoint, $method, $body, $response, $statusCode, 'Error while executing request');
             return false;
         }
+
         curl_close($ch);
+
         $status = "HTTP Status: $statusCode";
+
         $this->logger->info(__(sprintf('[Request #%s]: New API Answer.\n%s\n%s', $requestId, $status, $body)));
         $responseBody = json_decode($body, true);
+
         if (!$responseBody) {
             $this->logger->info(__(sprintf(
                 '[Request #%s]: Error while recovering request body! %s',
                 $requestId,
                 print_r($body, true)
             )));
+
+            $this->logApiRequest($endpoint, $method, $body, $response, $statusCode, 'Error while recovering request body');
+
             return false;
         }
+
         if (!$this->checkResponse($responseBody, $endpoint)) {
+            $this->logApiRequest($endpoint, $method, $body, json_encode($responseBody), $statusCode, 'API response error');
             return false;
         }
+
+        $this->logApiRequest($endpoint, $method, $body, json_encode($responseBody), $statusCode, 'Success');
+
         return $responseBody;
     }
 
+    /**
+     * Get the version of the module
+     *
+     * @return string
+     */
     public function getVersion()
     {
         return $this->moduleList
@@ -144,6 +186,8 @@ class Api extends AbstractHelper
     }
 
     /**
+     * Check the response for errors
+     *
      * @param array $response
      * @param       $endpoint
      *
@@ -169,6 +213,8 @@ class Api extends AbstractHelper
     }
 
     /**
+     * Get a formatted error message
+     *
      * @param array $error
      * @param       $endpoint
      *
@@ -182,4 +228,61 @@ class Api extends AbstractHelper
             return "Erro em $endpoint";
         }
     }
+
+    /**
+     * Log the API request and response
+     *
+     * @param string $endpoint
+     * @param string $method
+     * @param string $requestBody
+     * @param string $responseBody
+     * @param int $statusCode
+     * @param string $description
+     */
+    private function logApiRequest($endpoint, $method, $requestBody, $responseBody, $statusCode, $description)
+    {
+        $sanitizedRequestBody  = $this->sanitizeData($requestBody);
+        $sanitizedResponseBody = $this->sanitizeData($responseBody);
+
+        $log = $this->logFactory->create();
+        $log->setData([
+            'endpoint' => $endpoint,
+            'method' => $method,
+            'request_body' => $sanitizedRequestBody,
+            'response_body' => $sanitizedResponseBody,
+            'status_code' => $statusCode,
+            'description' => $description,
+        ]);
+        $this->logResource->save($log);
+    }
+
+    /**
+     * Sanitize sensitive data in the log entries
+     *
+     * @param string $data
+     * @return string
+     */
+    private function sanitizeData($data)
+    {
+        $patterns = [
+            '/"card_number":\s*"\d+"/',
+            '/"cvv":\s*"\d+"/',
+            '/"expiration_date":\s*"\d{2}\/\d{2}"/',
+            '/"password":\s*".*?"/',
+            '/"email":\s*".*?"/',
+            '/"phone":\s*"\d+"/'
+        ];
+
+        $replacements = [
+            '"card_number": "**** **** **** ****"',
+            '"cvv": "***"',
+            '"expiration_date": "**/**"',
+            '"password": "********"',
+            '"email": "********@****.***"',
+            '"phone": "**********"'
+        ];
+
+        return preg_replace($patterns, $replacements, $data);
+    }
 }
+

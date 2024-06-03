@@ -18,7 +18,8 @@ class PaymentMethod implements OptionSourceInterface
         return [
             ['value' => 'credit_card', 'label'   => __('Credit Card')],
             ['value' => 'bank_slip', 'label' => __('Bank Slip')],
-            ['value' => 'pix', 'label'  => __('Pix')]
+            ['value' => 'pix', 'label'  => __('Pix')],
+            ['value' => 'pix_bank_slip', 'label'  => __('Bolepix')]
         ];
     }
 }

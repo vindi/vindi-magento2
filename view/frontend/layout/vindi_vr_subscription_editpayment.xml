@@ -1,0 +1,17 @@
+<?xml version="1.0"?>
+<page xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:View/Layout/etc/page_configuration.xsd">
+    <update handle="customer_account"/>
+    <head>
+        <css src="Vindi_Payment::css/customer/account/subscription/payment/edit.css"/>
+    </head>
+    <body>
+        <referenceBlock name="page.main.title">
+            <action method="setPageTitle">
+                <argument translate="true" name="title" xsi:type="string">Edit Payment Method</argument>
+            </action>
+        </referenceBlock>
+        <referenceContainer name="content">
+            <block class="Vindi\Payment\Block\Subscription\EditPayment" name="subscription.edit.payment.method" template="Vindi_Payment::customer/account/subscription/payment/edit.phtml"/>
+        </referenceContainer>
+    </body>
+</page>

@@ -119,4 +119,39 @@
     </type>
 
     <preference for="Vindi\Payment\Api\OrderCreationQueueRepositoryInterface" type="Vindi\Payment\Model\OrderCreationQueueRepository"/>
+
+    <type name="Vindi\Payment\Logger\Handler">
+        <arguments>
+            <argument name="filesystem" xsi:type="object">Magento\Framework\Filesystem\Driver\File</argument>
+        </arguments>
+    </type>
+    <type name="Vindi\Payment\Logger\Logger">
+        <arguments>
+            <argument name="name" xsi:type="string">vindi_payment_module</argument>
+            <argument name="handlers"  xsi:type="array">
+                <item name="system" xsi:type="object">Vindi\Payment\Logger\Handler</item>
+            </argument>
+        </arguments>
+    </type>
+
+    <!-- Log-->
+    <preference for="Vindi\Payment\Api\Data\LogInterface" type="Vindi\Payment\Model\Log"/>
+    <preference for="Vindi\Payment\Api\Data\LogSearchResultInterface" type="Vindi\Payment\Model\LogSearchResult"/>
+    <preference for="Vindi\Payment\Api\LogRepositoryInterface" type="Vindi\Payment\Model\LogRepository"/>
+
+    <type name="Magento\Framework\View\Element\UiComponent\DataProvider\CollectionFactory">
+        <arguments>
+            <argument name="collections" xsi:type="array">
+                <item name="vindi_payment_log_listing_data_source" xsi:type="string">Vindi\Payment\Model\ResourceModel\Log\Grid\Collection</item>
+                <item name="vindi_payment_log_data_source" xsi:type="string">Vindi\Payment\Model\ResourceModel\Log\Form\DataProvider</item>
+            </argument>
+        </arguments>
+    </type>
+
+    <virtualType name="Vindi\Payment\Model\ResourceModel\Log\Grid\Collection" type="Magento\Framework\View\Element\UiComponent\DataProvider\SearchResult">
+        <arguments>
+            <argument name="mainTable" xsi:type="string">vindi_api_logs</argument>
+            <argument name="resourceModel" xsi:type="string">Vindi\Payment\Model\ResourceModel\Log</argument>
+        </arguments>
+    </virtualType>
 </config>

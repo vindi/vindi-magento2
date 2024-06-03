@@ -1,0 +1,82 @@
+<?php
+/** @var \Vindi\Payment\Block\Subscription\EditPayment $block */
+$paymentProfiles = $block->getPaymentProfiles();
+?>
+<div class="back-button-container">
+    <button type="button" id="custom-back-button" class="back-button"><?= __('< Back') ?></button>
+</div>
+
+<?php if (count($paymentProfiles)): ?>
+    <div class="paymentProfiles-list">
+        <table>
+            <thead>
+            <tr>
+                <th><?= __('Card') ?></th>
+                <th><?= __('Holder Name') ?></th>
+                <th><?= __('Action') ?></th>
+            </tr>
+            </thead>
+            <tbody>
+            <?php $paymentProfileCount = 0 ?>
+            <?php foreach ($paymentProfiles as $paymentProfile): ?>
+                <?php
+                if (empty($paymentProfile->getCcType()) || empty($paymentProfile->getCcLast4())) {
+                    continue;
+                }
+                $paymentProfileCount++;
+                ?>
+                <?php if ($paymentProfileCount > 0) : ?>
+                    <tr>
+                        <td>
+                            <img class="card-icon" src="<?= $block->getViewFileUrl('Vindi_Payment::images/cc') . '/' . $block->getCreditCardImage($paymentProfile->getCcType()) ?>" alt="<?= $block->escapeHtmlAttr($paymentProfile->getCcType()) ?>">&nbsp;&nbsp;&nbsp;
+                            <span><?= $paymentProfile->getCcType() . '****' . $paymentProfile->getCcLast4() ?></span>
+                        </td>
+                        <td>
+                            <?= $block->escapeHtml($paymentProfile->getCcName()) ?>
+                        </td>
+                        <td>
+                            <a href="<?= $block->getUrl('vindi_vr/subscription/savepayment', ['id' => $block->getSubscriptionId(), 'payment_profile' => $paymentProfile->getPaymentProfileId()]) ?>" class="text-blue-500"><?= __('Select card') ?></a>
+                        </td>
+                    </tr>
+                <?php endif; ?>
+            <?php endforeach; ?>
+            </tbody>
+        </table>
+        <div class="pager">
+            <?= $block->getPagerHtml(); ?>
+        </div>
+    </div>
+<?php else: ?>
+    <p><?= __('You do not have another credit card registered for editing the subscription payment method.'); ?></p>
+<?php endif; ?>
+<div class="add-card-button" style="margin-top: 20px; text-align: center;">
+    <a href="<?= $block->getUrl('vindi_vr/paymentprofile/edit', ['subscriptionId' => $block->getSubscriptionId()]) ?>" class="payment-profile-edit button"><?= __('Add Card') ?></a>
+</div>
+
+<script type="text/javascript">
+    require(['jquery', 'mage/url', 'mage/translate'], function($, url) {
+        function handleBackButton() {
+            var previousPage = document.referrer;
+            var subscriptionIndexUrl = url.build('vindi_vr/subscription/index');
+            if (previousPage.includes('vindi_vr/subscription/index')) {
+                history.back();
+            } else {
+                window.location.href = subscriptionIndexUrl;
+            }
+        }
+
+        $('#custom-back-button').on('click', handleBackButton);
+    });
+
+    document.addEventListener("DOMContentLoaded", function() {
+        var subscriptionsElement = document.querySelector('.minhas-assinaturas, .my-subscriptions');
+
+        if (subscriptionsElement) {
+            var currentLi = subscriptionsElement.closest('li');
+
+            if (currentLi) {
+                currentLi.classList.add('current');
+            }
+        }
+    });
+</script>

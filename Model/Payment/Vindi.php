@@ -133,7 +133,6 @@ class Vindi extends \Vindi\Payment\Model\Payment\AbstractMethod
         if (!$paymentProfile) {
             $ccNumber = $info->getCcNumber();
             if ($ccNumber) {
-                // remove credit card non-numbers
                 $ccNumber = preg_replace('/\D/', '', (string)$ccNumber);
 
                 $info->setCcNumber($ccNumber);

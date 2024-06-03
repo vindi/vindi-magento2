@@ -11,7 +11,6 @@ use Vindi\Payment\Model\ResourceModel\Subscription\Collection as SubscriptionCol
 /**
  * Class SubscriptionList
  * @package Vindi\Payment\Block
-
  */
 class SubscriptionList extends Template
 {
@@ -59,8 +58,9 @@ class SubscriptionList extends Template
         parent::__construct($context, $data);
     }
 
-
     /**
+     * Prepare layout with pagination
+     *
      * @return $this
      */
     protected function _prepareLayout()
@@ -80,6 +80,8 @@ class SubscriptionList extends Template
     }
 
     /**
+     * Get pager HTML
+     *
      * @return string
      */
     public function getPagerHtml()
@@ -88,6 +90,8 @@ class SubscriptionList extends Template
     }
 
     /**
+     * Get subscriptions collection
+     *
      * @return SubscriptionCollection
      */
     public function getSubscriptions()
@@ -95,12 +99,15 @@ class SubscriptionList extends Template
         if ($this->customerSession->isLoggedIn()) {
             $customerId = $this->customerSession->getCustomerId();
             $this->_subscriptionCollection->addFieldToFilter('customer_id', $customerId);
+            $this->_subscriptionCollection->setOrder('start_at', 'DESC');
         }
 
         return $this->_subscriptionCollection;
     }
 
     /**
+     * Get status label
+     *
      * @param $statusValue
      * @return mixed
      */
@@ -116,6 +123,8 @@ class SubscriptionList extends Template
     }
 
     /**
+     * Get payment method label
+     *
      * @param $paymentMethodValue
      * @return mixed
      */

@@ -49,7 +49,6 @@ class PaymentProfileList extends Template
         parent::__construct($context, $data);
     }
 
-
     /**
      * @return $this
      */
@@ -84,7 +83,8 @@ class PaymentProfileList extends Template
     {
         if ($this->customerSession->isLoggedIn()) {
             $customerId = $this->customerSession->getCustomerId();
-            $this->_paymentProfileCollection->addFieldToFilter('customer_id', $customerId);
+            $this->_paymentProfileCollection->addFieldToFilter('customer_id', $customerId)
+                ->setOrder('created_at', 'DESC');
         }
 
         return $this->_paymentProfileCollection;

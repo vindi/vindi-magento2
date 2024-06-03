@@ -88,4 +88,18 @@
             <column name="queue_id"/>
         </constraint>
     </table>
+    <table name="vindi_api_logs" resource="default" engine="innodb" comment="Vindi API Logs Table">
+        <column xsi:type="int" name="entity_id" nullable="false" identity="true" unsigned="true" comment="Log ID"/>
+        <column xsi:type="varchar" length="255" name="endpoint" nullable="false" comment="API Endpoint"/>
+        <column xsi:type="varchar" length="10" name="method" nullable="false" comment="HTTP Method"/>
+        <column xsi:type="text" name="request_body" nullable="true" comment="Request Body"/>
+        <column xsi:type="text" name="response_body" nullable="true" comment="Response Body"/>
+        <column xsi:type="int" name="status_code" nullable="false" comment="HTTP Status Code"/>
+        <column xsi:type="text" name="description" nullable="true" comment="Description of the request"/>
+        <column xsi:type="datetime" name="created_at" nullable="false" default="CURRENT_TIMESTAMP" comment="Created At"/>
+        <column xsi:type="datetime" name="updated_at" nullable="false" default="CURRENT_TIMESTAMP" on_update="true" comment="Updated At"/>
+        <constraint xsi:type="primary" referenceId="PRIMARY">
+            <column name="entity_id"/>
+        </constraint>
+    </table>
 </schema>
