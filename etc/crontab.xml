@@ -8,5 +8,8 @@
         <job name="vindi_payment_process_order_creation_queue" instance="Vindi\Payment\Cron\ProcessOrderCreationQueue" method="execute">
             <schedule>*/2 * * * *</schedule>
         </job>
+        <job name="vindi_payment_clean_old_logs" instance="Vindi\Payment\Cron\CleanOldLogs" method="execute">
+            <schedule>0 3 * * *</schedule>
+        </job>
     </group>
 </config>
