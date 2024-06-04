@@ -66,6 +66,7 @@
                 <filter>dateRange</filter>
                 <dataType>date</dataType>
                 <label translate="true">Created At</label>
+                <sorting>desc</sorting>
             </settings>
         </column>
         <actionsColumn name="actions" class="Vindi\Payment\Ui\Component\Listing\Column\Log\Actions">
