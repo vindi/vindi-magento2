@@ -6,6 +6,7 @@ use Psr\Log\LoggerInterface;
 use Vindi\Payment\Api\OrderCreationQueueRepositoryInterface;
 use Vindi\Payment\Helper\WebHookHandlers\OrderCreator;
 use Magento\Framework\Exception\LocalizedException;
+use Magento\Framework\Lock\LockManagerInterface;
 
 class ProcessOrderCreationQueue
 {
@@ -25,20 +26,33 @@ class ProcessOrderCreationQueue
     private $orderCreator;
 
     /**
+     * @var LockManagerInterface
+     */
+    private $lockManager;
+
+    /**
+     * Lock name for this cron job
+     */
+    private const LOCK_NAME = 'vindi_payment_process_order_creation_queue';
+
+    /**
      * Constructor
      *
      * @param LoggerInterface $logger
      * @param OrderCreationQueueRepositoryInterface $orderCreationQueueRepository
      * @param OrderCreator $orderCreator
+     * @param LockManagerInterface $lockManager
      */
     public function __construct(
         LoggerInterface $logger,
         OrderCreationQueueRepositoryInterface $orderCreationQueueRepository,
-        OrderCreator $orderCreator
+        OrderCreator $orderCreator,
+        LockManagerInterface $lockManager
     ) {
         $this->logger = $logger;
         $this->orderCreationQueueRepository = $orderCreationQueueRepository;
         $this->orderCreator = $orderCreator;
+        $this->lockManager = $lockManager;
     }
 
     /**
@@ -46,6 +60,11 @@ class ProcessOrderCreationQueue
      */
     public function execute()
     {
+        if (!$this->lockManager->lock(self::LOCK_NAME)) {
+            $this->logger->info(__('The job is already running.'));
+            return;
+        }
+
         try {
             $queueItem = $this->orderCreationQueueRepository->getOldestPending();
             if (!$queueItem) {
@@ -77,6 +96,8 @@ class ProcessOrderCreationQueue
             $this->logger->error(__('Error processing order creation queue: %1', $e->getMessage()));
         } catch (\Exception $e) {
             $this->logger->error(__('Unexpected error processing order creation queue: %1', $e->getMessage()));
+        } finally {
+            $this->lockManager->unlock(self::LOCK_NAME);
         }
     }
 }

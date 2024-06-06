@@ -95,10 +95,10 @@ class Api extends AbstractHelper
         }
 
         $url  = $this->base_path . $endpoint;
-        $body = !empty($data) ? json_encode($data) : '';
+        $requestBody = !empty($data) ? json_encode($data) : '';
 
         $requestId = number_format(microtime(true), 2, '', '');
-        $dataToLog = null !== $dataToLog ? json_encode($dataToLog) : $body;
+        $dataToLog = null !== $dataToLog ? json_encode($dataToLog) : $requestBody;
 
         $this->logger->info(__(sprintf(
             '[Request #%s]: New Api Request.\n%s %s\n%s',
@@ -125,8 +125,8 @@ class Api extends AbstractHelper
             CURLOPT_CUSTOMREQUEST => $method
         ];
 
-        if (!empty($body)) {
-            $ch_options[CURLOPT_POSTFIELDS] = $body;
+        if (!empty($requestBody)) {
+            $ch_options[CURLOPT_POSTFIELDS] = $requestBody;
         }
 
         curl_setopt_array($ch, $ch_options);
@@ -141,7 +141,7 @@ class Api extends AbstractHelper
                 __(sprintf('[Request #%s]: Error while executing request!\n%s', $requestId, print_r($response, true)))
             );
             curl_close($ch);
-            $this->logApiRequest($endpoint, $method, $body, $response, $statusCode, 'Error while executing request');
+            $this->logApiRequest($endpoint, $method, $requestBody, $response, $statusCode, 'Error while executing request');
             return false;
         }
 
@@ -159,17 +159,17 @@ class Api extends AbstractHelper
                 print_r($body, true)
             )));
 
-            $this->logApiRequest($endpoint, $method, $body, $response, $statusCode, 'Error while recovering request body');
+            $this->logApiRequest($endpoint, $method, $requestBody, $response, $statusCode, 'Error while recovering request body');
 
             return false;
         }
 
         if (!$this->checkResponse($responseBody, $endpoint)) {
-            $this->logApiRequest($endpoint, $method, $body, json_encode($responseBody), $statusCode, 'API response error');
+            $this->logApiRequest($endpoint, $method, $requestBody, json_encode($responseBody), $statusCode, 'API response error');
             return false;
         }
 
-        $this->logApiRequest($endpoint, $method, $body, json_encode($responseBody), $statusCode, 'Success');
+        $this->logApiRequest($endpoint, $method, $requestBody, json_encode($responseBody), $statusCode, 'Success');
 
         return $responseBody;
     }

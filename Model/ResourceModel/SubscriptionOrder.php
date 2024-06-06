@@ -10,7 +10,6 @@ use Magento\Framework\Model\ResourceModel\Db\Context;
 /**
  * Class SubscriptionOrder
  * @package Vindi\Payment\Model\ResourceModel
- * @author Iago Cedran <iago@bizcommerce.com.br>
  */
 class SubscriptionOrder extends \Magento\Framework\Model\ResourceModel\Db\AbstractDb
 {

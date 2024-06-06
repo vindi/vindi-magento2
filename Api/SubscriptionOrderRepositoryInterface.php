@@ -11,7 +11,6 @@ use Magento\Framework\Api\SearchCriteriaInterface;
 /**
  * Interface SubscriptionOrderRepositoryInterface
  * @package Vindi\Payment\Api
- * @author Iago Cedran <iago@bizcommerce.com.br>
  */
 interface SubscriptionOrderRepositoryInterface
 {

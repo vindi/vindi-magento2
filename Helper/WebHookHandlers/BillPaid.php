@@ -6,8 +6,14 @@ use Magento\Sales\Api\Data\OrderInterface;
 use Magento\Sales\Model\Order\Invoice;
 use Vindi\Payment\Helper\Data;
 
+/**
+ * Class BillPaid
+ */
 class BillPaid
 {
+    /**
+     * @var \Psr\Log\LoggerInterface
+     */
     private $logger;
 
     /**
@@ -19,14 +25,31 @@ class BillPaid
      * @var \Magento\Sales\Api\InvoiceRepositoryInterface
      */
     protected $invoiceRepository;
+
     /**
      * @var \Magento\Framework\Api\SearchCriteriaBuilder
      */
     private $searchCriteriaBuilder;
 
+    /**
+     * @var Order
+     */
     private $order;
+
+    /**
+     * @var Data
+     */
     private $helperData;
 
+    /**
+     * BillPaid constructor.
+     * @param \Psr\Log\LoggerInterface $logger
+     * @param \Magento\Sales\Api\OrderRepositoryInterface $orderRepository
+     * @param \Magento\Sales\Api\InvoiceRepositoryInterface $invoiceRepository
+     * @param \Magento\Framework\Api\SearchCriteriaBuilder $searchCriteriaBuilder
+     * @param Order $order
+     * @param Data $helperData
+     */
     public function __construct(
         \Psr\Log\LoggerInterface $logger,
         \Magento\Sales\Api\OrderRepositoryInterface $orderRepository,
@@ -44,11 +67,7 @@ class BillPaid
     }
 
     /**
-     * Handle 'bill_paid' event.
-     * The bill can be related to a subscription or a single payment.
-     *
-     * @param array $data
-     *
+     * @param $data
      * @return bool
      */
     public function billPaid($data)
@@ -56,14 +75,11 @@ class BillPaid
         $order = null;
         $isSubscription = false;
 
-        if (array_key_exists('subscription', $data['bill'])
-            && isset($data['bill']['subscription']['code'])
-            && $data['bill']['subscription'] != null
-        ) {
+        if (isset($data['bill']['id']) && isset($data['bill']['subscription']['id'])) {
+            $order = $this->getOrderByVindiBillAndSubscriptionId($data['bill']['id'], $data['bill']['subscription']['id']);
             $isSubscription = true;
-            $order = $this->getOrder($data['bill']['subscription']['code']);
-        } elseif (isset($data['bill']['code']) && $data['bill']['code'] != null) {
-            $order = $this->getOrder($data['bill']['code']);
+        } elseif (isset($data['bill']['id']) && $data['bill']['id'] != null) {
+            $order = $this->getOrderByVindiBillId($data['bill']['id']);
         }
 
         if (!$order && !($order = $this->order->getOrder($data))) {
@@ -85,7 +101,6 @@ class BillPaid
      * @param \Magento\Sales\Model\Order $order
      * @param bool $isSubscription
      * @return bool
-     * @throws \Magento\Framework\Exception\LocalizedException
      */
     public function createInvoice(\Magento\Sales\Model\Order $order, $isSubscription = false)
     {
@@ -98,7 +113,6 @@ class BillPaid
         if (!$isSubscription) {
             if (!$order->canInvoice()) {
                 $this->logger->error(__(sprintf('Impossible to generate invoice for order %s.', $order->getId())));
-
                 return false;
             }
         }
@@ -113,7 +127,7 @@ class BillPaid
 
         if ($isSubscription) {
             $order->addCommentToStatusHistory(
-                __('The payment was confirmed and the subscription is beeing processed')->getText(),
+                __('The payment was confirmed and the subscription is being processed')->getText(),
                 \Magento\Sales\Model\Order::STATE_PROCESSING
             );
         } else {
@@ -129,20 +143,21 @@ class BillPaid
             );
         }
 
-
         $this->orderRepository->save($order);
 
         return true;
     }
 
     /**
-     * @param $incrementId
+     * @param $vindiBillId
+     * @param $subscriptionId
      * @return bool|OrderInterface
      */
-    private function getOrder($incrementId)
+    private function getOrderByVindiBillAndSubscriptionId($vindiBillId, $subscriptionId)
     {
         $searchCriteria = $this->searchCriteriaBuilder
-            ->addFilter('increment_id', $incrementId, 'eq')
+            ->addFilter('vindi_bill_id', $vindiBillId, 'eq')
+            ->addFilter('vindi_subscription_id', $subscriptionId, 'eq')
             ->create();
 
         $orderList = $this->orderRepository
@@ -152,7 +167,55 @@ class BillPaid
         try {
             return reset($orderList);
         } catch (\Exception $e) {
-            $this->logger->error(__('Order #%1 not found', $incrementId));
+            $this->logger->error(__('Order with Vindi Bill ID #%1 and Subscription ID #%2 not found', $vindiBillId, $subscriptionId));
+            $this->logger->error($e->getMessage());
+        }
+
+        return false;
+    }
+
+    /**
+     * @param $vindiBillId
+     * @return bool|OrderInterface
+     */
+    private function getOrderByVindiBillId($vindiBillId)
+    {
+        $searchCriteria = $this->searchCriteriaBuilder
+            ->addFilter('vindi_bill_id', $vindiBillId, 'eq')
+            ->create();
+
+        $orderList = $this->orderRepository
+            ->getList($searchCriteria)
+            ->getItems();
+
+        try {
+            return reset($orderList);
+        } catch (\Exception $e) {
+            $this->logger->error(__('Order with Vindi Bill ID #%1 not found', $vindiBillId));
+            $this->logger->error($e->getMessage());
+        }
+
+        return false;
+    }
+
+    /**
+     * @param $subscriptionId
+     * @return bool|OrderInterface
+     */
+    private function getOrderBySubscriptionId($subscriptionId)
+    {
+        $searchCriteria = $this->searchCriteriaBuilder
+            ->addFilter('vindi_subscription_id', $subscriptionId, 'eq')
+            ->create();
+
+        $orderList = $this->orderRepository
+            ->getList($searchCriteria)
+            ->getItems();
+
+        try {
+            return reset($orderList);
+        } catch (\Exception $e) {
+            $this->logger->error(__('Order with Subscription ID #%1 not found', $subscriptionId));
             $this->logger->error($e->getMessage());
         }
 

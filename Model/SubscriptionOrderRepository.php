@@ -20,7 +20,6 @@ use Vindi\Payment\Model\ResourceModel\SubscriptionOrder\CollectionFactory;
 /**
  * Class SubscriptionOrderRepository
  * @package Vindi\Payment\Model
- * @author Iago Cedran <iago@bizcommerce.com.br>
  */
 class SubscriptionOrderRepository implements SubscriptionOrderRepositoryInterface
 {
