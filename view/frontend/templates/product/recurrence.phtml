@@ -8,6 +8,10 @@ if ($product && $product->getData('vindi_enable_recurrence') === '1') {
     if (!empty($recurrenceDataJson)) {
         $recurrenceData = json_decode($recurrenceDataJson, true);
 
+        $recurrenceData = array_filter($recurrenceData, function($data) {
+            return isset($data['price']) && is_numeric($data['price']) && $data['price'] > 0;
+        });
+
         if ($recurrenceData && is_array($recurrenceData)) : ?>
             <div class="recurrence-options">
                 <div id="recurrence-warning" class="message message-warning warning" style="display: none;">
@@ -35,6 +39,12 @@ if ($product && $product->getData('vindi_enable_recurrence') === '1') {
                     <?php endforeach; ?>
                 </div>
                 <div id="recurrence-description" class="recurrence-description" style="display: none;"></div>
+            </div>
+        <?php else : ?>
+            <div class="message message-warning warning">
+                <div>
+                    <?= __('This subscription is not available for purchase as it does not have any plans associated.') ?>
+                </div>
             </div>
         <?php endif; ?>
     <?php } ?>
@@ -122,6 +132,11 @@ if ($product && $product->getData('vindi_enable_recurrence') === '1') {
 
                     if (!$('.recurrence-input:checked').length) {
                         showWarning(true);
+                        return;
+                    }
+
+                    if (!$('.recurrence-input').length) {
+                        alert('This subscription is not available for purchase as it does not have any plans associated.');
                         return;
                     }
 
