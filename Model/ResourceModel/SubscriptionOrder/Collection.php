@@ -4,7 +4,6 @@ namespace Vindi\Payment\Model\ResourceModel\SubscriptionOrder;
 /**
  * Class Collection
  * @package Vindi\Payment\Model\ResourceModel\SubscriptionOrder
- * @author Iago Cedran <iago@bizcommerce.com.br>
  */
 class Collection extends \Magento\Framework\Model\ResourceModel\Db\Collection\AbstractCollection
 {

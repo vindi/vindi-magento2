@@ -8,7 +8,6 @@ use Magento\Framework\Api\SearchResultsInterface;
 /**
  * Interface SubscriptionOrderSearchResultInterface
  * @package Vindi\Payment\Api\Data
- * @author Iago Cedran <iago@bizcommerce.com.br>
  */
 interface SubscriptionOrderSearchResultInterface extends SearchResultsInterface
 {

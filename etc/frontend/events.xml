@@ -3,4 +3,7 @@
     <event name="checkout_cart_product_add_after">
         <observer name="vindi_payment_adjust_price" instance="Vindi\Payment\Observer\AdjustPrice"/>
     </event>
+    <event name="customer_login">
+        <observer name="vindi_recurrence_prevent_cart_merge" instance="Vindi\Payment\Observer\PreventCartMergeAfterLogin" />
+    </event>
 </config>

@@ -6,8 +6,5 @@
         <css src="Vindi_Payment::css/pix.css" />
     </head>
     <body>
-        <referenceBlock name="sales.order.info.buttons">
-            <block class="Vindi\Payment\Block\Order\Info\Buttons" name="vindi.payment.order.info.buttons" cacheable="false"/>
-        </referenceBlock>
     </body>
 </page>

@@ -43,13 +43,19 @@ class SaveRecurrenceData implements ObserverInterface
         $product = $observer->getEvent()->getProduct();
         $wholeRequest = $this->request->getPostValue();
 
-        if (!empty($wholeRequest['product'][\Vindi\Payment\Ui\DataProvider\Product\Form\Modifier\RecurrenceDataDynamicRow::VINDI_RECURRENCE_DATA])) {
-            $recurrenceData = $wholeRequest['product'][\Vindi\Payment\Ui\DataProvider\Product\Form\Modifier\RecurrenceDataDynamicRow::VINDI_RECURRENCE_DATA];
+        $recurrenceDataKey = \Vindi\Payment\Ui\DataProvider\Product\Form\Modifier\RecurrenceDataDynamicRow::VINDI_RECURRENCE_DATA;
+
+        if (isset($wholeRequest['product'][$recurrenceDataKey])) {
+            $recurrenceData = $wholeRequest['product'][$recurrenceDataKey];
 
             if (is_array($recurrenceData)) {
                 $recurrenceData = $this->serializer->serialize($recurrenceData);
-                $product->setData(\Vindi\Payment\Ui\DataProvider\Product\Form\Modifier\RecurrenceDataDynamicRow::VINDI_RECURRENCE_DATA, $recurrenceData);
+                $product->setData($recurrenceDataKey, $recurrenceData);
+            } else {
+                $product->setData($recurrenceDataKey, null);
             }
+        } else {
+            $product->setData($recurrenceDataKey, null);
         }
 
         if (isset($wholeRequest['product']['vindi_enable_recurrence'])) {

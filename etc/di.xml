@@ -154,4 +154,10 @@
             <argument name="resourceModel" xsi:type="string">Vindi\Payment\Model\ResourceModel\Log</argument>
         </arguments>
     </virtualType>
+
+    <type name="Vindi\Payment\Cron\ProcessOrderCreationQueue">
+        <arguments>
+            <argument name="lockManager" xsi:type="object">Magento\Framework\Lock\LockManagerInterface</argument>
+        </arguments>
+    </type>
 </config>
