@@ -101,7 +101,7 @@ class EditPayment extends Template
         if ($this->customerSession->isLoggedIn()) {
             $customerId = $this->customerSession->getCustomerId();
             $this->paymentProfileCollection->addFieldToFilter('customer_id', $customerId)
-                ->setOrder('created_at', 'DESC'); // Order by 'created_at' field in descending order
+                ->setOrder('created_at', 'DESC');
         }
 
         return $this->paymentProfileCollection;
@@ -132,5 +132,7 @@ class EditPayment extends Template
                 return $creditCardOption['value'];
             }
         }
+
+        return '';
     }
 }
