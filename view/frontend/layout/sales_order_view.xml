@@ -6,5 +6,8 @@
         <css src="Vindi_Payment::css/pix.css" />
     </head>
     <body>
+        <referenceContainer name="content">
+            <block class="Vindi\Payment\Block\Order\View\Subscription" name="order_subscription" template="Vindi_Payment::order/view/subscription.phtml" before="-"/>
+        </referenceContainer>
     </body>
 </page>

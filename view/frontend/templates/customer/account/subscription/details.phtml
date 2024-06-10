@@ -7,6 +7,8 @@ use Vindi\Payment\Model\Payment\PaymentMethod;
 
 $subscription = $block->getSubscription();
 ?>
+<h2><?= __('Subscription: #') . $subscription->getId() ?></h2>
+
 <div class="back-button-container">
     <button type="button" id="custom-back-button" class="back-button"><?= __('< Back') ?></button>
 </div>
@@ -37,8 +39,12 @@ $subscription = $block->getSubscription();
                         <td><strong><?php echo $block->escapeHtml($block->getPlanName()) ?></strong></td>
                     </tr>
                     <tr>
-                        <th><?= __('Frequency') ?></th>
+                        <th><?= __('Periodicity') ?></th>
                         <td><strong><?php echo $block->escapeHtml(__($block->getPlanCycle())) ?></strong></td>
+                    </tr>
+                    <tr>
+                        <th><?= __('Duration') ?></th>
+                        <td><strong><?php echo $block->escapeHtml(__($block->getPlanDuration())) ?></strong></td>
                     </tr>
                     </tbody>
                 </table>
@@ -68,6 +74,10 @@ $subscription = $block->getSubscription();
                                 <div class="non-card-method-image"><?= $block->getPaymentMethodImage() ?></div>
                             <?php endif; ?>
                         </td>
+                    </tr>
+                    <tr>
+                        <th><?= __('Duration') ?></th>
+                        <td><strong><?php echo $block->escapeHtml(__($block->getPlanDuration())) ?></strong></td>
                     </tr>
                     </tbody>
                 </table>

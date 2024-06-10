@@ -306,27 +306,59 @@ class Details extends Template
     public function getBillingTrigger()
     {
         $data = $this->getSubscriptionData();
-        if (!isset($data['billing_trigger_type']) || !isset($data['billing_trigger_day'])) {
+        if (!array_key_exists('billing_trigger_type', $data)
+            || !array_key_exists('billing_trigger_day', $data)
+        ) {
             return '-';
         }
 
-        $billingTriggerDay = $data['billing_trigger_day'];
+        $billingTriggerDay  = $data['billing_trigger_day'];
         $billingTriggerType = $data['billing_trigger_type'];
 
-        if ($billingTriggerDay == 0) {
-            return '1 day after the end';
+        if ($billingTriggerType == 'day_of_month') {
+            return __('Day %1 of the month', $billingTriggerDay);
         }
 
-        switch ($billingTriggerType) {
-            case 'beginning_of_period':
-                return __('%1 days after the end', $billingTriggerDay);
-            case 'end_of_period':
-                return __('%1 days before the end', $billingTriggerDay);
-            case 'day_of_month':
-                return __('Exactly on day %1 of each month', $billingTriggerDay);
-            default:
-                return '-';
+        if ($billingTriggerDay == 0) {
+            if ($billingTriggerType == 'beginning_of_period') {
+                return __('Exactly on the day of the start of the period');
+            }
+
+            return __('Exactly on the day of the end of the period');
         }
+
+        $billingTriggerDayLabel = __('before');
+
+        if ($billingTriggerDay > 0) {
+            $billingTriggerDayLabel = __('after');
+        }
+
+        $billingTriggerTypeLabel = __('end of the period');
+
+        if ($billingTriggerType == 'beginning_of_period') {
+            $billingTriggerTypeLabel = __('start of the period');
+        }
+
+        return __('%1 days', $billingTriggerDay) . ' ' . $billingTriggerDayLabel . ' ' . $billingTriggerTypeLabel;
+    }
+
+    /**
+     * @return string
+     */
+    public function getPlanDuration()
+    {
+        $data = $this->getSubscriptionData();
+        if (array_key_exists('billing_cycles', $data)) {
+            $billingCycle = $data["billing_cycles"];
+
+            if ($billingCycle == null || empty($billingCycle) || $billingCycle < 0) {
+                return __('Permanent');
+            }
+
+            return __('%1 cycles', $billingCycle);
+        }
+
+        return __('Permanent');
     }
 
     /**
