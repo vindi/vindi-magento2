@@ -10,6 +10,7 @@ use Magento\Sales\Model\Order;
 use Vindi\Payment\Api\PixConfigurationInterface;
 use Magento\Framework\App\ResourceConnection;
 use Magento\Framework\Stdlib\DateTime\TimezoneInterface;
+use Psr\Log\LoggerInterface;
 
 /**
  * Class Pix
@@ -43,6 +44,11 @@ class Pix extends Template
     protected $timezone;
 
     /**
+     * @var LoggerInterface
+     */
+    protected $logger;
+
+    /**
      * Pix constructor.
      * @param PixConfigurationInterface $pixConfiguration
      * @param Session $checkoutSession
@@ -50,6 +56,7 @@ class Pix extends Template
      * @param Json $json
      * @param ResourceConnection $resourceConnection
      * @param TimezoneInterface $timezone
+     * @param LoggerInterface $logger
      * @param array $data
      */
     public function __construct(
@@ -59,6 +66,7 @@ class Pix extends Template
         Json $json,
         ResourceConnection $resourceConnection,
         TimezoneInterface $timezone,
+        LoggerInterface $logger,
         array $data = []
     ) {
         parent::__construct($context, $data);
@@ -67,6 +75,7 @@ class Pix extends Template
         $this->json = $json;
         $this->resourceConnection = $resourceConnection;
         $this->timezone = $timezone;
+        $this->logger = $logger;
     }
 
     /**

@@ -1,0 +1,21 @@
+<?php
+/**
+ * @var $block \Vindi\Payment\Block\Order\View\Subscription
+ */
+?>
+<?php if ($block->hasSubscription()): ?>
+    <div class="block block-order-details-view">
+        <div class="block-title">
+            <strong><?= __('Subscription Information') ?></strong>
+        </div>
+        <div class="block-content">
+            <div>
+                <strong class="box-title"><span><?= __('Subscription ID: #'); ?></span></strong>
+                <span><?= $block->getSubscriptionId(); ?></span>
+                <br>
+                <strong class="box-title"><span><?= __('Subscription Link:'); ?></span></strong>
+                <a href="<?= $block->getSubscriptionViewUrl() ?>" target="_blank"><?= __('View Subscription') ?></a>
+            </div>
+        </div>
+    </div>
+<?php endif; ?>

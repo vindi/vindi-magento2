@@ -185,6 +185,25 @@ class View extends Container
     /**
      * @return string
      */
+    public function getPlanDuration()
+    {
+        $data = $this->getSubscriptionData();
+        if (array_key_exists('billing_cycles', $data)) {
+            $billingCycle = $data["billing_cycles"];
+
+            if ($billingCycle == null || empty($billingCycle) || $billingCycle < 0) {
+                return __('Permanent');
+            }
+
+            return __('%1 cycles', $billingCycle);
+        }
+
+        return __('Permanent');
+    }
+
+    /**
+     * @return string
+     */
     public function getNextBillingAt()
     {
         $data = $this->getSubscriptionData();
@@ -207,26 +226,34 @@ class View extends Container
             return '-';
         }
 
-        $billingTriggerDay = $data['billing_trigger_day'];
+        $billingTriggerDay  = $data['billing_trigger_day'];
         $billingTriggerType = $data['billing_trigger_type'];
 
-        if ($billingTriggerDay == 0) {
-            return '1 dia após o término';
+        if ($billingTriggerType == 'day_of_month') {
+            return __('Day %1 of the month', $billingTriggerDay);
         }
+
+        if ($billingTriggerDay == 0) {
+            if ($billingTriggerType == 'beginning_of_period') {
+                return __('Exactly on the day of the start of the period');
+            }
+
+            return __('Exactly on the day of the end of the period');
+        }
+
+        $billingTriggerDayLabel = __('before');
+
+        if ($billingTriggerDay > 0) {
+            $billingTriggerDayLabel = __('after');
+        }
+
+        $billingTriggerTypeLabel = __('end of the period');
 
         if ($billingTriggerType == 'beginning_of_period') {
-            return __('%1 dias após o término', $billingTriggerDay);
+            $billingTriggerTypeLabel = __('start of the period');
         }
 
-        if ($billingTriggerType == 'end_of_period') {
-            return __('%1 dias antes do término', $billingTriggerDay);
-        }
-
-        if ($billingTriggerType == 'day_of_month') {
-            return __('Exatamente no dia %1 de cada mês', $billingTriggerDay);
-        }
-
-        return '-';
+        return __('%1 days', $billingTriggerDay) . ' ' . $billingTriggerDayLabel . ' ' . $billingTriggerTypeLabel;
     }
 
     /**
