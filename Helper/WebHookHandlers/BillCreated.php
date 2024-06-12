@@ -79,6 +79,8 @@ class BillCreated
      */
     public function billCreated($data)
     {
+        $this->logger->info("==========================");
+        $this->logger->info("==========================");
         $this->logger->info('billCreated method called with data: ' . json_encode($data));
 
         $bill = $data['bill'];
