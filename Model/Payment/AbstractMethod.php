@@ -414,7 +414,12 @@ abstract class AbstractMethod extends OriginAbstractMethod
 
             $responseData = $this->subscriptionRepository->create($body);
             if ($responseData) {
+                if (!isset($responseData['bill'])) {
+                    $order->setData('vindi_subscription_can_create_new_order', true);
+                }
+
                 $bill = $responseData['bill'];
+
                 $subscription = $responseData['subscription'];
                 $billId = !$bill ? null : $bill['id'];
 
@@ -428,9 +433,11 @@ abstract class AbstractMethod extends OriginAbstractMethod
 
                 if ($this->successfullyPaid($body, $bill, $subscription)) {
                     $billId = $bill['id'] ?? 0;
+
                     $order->setVindiBillId($billId);
                     $order->setVindiSubscriptionId($responseData['subscription']['id']);
                     $this->saveOrderToSubscriptionOrdersTable($order);
+
                     return $billId;
                 } else {
                     $this->subscriptionRepository->deleteAndCancelBills($subscription['id']);
