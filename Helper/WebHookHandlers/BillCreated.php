@@ -43,6 +43,11 @@ class BillCreated
     private $emailSender;
 
     /**
+     * @var \Magento\Framework\DB\Adapter\AdapterInterface
+     */
+    private $dbAdapter;
+
+    /**
      * Constructor for initializing class dependencies.
      */
     public function __construct(
@@ -51,7 +56,8 @@ class BillCreated
         OrderCreationQueueRepositoryInterface $orderCreationQueueRepository,
         OrderCreationQueueFactory $orderCreationQueueFactory,
         OrderRepository $orderRepository,
-        EmailSender $emailSender
+        EmailSender $emailSender,
+        \Magento\Framework\App\ResourceConnection $resourceConnection
     ) {
         $this->logger = $logger;
         $this->orderCreator = $orderCreator;
@@ -59,6 +65,7 @@ class BillCreated
         $this->orderCreationQueueFactory = $orderCreationQueueFactory;
         $this->orderRepository = $orderRepository;
         $this->emailSender = $emailSender;
+        $this->dbAdapter = $resourceConnection->getConnection();
     }
 
     /**
@@ -83,26 +90,46 @@ class BillCreated
             return false;
         }
 
-        $originalOrder = $this->orderCreator->getOrderFromSubscriptionId($bill['subscription']['id']);
-        if ($originalOrder && ($originalOrder->getPayment()->getMethod() === 'vindi_pix' || $originalOrder->getPayment()->getMethod() === 'vindi_bankslippix')) {
-            $vindiBillId = (int) $originalOrder->getData('vindi_bill_id');
-            if ($vindiBillId === null || $vindiBillId === '' || $vindiBillId === 0) {
-                $originalOrder->setData('vindi_bill_id', $bill['id']);
-                $this->orderRepository->save($originalOrder);
-                $this->logger->info(__('Vindi bill ID set for the order.'));
+        $subscriptionId = $bill['subscription']['id'];
 
-                $this->emailSender->sendQrCodeAvailableEmail($originalOrder);
-                return true;
-            }
+        $lockName = 'vindi_subscription_' . $subscriptionId;
+        if (!$this->dbAdapter->query("SELECT GET_LOCK(?, 10)", [$lockName])->fetchColumn()) {
+            $this->logger->error(__('Could not acquire lock for subscription ID: %1', $subscriptionId));
+            return false;
         }
 
-        $queueItem = $this->orderCreationQueueFactory->create();
-        $queueItem->setData([
-            'bill_data' => json_encode($data),
-            'status'    => 'pending'
-        ]);
-        $this->orderCreationQueueRepository->save($queueItem);
+        try {
+            $originalOrder = $this->orderCreator->getOrderFromSubscriptionId($subscriptionId);
+            if ($originalOrder && ($originalOrder->getPayment()->getMethod() === 'vindi_pix' || $originalOrder->getPayment()->getMethod() === 'vindi_bankslippix')) {
+                $vindiBillId = (int) $originalOrder->getData('vindi_bill_id');
+                if ($vindiBillId === null || $vindiBillId === '' || $vindiBillId === 0) {
+                    $originalOrder->setData('vindi_bill_id', $bill['id']);
+                    $this->orderRepository->save($originalOrder);
+                    $this->logger->info(__('Vindi bill ID set for the order.'));
 
-        return true;
+                    $this->emailSender->sendQrCodeAvailableEmail($originalOrder);
+                    return true;
+                }
+            }
+
+            $orders = $this->orderCreator->getOrdersBySubscriptionId($subscriptionId);
+            foreach ($orders as $order) {
+                if (!$order->getData('vindi_bill_id')) {
+                    $this->logger->info(__('Not all orders for subscription ID: %1 have vindi_bill_id set', $subscriptionId));
+                    return false;
+                }
+            }
+
+            $queueItem = $this->orderCreationQueueFactory->create();
+            $queueItem->setData([
+                'bill_data' => json_encode($data),
+                'status'    => 'pending'
+            ]);
+            $this->orderCreationQueueRepository->save($queueItem);
+
+            return true;
+        } finally {
+            $this->dbAdapter->query("SELECT RELEASE_LOCK(?)", [$lockName]);
+        }
     }
 }

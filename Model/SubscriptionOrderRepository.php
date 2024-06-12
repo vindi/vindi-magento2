@@ -116,6 +116,21 @@ class SubscriptionOrderRepository implements SubscriptionOrderRepositoryInterfac
     }
 
     /**
+     * Retrieve a list of subscription orders by subscription ID
+     *
+     * @param int $subscriptionId
+     * @return SubscriptionOrderInterface[]
+     */
+    public function getListBySubscriptionId(int $subscriptionId): array
+    {
+        /** @var Collection $collection */
+        $collection = $this->collectionFactory->create();
+        $collection->addFieldToFilter('subscription_id', $subscriptionId);
+
+        return $collection->getItems();
+    }
+
+    /**
      * Retrieve a list of subscription orders matching the search criteria
      *
      * @param SearchCriteriaInterface $searchCriteria
