@@ -28,6 +28,6 @@ class SyncSubscriptions
 
     public function execute()
     {
-        $this->syncSubscription->execute();
+//        $this->syncSubscription->execute();
     }
 }

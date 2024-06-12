@@ -99,31 +99,31 @@ class BillCreated
         }
 
         try {
-            $originalOrder = $this->orderCreator->getOrderFromSubscriptionId($subscriptionId);
-            if ($originalOrder && $originalOrder->getData('vindi_subscription_can_create_new_order') == true) {
-                $originalOrder->setData('vindi_subscription_can_create_new_order', false);
-                $originalOrder->setData('vindi_bill_id', $bill['id']);
-                $this->orderRepository->save($originalOrder);
-                $this->logger->info(__('Vindi bill ID set for the order.'));
-
-                $this->emailSender->sendQrCodeAvailableEmail($originalOrder);
-                return true;
-            }
-
-            $orders = $this->orderCreator->getOrdersBySubscriptionId($subscriptionId);
-            foreach ($orders as $order) {
-                if ($order->getData('vindi_subscription_can_create_new_order') == true) {
-                    $this->logger->info(__('Not all orders for subscription ID: %1 have vindi_bill_id set', $subscriptionId));
-                    return false;
-                }
-            }
-
-            $queueItem = $this->orderCreationQueueFactory->create();
-            $queueItem->setData([
-                'bill_data' => json_encode($data),
-                'status'    => 'pending'
-            ]);
-            $this->orderCreationQueueRepository->save($queueItem);
+//            $originalOrder = $this->orderCreator->getOrderFromSubscriptionId($subscriptionId);
+//            if ($originalOrder && $originalOrder->getData('vindi_subscription_can_create_new_order') == true) {
+//                $originalOrder->setData('vindi_subscription_can_create_new_order', false);
+//                $originalOrder->setData('vindi_bill_id', $bill['id']);
+//                $this->orderRepository->save($originalOrder);
+//                $this->logger->info(__('Vindi bill ID set for the order.'));
+//
+//                $this->emailSender->sendQrCodeAvailableEmail($originalOrder);
+//                return true;
+//            }
+//
+//            $orders = $this->orderCreator->getOrdersBySubscriptionId($subscriptionId);
+//            foreach ($orders as $order) {
+//                if ($order->getData('vindi_subscription_can_create_new_order') == true) {
+//                    $this->logger->info(__('Not all orders for subscription ID: %1 have vindi_bill_id set', $subscriptionId));
+//                    return false;
+//                }
+//            }
+//
+//            $queueItem = $this->orderCreationQueueFactory->create();
+//            $queueItem->setData([
+//                'bill_data' => json_encode($data),
+//                'status'    => 'pending'
+//            ]);
+//            $this->orderCreationQueueRepository->save($queueItem);
 
             return true;
         } finally {
