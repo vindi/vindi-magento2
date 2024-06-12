@@ -68,6 +68,7 @@ class Webhook extends Action
         }
 
         $body = file_get_contents('php://input');
+        $this->logger->info("=========================");
         $this->logger->info(__(sprintf("Webhook New Event!\n%s", $body)));
 
         $this->webhookHandler->handle($body);
