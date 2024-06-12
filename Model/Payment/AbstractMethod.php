@@ -392,7 +392,11 @@ abstract class AbstractMethod extends OriginAbstractMethod
             $installments = $payment->getAdditionalInformation('installments');
 
             if ($body['payment_method_code'] === PaymentMethod::CREDIT_CARD) {
-                $paymentProfile = $this->createPaymentProfile($order, $payment, $customerId);
+
+                $paymentProfile = ($payment->getAdditionalInformation('payment_profile'))
+                    ? $this->getPaymentProfile((int) $payment->getAdditionalInformation('payment_profile'))
+                    : $this->createPaymentProfile($order, $payment, $customerId);
+
                 if ($paymentProfile) {
                     $body['payment_profile'] = ['id' => $paymentProfile->getData('payment_profile_id')];
                 }
