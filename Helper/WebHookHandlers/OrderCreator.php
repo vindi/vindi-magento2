@@ -114,6 +114,21 @@ class OrderCreator
     }
 
     /**
+     * Get all orders associated with a subscription ID
+     */
+    public function getOrdersBySubscriptionId($subscriptionId)
+    {
+        $subscriptionOrders = $this->subscriptionOrderRepository->getListBySubscriptionId($subscriptionId);
+
+        $orders = [];
+        foreach ($subscriptionOrders as $subscriptionOrder) {
+            $orders[] = $this->orderFactory->create()->load($subscriptionOrder->getOrderId());
+        }
+
+        return $orders;
+    }
+
+    /**
      * Replicate an order from an existing order
      */
     protected function replicateOrder(Order $originalOrder, $billData)
@@ -225,3 +240,4 @@ class OrderCreator
         }
     }
 }
+
