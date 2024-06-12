@@ -4,7 +4,7 @@ use Vindi\Payment\Block\Onepage\Bankslippix;
 /** @var $block Bankslippix */
 ?>
 
-<?php if ($this->canShowBankSlipPix()) : ?>
+<?php if ($block->canShowBankSlipPix()) : ?>
     <div class="checkout-success qr-code">
         <?php if ($block->getQrCodePix()) : ?>
             <p>

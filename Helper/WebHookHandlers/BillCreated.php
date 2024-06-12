@@ -3,6 +3,7 @@
 namespace Vindi\Payment\Helper\WebHookHandlers;
 
 use Vindi\Payment\Api\OrderCreationQueueRepositoryInterface;
+use Vindi\Payment\Model\OrderCreationQueueFactory;
 use Magento\Sales\Model\OrderRepository;
 use Vindi\Payment\Helper\EmailSender;
 
@@ -20,6 +21,16 @@ class BillCreated
      * @var OrderCreator
      */
     private $orderCreator;
+
+    /**
+     * @var OrderCreationQueueRepositoryInterface
+     */
+    private $orderCreationQueueRepository;
+
+    /**
+     * @var OrderCreationQueueFactory
+     */
+    private $orderCreationQueueFactory;
 
     /**
      * @var OrderRepository
@@ -42,12 +53,16 @@ class BillCreated
     public function __construct(
         \Psr\Log\LoggerInterface $logger,
         OrderCreator $orderCreator,
+        OrderCreationQueueRepositoryInterface $orderCreationQueueRepository,
+        OrderCreationQueueFactory $orderCreationQueueFactory,
         OrderRepository $orderRepository,
         EmailSender $emailSender,
         \Magento\Framework\App\ResourceConnection $resourceConnection
     ) {
         $this->logger = $logger;
         $this->orderCreator = $orderCreator;
+        $this->orderCreationQueueRepository = $orderCreationQueueRepository;
+        $this->orderCreationQueueFactory = $orderCreationQueueFactory;
         $this->orderRepository = $orderRepository;
         $this->emailSender = $emailSender;
         $this->dbAdapter = $resourceConnection->getConnection();
@@ -85,30 +100,32 @@ class BillCreated
 
         try {
             $originalOrder = $this->orderCreator->getOrderFromSubscriptionId($subscriptionId);
-            if ($originalOrder && ($originalOrder->getPayment()->getMethod() === 'vindi_pix' || $originalOrder->getPayment()->getMethod() === 'vindi_bankslippix')) {
-                $vindiBillId = (int) $originalOrder->getData('vindi_bill_id');
-                if ($vindiBillId === null || $vindiBillId === '' || $vindiBillId === 0) {
-                    $originalOrder->setData('vindi_bill_id', $bill['id']);
-                    $this->orderRepository->save($originalOrder);
-                    $this->logger->info(__('Vindi bill ID set for the order.'));
+            if ($originalOrder && $originalOrder->getData('vindi_subscription_can_create_new_order') == true) {
+                $originalOrder->setData('vindi_subscription_can_create_new_order', false);
+                $originalOrder->setData('vindi_bill_id', $bill['id']);
+                $this->orderRepository->save($originalOrder);
+                $this->logger->info(__('Vindi bill ID set for the order.'));
 
-                    $this->emailSender->sendQrCodeAvailableEmail($originalOrder);
-                    return true;
-                }
+                $this->emailSender->sendQrCodeAvailableEmail($originalOrder);
+                return true;
             }
 
             $orders = $this->orderCreator->getOrdersBySubscriptionId($subscriptionId);
             foreach ($orders as $order) {
-                $vindiBillId = $order->getData('vindi_bill_id');
-                if ($vindiBillId === null || $vindiBillId === '' || $vindiBillId === 0) {
+                if ($order->getData('vindi_subscription_can_create_new_order') == true) {
                     $this->logger->info(__('Not all orders for subscription ID: %1 have vindi_bill_id set', $subscriptionId));
                     return false;
                 }
             }
 
-            $result = $this->orderCreator->createOrderFromBill($data);
+            $queueItem = $this->orderCreationQueueFactory->create();
+            $queueItem->setData([
+                'bill_data' => json_encode($data),
+                'status'    => 'pending'
+            ]);
+            $this->orderCreationQueueRepository->save($queueItem);
 
-            return $result;
+            return true;
         } finally {
             $this->dbAdapter->query("SELECT RELEASE_LOCK(?)", [$lockName]);
         }
