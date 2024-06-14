@@ -23,11 +23,12 @@ interface OrderCreationQueueRepositoryInterface
     public function getById($id);
 
     /**
-     * Get the oldest pending queue item
+     * Get the oldest pending order creation request by type.
      *
-     * @return OrderCreationQueue|null
+     * @param string $type
+     * @return OrderCreationQueue
      */
-    public function getOldestPending();
+    public function getOldestPending($type = 'bill_created');
 
     /**
      * Delete a queue item

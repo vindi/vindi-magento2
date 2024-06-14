@@ -71,14 +71,16 @@ class OrderCreationQueueRepository implements OrderCreationQueueRepositoryInterf
     }
 
     /**
-     * Get the oldest pending queue item
+     * Get the oldest pending queue item by type
      *
+     * @param string $type
      * @return OrderCreationQueue|null
      */
-    public function getOldestPending()
+    public function getOldestPending($type = 'bill_created')
     {
         $collection = $this->collectionFactory->create()
             ->addFieldToFilter('status', 'pending')
+            ->addFieldToFilter('type', $type)
             ->setOrder('created_at', 'ASC')
             ->setPageSize(1)
             ->getFirstItem();

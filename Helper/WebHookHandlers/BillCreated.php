@@ -114,7 +114,8 @@ class BillCreated
                 $queueItem = $this->orderCreationQueueFactory->create();
                 $queueItem->setData([
                     'bill_data' => json_encode($data),
-                    'status'    => 'pending'
+                    'status'    => 'pending',
+                    'type'      => 'bill_paid'
                 ]);
                 $this->orderCreationQueueRepository->save($queueItem);
                 $this->logger->info(__('Created order creation queue item for subscription.'));

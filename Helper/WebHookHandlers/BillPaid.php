@@ -2,9 +2,11 @@
 
 namespace Vindi\Payment\Helper\WebHookHandlers;
 
-use Magento\Sales\Api\Data\OrderInterface;
-use Magento\Sales\Model\Order\Invoice;
-use Vindi\Payment\Helper\Data;
+use Vindi\Payment\Api\OrderCreationQueueRepositoryInterface;
+use Vindi\Payment\Model\OrderCreationQueueFactory;
+use Magento\Sales\Model\OrderRepository;
+use Vindi\Payment\Helper\EmailSender;
+use Vindi\Payment\Logger\Logger;
 
 /**
  * Class BillPaid
@@ -12,213 +14,96 @@ use Vindi\Payment\Helper\Data;
 class BillPaid
 {
     /**
-     * @var \Psr\Log\LoggerInterface
+     * @var Logger
      */
     private $logger;
 
     /**
-     * @var \Magento\Sales\Api\OrderRepositoryInterface
+     * @var OrderCreator
      */
-    protected $orderRepository;
+    private $orderCreator;
 
     /**
-     * @var \Magento\Sales\Api\InvoiceRepositoryInterface
+     * @var OrderCreationQueueRepositoryInterface
      */
-    protected $invoiceRepository;
+    private $orderCreationQueueRepository;
 
     /**
-     * @var \Magento\Framework\Api\SearchCriteriaBuilder
+     * @var OrderCreationQueueFactory
      */
-    private $searchCriteriaBuilder;
+    private $orderCreationQueueFactory;
 
     /**
-     * @var Order
+     * @var OrderRepository
      */
-    private $order;
+    private $orderRepository;
 
     /**
-     * @var Data
+     * @var EmailSender
      */
-    private $helperData;
+    private $emailSender;
 
     /**
-     * BillPaid constructor.
-     * @param \Psr\Log\LoggerInterface $logger
-     * @param \Magento\Sales\Api\OrderRepositoryInterface $orderRepository
-     * @param \Magento\Sales\Api\InvoiceRepositoryInterface $invoiceRepository
-     * @param \Magento\Framework\Api\SearchCriteriaBuilder $searchCriteriaBuilder
-     * @param Order $order
-     * @param Data $helperData
+     * @var \Magento\Framework\DB\Adapter\AdapterInterface
+     */
+    private $dbAdapter;
+
+    /**
+     * Constructor for initializing class dependencies.
      */
     public function __construct(
-        \Psr\Log\LoggerInterface $logger,
-        \Magento\Sales\Api\OrderRepositoryInterface $orderRepository,
-        \Magento\Sales\Api\InvoiceRepositoryInterface $invoiceRepository,
-        \Magento\Framework\Api\SearchCriteriaBuilder $searchCriteriaBuilder,
-        Order $order,
-        Data $helperData
+        Logger $logger,
+        OrderCreator $orderCreator,
+        OrderCreationQueueRepositoryInterface $orderCreationQueueRepository,
+        OrderCreationQueueFactory $orderCreationQueueFactory,
+        OrderRepository $orderRepository,
+        EmailSender $emailSender,
+        \Magento\Framework\App\ResourceConnection $resourceConnection
     ) {
         $this->logger = $logger;
+        $this->orderCreator = $orderCreator;
+        $this->orderCreationQueueRepository = $orderCreationQueueRepository;
+        $this->orderCreationQueueFactory = $orderCreationQueueFactory;
         $this->orderRepository = $orderRepository;
-        $this->invoiceRepository = $invoiceRepository;
-        $this->order = $order;
-        $this->helperData = $helperData;
-        $this->searchCriteriaBuilder = $searchCriteriaBuilder;
+        $this->emailSender = $emailSender;
+        $this->dbAdapter = $resourceConnection->getConnection();
     }
 
     /**
-     * @param $data
+     * Handle the "bill_paid" webhook.
+     *
+     * @param array $data
      * @return bool
      */
     public function billPaid($data)
     {
-        $order = null;
-        $isSubscription = false;
+        $bill = $data['bill'];
 
-        if (isset($data['bill']['id']) && isset($data['bill']['subscription']['id'])) {
-            $order = $this->getOrderByVindiBillAndSubscriptionId($data['bill']['id'], $data['bill']['subscription']['id']);
-            $isSubscription = true;
-        } elseif (isset($data['bill']['id']) && $data['bill']['id'] != null) {
-            $order = $this->getOrderByVindiBillId($data['bill']['id']);
-        }
-
-        if (!$order && !($order = $this->order->getOrder($data))) {
-            $this->logger->error(
-                __(sprintf(
-                    'There is no cycle %s of signature %d.',
-                    $data['bill']['period']['cycle'],
-                    $data['bill']['subscription']['id']
-                ))
-            );
-
+        if (!$bill) {
+            $this->logger->error(__('Error while interpreting webhook "bill_paid"'));
             return false;
         }
 
-        return $this->createInvoice($order, $isSubscription);
-    }
-
-    /**
-     * @param \Magento\Sales\Model\Order $order
-     * @param bool $isSubscription
-     * @return bool
-     */
-    public function createInvoice(\Magento\Sales\Model\Order $order, $isSubscription = false)
-    {
-        if (!$order->getId()) {
+        $subscriptionId = $bill['subscription']['id'];
+        $lockName = 'vindi_subscription_' . $subscriptionId;
+        if (!$this->dbAdapter->query("SELECT GET_LOCK(?, 10)", [$lockName])->fetchColumn()) {
+            $this->logger->error(__('Could not acquire lock for subscription ID: %1', $subscriptionId));
             return false;
         }
 
-        $this->logger->info(__(sprintf('Generating invoice for the order %s.', $order->getId())));
-
-        if (!$isSubscription) {
-            if (!$order->canInvoice()) {
-                $this->logger->error(__(sprintf('Impossible to generate invoice for order %s.', $order->getId())));
-                return false;
-            }
-        }
-
-        $invoice = $order->prepareInvoice();
-        $invoice->setRequestedCaptureCase(Invoice::CAPTURE_OFFLINE);
-        $invoice->register();
-        $invoice->pay();
-        $invoice->setSendEmail(true);
-        $this->invoiceRepository->save($invoice);
-        $this->logger->info(__('Invoice created with success'));
-
-        if ($isSubscription) {
-            $order->addCommentToStatusHistory(
-                __('The payment was confirmed and the subscription is being processed')->getText(),
-                \Magento\Sales\Model\Order::STATE_PROCESSING
-            );
-        } else {
-            $status = $this->helperData->getStatusToPaidOrder();
-
-            if ($state = $this->helperData->getStatusState($status)) {
-                $order->setState($state);
-            }
-
-            $order->addCommentToStatusHistory(
-                __('The payment was confirmed and the order is being processed')->getText(),
-                $status
-            );
-        }
-
-        $this->orderRepository->save($order);
-
-        return true;
-    }
-
-    /**
-     * @param $vindiBillId
-     * @param $subscriptionId
-     * @return bool|OrderInterface
-     */
-    private function getOrderByVindiBillAndSubscriptionId($vindiBillId, $subscriptionId)
-    {
-        $searchCriteria = $this->searchCriteriaBuilder
-            ->addFilter('vindi_bill_id', $vindiBillId, 'eq')
-            ->addFilter('vindi_subscription_id', $subscriptionId, 'eq')
-            ->create();
-
-        $orderList = $this->orderRepository
-            ->getList($searchCriteria)
-            ->getItems();
-
         try {
-            return reset($orderList);
-        } catch (\Exception $e) {
-            $this->logger->error(__('Order with Vindi Bill ID #%1 and Subscription ID #%2 not found', $vindiBillId, $subscriptionId));
-            $this->logger->error($e->getMessage());
+            $queueItem = $this->orderCreationQueueFactory->create();
+            $queueItem->setData([
+                'bill_data' => json_encode($data),
+                'status'    => 'pending',
+                'type'      => 'bill_paid'
+            ]);
+            $this->orderCreationQueueRepository->save($queueItem);
+            $this->logger->info(__('Created order creation queue item for subscription.'));
+
+            return true;
+        } finally {
+            $this->dbAdapter->query("SELECT RELEASE_LOCK(?)", [$lockName]);
         }
-
-        return false;
-    }
-
-    /**
-     * @param $vindiBillId
-     * @return bool|OrderInterface
-     */
-    private function getOrderByVindiBillId($vindiBillId)
-    {
-        $searchCriteria = $this->searchCriteriaBuilder
-            ->addFilter('vindi_bill_id', $vindiBillId, 'eq')
-            ->create();
-
-        $orderList = $this->orderRepository
-            ->getList($searchCriteria)
-            ->getItems();
-
-        try {
-            return reset($orderList);
-        } catch (\Exception $e) {
-            $this->logger->error(__('Order with Vindi Bill ID #%1 not found', $vindiBillId));
-            $this->logger->error($e->getMessage());
-        }
-
-        return false;
-    }
-
-    /**
-     * @param $subscriptionId
-     * @return bool|OrderInterface
-     */
-    private function getOrderBySubscriptionId($subscriptionId)
-    {
-        $searchCriteria = $this->searchCriteriaBuilder
-            ->addFilter('vindi_subscription_id', $subscriptionId, 'eq')
-            ->create();
-
-        $orderList = $this->orderRepository
-            ->getList($searchCriteria)
-            ->getItems();
-
-        try {
-            return reset($orderList);
-        } catch (\Exception $e) {
-            $this->logger->error(__('Order with Subscription ID #%1 not found', $subscriptionId));
-            $this->logger->error($e->getMessage());
-        }
-
-        return false;
     }
 }
