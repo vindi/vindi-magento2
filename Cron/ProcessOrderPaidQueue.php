@@ -156,7 +156,7 @@ class ProcessOrderPaidQueue
 
             $bill = $billData['bill'];
             $subscriptionId = $bill['subscription']['id'];
-            $order = $this->getOrderFromSubscriptionId($subscriptionId);
+            $order = $this->getOrderFromBillId($subscriptionId);
 
             if (!$order) {
                 $this->logger->info(__('Order not found for subscription ID %1', $subscriptionId));
@@ -234,6 +234,27 @@ class ProcessOrderPaidQueue
             return reset($orderList);
         } catch (\Exception $e) {
             $this->logger->error(__('Error fetching order for subscription ID %1: %2', $subscriptionId, $e->getMessage()));
+            return null;
+        }
+    }
+
+    /**
+     * Fetch original order using bill ID
+     *
+     * @param string $billId
+     * @return \Magento\Sales\Api\Data\OrderInterface|null
+     */
+    protected function getOrderFromBillId($billId)
+    {
+        try {
+            $searchCriteria = $this->searchCriteriaBuilder
+                ->addFilter('vindi_bill_id', $billId)
+                ->create();
+
+            $orderList = $this->orderRepository->getList($searchCriteria)->getItems();
+            return reset($orderList);
+        } catch (\Exception $e) {
+            $this->logger->error(__('Error fetching order for bill ID %1: %2', $billId, $e->getMessage()));
             return null;
         }
     }
