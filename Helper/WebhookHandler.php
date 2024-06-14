@@ -127,7 +127,8 @@ class WebhookHandler
             'request_body'  => $this->sanitizeData($requestBody),
             'response_body' => null,
             'status_code'   => 200,
-            'description'   => $description
+            'description'   => $description,
+            'origin'        => 'webhook' // Added field 'origin'
         ]);
         $this->logResource->save($log);
     }
