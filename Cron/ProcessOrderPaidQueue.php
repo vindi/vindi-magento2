@@ -170,15 +170,15 @@ class ProcessOrderPaidQueue
 
             if ($order->canInvoice()) {
                 $invoice = $this->invoiceService->prepareInvoice($order);
+                if (!$invoice) {
+                    throw new LocalizedException(__('We can\'t create an invoice without products.'));
+                }
+
                 foreach ($order->getAllItems() as $item) {
                     $invoiceItem = $invoice->getItemById($item->getId());
                     if ($invoiceItem) {
                         $invoiceItem->setQty($item->getQtyOrdered());
                     }
-                }
-
-                if (!$invoice) {
-                    throw new LocalizedException(__('We can\'t create an invoice without products.'));
                 }
 
                 $invoice->setRequestedCaptureCase(Invoice::CAPTURE_OFFLINE);
@@ -208,8 +208,11 @@ class ProcessOrderPaidQueue
         } catch (NoSuchEntityException $e) {
             $this->logger->error(__('Order not found for subscription ID %1', $subscriptionId));
             return false;
-        } catch (\Exception $e) {
+        } catch (LocalizedException $e) {
             $this->logger->error(__('Error creating invoice: %1', $e->getMessage()));
+            return false;
+        } catch (\Exception $e) {
+            $this->logger->error(__('Unexpected error creating invoice: %1', $e->getMessage()));
             return false;
         }
     }
