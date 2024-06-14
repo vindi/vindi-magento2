@@ -194,6 +194,10 @@ class ProcessOrderPaidQueue
 
                 $order->addCommentToStatusHistory(__('Invoice created for order ID %1', $order->getId()))
                     ->setIsCustomerNotified(true);
+
+                $order->setState('processing')
+                    ->setStatus('processing');
+
                 $this->orderRepository->save($order);
 
                 $this->logger->info(__('Invoice created for order ID %1', $order->getId()));
