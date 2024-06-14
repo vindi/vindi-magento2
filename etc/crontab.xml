@@ -11,5 +11,8 @@
         <job name="vindi_payment_clean_old_logs" instance="Vindi\Payment\Cron\CleanOldLogs" method="execute">
             <schedule>0 3 * * *</schedule>
         </job>
+        <job name="vindi_payment_process_order_paid_queue" instance="Vindi\Payment\Cron\ProcessOrderPaidQueue" method="execute">
+            <schedule>*/1 * * * *</schedule>
+        </job>
     </group>
 </config>

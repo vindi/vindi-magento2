@@ -82,6 +82,7 @@
         <column xsi:type="int" name="queue_id" nullable="false" identity="true" unsigned="true" comment="Queue ID"/>
         <column xsi:type="text" name="bill_data" nullable="false" comment="Serialized Bill Data"/>
         <column xsi:type="varchar" name="status" nullable="false" default="pending" length="32" comment="Status"/>
+        <column xsi:type="varchar" name="type" nullable="false" length="32" comment="Event Type"/>
         <column xsi:type="timestamp" name="created_at" nullable="false" default="CURRENT_TIMESTAMP" comment="Creation Time"/>
         <column xsi:type="timestamp" name="updated_at" nullable="false" default="CURRENT_TIMESTAMP" on_update="true" comment="Update Time"/>
         <constraint xsi:type="primary" referenceId="PRIMARY">
