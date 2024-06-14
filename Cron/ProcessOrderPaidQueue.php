@@ -163,48 +163,44 @@ class ProcessOrderPaidQueue
                 return false;
             }
 
-            if (empty($order->getData('vindi_bill_id')) || $order->getData('vindi_bill_id') < 1) {
-                $this->logger->info(__('Order ID %1 does not have a bill associated yet.', $order->getId()));
-                return null;
+            // Remove the canInvoice check to force invoice creation
+            // if ($order->canInvoice()) {
+            $invoice = $this->invoiceService->prepareInvoice($order);
+            if (!$invoice) {
+                throw new LocalizedException(__('We can\'t create an invoice without products.'));
             }
 
-            if ($order->canInvoice()) {
-                $invoice = $this->invoiceService->prepareInvoice($order);
-                if (!$invoice) {
-                    throw new LocalizedException(__('We can\'t create an invoice without products.'));
+            foreach ($order->getAllItems() as $item) {
+                $invoiceItem = $invoice->getItemById($item->getId());
+                if ($invoiceItem) {
+                    $invoiceItem->setQty($item->getQtyOrdered());
                 }
-
-                foreach ($order->getAllItems() as $item) {
-                    $invoiceItem = $invoice->getItemById($item->getId());
-                    if ($invoiceItem) {
-                        $invoiceItem->setQty($item->getQtyOrdered());
-                    }
-                }
-
-                $invoice->setRequestedCaptureCase(Invoice::CAPTURE_OFFLINE);
-                $invoice->register();
-                $invoice->pay();
-                $invoice->setSendEmail(true);
-
-                $this->transaction->addObject($invoice)
-                    ->addObject($invoice->getOrder())
-                    ->save();
-
-                $this->invoiceSender->send($invoice);
-
-                $order->addCommentToStatusHistory(__('Invoice created for order ID %1', $order->getId()))
-                    ->setIsCustomerNotified(true);
-
-                $order->setState('processing')
-                    ->setStatus('processing');
-
-                $this->orderRepository->save($order);
-
-                $this->logger->info(__('Invoice created for order ID %1', $order->getId()));
-                return true;
             }
 
-            return false;
+            $invoice->setRequestedCaptureCase(Invoice::CAPTURE_OFFLINE);
+            $invoice->register();
+            $invoice->pay();
+            $invoice->setSendEmail(true);
+
+            $this->transaction->addObject($invoice)
+                ->addObject($invoice->getOrder())
+                ->save();
+
+            $this->invoiceSender->send($invoice);
+
+            $order->addCommentToStatusHistory(__('Invoice created for order ID %1', $order->getId()))
+                ->setIsCustomerNotified(true);
+
+            $order->setState('processing')
+                ->setStatus('processing');
+
+            $this->orderRepository->save($order);
+
+            $this->logger->info(__('Invoice created for order ID %1', $order->getId()));
+            return true;
+            // }
+
+            // return false;
         } catch (NoSuchEntityException $e) {
             $this->logger->error(__('Order not found for subscription ID %1', $subscriptionId));
             return false;
