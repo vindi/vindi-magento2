@@ -156,7 +156,7 @@ class ProcessOrderPaidQueue
 
             $bill = $billData['bill'];
             $subscriptionId = $bill['subscription']['id'];
-            $order = $this->getOrderFromBillId($subscriptionId);
+            $order = $this->getOrderFromBillIdAndSubscriptionId($bill['id'], $subscriptionId);
 
             if (!$order) {
                 $this->logger->info(__('Order not found for subscription ID %1', $subscriptionId));
@@ -249,6 +249,27 @@ class ProcessOrderPaidQueue
         try {
             $searchCriteria = $this->searchCriteriaBuilder
                 ->addFilter('vindi_bill_id', $billId)
+                ->create();
+
+            $orderList = $this->orderRepository->getList($searchCriteria)->getItems();
+            return reset($orderList);
+        } catch (\Exception $e) {
+            $this->logger->error(__('Error fetching order for bill ID %1: %2', $billId, $e->getMessage()));
+            return null;
+        }
+    }
+
+    /**
+     * @param $billId
+     * @param $subscriptionId
+     * @return false|mixed|null
+     */
+    protected function getOrderFromBillIdAndSubscriptionId($billId, $subscriptionId)
+    {
+        try {
+            $searchCriteria = $this->searchCriteriaBuilder
+                ->addFilter('vindi_bill_id', $billId)
+                ->addFilter('vindi_subscription_id', $subscriptionId)
                 ->create();
 
             $orderList = $this->orderRepository->getList($searchCriteria)->getItems();
