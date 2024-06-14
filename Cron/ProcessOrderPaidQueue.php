@@ -2,6 +2,7 @@
 
 namespace Vindi\Payment\Cron;
 
+use Magento\Sales\Model\Order\Invoice;
 use Psr\Log\LoggerInterface;
 use Vindi\Payment\Api\OrderCreationQueueRepositoryInterface;
 use Magento\Sales\Model\Service\InvoiceService;
@@ -180,8 +181,10 @@ class ProcessOrderPaidQueue
                     throw new LocalizedException(__('We can\'t create an invoice without products.'));
                 }
 
+                $invoice->setRequestedCaptureCase(Invoice::CAPTURE_OFFLINE);
                 $invoice->register();
-                $invoice->capture();
+                $invoice->pay();
+                $invoice->setSendEmail(true);
 
                 $this->transaction->addObject($invoice)
                     ->addObject($invoice->getOrder())
