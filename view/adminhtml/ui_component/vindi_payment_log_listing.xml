@@ -29,6 +29,24 @@
         <columnsControls name="columns_controls"/>
         <filters name="listing_filters"/>
         <paging name="listing_paging"/>
+        <massaction name="listing_massaction">
+            <argument name="data" xsi:type="array">
+                <item name="config" xsi:type="array">
+                    <item name="component" xsi:type="string">Magento_Ui/js/grid/tree-massactions</item>
+                </item>
+            </argument>
+            <action name="delete">
+                <settings>
+                    <confirm>
+                        <message translate="true">Delete selected items?</message>
+                        <title translate="true">Delete items</title>
+                    </confirm>
+                    <url path="vindi_payment/logs/massDelete"/>
+                    <type>delete</type>
+                    <label translate="true">Delete</label>
+                </settings>
+            </action>
+        </massaction>
     </listingToolbar>
     <columns name="spinner_columns">
         <selectionsColumn name="ids">
@@ -47,6 +65,12 @@
             <settings>
                 <filter>text</filter>
                 <label translate="true">Endpoint</label>
+            </settings>
+        </column>
+        <column name="origin">
+            <settings>
+                <filter>text</filter>
+                <label translate="true">Origin</label>
             </settings>
         </column>
         <column name="method">

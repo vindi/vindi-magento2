@@ -97,6 +97,7 @@
         <column xsi:type="text" name="response_body" nullable="true" comment="Response Body"/>
         <column xsi:type="int" name="status_code" nullable="false" comment="HTTP Status Code"/>
         <column xsi:type="text" name="description" nullable="true" comment="Description of the request"/>
+        <column xsi:type="varchar" length="255" name="origin" nullable="true" comment="Origin"/>
         <column xsi:type="datetime" name="created_at" nullable="false" default="CURRENT_TIMESTAMP" comment="Created At"/>
         <column xsi:type="datetime" name="updated_at" nullable="false" default="CURRENT_TIMESTAMP" on_update="true" comment="Updated At"/>
         <constraint xsi:type="primary" referenceId="PRIMARY">
