@@ -2,17 +2,18 @@
 
 namespace Vindi\Payment\Cron;
 
-use Magento\Sales\Model\Order\Invoice;
-use Psr\Log\LoggerInterface;
-use Vindi\Payment\Api\OrderCreationQueueRepositoryInterface;
-use Magento\Sales\Model\Service\InvoiceService;
-use Magento\Sales\Api\OrderRepositoryInterface;
+use Magento\Framework\Api\SearchCriteriaBuilder;
 use Magento\Framework\DB\Transaction;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Framework\Lock\LockManagerInterface;
+use Magento\Sales\Api\OrderRepositoryInterface;
 use Magento\Sales\Model\Order\Email\Sender\InvoiceSender;
-use Magento\Framework\Api\SearchCriteriaBuilder;
+use Magento\Sales\Model\Order\Invoice;
+use Magento\Sales\Model\Order\Invoice\ItemFactory;
+use Magento\Sales\Model\Service\InvoiceService;
+use Psr\Log\LoggerInterface;
+use Vindi\Payment\Api\OrderCreationQueueRepositoryInterface;
 
 class ProcessOrderPaidQueue
 {
@@ -57,6 +58,11 @@ class ProcessOrderPaidQueue
     private $searchCriteriaBuilder;
 
     /**
+     * @var ItemFactory
+     */
+    private $invoiceItemFactory;
+
+    /**
      * Lock name for this cron job
      */
     private const LOCK_NAME = 'vindi_payment_process_order_paid_queue';
@@ -72,6 +78,7 @@ class ProcessOrderPaidQueue
      * @param LockManagerInterface $lockManager
      * @param InvoiceSender $invoiceSender
      * @param SearchCriteriaBuilder $searchCriteriaBuilder
+     * @param ItemFactory $invoiceItemFactory
      */
     public function __construct(
         LoggerInterface $logger,
@@ -81,7 +88,8 @@ class ProcessOrderPaidQueue
         Transaction $transaction,
         LockManagerInterface $lockManager,
         InvoiceSender $invoiceSender,
-        SearchCriteriaBuilder $searchCriteriaBuilder
+        SearchCriteriaBuilder $searchCriteriaBuilder,
+        ItemFactory $invoiceItemFactory
     ) {
         $this->logger = $logger;
         $this->orderCreationQueueRepository = $orderCreationQueueRepository;
@@ -91,6 +99,7 @@ class ProcessOrderPaidQueue
         $this->lockManager = $lockManager;
         $this->invoiceSender = $invoiceSender;
         $this->searchCriteriaBuilder = $searchCriteriaBuilder;
+        $this->invoiceItemFactory = $invoiceItemFactory;
     }
 
     /**
@@ -163,19 +172,35 @@ class ProcessOrderPaidQueue
                 return false;
             }
 
-            // Remove the canInvoice check to force invoice creation
-            // if ($order->canInvoice()) {
             $invoice = $this->invoiceService->prepareInvoice($order);
             if (!$invoice) {
                 throw new LocalizedException(__('We can\'t create an invoice without products.'));
             }
 
+            $baseGrandeTotal    = $order->getBaseGrandTotal();
+            $grandTotal         = $order->getGrandTotal();
+            $baseShippingAmount = $order->getBaseShippingAmount();
+            $shippingAmount     = $order->getShippingAmount();
+            $baseSubtotal       = $order->getBaseSubtotal();
+            $subtotal           = $order->getSubtotal();
+
             foreach ($order->getAllItems() as $item) {
-                $invoiceItem = $invoice->getItemById($item->getId());
-                if ($invoiceItem) {
-                    $invoiceItem->setQty($item->getQtyOrdered());
-                }
+                $invoiceItem = $this->invoiceItemFactory->create();
+                $invoiceItem->setOrderItem($item);
+                $invoiceItem->setQty($item->getQtyOrdered());
+                $invoiceItem->setPrice($item->getPrice());
+                $invoiceItem->setBasePrice($item->getBasePrice());
+                $invoiceItem->setRowTotal($item->getRowTotal() * $item->getQtyOrdered());
+                $invoiceItem->setBaseRowTotal($item->getBaseRowTotal() * $item->getQtyOrdered());
+                $invoice->addItem($invoiceItem);
             }
+
+            $invoice->setBaseSubtotal($baseSubtotal);
+            $invoice->setSubtotal($subtotal);
+            $invoice->setBaseGrandTotal($baseGrandeTotal);
+            $invoice->setGrandTotal($grandTotal);
+            $invoice->setBaseShippingAmount($baseShippingAmount);
+            $invoice->setShippingAmount($shippingAmount);
 
             $invoice->setRequestedCaptureCase(Invoice::CAPTURE_OFFLINE);
             $invoice->register();
@@ -198,9 +223,6 @@ class ProcessOrderPaidQueue
 
             $this->logger->info(__('Invoice created for order ID %1', $order->getId()));
             return true;
-            // }
-
-            // return false;
         } catch (NoSuchEntityException $e) {
             $this->logger->error(__('Order not found for subscription ID %1', $subscriptionId));
             return false;
