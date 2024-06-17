@@ -11,6 +11,7 @@ use Vindi\Payment\Api\PixConfigurationInterface;
 use Magento\Framework\App\ResourceConnection;
 use Magento\Framework\Stdlib\DateTime\TimezoneInterface;
 use Psr\Log\LoggerInterface;
+use DateTime;
 
 /**
  * Class Pix
@@ -165,7 +166,11 @@ class Pix extends Template
                 ->where('so.order_id = ?', $this->getOrder()->getId());
 
             $result = $connection->fetchOne($select);
-            return $result ? $this->timezone->formatDate($result, \IntlDateFormatter::SHORT, false) : null;
+
+            $startAt = new DateTime($result);
+            $startAt = $startAt->format('d/m/Y');
+
+            return $result ? $startAt : null;
         } catch (\Exception $e) {
             $this->logger->error(__('Error fetching next billing date: %1', $e->getMessage()));
             return null;
