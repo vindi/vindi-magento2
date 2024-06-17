@@ -8,6 +8,7 @@ $pageTitle = __("Subscriptions");
         <table>
             <thead>
             <tr>
+                <th><?= __('ID') ?></th>
                 <th><?= __('Client') ?></th>
                 <th><?= __('Plan') ?></th>
                 <th><?= __('Start') ?></th>
@@ -18,9 +19,10 @@ $pageTitle = __("Subscriptions");
             <tbody>
             <?php foreach ($subscriptions as $subscription): ?>
                 <tr onclick="window.location='<?= $block->getUrl('vindi_vr/subscription/details', ['id' => $subscription->getId()]) ?>';" style="cursor: pointer;">
+                    <td><?= $subscription->getId() ?></td>
                     <td><?= $subscription->getClient() ?></td>
                     <td><?= $subscription->getPlan() ?></td>
-                    <td><?= $block->formatDate($subscription->getStartAt(), \IntlDateFormatter::SHORT, false) ?></td>
+                    <td><?= $block->getStartAt($subscription->getStartAt()) ?></td>
                     <td><?= $block->getPaymentMethodLabel($subscription->getPaymentMethod()) ?></td>
                     <td><?= $block->getStatusLabel($subscription->getStatus()) ?></td>
                 </tr>
