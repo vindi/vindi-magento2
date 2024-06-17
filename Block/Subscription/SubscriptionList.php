@@ -1,6 +1,7 @@
 <?php
 namespace Vindi\Payment\Block\Subscription;
 
+use DateTime;
 use Magento\Customer\Model\Session as CustomerSession;
 use Magento\Framework\View\Element\Template;
 use Magento\Framework\View\Element\Template\Context;
@@ -103,6 +104,20 @@ class SubscriptionList extends Template
         }
 
         return $this->_subscriptionCollection;
+    }
+
+    /**
+     * @return string
+     */
+    public function getStartAt($startAt)
+    {
+        try {
+            $startAt = new DateTime($startAt);
+            return $startAt->format('d/m/Y');
+        } catch (Exception $e) {
+        }
+
+        return '-';
     }
 
     /**
