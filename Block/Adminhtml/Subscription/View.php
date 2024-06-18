@@ -175,8 +175,19 @@ class View extends Container
     public function getPlanCycle()
     {
         $data = $this->getSubscriptionData();
-        if (array_key_exists('interval', $data)) {
-            return $data['interval'];
+        if (array_key_exists('interval', $data) && array_key_exists('interval_count', $data)) {
+            $interval = $data['interval'];
+            $intervalCount = $data['interval_count'];
+            $intervalLabels = [
+                'days' => __('day(s)'),
+                'weeks' => __('week(s)'),
+                'months' => __('month(s)'),
+                'years' => __('year(s)')
+            ];
+
+            if (array_key_exists($interval, $intervalLabels)) {
+                return __('Every %1 %2', $intervalCount, $intervalLabels[$interval]);
+            }
         }
 
         return '-';

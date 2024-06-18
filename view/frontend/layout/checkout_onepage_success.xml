@@ -8,6 +8,7 @@
             <block class="Vindi\Payment\Block\Onepage\Bankslippix" name="checkout.success.vindi.bankslippix" template="onepage/bankslippix.phtml" cacheable="false"/>
             <block class="Vindi\Payment\Block\Onepage\Bankslip" name="checkout.success.vindi.bankslip" template="onepage/bankslip.phtml" cacheable="false"/>
             <block class="Vindi\Payment\Block\Onepage\Pix" name="checkout.success.vindi.pix" template="Vindi_Payment::onepage/pix.phtml" cacheable="false"/>
+            <block class="Vindi\Payment\Block\Onepage\CreditCard" name="checkout.success.vindi.creditcard" template="Vindi_Payment::onepage/cc.phtml" cacheable="false"/>
         </referenceContainer>
     </body>
 </page>
