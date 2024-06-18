@@ -14,6 +14,7 @@ use Magento\Sales\Model\Order\Invoice\ItemFactory;
 use Magento\Sales\Model\Service\InvoiceService;
 use Psr\Log\LoggerInterface;
 use Vindi\Payment\Api\OrderCreationQueueRepositoryInterface;
+use Magento\Sales\Model\Order\StatusResolver;
 
 class ProcessOrderPaidQueue
 {
@@ -63,6 +64,11 @@ class ProcessOrderPaidQueue
     private $invoiceItemFactory;
 
     /**
+     * @var StatusResolver
+     */
+    private $statusResolver;
+
+    /**
      * Lock name for this cron job
      */
     private const LOCK_NAME = 'vindi_payment_process_order_paid_queue';
@@ -79,6 +85,7 @@ class ProcessOrderPaidQueue
      * @param InvoiceSender $invoiceSender
      * @param SearchCriteriaBuilder $searchCriteriaBuilder
      * @param ItemFactory $invoiceItemFactory
+     * @param StatusResolver $statusResolver
      */
     public function __construct(
         LoggerInterface $logger,
@@ -89,7 +96,8 @@ class ProcessOrderPaidQueue
         LockManagerInterface $lockManager,
         InvoiceSender $invoiceSender,
         SearchCriteriaBuilder $searchCriteriaBuilder,
-        ItemFactory $invoiceItemFactory
+        ItemFactory $invoiceItemFactory,
+        StatusResolver $statusResolver
     ) {
         $this->logger = $logger;
         $this->orderCreationQueueRepository = $orderCreationQueueRepository;
@@ -100,6 +108,7 @@ class ProcessOrderPaidQueue
         $this->invoiceSender = $invoiceSender;
         $this->searchCriteriaBuilder = $searchCriteriaBuilder;
         $this->invoiceItemFactory = $invoiceItemFactory;
+        $this->statusResolver = $statusResolver;
     }
 
     /**
@@ -216,8 +225,11 @@ class ProcessOrderPaidQueue
             $order->addCommentToStatusHistory(__('Invoice created for order ID %1', $order->getId()))
                 ->setIsCustomerNotified(true);
 
+            // Get the correct state and status after invoice creation
+            $newStatus = $this->statusResolver->getOrderStatusByState('processing', $order);
+
             $order->setState('processing')
-                ->setStatus('processing');
+                ->setStatus($newStatus);
 
             $this->orderRepository->save($order);
 
@@ -298,3 +310,4 @@ class ProcessOrderPaidQueue
         }
     }
 }
+

@@ -2,6 +2,7 @@
 namespace Vindi\Payment\Block\Subscription;
 
 use DateTime;
+use Exception;
 use Magento\Customer\Model\Session as CustomerSession;
 use Magento\Framework\View\Element\Template;
 use Magento\Framework\View\Element\Template\Context;
@@ -107,6 +108,9 @@ class SubscriptionList extends Template
     }
 
     /**
+     * Get formatted start date
+     *
+     * @param string $startAt
      * @return string
      */
     public function getStartAt($startAt)
@@ -115,15 +119,14 @@ class SubscriptionList extends Template
             $startAt = new DateTime($startAt);
             return $startAt->format('d/m/Y');
         } catch (Exception $e) {
+            return '-';
         }
-
-        return '-';
     }
 
     /**
      * Get status label
      *
-     * @param $statusValue
+     * @param string $statusValue
      * @return mixed
      */
     public function getStatusLabel($statusValue)
@@ -140,7 +143,7 @@ class SubscriptionList extends Template
     /**
      * Get payment method label
      *
-     * @param $paymentMethodValue
+     * @param string $paymentMethodValue
      * @return mixed
      */
     public function getPaymentMethodLabel($paymentMethodValue)

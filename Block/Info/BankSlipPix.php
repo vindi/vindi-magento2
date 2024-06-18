@@ -100,6 +100,25 @@ class BankSlipPix extends Info
     }
 
     /**
+     * @return mixed
+     * @throws \Magento\Framework\Exception\LocalizedException
+     */
+    public function hasInvoice()
+    {
+        return $this->getOrder()->hasInvoices();
+    }
+
+    /**
+     * Get order payment method name
+     *
+     * @return string
+     */
+    public function getPaymentMethodName()
+    {
+        return $this->getOrder()->getPayment()->getMethodInstance()->getTitle();
+    }
+
+    /**
      * @return bool
      * @throws \Magento\Framework\Exception\LocalizedException
      */

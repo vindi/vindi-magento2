@@ -2,7 +2,6 @@
 
 namespace Vindi\Payment\Block\Info;
 
-
 use Magento\Backend\Block\Template\Context;
 use Magento\Framework\Pricing\Helper\Data;
 use Magento\Framework\Serialize\Serializer\Json;
@@ -83,6 +82,16 @@ class Pix extends Info
     }
 
     /**
+     * Get order payment method name
+     *
+     * @return string
+     */
+    public function getPaymentMethodName()
+    {
+        return $this->getOrder()->getPayment()->getMethodInstance()->getTitle();
+    }
+
+    /**
      * Get reorder URL
      *
      * @param object $order
@@ -110,6 +119,15 @@ class Pix extends Info
         $timestampMaxDays = strtotime($daysToPayment);
 
         return $paymentMethod && $this->isValidToPayment($timestampMaxDays);
+    }
+
+    /**
+     * @return bool
+     * @throws \Magento\Framework\Exception\LocalizedException
+     */
+    public function hasInvoice()
+    {
+        return $this->getOrder()->hasInvoices();
     }
 
     /**

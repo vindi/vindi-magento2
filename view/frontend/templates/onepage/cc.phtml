@@ -1,0 +1,23 @@
+<?php
+use Vindi\Payment\Block\Onepage\CreditCard;
+
+/** @var $block CreditCard */
+?>
+
+<?php if ($block->canShowCc()) : ?>
+    <div class="checkout-success qr-code">
+        <div class="cc-subscription-info" style="text-align: justify; display: flex; justify-content: center; flex-direction: column; align-items: center;">
+            <p><?= __('We are finalizing the processing of your credit card payment.') ?></p>
+            <h2><?= __('How does it work?') ?></h2>
+            <?php $nextBillingDate = $block->getNextBillingDate(); ?>
+            <?php if ($nextBillingDate): ?>
+                <p><?= __('Your next billing date is scheduled for:'); ?>&nbsp;<strong><?= $nextBillingDate ?>.</strong></p>
+            <?php else: ?>
+                <p><?= __('Your next billing date will be scheduled soon. Please check your email for further details.') ?></p>
+            <?php endif; ?>
+            <h2><?= __('What to do now?') ?></h2>
+            <p><?= __('No further action is needed at the moment. Please keep an eye on your email for updates regarding your payment status. If you have any questions or need assistance, we are here to help!') ?></p>
+            <p><?= __('We appreciate your trust and are committed to providing you with the best service.') ?></p>
+        </div>
+    </div>
+<?php endif; ?>

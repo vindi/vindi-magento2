@@ -31,6 +31,24 @@ class BankSlip extends \Magento\Payment\Block\Info
         return $this->getInfo()->getOrder();
     }
 
+    /**
+     * @return string
+     */
+    public function hasInvoice()
+    {
+        return $this->getOrder()->hasInvoices();
+    }
+
+    /**
+     * Get order payment method name
+     *
+     * @return string
+     */
+    public function getPaymentMethodName()
+    {
+        return $this->getOrder()->getPayment()->getMethodInstance()->getTitle();
+    }
+
     public function canShowBankslipInfo()
     {
         return $this->getOrder()->getPayment()->getMethod() === \Vindi\Payment\Model\Payment\BankSlip::CODE;

@@ -37,15 +37,12 @@ define([
 
             if (value === "defined") {
                 billing_cycles.show();
-                billing_trigger_day.hide();
-                billing_trigger_day_type_on_period.show();
-                billing_trigger_day_based_on_period.show();
             } else {
                 billing_cycles.hide();
-                billing_trigger_day.show();
-                billing_trigger_day_type_on_period.hide();
-                billing_trigger_day_based_on_period.hide();
             }
+
+            // Call method to handle billing_trigger_type field changes
+            this.handleBillingTriggerType();
         },
 
         /**
@@ -63,7 +60,7 @@ define([
             var self = this;
             uiRegistry.get('index = billing_trigger_type', function (billingTriggerType) {
                 billingTriggerType.on('value', function (value) {
-                    self.updateDurationBasedOnBillingTriggerType(value);
+                    self.handleBillingTriggerType(value);
                 });
             });
         },
@@ -75,40 +72,33 @@ define([
             var self = this;
             uiRegistry.get('index = duration', function (duration) {
                 duration.on('value', function (value) {
-                    self.updateBillingTriggerTypeBasedOnDuration(value);
+                    self.fieldDepend(value);
                 });
             });
         },
 
         /**
-         * Updates the duration field based on the billing trigger type value.
+         * Handle billing_trigger_type field changes
          *
          * @param {String} value
          */
-        updateDurationBasedOnBillingTriggerType: function (value) {
-            var durationField = uiRegistry.get('index = duration');
-            if (durationField) {
-                if (value === 'day_of_month') {
-                    durationField.value('undefined');
-                } else if (value === 'based_on_period') {
-                    durationField.value('defined');
-                }
-            }
-        },
+        handleBillingTriggerType: function (value) {
+            let billing_trigger_day = uiRegistry.get('index = billing_trigger_day');
+            let billing_trigger_day_type_on_period = uiRegistry.get('index = billing_trigger_day_type_on_period');
+            let billing_trigger_day_based_on_period = uiRegistry.get('index = billing_trigger_day_based_on_period');
 
-        /**
-         * Updates the billing_trigger_type field based on the duration value.
-         *
-         * @param {String} value
-         */
-        updateBillingTriggerTypeBasedOnDuration: function (value) {
-            var billingTriggerTypeField = uiRegistry.get('index = billing_trigger_type');
-            if (billingTriggerTypeField) {
-                if (value === 'undefined') {
-                    billingTriggerTypeField.value('day_of_month');
-                } else if (value === 'defined') {
-                    billingTriggerTypeField.value('based_on_period');
-                }
+            if (!value) {
+                value = uiRegistry.get('index = billing_trigger_type').value();
+            }
+
+            if (value === 'day_of_month') {
+                billing_trigger_day.show();
+                billing_trigger_day_type_on_period.hide();
+                billing_trigger_day_based_on_period.hide();
+            } else if (value === 'based_on_period') {
+                billing_trigger_day.hide();
+                billing_trigger_day_type_on_period.show();
+                billing_trigger_day_based_on_period.show();
             }
         }
     });
