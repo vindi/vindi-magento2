@@ -570,6 +570,8 @@ abstract class AbstractMethod extends OriginAbstractMethod
             $billingType = $subscription['billing_trigger_type'] ?? null;
             if ($billingType != 'day_of_month') {
                 return true;
+            } elseif ($subscription['id'] && $subscription['status'] == 'active') {
+                return true;
             }
         }
 
