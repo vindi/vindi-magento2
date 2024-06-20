@@ -3,19 +3,13 @@
 namespace Vindi\Payment\Setup;
 
 use Magento\Catalog\Model\Product;
-use Magento\Catalog\Setup\CategorySetupFactory;
-use Magento\Eav\Model\Entity\Attribute\ScopedAttributeInterface;
 use Magento\Eav\Setup\EavSetup;
 use Magento\Eav\Setup\EavSetupFactory;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Setup\UpgradeDataInterface;
 use Magento\Framework\Setup\ModuleContextInterface;
 use Magento\Framework\Setup\ModuleDataSetupInterface;
-use Magento\Eav\Model\Entity\Attribute\SetFactory as AttributeSetFactory;
-use Vindi\Payment\Model\Config\Source\BillingCycles;
-use Vindi\Payment\Model\Config\Source\Interval;
-use Vindi\Payment\Model\Config\Source\Plan;
-use Vindi\Payment\Model\Config\Source\BillingTriggerType;
+use Magento\Catalog\Setup\CategorySetupFactory;
 
 /**
  * Class UpgradeData
@@ -25,44 +19,41 @@ class UpgradeData implements UpgradeDataInterface
 {
     const VINDI_PLAN_SETTINGS = 'Vindi Plan Settings';
     const VINDI_PLANOS = 'Vindi Planos';
+
     /**
      * @var ModuleDataSetupInterface
      */
     private $setup;
-    /**
-     * @var CategorySetupFactory
-     */
-    private $categorySetupFactory;
-    /**
-     * @var AttributeSetFactory
-     */
-    private $attributeSetFactory;
+
     /**
      * @var EavSetupFactory
      */
     private $eavSetupFactory;
+
     /**
      * @var ModuleDataSetupInterface
      */
     private $moduleDataSetup;
 
     /**
+     * @var CategorySetupFactory
+     */
+    private $categorySetupFactory;
+
+    /**
      * UpgradeData constructor.
-     * @param CategorySetupFactory $categorySetupFactory
-     * @param AttributeSetFactory $attributeSetFactory
      * @param EavSetupFactory $eavSetupFactory
      * @param ModuleDataSetupInterface $moduleDataSetup
+     * @param CategorySetupFactory $categorySetupFactory
      */
     public function __construct(
-        CategorySetupFactory $categorySetupFactory,
-        AttributeSetFactory $attributeSetFactory,
         EavSetupFactory $eavSetupFactory,
-        ModuleDataSetupInterface $moduleDataSetup
+        ModuleDataSetupInterface $moduleDataSetup,
+        CategorySetupFactory $categorySetupFactory
     ) {
-        $this->categorySetupFactory = $categorySetupFactory;
-        $this->attributeSetFactory = $attributeSetFactory;
         $this->eavSetupFactory = $eavSetupFactory;
         $this->moduleDataSetup = $moduleDataSetup;
+        $this->categorySetupFactory = $categorySetupFactory;
     }
 
     /**
@@ -75,243 +66,48 @@ class UpgradeData implements UpgradeDataInterface
     ) {
         $this->setup = $setup;
 
-        if (version_compare($context->getVersion(), "1.1.0", "<")) {
-            $this->createPlanAttributeSet();
-            $this->createProductAttributes();
-        }
-
-        if (version_compare($context->getVersion(), "1.1.1", "<")) {
-            $this->addPlanIdFieldProductAttribute();
+        if (version_compare($context->getVersion(), '2.0.0', '<')) {
+            $this->removeProductAttributesAndSets();
         }
     }
 
     /**
-     * @return int
-     * @throws LocalizedException
+     * Removes previously created product attributes, attribute set, and attribute group if they exist.
      */
-    private function createPlanAttributeSet()
+    private function removeProductAttributesAndSets()
     {
-        $this->setup->startSetup();
-        $categorySetup = $this->categorySetupFactory->create(['setup' => $this->setup]);
+        /** @var EavSetup $eavSetup */
+        $eavSetup = $this->eavSetupFactory->create(['setup' => $this->moduleDataSetup]);
+        /** @var \Magento\Catalog\Setup\CategorySetup $categorySetup */
+        $categorySetup = $this->categorySetupFactory->create(['setup' => $this->moduleDataSetup]);
 
-        $attributeSet = $this->attributeSetFactory->create();
+        $attributes = [
+            'vindi_interval_count',
+            'vindi_interval',
+            'vindi_billing_cycles',
+            'vindi_billing_trigger_type',
+            'vindi_billing_trigger_day',
+            'vindi_plan_id'
+        ];
+
+        foreach ($attributes as $attributeCode) {
+            $attribute = $eavSetup->getAttribute(Product::ENTITY, $attributeCode);
+            if ($attribute) {
+                $eavSetup->removeAttribute(Product::ENTITY, $attributeCode);
+            }
+        }
+
         $entityTypeId = $categorySetup->getEntityTypeId(Product::ENTITY);
-        $attributeSetId = $categorySetup->getDefaultAttributeSetId($entityTypeId);
-        $attributeSet->setData([
-            'attribute_set_name' => self::VINDI_PLANOS,
-            'entity_type_id' => $entityTypeId,
-            'sort_order' => 200,
-        ]);
-        $attributeSet->validate();
-        $attributeSet->save();
-        $attributeSet->initFromSkeleton($attributeSetId);
-        $attributeSet->save();
-
-        $this->setup->endSetup();
-
-        /** @var EavSetup $eavSetup */
-        $eavSetup = $this->eavSetupFactory->create(['setup' => $this->moduleDataSetup]);
-        $eavSetup->addAttributeGroup($entityTypeId, $attributeSet->getId(), self::VINDI_PLAN_SETTINGS, 2);
-
-        return $attributeSet->getId();
-    }
-
-    private function createProductAttributes()
-    {
-        /** @var EavSetup $eavSetup */
-        $eavSetup = $this->eavSetupFactory->create(['setup' => $this->moduleDataSetup]);
-
-        $attribute = $eavSetup->getAttribute(Product::ENTITY, 'vindi_interval_count');
-        if (!$attribute) {
-            $eavSetup->addAttribute(Product::ENTITY, 'vindi_interval_count', [
-                'sort_order' => 10,
-                'type' => 'int',
-                'label' => 'Charge Every',
-                'input' => 'text',
-                'global' => ScopedAttributeInterface::SCOPE_GLOBAL,
-                'visible' => true,
-                'required' => true,
-                'user_defined' => true,
-                'default' => null,
-                'searchable' => false,
-                'filterable' => false,
-                'comparable' => false,
-                'visible_on_front' => false,
-                'used_in_product_listing' => false,
-                'unique' => false
-            ]);
-
-            $eavSetup->addAttributeToGroup(
-                Product::ENTITY,
-                self::VINDI_PLANOS,
-                self::VINDI_PLAN_SETTINGS,
-                'vindi_interval_count'
-            );
+        $attributeSetId = $categorySetup->getAttributeSetId($entityTypeId, self::VINDI_PLANOS);
+        if ($attributeSetId) {
+            $attributeGroupId = $categorySetup->getAttributeGroupId($entityTypeId, $attributeSetId, self::VINDI_PLAN_SETTINGS);
+            if ($attributeGroupId) {
+                $categorySetup->removeAttributeGroup($entityTypeId, $attributeSetId, self::VINDI_PLAN_SETTINGS);
+            }
         }
 
-        $attribute = $eavSetup->getAttribute(Product::ENTITY, 'vindi_interval');
-        if (!$attribute) {
-            $eavSetup->addAttribute(Product::ENTITY, 'vindi_interval', [
-                'sort_order' => 20,
-                'type' => 'varchar',
-                'backend' => '',
-                'frontend' => '',
-                'label' => '',
-                'input' => 'select',
-                'class' => '',
-                'source' => Interval::class,
-                'global' => ScopedAttributeInterface::SCOPE_GLOBAL,
-                'visible' => true,
-                'required' => true,
-                'user_defined' => true,
-                'default' => null,
-                'searchable' => false,
-                'filterable' => false,
-                'comparable' => false,
-                'visible_on_front' => false,
-                'used_in_product_listing' => false,
-                'unique' => false
-            ]);
-
-            $eavSetup->addAttributeToGroup(
-                Product::ENTITY,
-                self::VINDI_PLANOS,
-                self::VINDI_PLAN_SETTINGS,
-                'vindi_interval'
-            );
-        }
-
-        $attribute = $eavSetup->getAttribute(Product::ENTITY, 'vindi_billing_cycles');
-        if (!$attribute) {
-            $eavSetup->addAttribute(Product::ENTITY, 'vindi_billing_cycles', [
-                'sort_order' => 30,
-                'type' => 'int',
-                'backend' => '',
-                'frontend' => '',
-                'label' => 'Billing Cycles',
-                'input' => 'select',
-                'class' => '',
-                'source' => BillingCycles::class,
-                'global' => ScopedAttributeInterface::SCOPE_GLOBAL,
-                'visible' => true,
-                'required' => false,
-                'user_defined' => true,
-                'default' => null,
-                'searchable' => false,
-                'filterable' => false,
-                'comparable' => false,
-                'visible_on_front' => false,
-                'used_in_product_listing' => false,
-                'unique' => false
-            ]);
-
-            $eavSetup->addAttributeToGroup(
-                Product::ENTITY,
-                self::VINDI_PLANOS,
-                self::VINDI_PLAN_SETTINGS,
-                'vindi_billing_cycles'
-            );
-        }
-
-        $attribute = $eavSetup->getAttribute(Product::ENTITY, 'vindi_billing_trigger_type');
-        if (!$attribute) {
-            $eavSetup->addAttribute(Product::ENTITY, 'vindi_billing_trigger_type', [
-                'sort_order' => 40,
-                'type' => 'varchar',
-                'backend' => '',
-                'frontend' => '',
-                'label' => 'Billing Trigger Type',
-                'input' => 'select',
-                'class' => '',
-                'source' => BillingTriggerType::class,
-                'global' => ScopedAttributeInterface::SCOPE_GLOBAL,
-                'visible' => true,
-                'required' => true,
-                'user_defined' => true,
-                'default' => null,
-                'searchable' => false,
-                'filterable' => false,
-                'comparable' => false,
-                'visible_on_front' => false,
-                'used_in_product_listing' => false,
-                'unique' => false
-            ]);
-
-            $eavSetup->addAttributeToGroup(
-                Product::ENTITY,
-                self::VINDI_PLANOS,
-                self::VINDI_PLAN_SETTINGS,
-                'vindi_billing_trigger_type'
-            );
-        }
-
-        $attribute = $eavSetup->getAttribute(Product::ENTITY, 'vindi_billing_trigger_day');
-        if (!$attribute) {
-            $eavSetup->addAttribute(Product::ENTITY, 'vindi_billing_trigger_day', [
-                'sort_order' => 50,
-                'type' => 'int',
-                'backend' => '',
-                'frontend' => '',
-                'label' => 'Billing Trigger Day',
-                'input' => 'select',
-                'class' => '',
-                'global' => ScopedAttributeInterface::SCOPE_GLOBAL,
-                'visible' => true,
-                'required' => false,
-                'user_defined' => true,
-                'default' => 0,
-                'searchable' => false,
-                'filterable' => false,
-                'comparable' => false,
-                'visible_on_front' => false,
-                'used_in_product_listing' => false,
-                'unique' => false
-            ]);
-
-            $eavSetup->addAttributeToGroup(
-                Product::ENTITY,
-                self::VINDI_PLANOS,
-                self::VINDI_PLAN_SETTINGS,
-                'vindi_billing_trigger_day'
-            );
-        }
-    }
-
-    private function addPlanIdFieldProductAttribute()
-    {
-        /** @var EavSetup $eavSetup */
-        $eavSetup = $this->eavSetupFactory->create(['setup' => $this->moduleDataSetup]);
-
-        $attribute = $eavSetup->getAttribute(Product::ENTITY, 'vindi_plan_id');
-        if (!$attribute) {
-            $eavSetup->addAttribute(Product::ENTITY, 'vindi_plan_id', [
-                'sort_order' => 1,
-                'type' => 'varchar',
-                'backend' => '',
-                'frontend' => '',
-                'label' => 'Vindi Plan',
-                'input' => 'select',
-                'class' => '',
-                'source' => Plan::class,
-                'global' => ScopedAttributeInterface::SCOPE_GLOBAL,
-                'visible' => true,
-                'required' => false,
-                'user_defined' => true,
-                'default' => null,
-                'searchable' => false,
-                'filterable' => false,
-                'comparable' => false,
-                'visible_on_front' => false,
-                'used_in_product_listing' => false,
-                'unique' => false
-            ]);
-
-            $eavSetup->addAttributeToGroup(
-                Product::ENTITY,
-                self::VINDI_PLANOS,
-                self::VINDI_PLAN_SETTINGS,
-                'vindi_plan_id'
-            );
+        if ($attributeSetId) {
+            $categorySetup->removeAttributeSet($entityTypeId, $attributeSetId);
         }
     }
 }
