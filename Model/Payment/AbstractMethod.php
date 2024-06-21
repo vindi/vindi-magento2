@@ -139,6 +139,7 @@ abstract class AbstractMethod extends OriginAbstractMethod
      * @param ProductManagementInterface $productManagement
      * @param PlanManagementInterface $planManagement
      * @param SubscriptionInterface $subscriptionRepository
+     * @param VindiPlanRepository $vindiPlanRepository
      * @param PaymentProfileFactory $paymentProfileFactory
      * @param PaymentProfileRepository $paymentProfileRepository
      * @param ResourceConnection $resourceConnection
@@ -150,7 +151,6 @@ abstract class AbstractMethod extends OriginAbstractMethod
      * @param \Vindi\Payment\Helper\Data $helperData
      * @param AbstractResource|null $resource
      * @param AbstractDb|null $resourceCollection
-     * @param VindiPlanRepository $vindiPlanRepository
      * @param array $data
      */
     public function __construct(
@@ -232,14 +232,17 @@ abstract class AbstractMethod extends OriginAbstractMethod
             || $this->getPaymentMethodCode() == PaymentMethod::BANK_SLIP_PIX
             || $this->getPaymentMethodCode() == PaymentMethod::PIX
         ) {
-            foreach ($quote->getItems() as $item) {
-                if ($this->helperData->isVindiPlan($item->getProductId())) {
-                    $product = $this->helperData->getProductById($item->getProductId());
-                    if (
-                        $product->getData('vindi_billing_trigger_day') > 0 ||
-                        $product->getData('vindi_billing_trigger_type') == 'end_of_period'
-                    ) {
-                        return false;
+            $items = $quote ? $quote->getItems() : [];
+            if (is_array($items) || $items instanceof \Traversable) {
+                foreach ($items as $item) {
+                    if ($this->helperData->isVindiPlan($item->getProductId())) {
+                        $product = $this->helperData->getProductById($item->getProductId());
+                        if (
+                            $product->getData('vindi_billing_trigger_day') > 0 ||
+                            $product->getData('vindi_billing_trigger_type') == 'end_of_period'
+                        ) {
+                            return false;
+                        }
                     }
                 }
             }
@@ -681,3 +684,4 @@ abstract class AbstractMethod extends OriginAbstractMethod
         }
     }
 }
+
