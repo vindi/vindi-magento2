@@ -23,21 +23,27 @@ use Vindi\Payment\Block\Info\Pix;
             </dd>
         <?php endif; ?>
         <dd class="content">
-            <object data="<?= $block->getQrCodePix() ?>" type="image/svg+xml" class="qr-code" id="qrcode">
-                <p>
-                    <?= $block->getQrCodeWarningMessage() ?>
-                </p>
-                <button
-                        id="vindi-pix-button-open"
-                        type="button"
-                        class="action primary checkout"
-                        title="Open QR Code Pix"
-                        onclick="window.open('<?= $block->getQrCodePix() ?>', '_blank')">
-                    <?= __('Open QR Code') ?>
-                </button>
-            </object>
+            <?php if ($block->getQrCodePix()): ?>
+                <object data="<?= $block->getQrCodePix() ?>" type="image/svg+xml" class="qr-code" id="qrcode">
+                    <p>
+                        <?= $block->getQrCodeWarningMessage() ?: '' ?>
+                    </p>
+                    <?php if ($block->getQrCodePix()): ?>
+                    <button
+                            id="vindi-pix-button-open"
+                            type="button"
+                            class="action primary checkout"
+                            title="Open QR Code Pix"
+                            onclick="window.open('<?= $block->getQrCodePix() ?>', '_blank')">
+                        <?= __('Open QR Code') ?>
+                    </button>
+                    <?php endif; ?>
+                </object>
+            <?php endif; ?>
 
-            <p style="word-break: break-all;"><?= $block->getQrcodeOriginalPath() ?></p>
+            <?php if ($block->getQrcodeOriginalPath()): ?>
+                <p style="word-break: break-all;"><?= $block->getQrcodeOriginalPath() ?></p>
+            <?php endif; ?>
 
             <div data-bind="scope: 'vindiPix'">
                 <!-- ko template: getTemplate() --><!-- /ko -->
@@ -45,6 +51,7 @@ use Vindi\Payment\Block\Info\Pix;
         </dd>
 </dl>
 
+<?php if ($block->getQrcodeOriginalPath()): ?>
 <script type="text/x-magento-init">
         {
             "*": {
@@ -59,6 +66,7 @@ use Vindi\Payment\Block\Info\Pix;
             }
         }
     </script>
+<?php endif; ?>
     <?php else: ?>
         <strong>
             <?=__('Pix expirado') ?>

@@ -8,21 +8,25 @@ use Vindi\Payment\Block\Info\BankSlipPix;
 <?php if (!$block->hasInvoice()): ?>
     <?php if ($block->canShowBankSlipPixInfo()) : ?>
         <div class="checkout-success qr-code">
-            <object data="<?= $block->getQrCodePix() ?>" type="image/svg+xml" class="qr-code" id="qrcode">
-                <button
-                    id="vindi-pix-button-open"
-                    type="button"
-                    class="action primary checkout"
-                    title="Open QR Code Pix"
-                    onclick="window.open('<?= $block->getQrCodePix() ?>', '_blank')">
-                    <?php echo __('Open QR Code') ?>
-                </button>
-            </object>
+            <?php if ($block->getQrCodePix()): ?>
+                <object data="<?= $block->getQrCodePix() ?>" type="image/svg+xml" class="qr-code" id="qrcode">
+                    <button
+                        id="vindi-pix-button-open"
+                        type="button"
+                        class="action primary checkout"
+                        title="Open QR Code Pix"
+                        onclick="window.open('<?= $block->getQrCodePix() ?>', '_blank')">
+                        <?php echo __('Open QR Code') ?>
+                    </button>
+                </object>
+            <?php endif; ?>
 
-            <div class="checkout-success qr-code">
-                <span>QRCode</span>
-                <p style="word-break: break-all;"><?= $block->getQrcodeOriginalPath() ?></p>
-            </div>
+            <?php if ($block->getQrcodeOriginalPath()): ?>
+                <div class="checkout-success qr-code">
+                    <span>QRCode</span>
+                    <p style="word-break: break-all;"><?= $block->getQrcodeOriginalPath() ?></p>
+                </div>
+            <?php endif; ?>
 
             <div data-bind="scope: 'vindiPix'" class="box-qr">
                 <!-- ko template: getTemplate() --><!-- /ko -->
@@ -31,25 +35,29 @@ use Vindi\Payment\Block\Info\BankSlipPix;
                 <span><?= __('QR Code Key copied') ?></span>
             </div>
 
-            <p>
-                <?= sprintf(__('Print Url: %s'), '<a target="_blank" href="'. $block->getPrintUrl() . '">'. __('click here') . '</a>') ?>
-            </p>
+            <?php if ($block->getPrintUrl()): ?>
+                <p>
+                    <?= sprintf(__('Print Url: %s'), '<a target="_blank" href="'. $block->getPrintUrl() . '">'. __('click here') . '</a>') ?>
+                </p>
+            <?php endif; ?>
         </div>
 
-        <script type="text/x-magento-init">
-            {
-                "*": {
-                    "Magento_Ui/js/core/app": {
-                        "components": {
-                            "vindiPix": {
-                                "component": "Vindi_Payment/js/view/onepage/vindi-pix",
-                                "qrCodeKey": <?= $block->getQrcodeOriginalPath() ?>
+        <?php if ($block->getQrcodeOriginalPath()): ?>
+            <script type="text/x-magento-init">
+                {
+                    "*": {
+                        "Magento_Ui/js/core/app": {
+                            "components": {
+                                "vindiPix": {
+                                    "component": "Vindi_Payment/js/view/onepage/vindi-pix",
+                                    "qrCodeKey": <?= $block->getQrcodeOriginalPath() ?>
+                                }
                             }
                         }
                     }
                 }
-            }
-        </script>
+            </script>
+        <?php endif; ?>
     <?php endif; ?>
 <?php else: ?>
     <span>
