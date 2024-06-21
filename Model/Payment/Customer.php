@@ -2,7 +2,6 @@
 
 namespace Vindi\Payment\Model\Payment;
 
-
 use Magento\Customer\Api\CustomerRepositoryInterface;
 use Magento\Framework\Message\ManagerInterface;
 use Magento\Sales\Model\Order;
@@ -71,15 +70,16 @@ class Customer
         }
 
         if ($customerId) {
-            if($order->getPayment()->getMethod() == "vindi_pix") {
+            if ($order->getPayment()->getMethod() == "vindi_pix") {
                 $customerVindi = $this->getVindiCustomerData($customer->getId());
-                $taxVatOrder = str_replace([' ', '-', '.'], '', $order->getPayment()->getAdditionalInformation()['document']);
+                $additionalInfo = $order->getPayment()->getAdditionalInformation();
+                $taxVatOrder = str_replace([' ', '-', '.'], '', $additionalInfo['document'] ?? '');
                 if ($customerVindi['registry_code'] != $taxVatOrder) {
                     $updateData = [
                         'registry_code' => $taxVatOrder,
                     ];
                     $this->updateVindiCustomer($customerId, $updateData);
-                    $customer->setTaxvat($order->getPayment()->getAdditionalInformation()['document']);
+                    $customer->setTaxvat($additionalInfo['document'] ?? '');
                     $this->customerRepository->save($customer);
                 }
             }
