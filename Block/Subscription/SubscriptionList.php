@@ -101,7 +101,7 @@ class SubscriptionList extends Template
         if ($this->customerSession->isLoggedIn()) {
             $customerId = $this->customerSession->getCustomerId();
             $this->_subscriptionCollection->addFieldToFilter('customer_id', $customerId);
-            $this->_subscriptionCollection->setOrder('start_at', 'DESC');
+            $this->_subscriptionCollection->setOrder('id', 'DESC');
         }
 
         return $this->_subscriptionCollection;
