@@ -9,7 +9,8 @@ use Magento\Checkout\Model\Cart;
 
 /**
  * Class PreventAddProduct
- * Prevents adding multiple subscription products or more than one unit of a subscription product to the cart.
+ * Prevents adding multiple subscription products, more than one unit of a subscription product to the cart,
+ * or adding a subscription product if there is already a non-subscription product in the cart.
  * @package Vindi\Payment\Plugin
  */
 class PreventAddProduct
@@ -56,15 +57,27 @@ class PreventAddProduct
         }
 
         $items = $subject->getQuote()->getItems() ?? [];
+        $hasSubscriptionProduct    = false;
+        $hasNonSubscriptionProduct = false;
+
         foreach ($items as $item) {
             try {
                 $product = $this->productRepository->getById($item->getProduct()->getId());
                 if ($this->isSubscriptionProduct($product)) {
                     $this->preventMultipleSubscriptions();
+                    $hasSubscriptionProduct = true;
+                } else {
+                    $hasNonSubscriptionProduct = true;
                 }
             } catch (NoSuchEntityException $e) {
                 // Continue silently if product does not exist.
             }
+        }
+
+        if ($this->isSubscriptionProduct($productInfo) && $hasNonSubscriptionProduct) {
+            $message = __('You cannot add a subscription product to the cart as it already contains a non-subscription product.');
+            $this->messageManager->addErrorMessage($message);
+            throw new LocalizedException($message);
         }
     }
 

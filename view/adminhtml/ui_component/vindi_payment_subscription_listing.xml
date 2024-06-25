@@ -82,15 +82,19 @@
                 <item name="options" xsi:type="array">
                     <item name="credit_card" xsi:type="array">
                         <item name="value" xsi:type="string">credit_card</item>
-                        <item name="label" xsi:type="string" translate="true">Cartão de Crédito</item>
+                        <item name="label" xsi:type="string" translate="true">Credit Card</item>
                     </item>
                     <item name="bank_slip" xsi:type="array">
                         <item name="value" xsi:type="string">bank_slip</item>
-                        <item name="label" xsi:type="string" translate="true">Boleto Bancário</item>
+                        <item name="label" xsi:type="string" translate="true">Bank Slip</item>
                     </item>
                     <item name="pix" xsi:type="array">
                         <item name="value" xsi:type="string">pix</item>
                         <item name="label" xsi:type="string" translate="true">Pix</item>
+                    </item>
+                    <item name="pix_bank_slip" xsi:type="array">
+                        <item name="value" xsi:type="string">pix_bank_slip</item>
+                        <item name="label" xsi:type="string" translate="true">Bolepix</item>
                     </item>
                 </item>
                 <item name="config" xsi:type="array">
