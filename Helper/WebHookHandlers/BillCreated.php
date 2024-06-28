@@ -106,6 +106,8 @@ class BillCreated
                 $this->orderRepository->save($originalOrder);
                 $this->logger->info(__('Vindi bill ID set for the order.'));
 
+                $this->orderCreator->updatePaymentDetails($originalOrder, $data);
+
                 $this->emailSender->sendQrCodeAvailableEmail($originalOrder);
                 return true;
             }
@@ -127,3 +129,4 @@ class BillCreated
         }
     }
 }
+
