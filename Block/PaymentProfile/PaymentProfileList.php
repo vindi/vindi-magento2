@@ -9,8 +9,7 @@ use Vindi\Payment\Model\ResourceModel\PaymentProfile\Collection as PaymentProfil
 
 /**
  * Class PaymentProfileList
- * @package Vindi\Payment\Block
-
+ * @package Vindi\Payment\Block\PaymentProfile
  */
 class PaymentProfileList extends Template
 {
@@ -77,22 +76,28 @@ class PaymentProfileList extends Template
     }
 
     /**
-     * @return PaymentProfileCollection
+     * Get payment profiles for the logged-in customer
+     *
+     * @return PaymentProfileCollection|null
      */
     public function getPaymentProfiles()
     {
         if ($this->customerSession->isLoggedIn()) {
             $customerId = $this->customerSession->getCustomerId();
-            $this->_paymentProfileCollection->addFieldToFilter('customer_id', $customerId)
-                ->setOrder('created_at', 'DESC');
+            if ($customerId) {
+                $this->_paymentProfileCollection->addFieldToFilter('customer_id', $customerId)
+                    ->setOrder('created_at', 'DESC');
+                return $this->_paymentProfileCollection;
+            }
         }
-
-        return $this->_paymentProfileCollection;
+        return null;
     }
 
     /**
+     * Get credit card image by type
+     *
      * @param $ccType
-     * @return mixed|void
+     * @return string
      */
     public function getCreditCardImage($ccType)
     {
@@ -103,5 +108,6 @@ class PaymentProfileList extends Template
                 return $creditCardOption['value'];
             }
         }
+        return '';
     }
 }
