@@ -231,11 +231,35 @@ class OrderCreator
         if (($order->getPayment()->getMethod() === 'vindi_pix' || $order->getPayment()->getMethod() === 'vindi_bankslippix')
             && !empty($billData['bill']['charges'][0]['last_transaction']['gateway_response_fields'])) {
             $transactionDetails = $billData['bill']['charges'][0]['last_transaction']['gateway_response_fields'];
+
             $additionalInformation = $order->getPayment()->getAdditionalInformation();
-            $additionalInformation['qrcode_original_path'] = $transactionDetails['qrcode_original_path'];
-            $additionalInformation['qrcode_path'] = $transactionDetails['qrcode_path'];
-            $additionalInformation['max_days_to_keep_waiting_payment'] = $transactionDetails['max_days_to_keep_waiting_payment'];
+
+            if (isset($additionalInformation['qrcode_original_path'])) {
+                $additionalInformation['qrcode_original_path'] = $transactionDetails['qrcode_original_path'];
+            }
+
+            if (isset($additionalInformation['qrcode_path'])) {
+                $additionalInformation['qrcode_path'] = $transactionDetails['qrcode_path'];
+            }
+
+            if (isset($additionalInformation['qrcode_url'])) {
+                $additionalInformation['qrcode_url'] = $transactionDetails['qrcode_url'];
+            }
+
+            if (isset($additionalInformation['print_url'])) {
+                $additionalInformation['print_url'] = $transactionDetails['print_url'];
+            }
+
+            if (isset($additionalInformation['max_days_to_keep_waiting_payment'])) {
+                $additionalInformation['max_days_to_keep_waiting_payment'] = $transactionDetails['max_days_to_keep_waiting_payment'];
+            }
+
+            if (isset($additionalInformation['due_at'])) {
+                $additionalInformation['due_at'] = $transactionDetails['due_at'];
+            }
+
             $order->getPayment()->setAdditionalInformation($additionalInformation);
+
             $this->orderRepository->save($order);
         }
     }
