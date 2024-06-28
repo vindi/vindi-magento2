@@ -17,13 +17,23 @@ use Vindi\Payment\Model\ResourceModel\Subscription\Collection as SubscriptionCol
 class Delete extends Action
 {
     protected $resultPageFactory;
-
     protected $customerSession;
     protected $paymentProfileFactory;
     protected $paymentProfileManager;
     protected $paymentProfileRepository;
     protected $subscriptionCollection;
 
+    /**
+     * Constructor
+     *
+     * @param Context $context
+     * @param PageFactory $resultPageFactory
+     * @param Session $customerSession
+     * @param PaymentProfileFactory $paymentProfileFactory
+     * @param PaymentProfileManager $paymentProfileManager
+     * @param PaymentProfileRepositoryInterface $paymentProfileRepository
+     * @param SubscriptionCollection $subscriptionCollection
+     */
     public function __construct(
         Context $context,
         PageFactory $resultPageFactory,
@@ -58,6 +68,8 @@ class Delete extends Action
     }
 
     /**
+     * Execute the action
+     *
      * @return ResponseInterface|\Magento\Framework\Controller\Result\Redirect|\Magento\Framework\Controller\ResultInterface
      */
     public function execute()
@@ -69,14 +81,14 @@ class Delete extends Action
         }
 
         $paymentProfile = $this->paymentProfileRepository->getById($paymentProfileId);
+        $paymentProfileVindiId = $paymentProfile->getData('payment_profile_id');
 
-        $subscriptions = $this->subscriptionCollection->addFieldToFilter('payment_profile', $paymentProfileId);
+        $subscriptions = $this->subscriptionCollection->addFieldToFilter('payment_profile', $paymentProfileVindiId);
         if ($subscriptions->getSize() > 0) {
             $warningMessage = __('The payment profile is being used in the following subscriptions:');
             foreach ($subscriptions as $subscription) {
                 $subscriptionId = $subscription->getId();
-                $subscriptionUrl = $this->getUrl('vindi_vr/subscription/details', ['id' => $subscriptionId]);
-                $warningMessage .= ' <a href="' . $subscriptionUrl . '">Subscription ID: ' . $subscriptionId . '</a>';
+                $warningMessage .= ' ' . __('Subscription ID: %1', $subscriptionId);
             }
             $this->messageManager->addWarningMessage($warningMessage);
             return $this->resultRedirectFactory->create()->setPath('vindi_vr/paymentprofile/index');

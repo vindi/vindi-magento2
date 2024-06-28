@@ -16,7 +16,7 @@ class PaymentProfileList extends Template
     /**
      * @var PaymentProfileCollection
      */
-    protected $_paymentProfileCollection;
+    protected $paymentProfileCollection;
 
     /**
      * @var CustomerSession
@@ -42,7 +42,7 @@ class PaymentProfileList extends Template
         CardImagesSource $creditCardTypeSource,
         array $data = []
     ) {
-        $this->_paymentProfileCollection = $paymentProfileCollection;
+        $this->paymentProfileCollection = $paymentProfileCollection;
         $this->customerSession = $customerSession;
         $this->creditCardTypeSource = $creditCardTypeSource;
         parent::__construct($context, $data);
@@ -75,22 +75,38 @@ class PaymentProfileList extends Template
         return $this->getChildHtml('pager');
     }
 
-    /**
-     * Get payment profiles for the logged-in customer
-     *
-     * @return PaymentProfileCollection|null
-     */
     public function getPaymentProfiles()
     {
         if ($this->customerSession->isLoggedIn()) {
             $customerId = $this->customerSession->getCustomerId();
             if ($customerId) {
-                $this->_paymentProfileCollection->addFieldToFilter('customer_id', $customerId)
+                $paymentProfileCollection = $this->paymentProfileCollection->addFieldToFilter('customer_id', $customerId)
                     ->setOrder('created_at', 'DESC');
-                return $this->_paymentProfileCollection;
+
+                return $paymentProfileCollection;
             }
         }
         return null;
+    }
+
+    public function getCustomerId()
+    {
+        return $this->customerSession->getCustomerId();
+    }
+
+    public function getCountPaymentProfiles()
+    {
+        if ($this->customerSession->isLoggedIn()) {
+            $customerId = $this->customerSession->getCustomerId();
+            if ($customerId) {
+                $paymentProfileCollection = $this->paymentProfileCollection->addFieldToFilter('customer_id', $customerId)
+                    ->setOrder('created_at', 'DESC');
+
+                return $paymentProfileCollection->getSize();
+            }
+        }
+
+        return 0;
     }
 
     /**

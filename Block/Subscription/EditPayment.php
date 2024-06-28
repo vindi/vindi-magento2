@@ -101,12 +101,33 @@ class EditPayment extends Template
         if ($this->customerSession->isLoggedIn()) {
             $customerId = $this->customerSession->getCustomerId();
             if ($customerId) {
-                $this->paymentProfileCollection->addFieldToFilter('customer_id', $customerId)
+                $paymentProfileCollection = $this->paymentProfileCollection->addFieldToFilter('customer_id', $customerId)
                     ->setOrder('created_at', 'DESC');
-                return $this->paymentProfileCollection;
+
+                return $paymentProfileCollection;
             }
         }
         return null;
+    }
+
+    public function getCustomerId()
+    {
+        return $this->customerSession->getCustomerId();
+    }
+
+    public function getCountPaymentProfiles()
+    {
+        if ($this->customerSession->isLoggedIn()) {
+            $customerId = $this->customerSession->getCustomerId();
+            if ($customerId) {
+                $paymentProfileCollection = $this->paymentProfileCollection->addFieldToFilter('customer_id', $customerId)
+                    ->setOrder('created_at', 'DESC');
+
+                return $paymentProfileCollection->getSize();
+            }
+        }
+
+        return 0;
     }
 
     /**

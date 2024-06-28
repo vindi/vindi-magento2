@@ -6,6 +6,9 @@ $paymentProfiles = $block->getPaymentProfiles();
     <button type="button" id="custom-back-button" class="back-button"><?= __('< Back') ?></button>
 </div>
 
+<h1>Customer ID: <?= $block->getCustomerId() ?></h1>
+<h1>Count Payment Profiles: <?= $block->getCountPaymentProfiles() ?></h1>
+
 <?php if ($paymentProfiles && count($paymentProfiles)): ?>
     <div class="paymentProfiles-list">
         <table>
