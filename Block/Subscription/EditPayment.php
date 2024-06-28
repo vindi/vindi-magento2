@@ -92,19 +92,21 @@ class EditPayment extends Template
     }
 
     /**
-     * Get payment profiles
+     * Get payment profiles for the logged-in customer
      *
-     * @return PaymentProfileCollection
+     * @return PaymentProfileCollection|null
      */
     public function getPaymentProfiles()
     {
         if ($this->customerSession->isLoggedIn()) {
             $customerId = $this->customerSession->getCustomerId();
-            $this->paymentProfileCollection->addFieldToFilter('customer_id', $customerId)
-                ->setOrder('created_at', 'DESC');
+            if ($customerId) {
+                $this->paymentProfileCollection->addFieldToFilter('customer_id', $customerId)
+                    ->setOrder('created_at', 'DESC');
+                return $this->paymentProfileCollection;
+            }
         }
-
-        return $this->paymentProfileCollection;
+        return null;
     }
 
     /**
@@ -118,7 +120,7 @@ class EditPayment extends Template
     }
 
     /**
-     * Get credit card image
+     * Get credit card image by type
      *
      * @param string $ccType
      * @return string

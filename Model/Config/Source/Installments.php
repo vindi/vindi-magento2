@@ -18,7 +18,6 @@ class Installments extends AbstractSource
     {
         if ($this->_options === null) {
             $this->_options = [
-                ['label' => __('Customer will choose in checkout'), 'value' => null],
                 ['label' => __('In cash'), 'value' => 1]
             ];
 

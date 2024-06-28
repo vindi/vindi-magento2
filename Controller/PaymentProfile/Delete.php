@@ -12,6 +12,7 @@ use Magento\Framework\View\Result\PageFactory;
 use Vindi\Payment\Api\PaymentProfileRepositoryInterface;
 use Vindi\Payment\Model\Payment\Profile as PaymentProfileManager;
 use Vindi\Payment\Model\PaymentProfileFactory;
+use Vindi\Payment\Model\ResourceModel\Subscription\Collection as SubscriptionCollection;
 
 class Delete extends Action
 {
@@ -20,8 +21,8 @@ class Delete extends Action
     protected $customerSession;
     protected $paymentProfileFactory;
     protected $paymentProfileManager;
-
     protected $paymentProfileRepository;
+    protected $subscriptionCollection;
 
     public function __construct(
         Context $context,
@@ -29,7 +30,8 @@ class Delete extends Action
         Session $customerSession,
         PaymentProfileFactory $paymentProfileFactory,
         PaymentProfileManager $paymentProfileManager,
-        PaymentProfileRepositoryInterface $paymentProfileRepository
+        PaymentProfileRepositoryInterface $paymentProfileRepository,
+        SubscriptionCollection $subscriptionCollection
     ) {
         parent::__construct($context);
         $this->resultPageFactory = $resultPageFactory;
@@ -37,6 +39,7 @@ class Delete extends Action
         $this->paymentProfileFactory = $paymentProfileFactory;
         $this->paymentProfileManager = $paymentProfileManager;
         $this->paymentProfileRepository = $paymentProfileRepository;
+        $this->subscriptionCollection = $subscriptionCollection;
     }
 
     /**
@@ -59,7 +62,6 @@ class Delete extends Action
      */
     public function execute()
     {
-
         $paymentProfileId = $this->getRequest()->getParam('entity_id');
         if (!is_numeric($paymentProfileId) || $paymentProfileId <= 0) {
             $this->messageManager->addErrorMessage(__('Invalid payment profile ID.'));
@@ -67,6 +69,19 @@ class Delete extends Action
         }
 
         $paymentProfile = $this->paymentProfileRepository->getById($paymentProfileId);
+
+        $subscriptions = $this->subscriptionCollection->addFieldToFilter('payment_profile', $paymentProfileId);
+        if ($subscriptions->getSize() > 0) {
+            $warningMessage = __('The payment profile is being used in the following subscriptions:');
+            foreach ($subscriptions as $subscription) {
+                $subscriptionId = $subscription->getId();
+                $subscriptionUrl = $this->getUrl('vindi_vr/subscription/details', ['id' => $subscriptionId]);
+                $warningMessage .= ' <a href="' . $subscriptionUrl . '">Subscription ID: ' . $subscriptionId . '</a>';
+            }
+            $this->messageManager->addWarningMessage($warningMessage);
+            return $this->resultRedirectFactory->create()->setPath('vindi_vr/paymentprofile/index');
+        }
+
         try {
             $this->paymentProfileManager->deletePaymentProfile($paymentProfile->getData('payment_profile_id'));
             $this->paymentProfileRepository->deleteById($paymentProfileId);
@@ -77,5 +92,4 @@ class Delete extends Action
 
         return $this->resultRedirectFactory->create()->setPath('vindi_vr/paymentprofile/index');
     }
-
 }

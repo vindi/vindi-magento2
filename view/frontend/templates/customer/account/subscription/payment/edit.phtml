@@ -6,11 +6,12 @@ $paymentProfiles = $block->getPaymentProfiles();
     <button type="button" id="custom-back-button" class="back-button"><?= __('< Back') ?></button>
 </div>
 
-<?php if (count($paymentProfiles)): ?>
+<?php if ($paymentProfiles && count($paymentProfiles)): ?>
     <div class="paymentProfiles-list">
         <table>
             <thead>
             <tr>
+                <th><?= __('ID') ?></th>
                 <th><?= __('Card') ?></th>
                 <th><?= __('Holder Name') ?></th>
                 <th><?= __('Action') ?></th>
@@ -27,6 +28,9 @@ $paymentProfiles = $block->getPaymentProfiles();
                 ?>
                 <?php if ($paymentProfileCount > 0) : ?>
                     <tr>
+                        <td>
+                            <?= $block->escapeHtml($paymentProfile->getPaymentProfileId()) ?>
+                        </td>
                         <td>
                             <img class="card-icon" src="<?= $block->getViewFileUrl('Vindi_Payment::images/cc') . '/' . $block->getCreditCardImage($paymentProfile->getCcType()) ?>" alt="<?= $block->escapeHtmlAttr($paymentProfile->getCcType()) ?>">&nbsp;&nbsp;&nbsp;
                             <span><?= $paymentProfile->getCcType() . '****' . $paymentProfile->getCcLast4() ?></span>
