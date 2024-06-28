@@ -92,6 +92,8 @@ class OrderCreator
 
                 $this->updatePaymentDetails($newOrder, $billData);
 
+                $this->verifyAndRetrySavingPaymentDetails($newOrder, $billData);
+
                 return true;
             }
 
@@ -264,7 +266,7 @@ class OrderCreator
                 $additionalInformation['due_at'] = $transactionDetails['due_at'] ?? null;
                 break;
 
-            case 'vindi_creditcard':
+            case 'vindi':
                 $paymentProfile = $billData['bill']['charges'][0]['last_transaction']['payment_profile'] ?? [];
                 $additionalInformation = array_merge($additionalInformation, [
                     'card_holder_name' => $paymentProfile['holder_name'] ?? null,
@@ -281,4 +283,37 @@ class OrderCreator
         $order->getPayment()->setAdditionalInformation($additionalInformation);
         $this->orderRepository->save($order);
     }
+
+    /**
+     * Verify and retry saving payment details if not present
+     * @param Order $order
+     * @param array $billData
+     */
+    protected function verifyAndRetrySavingPaymentDetails(Order $order, $billData)
+    {
+        $paymentMethod = $order->getPayment()->getMethod();
+        $additionalInformation = $order->getPayment()->getAdditionalInformation();
+
+        $requiredFields = [];
+        switch ($paymentMethod) {
+            case 'vindi_pix':
+            case 'vindi_bankslippix':
+                $requiredFields = ['qrcode_original_path', 'qrcode_path', 'qrcode_url', 'print_url', 'due_at'];
+                break;
+
+            case 'vindi_bankslip':
+                $requiredFields = ['print_url', 'due_at'];
+                break;
+
+            case 'vindi':
+                $requiredFields = ['card_holder_name', 'card_last_4', 'card_expiry_date', 'card_brand', 'authorization_code', 'transaction_id', 'nsu'];
+                break;
+        }
+
+        $missingFields = array_diff($requiredFields, array_keys($additionalInformation));
+        if (!empty($missingFields)) {
+            $this->updatePaymentDetails($order, $billData);
+        }
+    }
 }
+

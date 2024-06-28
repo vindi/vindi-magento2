@@ -5,14 +5,14 @@ use Vindi\Payment\Block\Info\Pix;
 /** @var $block Pix */
 ?>
 
-<?php if (!$block->hasInvoice()): ?>
-<dl class="payment-method">
-    <dt class="title">
-        <strong>
-            <?= $block->escapeHtml($block->getMethod()->getTitle()) ?>
-        </strong>
-    </dt>
-    <?php if ($block->canShowPixInfo()) : ?>
+<?php if (!$block->hasInvoice() && $block->canShowPixInfo() && $block->getQrCodePix() && $block->getQrcodeOriginalPath() && $block->getDaysToKeepWaitingPayment()): ?>
+    <dl class="payment-method">
+        <dt class="title">
+            <strong>
+                <?= $block->escapeHtml($block->getMethod()->getTitle()) ?>
+            </strong>
+        </dt>
+        <?php if ($block->canShowPixInfo()) : ?>
         <?php if ($block->getDaysToKeepWaitingPayment()) : ?>
             <dd>
                 <p>
@@ -29,14 +29,14 @@ use Vindi\Payment\Block\Info\Pix;
                         <?= $block->getQrCodeWarningMessage() ?: '' ?>
                     </p>
                     <?php if ($block->getQrCodePix()): ?>
-                    <button
+                        <button
                             id="vindi-pix-button-open"
                             type="button"
                             class="action primary checkout"
                             title="Open QR Code Pix"
                             onclick="window.open('<?= $block->getQrCodePix() ?>', '_blank')">
-                        <?= __('Open QR Code') ?>
-                    </button>
+                            <?= __('Open QR Code') ?>
+                        </button>
                     <?php endif; ?>
                 </object>
             <?php endif; ?>
@@ -49,30 +49,30 @@ use Vindi\Payment\Block\Info\Pix;
                 <!-- ko template: getTemplate() --><!-- /ko -->
             </div>
         </dd>
-</dl>
+    </dl>
 
-<?php if ($block->getQrcodeOriginalPath()): ?>
-<script type="text/x-magento-init">
-        {
-            "*": {
-                "Magento_Ui/js/core/app": {
-                    "components": {
-                        "vindiPix": {
-                            "component": "Vindi_Payment/js/view/info/vindi-pix",
-                            "qrCodeKey": <?= $block->getQrcodeOriginalPath() ?>
-                        }
-                    }
-                }
+    <?php if ($block->getQrcodeOriginalPath()): ?>
+        <script type="text/x-magento-init">
+            {
+                "*": {
+                    "Magento_Ui/js/core/app": {
+                        "components": {
+                            "vindiPix": {
+                                "component": "Vindi_Payment/js/view/info/vindi-pix",
+                                "qrCodeKey": <?= $block->getQrcodeOriginalPath() ?>
             }
         }
-    </script>
-<?php endif; ?>
-    <?php else: ?>
-        <strong>
-            <?=__('Pix expirado') ?>
-        </strong></br>
-        <a href="/vindiPayment/pix/renew?bill=<?= $block->getBillId()?>&order=<?= $block->getOrder()->getId() ?>"><button name="renew-pix"><?=__('Atualizar QR Code')?></button></a>
+    }
+}
+}
+        </script>
     <?php endif; ?>
+<?php else: ?>
+    <strong>
+        <?=__('Pix expirado') ?>
+    </strong></br>
+    <a href="/vindiPayment/pix/renew?bill=<?= $block->getBillId()?>&order=<?= $block->getOrder()->getId() ?>"><button name="renew-pix"><?=__('Atualizar QR Code')?></button></a>
+<?php endif; ?>
 <?php else: ?>
     <span>
         <?= __($block->getPaymentMethodName()) ?>

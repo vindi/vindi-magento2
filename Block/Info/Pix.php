@@ -17,7 +17,6 @@ use Vindi\Payment\Model\Payment\PaymentMethod;
  */
 class Pix extends Info
 {
-
     /**
      * @var string
      */
@@ -43,6 +42,16 @@ class Pix extends Info
 
     protected $paymentMethod;
 
+    /**
+     * Pix constructor.
+     * @param PaymentMethod $paymentMethod
+     * @param Data $currency
+     * @param Context $context
+     * @param PixConfigurationInterface $pixConfiguration
+     * @param TimezoneInterface $timezone
+     * @param Json $json
+     * @param array $data
+     */
     public function __construct(
         PaymentMethod $paymentMethod,
         Data $currency,
@@ -58,6 +67,15 @@ class Pix extends Info
         $this->pixConfiguration = $pixConfiguration;
         $this->timezone = $timezone;
         $this->json = $json;
+    }
+
+    /**
+     * Disable block cache
+     */
+    protected function _construct()
+    {
+        parent::_construct();
+        $this->setCacheLifetime(false);
     }
 
     /**
