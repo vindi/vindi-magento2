@@ -70,6 +70,8 @@ class OrderCreator
 
     /**
      * Create an order from bill data
+     * @param array $billData
+     * @return bool
      */
     public function createOrderFromBill($billData)
     {
@@ -101,6 +103,8 @@ class OrderCreator
 
     /**
      * Fetch original order using subscription ID
+     * @param int $subscriptionId
+     * @return Order|null
      */
     public function getOrderFromSubscriptionId($subscriptionId)
     {
@@ -115,6 +119,8 @@ class OrderCreator
 
     /**
      * Get all orders associated with a subscription ID
+     * @param int $subscriptionId
+     * @return array
      */
     public function getOrdersBySubscriptionId($subscriptionId)
     {
@@ -130,6 +136,9 @@ class OrderCreator
 
     /**
      * Replicate an order from an existing order
+     * @param Order $originalOrder
+     * @param array $billData
+     * @return Order
      */
     protected function replicateOrder(Order $originalOrder, $billData)
     {
@@ -205,6 +214,8 @@ class OrderCreator
 
     /**
      * Register the new order in the subscription orders table
+     * @param Order $order
+     * @param int $subscriptionId
      */
     protected function registerSubscriptionOrder(Order $order, $subscriptionId)
     {
@@ -220,23 +231,54 @@ class OrderCreator
 
             $this->subscriptionOrderRepository->save($subscriptionOrder);
         } catch (\Exception $e) {
+            // Log the error if needed
         }
     }
 
     /**
      * Update payment details in the order
+     * @param Order $order
+     * @param array $billData
      */
     protected function updatePaymentDetails(Order $order, $billData)
     {
-        if (($order->getPayment()->getMethod() === 'vindi_pix' || $order->getPayment()->getMethod() === 'vindi_bankslippix')
-            && !empty($billData['bill']['charges'][0]['last_transaction']['gateway_response_fields'])) {
-            $transactionDetails = $billData['bill']['charges'][0]['last_transaction']['gateway_response_fields'];
-            $additionalInformation = $order->getPayment()->getAdditionalInformation();
-            $additionalInformation['qrcode_original_path'] = $transactionDetails['qrcode_original_path'];
-            $additionalInformation['qrcode_path'] = $transactionDetails['qrcode_path'];
-            $additionalInformation['max_days_to_keep_waiting_payment'] = $transactionDetails['max_days_to_keep_waiting_payment'];
-            $order->getPayment()->setAdditionalInformation($additionalInformation);
-            $this->orderRepository->save($order);
+        $paymentMethod = $order->getPayment()->getMethod();
+        $transactionDetails = $billData['bill']['charges'][0]['last_transaction']['gateway_response_fields'] ?? [];
+        $additionalInformation = $order->getPayment()->getAdditionalInformation();
+
+        switch ($paymentMethod) {
+            case 'vindi_pix':
+            case 'vindi_bankslippix':
+                $additionalInformation = array_merge($additionalInformation, [
+                    'qrcode_original_path' => $transactionDetails['qrcode_original_path'] ?? null,
+                    'qrcode_path' => $transactionDetails['qrcode_path'] ?? null,
+                    'qrcode_url' => $transactionDetails['qrcode_url'] ?? null,
+                    'print_url' => $transactionDetails['print_url'] ?? null,
+                    'max_days_to_keep_waiting_payment' => $transactionDetails['max_days_to_keep_waiting_payment'] ?? null,
+                    'due_at' => $transactionDetails['due_at'] ?? null
+                ]);
+                break;
+
+            case 'vindi_bankslip':
+                $additionalInformation['print_url'] = $transactionDetails['print_url'] ?? null;
+                $additionalInformation['due_at'] = $transactionDetails['due_at'] ?? null;
+                break;
+
+            case 'vindi_creditcard':
+                $paymentProfile = $billData['bill']['charges'][0]['last_transaction']['payment_profile'] ?? [];
+                $additionalInformation = array_merge($additionalInformation, [
+                    'card_holder_name' => $paymentProfile['holder_name'] ?? null,
+                    'card_last_4' => $paymentProfile['card_number_last_four'] ?? null,
+                    'card_expiry_date' => $paymentProfile['card_expiration'] ?? null,
+                    'card_brand' => $paymentProfile['payment_company']['name'] ?? null,
+                    'authorization_code' => $billData['bill']['charges'][0]['last_transaction']['gateway_authorization'] ?? null,
+                    'transaction_id' => $billData['bill']['charges'][0]['last_transaction']['gateway_transaction_id'] ?? null,
+                    'nsu' => $transactionDetails['nsu'] ?? null,
+                ]);
+                break;
         }
+
+        $order->getPayment()->setAdditionalInformation($additionalInformation);
+        $this->orderRepository->save($order);
     }
 }

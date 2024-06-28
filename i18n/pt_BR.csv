@@ -470,3 +470,5 @@
 "The payment profile is being used in the following subscriptions:", "O perfil de pagamento está sendo usado nas seguintes assinaturas:"
 "Payment profile successfully removed.","Perfil de pagamento removido com sucesso."
 "An error occurred while removing the payment profile: ","Ocorreu um erro ao remover o perfil de pagamento: "
+"You do not have another credit card registered for editing the subscription payment method.","Você não tem outro cartão de crédito registrado para editar o método de pagamento da assinatura."
+"Subscription ID: %1","ID da assinatura: %1"
