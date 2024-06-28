@@ -11,7 +11,7 @@
             </action>
         </referenceBlock>
         <referenceContainer name="content">
-            <block class="Vindi\Payment\Block\Subscription\EditPayment" name="subscription.edit.payment.method" template="Vindi_Payment::customer/account/subscription/payment/edit.phtml"/>
+            <block class="Vindi\Payment\Block\Subscription\EditPayment" name="subscription.edit.payment.method" cacheable="false" template="Vindi_Payment::customer/account/subscription/payment/edit.phtml"/>
         </referenceContainer>
     </body>
 </page>
