@@ -11,7 +11,7 @@ use Vindi\Payment\Api\PixConfigurationInterface;
 use Vindi\Payment\Model\Payment\PaymentMethod;
 
 /**
- * Class Pix
+ * Class BankSlipPix
  *
  * @package Vindi\Payment\Block\Info
  */
@@ -49,6 +49,7 @@ class BankSlipPix extends Info
      * @param Context $context
      * @param PixConfigurationInterface $pixConfiguration
      * @param Json $json
+     * @param TimezoneInterface $timezone
      * @param array $data
      */
     public function __construct(
@@ -66,6 +67,15 @@ class BankSlipPix extends Info
         $this->pixConfiguration = $pixConfiguration;
         $this->timezone = $timezone;
         $this->json = $json;
+    }
+
+    /**
+     * Disable block cache
+     */
+    protected function _construct()
+    {
+        parent::_construct();
+        $this->setCacheLifetime(false);
     }
 
     /**
@@ -211,3 +221,4 @@ class BankSlipPix extends Info
         return $this->getOrder()->getPayment()->getAdditionalInformation('due_at');
     }
 }
+

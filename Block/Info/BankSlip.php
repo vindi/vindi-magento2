@@ -20,10 +20,15 @@ class BankSlip extends \Magento\Payment\Block\Info
         \Magento\Backend\Block\Template\Context $context,
         array $data = []
     ) {
-
         parent::__construct($context, $data);
         $this->paymentMethod = $paymentMethod;
         $this->currency = $currency;
+    }
+
+    protected function _construct()
+    {
+        parent::_construct();
+        $this->setCacheLifetime(false);
     }
 
     public function getOrder()
