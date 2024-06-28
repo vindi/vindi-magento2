@@ -92,8 +92,6 @@ class OrderCreator
 
                 $this->updatePaymentDetails($newOrder, $billData);
 
-                $this->verifyAndRetrySavingPaymentDetails($newOrder, $billData);
-
                 return true;
             }
 
@@ -242,7 +240,7 @@ class OrderCreator
      * @param Order $order
      * @param array $billData
      */
-    protected function updatePaymentDetails(Order $order, $billData)
+    public function updatePaymentDetails(Order $order, $billData)
     {
         $paymentMethod = $order->getPayment()->getMethod();
         $transactionDetails = $billData['bill']['charges'][0]['last_transaction']['gateway_response_fields'] ?? [];
