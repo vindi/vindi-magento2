@@ -90,6 +90,7 @@ class Delete extends Action
                 $subscriptionId = $subscription->getId();
                 $warningMessage .= ' ' . __('Subscription ID: %1', $subscriptionId);
             }
+            $warningMessage .= ' ' . __('If you wish to delete this card, please associate a different existing card or register a new card and associate it with the current subscriptions.');
             $this->messageManager->addWarningMessage($warningMessage);
             return $this->resultRedirectFactory->create()->setPath('vindi_vr/paymentprofile/index');
         }
