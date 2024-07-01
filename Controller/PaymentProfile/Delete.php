@@ -85,13 +85,15 @@ class Delete extends Action
 
         $subscriptions = $this->subscriptionCollection->addFieldToFilter('payment_profile', $paymentProfileVindiId);
         if ($subscriptions->getSize() > 0) {
-            $warningMessage = __('The payment profile is being used in the following subscriptions:');
+            $this->messageManager->addWarningMessage(__('The payment profile is being used in the following subscriptions:'));
+
             foreach ($subscriptions as $subscription) {
                 $subscriptionId = $subscription->getId();
-                $warningMessage .= ' ' . __('Subscription ID: %1', $subscriptionId);
+                $this->messageManager->addWarningMessage(__('Subscription ID: %1', $subscriptionId));
             }
-            $warningMessage .= ' ' . __('If you wish to delete this card, please associate a different existing card or register a new card and associate it with the current subscriptions.');
-            $this->messageManager->addWarningMessage($warningMessage);
+
+            $this->messageManager->addWarningMessage(__('If you wish to delete this card, please associate a different existing card or register a new card and associate it with the current subscriptions.'));
+
             return $this->resultRedirectFactory->create()->setPath('vindi_vr/paymentprofile/index');
         }
 
