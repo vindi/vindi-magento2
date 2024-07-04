@@ -210,13 +210,13 @@ class Customer
         $baseUrl = $this->storeManager->getStore()->getBaseUrl(); //https://magento2.local/
         $baseUrl = preg_replace("(^https?://)", "", rtrim($baseUrl, "/"));
         $baseUrl = preg_replace('/[^a-zA-Z0-9]/', '_', $baseUrl);
-        $code = $baseUrl . '_' . $customer->getId();
+        $uniqueCode = $baseUrl . '_' . $customer->getId() . '_' . time();
 
         $customerVindi = [
             'name' => $customer->getFirstname() . ' ' . $customer->getLastname(),
             'email' => $customer->getEmail(),
             'registry_code' => $registryCode,
-            'code' => $code,
+            'code' => $uniqueCode,
             'phones' => $this->formatPhone($billingAddress->getTelephone()),
             'address' => $address
         ];
@@ -297,7 +297,7 @@ class Customer
     }
 
     /**
-     * Make an API request to retrieve an existing Customer.
+     * Make an API request to retrieve an existing Customer by Email.
      *
      * @param string $query
      *
@@ -307,8 +307,27 @@ class Customer
     {
         $response = $this->api->request("customers?query=email={$query}", 'GET');
 
-        if ($response && (1 === count($response['customers'])) && isset($response['customers'][0]['id'])) {
-            return $response['customers'][0]['id'];
+        if ($response && isset($response['customers']) && count($response['customers']) > 0) {
+            $customers = $response['customers'];
+            $activeCustomer = null;
+            $inactiveCustomer = null;
+
+            foreach ($customers as $customer) {
+                if ($customer['status'] == 'active') {
+                    $activeCustomer = $customer;
+                    break;
+                } elseif ($customer['status'] == 'inactive') {
+                    $inactiveCustomer = $customer;
+                }
+            }
+
+            if ($activeCustomer) {
+                return $activeCustomer['id'];
+            } elseif ($inactiveCustomer) {
+                return $inactiveCustomer['id'];
+            } else {
+                return $customers[0]['id'];
+            }
         }
 
         return false;
@@ -362,3 +381,4 @@ class Customer
         return $document;
     }
 }
+
