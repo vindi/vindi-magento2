@@ -9,4 +9,10 @@
     <event name="sales_order_view">
         <observer name="vindi_payment_add_order_to_registry" instance="Vindi\Payment\Observer\AddOrderToRegistry"/>
     </event>
+    <event name="controller_action_predispatch_checkout_index_index">
+        <observer name="redirect_if_not_logged_in" instance="Vindi\Payment\Observer\RedirectIfNotLoggedIn" />
+    </event>
+    <event name="controller_action_predispatch_checkout_cart_index">
+        <observer name="redirect_if_not_logged_in" instance="Vindi\Payment\Observer\RedirectIfNotLoggedIn" />
+    </event>
 </config>
