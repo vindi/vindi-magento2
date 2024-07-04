@@ -10,6 +10,7 @@ use Magento\Customer\Api\Data\CustomerInterface;
 use Magento\Customer\Api\AddressRepositoryInterface;
 use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Store\Model\StoreManagerInterface;
+use Vindi\Payment\Model\ResourceModel\PaymentProfile\CollectionFactory as PaymentProfileCollectionFactory;
 
 class Customer
 {
@@ -30,25 +31,31 @@ class Customer
     /** @var StoreManagerInterface  */
     protected $storeManager;
 
+    /** @var PaymentProfileCollectionFactory */
+    protected $paymentProfileCollectionFactory;
+
     /**
      * @param CustomerRepositoryInterface $customerRepository
      * @param Api $api
      * @param ManagerInterface $messageManager
      * @param AddressRepositoryInterface $addressRepository
      * @param StoreManagerInterface $storeManager
+     * @param PaymentProfileCollectionFactory $paymentProfileCollectionFactory
      */
     public function __construct(
         CustomerRepositoryInterface $customerRepository,
         Api $api,
         ManagerInterface $messageManager,
         AddressRepositoryInterface $addressRepository,
-        StoreManagerInterface $storeManager
+        StoreManagerInterface $storeManager,
+        PaymentProfileCollectionFactory $paymentProfileCollectionFactory
     ) {
         $this->customerRepository = $customerRepository;
         $this->api = $api;
         $this->messageManager = $messageManager;
         $this->addressRepository = $addressRepository;
         $this->storeManager = $storeManager;
+        $this->paymentProfileCollectionFactory = $paymentProfileCollectionFactory;
     }
 
     /**
@@ -62,14 +69,18 @@ class Customer
     {
         $billing = $order->getBillingAddress();
         $customer = null;
-        $customerId = null;
+        $vindiCustomerId = null;
 
         if (!$order->getCustomerIsGuest()) {
             $customer = $this->customerRepository->get($billing->getEmail());
-            $customerId = $this->findVindiCustomerByEmail($customer->getEmail());
+            $vindiCustomerId = $this->findVindiCustomerIdByCustomerId($customer->getId());
         }
 
-        if ($customerId) {
+        if (!$vindiCustomerId && $customer) {
+            $vindiCustomerId = $this->findVindiCustomerByEmail($customer->getEmail());
+        }
+
+        if ($vindiCustomerId) {
             if ($order->getPayment()->getMethod() == "vindi_pix") {
                 $customerVindi = $this->getVindiCustomerData($customer->getId());
                 $additionalInfo = $order->getPayment()->getAdditionalInformation();
@@ -78,13 +89,13 @@ class Customer
                     $updateData = [
                         'registry_code' => $taxVatOrder,
                     ];
-                    $this->updateVindiCustomer($customerId, $updateData);
+                    $this->updateVindiCustomer($vindiCustomerId, $updateData);
                     $customer->setTaxvat($additionalInfo['document'] ?? '');
                     $this->customerRepository->save($customer);
                 }
             }
 
-            return $customerId;
+            return $vindiCustomerId;
         }
 
         $address = [
@@ -107,16 +118,16 @@ class Customer
             'address' => $address
         ];
 
-        $customerId = $this->createCustomer($customerVindi);
+        $vindiCustomerId = $this->createCustomer($customerVindi);
 
-        if ($customerId === false) {
+        if ($vindiCustomerId === false) {
             $this->messageManager->addErrorMessage(__('Failed while registering user. Check the data and try again'));
             throw new \Magento\Framework\Exception\LocalizedException(
                 __('Failed while registering user. Check the data and try again')
             );
         }
 
-        return $customerId;
+        return $vindiCustomerId;
     }
 
     /**
@@ -128,10 +139,14 @@ class Customer
      */
     public function findOrCreateFromCustomerAccount(CustomerInterface $customer)
     {
-        $customerId = $this->findVindiCustomerByEmail($customer->getEmail());
+        $vindiCustomerId = $this->findVindiCustomerIdByCustomerId($customer->getId());
 
-        if ($customerId) {
-            return $customerId;
+        if (!$vindiCustomerId) {
+            $vindiCustomerId = $this->findVindiCustomerByEmail($customer->getEmail());
+        }
+
+        if ($vindiCustomerId) {
+            return $vindiCustomerId;
         }
 
         $billingAddressId = $customer->getDefaultBilling();
@@ -206,14 +221,27 @@ class Customer
             'address' => $address
         ];
 
-        $customerId = $this->createCustomer($customerVindi);
+        $vindiCustomerId = $this->createCustomer($customerVindi);
 
-        if ($customerId === false) {
+        if ($vindiCustomerId === false) {
             $this->messageManager->addErrorMessage(__('Failed while registering user. Check the data and try again'));
             return false;
         }
 
-        return $customerId;
+        return $vindiCustomerId;
+    }
+
+    /**
+     * Find Vindi customer ID by Magento customer ID using ORM.
+     *
+     * @param int $customerId
+     * @return string|false
+     */
+    public function findVindiCustomerIdByCustomerId($customerId)
+    {
+        $collection = $this->paymentProfileCollectionFactory->create();
+        $item = $collection->addFieldToFilter('customer_id', $customerId)->getFirstItem();
+        return $item->getVindiCustomerId() ?: false;
     }
 
     /**
@@ -232,15 +260,14 @@ class Customer
         return false;
     }
 
-
     /**
      * Update customer Vindi.
      *
-     * @param string $query
-     *
+     * @param string $customerId
+     * @param array $body
      * @return array|bool|mixed
      */
-    public function updateVindiCustomer($customerId ,$body)
+    public function updateVindiCustomer($customerId, $body)
     {
         $response = $this->api->request("customers/{$customerId}", 'PUT', $body);
 
@@ -329,7 +356,7 @@ class Customer
     protected function getDocument(Order $order)
     {
         $document = (string) $order->getPayment()->getAdditionalInformation('document');
-        if(!$document) {
+        if (!$document) {
             $document = (string) $order->getData('customer_taxvat');
         }
         return $document;
