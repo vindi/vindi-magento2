@@ -109,12 +109,17 @@ class Customer
             'country' => $billing->getCountryId(),
         ];
 
+        $baseUrl = $this->storeManager->getStore()->getBaseUrl();
+        $baseUrl = preg_replace("(^https?://)", "", rtrim($baseUrl, "/"));
+        $baseUrl = preg_replace('/[^a-zA-Z0-9]/', '_', $baseUrl);
+        $uniqueCode = $baseUrl . '_' . $customer->getId() . '_' . time();
+
         $customerVindi = [
-            'name' => $billing->getFirstname() . ' ' . $billing->getLastname(),
-            'email' => $billing->getEmail(),
+            'name'    => $billing->getFirstname() . ' ' . $billing->getLastname(),
+            'email'   => $billing->getEmail(),
             'registry_code' => $this->getDocument($order),
-            'code' => $customer ? $customer->getId() : '',
-            'phones' => $this->formatPhone($billing->getTelephone()),
+            'code'    => $uniqueCode,
+            'phones'  => $this->formatPhone($billing->getTelephone()),
             'address' => $address
         ];
 
@@ -207,7 +212,7 @@ class Customer
             );
         }
 
-        $baseUrl = $this->storeManager->getStore()->getBaseUrl(); //https://magento2.local/
+        $baseUrl = $this->storeManager->getStore()->getBaseUrl();
         $baseUrl = preg_replace("(^https?://)", "", rtrim($baseUrl, "/"));
         $baseUrl = preg_replace('/[^a-zA-Z0-9]/', '_', $baseUrl);
         $uniqueCode = $baseUrl . '_' . $customer->getId() . '_' . time();

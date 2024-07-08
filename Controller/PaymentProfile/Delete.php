@@ -83,9 +83,12 @@ class Delete extends Action
         $paymentProfile = $this->paymentProfileRepository->getById($paymentProfileId);
         $paymentProfileVindiId = $paymentProfile->getData('payment_profile_id');
 
-        $subscriptions = $this->subscriptionCollection->addFieldToFilter('payment_profile', $paymentProfileVindiId);
+        $subscriptions = $this->subscriptionCollection
+            ->addFieldToFilter('payment_profile', $paymentProfileVindiId)
+            ->addFieldToFilter('status', 'active');
+
         if ($subscriptions->getSize() > 0) {
-            $this->messageManager->addWarningMessage(__('The payment profile is being used in the following subscriptions:'));
+            $this->messageManager->addWarningMessage(__('The payment profile is being used in the following active subscriptions:'));
 
             foreach ($subscriptions as $subscription) {
                 $subscriptionId = $subscription->getId();
@@ -108,3 +111,4 @@ class Delete extends Action
         return $this->resultRedirectFactory->create()->setPath('vindi_vr/paymentprofile/index');
     }
 }
+

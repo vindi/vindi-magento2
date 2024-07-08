@@ -30,6 +30,9 @@ use Vindi\Payment\Model\PaymentProfileFactory;
 use Vindi\Payment\Model\PaymentProfileRepository;
 use Magento\Framework\App\ResourceConnection;
 use Vindi\Payment\Model\VindiPlanRepository;
+use Vindi\Payment\Model\Subscription;
+use Vindi\Payment\Model\SubscriptionRepository;
+use Vindi\Payment\Model\ResourceModel\Subscription\Collection as SubscriptionCollection;
 
 /**
  * Class AbstractMethod
@@ -124,6 +127,16 @@ abstract class AbstractMethod extends OriginAbstractMethod
     protected $vindiPlanRepository;
 
     /**
+     * @var SubscriptionRepository
+     */
+    protected $subscriptionRepositoryModel;
+
+    /**
+     * @var SubscriptionCollection
+     */
+    protected $subscriptionCollection;
+
+    /**
      * AbstractMethod constructor.
      *
      * @param Context $context
@@ -149,6 +162,8 @@ abstract class AbstractMethod extends OriginAbstractMethod
      * @param LoggerInterface $psrLogger
      * @param TimezoneInterface $date
      * @param \Vindi\Payment\Helper\Data $helperData
+     * @param SubscriptionRepository $subscriptionRepositoryModel
+     * @param SubscriptionCollection $subscriptionCollection
      * @param AbstractResource|null $resource
      * @param AbstractDb|null $resourceCollection
      * @param array $data
@@ -177,6 +192,8 @@ abstract class AbstractMethod extends OriginAbstractMethod
         LoggerInterface $psrLogger,
         TimezoneInterface $date,
         \Vindi\Payment\Helper\Data $helperData,
+        SubscriptionRepository $subscriptionRepositoryModel,
+        SubscriptionCollection $subscriptionCollection,
         AbstractResource $resource = null,
         AbstractDb $resourceCollection = null,
         array $data = []
@@ -211,6 +228,8 @@ abstract class AbstractMethod extends OriginAbstractMethod
         $this->paymentProfileRepository = $paymentProfileRepository;
         $this->resourceConnection = $resourceConnection;
         $this->connection = $this->resourceConnection->getConnection();
+        $this->subscriptionRepositoryModel = $subscriptionRepositoryModel;
+        $this->subscriptionCollection = $subscriptionCollection;
     }
 
     /**
@@ -444,6 +463,20 @@ abstract class AbstractMethod extends OriginAbstractMethod
                     return $billId;
                 } else {
                     $this->subscriptionRepository->deleteAndCancelBills($subscription['id']);
+
+                    $objectManager = \Magento\Framework\App\ObjectManager::getInstance();
+                    $subscription = $objectManager->create(\Vindi\Payment\Model\Subscription::class)->load($subscription['id']);
+                    $subscription->setStatus('canceled');
+                    $subscription->save();
+
+                    if ($body['payment_method_code'] === PaymentMethod::CREDIT_CARD) {
+                        $paymentProfileId = $paymentProfile->getPaymentProfileId();
+                        if ($paymentProfileId) {
+                            $this->profile->deletePaymentProfile($paymentProfileId);
+                            $paymentProfileRepositoryModel = $this->paymentProfileRepository->getByProfileId($paymentProfileId);
+                            $this->paymentProfileRepository->delete($paymentProfileRepositoryModel);
+                        }
+                    }
                 }
             }
         } catch (\Exception $e) {
@@ -684,4 +717,3 @@ abstract class AbstractMethod extends OriginAbstractMethod
         }
     }
 }
-
