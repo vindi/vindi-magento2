@@ -474,3 +474,7 @@
 "Subscription ID: %1","ID da assinatura: %1"
 "If you wish to delete this card, please associate a different existing card or register a new card and associate it with the current subscriptions.","Se deseja excluir este cartão, por favor associe um cartão existente diferente ou registre um novo cartão e associe-o com as assinaturas atuais."
 "You must be logged in to access the checkout.","Você precisa estar logado para acessar o checkout."
+"Future","Futuro"
+"Canceled","Cancelado"
+"Expired","Expirado"
+"The payment profile is being used in the following active subscriptions:","O perfil de pagamento está sendo usado nas seguintes assinaturas ativas:"

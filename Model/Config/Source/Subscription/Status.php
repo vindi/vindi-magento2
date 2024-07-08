@@ -17,9 +17,9 @@ class Status implements OptionSourceInterface
     {
         return [
             ['value' => 'active', 'label'   => __('Active')],
-            ['value' => 'future', 'label' => __('future')],
-            ['value' => 'canceled', 'label'  => __('canceled')],
-            ['value' => 'expired', 'label'  => __('expired')]
+            ['value' => 'future', 'label' => __('Future')],
+            ['value' => 'canceled', 'label'  => __('Canceled')],
+            ['value' => 'expired', 'label'  => __('Expired')]
         ];
     }
 }
