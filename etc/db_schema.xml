@@ -104,6 +104,20 @@
             <column name="entity_id"/>
         </constraint>
     </table>
+    <table comment="Vindi Customers Table" engine="innodb" name="vindi_customers" resource="default">
+        <column xsi:type="int" name="entity_id" padding="10" unsigned="true" nullable="false" identity="true" comment="Entity ID"/>
+        <column xsi:type="int" name="magento_customer_id" nullable="false" comment="Magento Customer ID"/>
+        <column xsi:type="varchar" name="vindi_customer_id" length="255" nullable="false" comment="Vindi Customer ID"/>
+        <constraint xsi:type="primary" referenceId="PRIMARY">
+            <column name="entity_id"/>
+        </constraint>
+        <index referenceId="VINDI_CUSTOMERS_MAGENTO_CUSTOMER_ID_INDEX" indexType="btree">
+            <column name="magento_customer_id"/>
+        </index>
+        <index referenceId="VINDI_CUSTOMERS_VINDI_CUSTOMER_ID_INDEX" indexType="btree">
+            <column name="vindi_customer_id"/>
+        </index>
+    </table>
     <table name="sales_order">
         <column xsi:type="boolean" name="vindi_subscription_can_create_new_order" nullable="false" default="0" comment="Vindi Subscription Can Create New Order"/>
     </table>

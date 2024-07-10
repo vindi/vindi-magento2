@@ -11,6 +11,8 @@ use Magento\Customer\Api\AddressRepositoryInterface;
 use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Store\Model\StoreManagerInterface;
 use Vindi\Payment\Model\ResourceModel\PaymentProfile\CollectionFactory as PaymentProfileCollectionFactory;
+use Vindi\Payment\Model\ResourceModel\VindiCustomer\CollectionFactory as VindiCustomerCollectionFactory;
+use Vindi\Payment\Model\VindiCustomerFactory;
 
 class Customer
 {
@@ -34,6 +36,12 @@ class Customer
     /** @var PaymentProfileCollectionFactory */
     protected $paymentProfileCollectionFactory;
 
+    /** @var VindiCustomerCollectionFactory */
+    protected $vindiCustomerCollectionFactory;
+
+    /** @var VindiCustomerFactory */
+    protected $vindiCustomerFactory;
+
     /**
      * @param CustomerRepositoryInterface $customerRepository
      * @param Api $api
@@ -41,6 +49,8 @@ class Customer
      * @param AddressRepositoryInterface $addressRepository
      * @param StoreManagerInterface $storeManager
      * @param PaymentProfileCollectionFactory $paymentProfileCollectionFactory
+     * @param VindiCustomerCollectionFactory $vindiCustomerCollectionFactory
+     * @param VindiCustomerFactory $vindiCustomerFactory
      */
     public function __construct(
         CustomerRepositoryInterface $customerRepository,
@@ -48,7 +58,9 @@ class Customer
         ManagerInterface $messageManager,
         AddressRepositoryInterface $addressRepository,
         StoreManagerInterface $storeManager,
-        PaymentProfileCollectionFactory $paymentProfileCollectionFactory
+        PaymentProfileCollectionFactory $paymentProfileCollectionFactory,
+        VindiCustomerCollectionFactory $vindiCustomerCollectionFactory,
+        VindiCustomerFactory $vindiCustomerFactory
     ) {
         $this->customerRepository = $customerRepository;
         $this->api = $api;
@@ -56,6 +68,8 @@ class Customer
         $this->addressRepository = $addressRepository;
         $this->storeManager = $storeManager;
         $this->paymentProfileCollectionFactory = $paymentProfileCollectionFactory;
+        $this->vindiCustomerCollectionFactory = $vindiCustomerCollectionFactory;
+        $this->vindiCustomerFactory = $vindiCustomerFactory;
     }
 
     /**
@@ -74,10 +88,6 @@ class Customer
         if (!$order->getCustomerIsGuest()) {
             $customer = $this->customerRepository->get($billing->getEmail());
             $vindiCustomerId = $this->findVindiCustomerIdByCustomerId($customer->getId());
-        }
-
-        if (!$vindiCustomerId && $customer) {
-            $vindiCustomerId = $this->findVindiCustomerByEmail($customer->getEmail());
         }
 
         if ($vindiCustomerId) {
@@ -132,6 +142,8 @@ class Customer
             );
         }
 
+        $this->registerVindiCustomer($customer->getId(), $vindiCustomerId);
+
         return $vindiCustomerId;
     }
 
@@ -145,10 +157,6 @@ class Customer
     public function findOrCreateFromCustomerAccount(CustomerInterface $customer)
     {
         $vindiCustomerId = $this->findVindiCustomerIdByCustomerId($customer->getId());
-
-        if (!$vindiCustomerId) {
-            $vindiCustomerId = $this->findVindiCustomerByEmail($customer->getEmail());
-        }
 
         if ($vindiCustomerId) {
             return $vindiCustomerId;
@@ -233,7 +241,23 @@ class Customer
             return false;
         }
 
+        $this->registerVindiCustomer($customer->getId(), $vindiCustomerId);
+
         return $vindiCustomerId;
+    }
+
+    /**
+     * Register Vindi customer ID in vindi_customers table.
+     *
+     * @param int $magentoCustomerId
+     * @param string $vindiCustomerId
+     */
+    protected function registerVindiCustomer($magentoCustomerId, $vindiCustomerId)
+    {
+        $vindiCustomer = $this->vindiCustomerFactory->create();
+        $vindiCustomer->setMagentoCustomerId($magentoCustomerId);
+        $vindiCustomer->setVindiCustomerId($vindiCustomerId);
+        $vindiCustomer->save();
     }
 
     /**
@@ -244,6 +268,12 @@ class Customer
      */
     public function findVindiCustomerIdByCustomerId($customerId)
     {
+        $collection = $this->vindiCustomerCollectionFactory->create();
+        $item = $collection->addFieldToFilter('magento_customer_id', $customerId)->getFirstItem();
+        if ($item->getId()) {
+            return $item->getVindiCustomerId();
+        }
+
         $collection = $this->paymentProfileCollectionFactory->create();
         $item = $collection->addFieldToFilter('customer_id', $customerId)->getFirstItem();
         return $item->getVindiCustomerId() ?: false;
@@ -386,4 +416,3 @@ class Customer
         return $document;
     }
 }
-
