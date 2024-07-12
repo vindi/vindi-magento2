@@ -3,7 +3,7 @@
 	<acl>
 		<resources>
 			<resource id="Magento_Backend::admin">
-				<resource id="Vindi_Payment::Subscription" sortOrder="10" title="Subscriptions">
+				<resource id="Vindi_Payment::Subscription" sortOrder="10" title="Vindi - Subscriptions">
 					<resource id="Vindi_Payment::Subscription_save" sortOrder="10" title="Save Subscription"/>
 					<resource id="Vindi_Payment::Subscription_update" sortOrder="30" title="Update Subscription"/>
 					<resource id="Vindi_Payment::Subscription_view" sortOrder="40" title="View Subscription"/>
