@@ -32,7 +32,7 @@ $paymentProfiles = $block->getPaymentProfiles();
                             <span><?= $paymentProfile->getCcType() . '****' . $paymentProfile->getCcLast4() ?></span>
                         </td>
                         <td>
-                            <?= $block->escapeHtml($paymentProfile->getCcName()) ?> <!-- Exibindo o nome do titular do cartão -->
+                            <?= $block->escapeHtml($paymentProfile->getCcName()) ?>
                         </td>
                         <td>
                             <a href="<?= $block->getUrl('vindi_vr/paymentprofile/remove', ['id' => $paymentProfile->getId()]) ?>" class="text-blue-500"><?= __('Remove') ?></a>
