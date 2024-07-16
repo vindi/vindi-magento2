@@ -118,7 +118,7 @@ class PaymentProfile implements ModifierInterface
             foreach ($paymentProfileCollection as $profile) {
                 $ccName = $profile->getCcName() ? ' (' . $profile->getCcName() . ')' : '';
                 $options[] = [
-                    'value' => $profile->getId(),
+                    'value' => $profile->getPaymentProfileId(),
                     'label' => $profile->getCcType() . '****' . $profile->getCcLast4() . $ccName
                 ];
             }
