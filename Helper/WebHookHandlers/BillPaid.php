@@ -92,14 +92,19 @@ class BillPaid
         }
 
         try {
-            $queueItem = $this->orderCreationQueueFactory->create();
-            $queueItem->setData([
-                'bill_data' => json_encode($data),
-                'status'    => 'pending',
-                'type'      => 'bill_paid'
-            ]);
-            $this->orderCreationQueueRepository->save($queueItem);
-            $this->logger->info(__('Created order creation queue item for subscription.'));
+            $originalOrder = $this->orderCreator->getOrderFromSubscriptionId($subscriptionId);
+            if ($originalOrder) {
+                $queueItem = $this->orderCreationQueueFactory->create();
+                $queueItem->setData([
+                    'bill_data' => json_encode($data),
+                    'status'    => 'pending',
+                    'type'      => 'bill_paid'
+                ]);
+                $this->orderCreationQueueRepository->save($queueItem);
+                $this->logger->info(__('Created order creation queue item for subscription.'));
+            } else {
+                $this->logger->info(__('No corresponding order found for subscription ID: %1. Ignoring event.', $subscriptionId));
+            }
 
             return true;
         } finally {
@@ -107,3 +112,4 @@ class BillPaid
         }
     }
 }
+
