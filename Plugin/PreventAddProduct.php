@@ -99,8 +99,8 @@ class PreventAddProduct
     private function checkSubscriptionQuantity($requestInfo)
     {
         if (isset($requestInfo['qty']) && $requestInfo['qty'] > 1) {
-            $message = __('Each subscription product can be purchased only in a single unit per transaction.');
-            $this->messageManager->addWarningMessage(__('You can only purchase one unit of each subscription product per transaction. Please adjust the quantity.'));
+            $message = __('You can only purchase one unit of each subscription product per transaction. Please adjust the quantity.');
+            $this->messageManager->addWarningMessage($message);
             throw new LocalizedException($message);
         }
     }
@@ -111,8 +111,8 @@ class PreventAddProduct
      */
     private function preventMultipleSubscriptions()
     {
-        $message = __('Your cart already contains a subscription product. Only one subscription product is allowed per transaction.');
-        $this->messageManager->addWarningMessage(__('Your cart already contains a subscription product. You can only add one subscription product per transaction. Please complete your current purchase or remove the existing subscription product to add a different one.'));
+        $message = __('Your cart already contains a subscription product. You can only add one subscription product per transaction. Please complete your current purchase or remove the existing subscription product to add a different one.');
+        $this->messageManager->addWarningMessage($message);
         throw new LocalizedException($message);
     }
 }
