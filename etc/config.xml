@@ -15,6 +15,18 @@
                         <event_handlers>1</event_handlers>
                     </scripts>
                 </storefront_checkout_index_index>
+                <adminhtml_sales_order_create_index>
+                    <scripts>
+                        <inline>1</inline>
+                        <event_handlers>1</event_handlers>
+                    </scripts>
+                </adminhtml_sales_order_create_index>
+                <adminhtml_some_other_route>
+                    <scripts>
+                        <inline>1</inline>
+                        <event_handlers>1</event_handlers>
+                    </scripts>
+                </adminhtml_some_other_route>
             </policies>
         </csp>
         <payment>
