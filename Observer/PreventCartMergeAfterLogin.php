@@ -35,6 +35,12 @@ class PreventCartMergeAfterLogin implements ObserverInterface
 
     public function execute(Observer $observer)
     {
+        if ($this->checkoutSession->getCustomerIsNewlyRegistered()) {
+            $this->logger->info('PreventCartMergeAfterLogin: Skipping cart merge prevention due to recent registration.');
+            $this->checkoutSession->setCustomerIsNewlyRegistered(false);
+            return;
+        }
+
         $quote = $this->checkoutSession->getQuote();
         $items = $quote->getAllItems() ?? [];
         $this->logger->info('PreventCartMergeAfterLogin observer called.');
@@ -65,6 +71,7 @@ class PreventCartMergeAfterLogin implements ObserverInterface
 
             $message = __('Subscription products have been removed from your cart after login.');
             $this->logger->info($message->render());
+            $this->messageManager->addWarningMessage($message);
         }
     }
 

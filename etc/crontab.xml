@@ -2,9 +2,9 @@
 <config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
         xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Cron:etc/crontab.xsd">
     <group id="default">
-        <job instance="Vindi\Payment\Cron\SyncSubscriptions" method="execute" name="vindi_payment_sync_subscriptions">
-            <schedule>0 * * * *</schedule>
-        </job>
+<!--        <job instance="Vindi\Payment\Cron\SyncSubscriptions" method="execute" name="vindi_payment_sync_subscriptions">-->
+<!--            <schedule>0 * * * *</schedule>-->
+<!--        </job>-->
         <job name="vindi_payment_process_order_creation_queue" instance="Vindi\Payment\Cron\ProcessOrderCreationQueue" method="execute">
             <schedule>*/1 * * * *</schedule>
         </job>

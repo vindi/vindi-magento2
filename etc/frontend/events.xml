@@ -6,6 +6,9 @@
     <event name="customer_login">
         <observer name="vindi_recurrence_prevent_cart_merge" instance="Vindi\Payment\Observer\PreventCartMergeAfterLogin" />
     </event>
+    <event name="customer_register_success">
+        <observer name="vindi_recurrence_set_registration_flag" instance="Vindi\Payment\Observer\SetRegistrationFlag" />
+    </event>
     <event name="sales_order_view">
         <observer name="vindi_payment_add_order_to_registry" instance="Vindi\Payment\Observer\AddOrderToRegistry"/>
     </event>
