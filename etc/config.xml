@@ -83,14 +83,14 @@
         </vindiconfiguration>
         <checkout>
             <vindi_pix>
-                <info_message>Payment details will be displayed after completing the order.</info_message>
-                <info_message_onepage_success>Your order has been completed. Below are the PIX details for making the payment.</info_message_onepage_success>
-                <qr_code_warning_message>Your browser does not support QR code rendering. Use the PIX code to make the payment or click the link below to access the QR code.</qr_code_warning_message>
+                <info_message>Os dados para o pagamento serão exibidos após finalizar o pedido.</info_message>
+                <info_message_onepage_success>Seu pedido foi concluído, abaixo segue as informações do PIX para realizar o pagamento.</info_message_onepage_success>
+                <qr_code_warning_message>Seu navegador não da suporte a renderização do QRCode. Use o código do PIX para realizar o pagamento ou acesse o link abaixo para acessar o QR Code.</qr_code_warning_message>
             </vindi_pix>
             <vindi_bankslippix>
-                <info_message>Payment details will be displayed after completing the order.</info_message>
-                <info_message_onepage_success>Your order has been completed. Below are the details for making the payment.</info_message_onepage_success>
-                <qr_code_warning_message>Your browser does not support QR code rendering. Use the PIX code to make the payment or click the link below to access the QR code.</qr_code_warning_message>
+                <info_message>Os dados para o pagamento serão exibidos após finalizar o pedido.</info_message>
+                <info_message_onepage_success>Seu pedido foi concluído, abaixo segue as informações para realizar o pagamento.</info_message_onepage_success>
+                <qr_code_warning_message>Seu navegador não da suporte a renderização do QRCode. Use o código do PIX para realizar o pagamento ou acesse o link abaixo para acessar o QR Code.</qr_code_warning_message>
             </vindi_bankslippix>
         </checkout>
     </default>
