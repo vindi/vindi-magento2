@@ -1,5 +1,8 @@
 # Notas das versões
 
+## [1.5.0 - 07/05/2024](https://github.com/vindi/vindi-magento2/releases/tag/1.5.0)
+- Insere método de pagamento Bolepix
+
 ## [1.4.0 - 15/02/2024](https://github.com/vindi/vindi-magento2/releases/tag/1.4.0)
 - Insere método de pagamento Pix
 - Adiciona filtro nas assinaturas pelo método de pagamento Pix

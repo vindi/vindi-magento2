@@ -53,14 +53,15 @@ class BankSlipPix extends Info
      * @param array $data
      */
     public function __construct(
-        PaymentMethod $paymentMethod,
-        Data $currency,
-        Context $context,
+        PaymentMethod             $paymentMethod,
+        Data                      $currency,
+        Context                   $context,
         PixConfigurationInterface $pixConfiguration,
-        Json $json,
-        TimezoneInterface $timezone,
-        array $data = []
-    ) {
+        Json                      $json,
+        TimezoneInterface         $timezone,
+        array                     $data = []
+    )
+    {
         parent::__construct($context, $data);
         $this->paymentMethod = $paymentMethod;
         $this->currency = $currency;
@@ -160,17 +161,21 @@ class BankSlipPix extends Info
      */
     public function getQrCodeWarningMessage()
     {
-        return $this->pixConfiguration->getQrCodeWarningMessage();
+        return (string) $this->pixConfiguration->getQrCodeWarningMessage();
     }
 
     /**
-     * @return bool|string
+     * @return string
      * @throws \Magento\Framework\Exception\LocalizedException
      */
-    public function getQrcodeOriginalPath()
+    public function getQrcodeOriginalPath(): string
     {
-        $qrcodeOriginalPath = $this->getOrder()->getPayment()->getAdditionalInformation('qrcode_original_path');
-        return $this->json->serialize($qrcodeOriginalPath);
+        try {
+            $qrcodeOriginalPath = (string)$this->getOrder()->getPayment()->getAdditionalInformation('qrcode_original_path');
+            return $this->json->serialize($qrcodeOriginalPath);
+        } catch (\Exception $e) {
+            return '';
+        }
     }
 
     /**
@@ -181,7 +186,7 @@ class BankSlipPix extends Info
     {
         $daysToPayment = $this->getMaxDaysToPayment();
         if (!$daysToPayment) {
-            return null;
+            return '';
         }
 
         $timestampMaxDays = strtotime($daysToPayment);
@@ -211,14 +216,13 @@ class BankSlipPix extends Info
         return (string) $this->getOrder()->getPayment()->getAdditionalInformation('max_days_to_keep_waiting_payment');
     }
 
-    public function getPrintUrl()
+    public function getPrintUrl(): string
     {
-        return $this->getOrder()->getPayment()->getAdditionalInformation('print_url');
+        return (string) $this->getOrder()->getPayment()->getAdditionalInformation('print_url');
     }
 
-    public function getDueDate()
+    public function getDueDate(): string
     {
-        return $this->getOrder()->getPayment()->getAdditionalInformation('due_at');
+        return (string) $this->getOrder()->getPayment()->getAdditionalInformation('due_at');
     }
 }
-
