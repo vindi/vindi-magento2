@@ -42,15 +42,6 @@ class Customer
     /** @var VindiCustomerFactory */
     protected $vindiCustomerFactory;
 
-    /** @var CustomerRepositoryInterface */
-    protected $customerRepository;
-
-    /** @var Api  */
-    protected $api;
-
-    /** @var ManagerInterface  */
-    protected $messageManager;
-
     /**
      * @param CustomerRepositoryInterface $customerRepository
      * @param Api $api
