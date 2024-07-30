@@ -53,7 +53,7 @@ class Data extends AbstractHelper
 
     public function getCreditCardConfig($field, $group = 'vindi')
     {
-        return $this->scopeConfig->getValue(
+        return (string) $this->scopeConfig->getValue(
             'payment/' . $group . '/' . $field,
             \Magento\Store\Model\ScopeInterface::SCOPE_STORE
         );
@@ -61,7 +61,7 @@ class Data extends AbstractHelper
 
     public function getModuleGeneralConfig($field)
     {
-        return $this->scopeConfig->getValue(
+        return (string) $this->scopeConfig->getValue(
             'vindiconfiguration/general/' . $field,
             \Magento\Store\Model\ScopeInterface::SCOPE_STORE
         );
