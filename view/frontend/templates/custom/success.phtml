@@ -15,7 +15,7 @@ $message = $paymentMethod == 'vindi' ? 'Thank you! Your order has been successfu
         <h1><?= __($paymentTitle) ?></h1>
         <span><?= __($block->getInstructions()) ?></span>
     </div>
-    <?php if ($paymentMethod == 'vindi'): ?>
+    <?php if ($paymentMethod == 'vindi' && $block->isCustomerOrderOwner()): ?>
         <div class="payment-container">
             <a href="<?= $block->getBaseUrl() . 'sales/order/history' ?>" class="button-link">
                 <?= $block->escapeHtml(__('My Orders')) ?>

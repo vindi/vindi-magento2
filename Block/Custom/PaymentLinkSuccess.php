@@ -23,6 +23,8 @@ use Magento\Framework\View\Element\Template;
 use Vindi\Payment\Helper\Data as Helper;
 use Vindi\Payment\Model\PaymentLinkService;
 use Magento\Store\Model\ScopeInterface;
+use Magento\Customer\Model\Session as CustomerSession;
+use Magento\Sales\Api\OrderRepositoryInterface;
 
 class PaymentLinkSuccess extends Template
 {
@@ -47,11 +49,23 @@ class PaymentLinkSuccess extends Template
     private ScopeConfigInterface $scopeConfig;
 
     /**
+     * @var CustomerSession
+     */
+    private CustomerSession $customerSession;
+
+    /**
+     * @var OrderRepositoryInterface
+     */
+    private OrderRepositoryInterface $orderRepository;
+
+    /**
      * @param Context $context
      * @param PaymentLinkService $paymentLinkService
      * @param FormKey $formKey
      * @param Helper $helper
      * @param ScopeConfigInterface $scopeConfig
+     * @param CustomerSession $customerSession
+     * @param OrderRepositoryInterface $orderRepository
      * @param array $data
      */
     public function __construct(
@@ -60,12 +74,16 @@ class PaymentLinkSuccess extends Template
         FormKey $formKey,
         Helper $helper,
         ScopeConfigInterface $scopeConfig,
+        CustomerSession $customerSession,
+        OrderRepositoryInterface $orderRepository,
         array $data = []
     ) {
         $this->paymentLinkService = $paymentLinkService;
         $this->formKey = $formKey;
         $this->helper = $helper;
         $this->scopeConfig = $scopeConfig;
+        $this->customerSession = $customerSession;
+        $this->orderRepository = $orderRepository;
         parent::__construct($context, $data);
     }
 
@@ -119,5 +137,21 @@ class PaymentLinkSuccess extends Template
     public function getStoreConfig(string $path, $scope = ScopeInterface::SCOPE_STORE)
     {
         return $this->scopeConfig->getValue($path, $scope);
+    }
+
+    /**
+     * Check if the logged in customer is the owner of the order
+     *
+     * @return bool
+     */
+    public function isCustomerOrderOwner(): bool
+    {
+        $customerId = $this->customerSession->getCustomerId();
+        if (!$customerId) {
+            return false;
+        }
+
+        $order = $this->getOrder();
+        return $order->getCustomerId() == $customerId;
     }
 }
