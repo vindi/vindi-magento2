@@ -180,4 +180,18 @@ class ProductRecurrence extends Template
         $uniquePrices = array_unique($prices);
         return count($uniquePrices) > 1;
     }
+
+    /**
+     * Returns the minimum installment value.
+     *
+     * @return float|null
+     */
+    public function getMinInstallmentsValue()
+    {
+        return $this->_scopeConfig->getValue(
+            'payment/vindi/min_installment_value',
+            \Magento\Store\Model\ScopeInterface::SCOPE_STORE
+        );
+    }
 }
+

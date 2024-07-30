@@ -56,6 +56,7 @@ if ($product && $product->getData('vindi_enable_recurrence') === '1') {
             $(document).ready(function () {
                 var priceFormat = <?php echo json_encode($block->getPriceFormat()); ?>;
                 var productId = <?= $product->getId(); ?>;
+                var minInstallmentsValue = <?= $block->getMinInstallmentsValue() ?: 'null'; ?>;
 
                 function showWarning(show) {
                     $('#recurrence-warning').css('display', show ? 'block' : 'none');
@@ -82,10 +83,20 @@ if ($product && $product->getData('vindi_enable_recurrence') === '1') {
                     var priceHtml = "<span class='price-prefix'>Por apenas<br></span>" +
                         "<span class='main-price'>" + formattedPrice + "</span>";
 
-                    if (installments > 1) {
-                        var installmentValue = priceValue / installments;
-                        var formattedInstallmentValue = priceUtils.formatPrice(installmentValue, priceFormat);
-                        priceHtml += "<br><span class='installment-info'>em até " + installments + "x de " + formattedInstallmentValue + "</span>";
+                    var validInstallment = 1;
+
+                    if (installments > 1 && minInstallmentsValue !== null) {
+                        for (var i = 2; i <= installments; i++) {
+                            var installmentValue = priceValue / i;
+                            if (installmentValue >= minInstallmentsValue) {
+                                validInstallment = i;
+                            }
+                        }
+                        if (validInstallment > 1) {
+                            var installmentValue = priceValue / validInstallment;
+                            var formattedInstallmentValue = priceUtils.formatPrice(installmentValue, priceFormat);
+                            priceHtml += "<br><span class='installment-info'>em até " + validInstallment + "x de " + formattedInstallmentValue + "</span>";
+                        }
                     }
 
                     $('#product-price-' + productId + ' .price').html(priceHtml);

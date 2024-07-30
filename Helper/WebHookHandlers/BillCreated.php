@@ -112,15 +112,19 @@ class BillCreated
                 return true;
             }
 
-            if (isset($bill['period']) && isset($bill['period']['cycle']) && $bill['period']['cycle'] != 1) {
-                $queueItem = $this->orderCreationQueueFactory->create();
-                $queueItem->setData([
-                    'bill_data' => json_encode($data),
-                    'status'    => 'pending',
-                    'type'      => 'bill_created'
-                ]);
-                $this->orderCreationQueueRepository->save($queueItem);
-                $this->logger->info(__('Created order creation queue item for subscription.'));
+            if ($originalOrder) {
+                if (isset($bill['period']) && isset($bill['period']['cycle']) && $bill['period']['cycle'] != 1) {
+                    $queueItem = $this->orderCreationQueueFactory->create();
+                    $queueItem->setData([
+                        'bill_data' => json_encode($data),
+                        'status'    => 'pending',
+                        'type'      => 'bill_created'
+                    ]);
+                    $this->orderCreationQueueRepository->save($queueItem);
+                    $this->logger->info(__('Created order creation queue item for subscription.'));
+                }
+            } else {
+                $this->logger->info(__('No corresponding order found for subscription ID: %1. Ignoring event.', $subscriptionId));
             }
 
             return true;
@@ -129,4 +133,3 @@ class BillCreated
         }
     }
 }
-
