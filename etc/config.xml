@@ -2,23 +2,54 @@
 <config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
         xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Store:etc/config.xsd">
     <default>
+        <csp>
+            <mode>
+                <storefront_checkout_index_index>
+                    <report_only>1</report_only>
+                </storefront_checkout_index_index>
+            </mode>
+            <policies>
+                <storefront_checkout_index_index>
+                    <scripts>
+                        <inline>1</inline>
+                        <event_handlers>1</event_handlers>
+                    </scripts>
+                </storefront_checkout_index_index>
+                <adminhtml_sales_order_create_index>
+                    <scripts>
+                        <inline>1</inline>
+                        <event_handlers>1</event_handlers>
+                    </scripts>
+                </adminhtml_sales_order_create_index>
+                <adminhtml_some_other_route>
+                    <scripts>
+                        <inline>1</inline>
+                        <event_handlers>1</event_handlers>
+                    </scripts>
+                </adminhtml_some_other_route>
+            </policies>
+        </csp>
         <payment>
             <vindi>
                 <active>0</active>
                 <model>Vindi\Payment\Model\Payment\Vindi</model>
                 <allow_installments>0</allow_installments>
-                <title>Vindi - Cartão de Crédito</title>
+                <title>Vindi - Credit Card</title>
                 <allowspecific>0</allowspecific>
                 <payment_action>authorize</payment_action>
                 <group>offline</group>
+                <can_use_internal>1</can_use_internal>
+                <payment_link_instructions>We have sent an email with the order details.</payment_link_instructions>
             </vindi>
             <vindi_bankslip>
                 <active>0</active>
                 <model>Vindi\Payment\Model\Payment\BankSlip</model>
-                <title>Vindi - Boleto Bancário</title>
+                <title>Vindi - Bank Slip</title>
                 <allowspecific>0</allowspecific>
                 <payment_action>authorize</payment_action>
                 <group>offline</group>
+                <can_use_internal>1</can_use_internal>
+                <payment_link_instructions>To pay, copy the document code and pay at your financial institution. By clicking "View Bank Slip" you can also view the details of the slip.</payment_link_instructions>
             </vindi_bankslip>
             <vindi_pix>
                 <active>0</active>
@@ -28,6 +59,8 @@
                 <allowspecific>0</allowspecific>
                 <payment_action>authorize</payment_action>
                 <group>offline</group>
+                <can_use_internal>1</can_use_internal>
+                <payment_link_instructions>To pay, copy the code and pay at your payment institution or scan the document QR code.</payment_link_instructions>
             </vindi_pix>
             <vindi_bankslippix>
                 <active>0</active>
@@ -36,6 +69,8 @@
                 <allowspecific>0</allowspecific>
                 <payment_action>authorize</payment_action>
                 <group>offline</group>
+                <can_use_internal>1</can_use_internal>
+                <payment_link_instructions>To pay, print or scan the code or QR code of the document by clicking "View Bolepix". You can also copy the Bolepix barcode and paste it into your financial institution's app.</payment_link_instructions>
             </vindi_bankslippix>
         </payment>
         <vindiconfiguration>
@@ -43,18 +78,19 @@
                 <mode>2</mode>
                 <test>values</test>
                 <order_status>pending</order_status>
+                <payment_link_template>payment_link_template</payment_link_template>
             </general>
         </vindiconfiguration>
         <checkout>
             <vindi_pix>
-                <info_message>Os dados para o pagamento, serão exibidos após finalizar o pedido.</info_message>
-                <info_message_onepage_success>Seu pedido foi concluído, abaixo segue as informações do PIX para realizar o pagamento.</info_message_onepage_success>
-                <qr_code_warning_message>Seu navegador não da suporte a renderização do QRCode. Use o código do PIX para realizar o pagamento ou acesse o link abaixo para acessar o QR Code.</qr_code_warning_message>
+                <info_message>Payment details will be displayed after completing the order.</info_message>
+                <info_message_onepage_success>Your order has been completed. Below are the PIX details for making the payment.</info_message_onepage_success>
+                <qr_code_warning_message>Your browser does not support QR code rendering. Use the PIX code to make the payment or click the link below to access the QR code.</qr_code_warning_message>
             </vindi_pix>
             <vindi_bankslippix>
-                <info_message>Os dados para o pagamento, serão exibidos após finalizar o pedido.</info_message>
-                <info_message_onepage_success>Seu pedido foi concluído, abaixo segue as informações para realizar o pagamento.</info_message_onepage_success>
-                <qr_code_warning_message>Seu navegador não da suporte a renderização do QRCode. Use o código do PIX para realizar o pagamento ou acesse o link abaixo para acessar o QR Code.</qr_code_warning_message>
+                <info_message>Payment details will be displayed after completing the order.</info_message>
+                <info_message_onepage_success>Your order has been completed. Below are the details for making the payment.</info_message_onepage_success>
+                <qr_code_warning_message>Your browser does not support QR code rendering. Use the PIX code to make the payment or click the link below to access the QR code.</qr_code_warning_message>
             </vindi_bankslippix>
         </checkout>
     </default>

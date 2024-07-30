@@ -1,0 +1,111 @@
+<?php
+
+/**
+ * @var \Vindi\Payment\Block\Custom\PaymentLinkSuccess $block
+ */
+
+$order = $block->getOrder();
+$payment = $order->getPayment();
+$paymentMethod = $payment->getMethod();
+$paymentTitle = $block->getStoreConfig('payment/' . $paymentMethod . '/title');
+$message = $paymentMethod == 'vindi' ? 'Thank you! Your order has been successfully placed and is being processed.' : 'Thank you! Your order has been successfully placed and will be processed after payment.'
+?>
+<div class="vindi-link-container">
+    <div class="customer-data">
+        <h1><?= __($paymentTitle) ?></h1>
+        <span><?= __($block->getInstructions()) ?></span>
+    </div>
+    <?php if ($paymentMethod == 'vindi'): ?>
+        <div class="payment-container">
+            <a href="<?= $block->getBaseUrl() . 'sales/order/history' ?>" class="button-link">
+                <?= $block->escapeHtml(__('My Orders')) ?>
+            </a>
+        </div>
+    <?php endif;?>
+
+    <?php if ($paymentMethod == 'vindi_pix'): ?>
+        <?php
+        $qrCodeImage = (string) $payment->getAdditionalInformation('qrcode_path');
+        $emv = (string) $payment->getAdditionalInformation('qrcode_original_path');
+        ?>
+        <?php if ($qrCodeImage): ?>
+            <div class="payment-container">
+                <div class="qrcode">
+                    <h2><?= __('Pay with Pix:') ?></h2>
+                    <object data="<?= $block->escapeHtml($qrCodeImage) ?>" type="image/svg+xml" class="qr-code" id="qrcode">
+                        <p>
+                            <?= $block->escapeHtml(__('QR Code is not available.')) ?>
+                        </p>
+                        <a href="<?= $block->escapeHtml($qrCodeImage) ?>" target="_blank" class="button-link">
+                            <?= __('Open QR Code') ?>
+                        </a>
+                    </object>
+                </div>
+                <div class="pix-code">
+                    <h3><?= __('Pix code:') ?></h3>
+                    <div class="pix-qrcode" style="display: none"><?= $emv ?></div>
+                    <button class="pix-copy-button"
+                            data-text="<?= $block->escapeHtml(__('Copied!')) ?>"
+                            onclick="vindiVr.copyCode(this, '.pix-qrcode', false)">
+                        <?= $block->escapeHtml(__('Copy PIX code')) ?>
+                    </button>
+                </div>
+            </div>
+        <?php endif; ?>
+    <?php endif;?>
+
+    <?php if ($paymentMethod == 'vindi_bankslippix'): ?>
+        <?php
+        $qrCodeImage = (string) $payment->getAdditionalInformation('qrcode_path');
+        $emv = (string) $payment->getAdditionalInformation('qrcode_original_path');
+        $bankSlipUrl = (string) $payment->getAdditionalInformation('print_url');
+        $bankSlipNumber = (string) $payment->getAdditionalInformation('barcode');
+        ?>
+        <?php if ($qrCodeImage): ?>
+            <div class="payment-container">
+                <div class="qrcode">
+                    <h2><?= __('Pay with Pix:') ?></h2>
+                    <object data="<?= $block->escapeHtml($qrCodeImage) ?>" type="image/svg+xml" class="qr-code" id="qrcode">
+                        <p>
+                            <?= $block->escapeHtml(__('QR Code is not available.')) ?>
+                        </p>
+                        <a href="<?= $block->escapeHtml($qrCodeImage) ?>" target="_blank" class="button-link">
+                            <?= __('Open QR Code') ?>
+                        </a>
+                    </object>
+                </div>
+                <div class="pix-code">
+                    <h3><?= __('Pix code:') ?></h3>
+                    <div class="pix-qrcode" style="display: none"><?= $emv ?></div>
+                    <button class="pix-copy-button"
+                            data-text="<?= $block->escapeHtml(__('Copied!')) ?>"
+                            onclick="vindiVr.copyCode(this, '.pix-qrcode', false)">
+                        <?= $block->escapeHtml(__('Copy PIX code')) ?>
+                    </button>
+                </div>
+                <br><br>
+                <?php if ($bankSlipUrl): ?>
+                    <div class="view-bankslip">
+                        <a href="<?= $block->escapeHtml($bankSlipUrl) ?>" target="_blank" class="button-link-white">
+                            <?= $block->escapeHtml(__('View Bankslip')) ?>
+                        </a>
+                    </div>
+                <?php endif; ?>
+            </div>
+        <?php endif; ?>
+    <?php endif;?>
+
+    <?php if ($paymentMethod == 'vindi_bankslip'): ?>
+        <?php
+        $bankSlipUrl = (string) $payment->getAdditionalInformation('print_url');
+        $bankSlipNumber = (string) $payment->getAdditionalInformation('barcode');
+        ?>
+        <div class="payment-container">
+            <?php if ($bankSlipUrl): ?>
+                <a href="<?= $block->escapeHtml($bankSlipUrl) ?>" target="_blank" class="button-link-white">
+                    <?= $block->escapeHtml(__('View Bankslip')) ?>
+                </a>
+            <?php endif; ?>
+        </div>
+    <?php endif;?>
+</div>

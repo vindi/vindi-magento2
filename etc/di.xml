@@ -13,6 +13,9 @@
     <preference for="Vindi\Payment\Api\Data\SubscriptionSearchResultsInterface" type="Magento\Framework\Api\SearchResults"/>
     <preference for="Vindi\Payment\Api\PixConfigurationInterface" type="Vindi\Payment\Helper\PixConfiguration"/>
 
+    <preference for="Vindi\Payment\Api\Data\PaymentLinkInterface" type="Vindi\Payment\Model\PaymentLink"/>
+    <preference for="Vindi\Payment\Api\PaymentLinkRepositoryInterface" type="Vindi\Payment\Model\ResourceModel\PaymentLinkRepository"/>
+
     <virtualType name="Vindi\Payment\Model\ResourceModel\Subscription\Grid\Collection" type="Magento\Framework\View\Element\UiComponent\DataProvider\SearchResult">
         <arguments>
             <argument name="mainTable" xsi:type="string">vindi_subscription</argument>
@@ -159,5 +162,9 @@
         <arguments>
             <argument name="lockManager" xsi:type="object">Magento\Framework\Lock\LockManagerInterface</argument>
         </arguments>
+    </type>
+
+    <type name="Magento\Sales\Model\Service\OrderService">
+        <plugin name="after_place_order_plugin" type="Vindi\Payment\Plugin\Model\Service\OrderService" />
     </type>
 </config>

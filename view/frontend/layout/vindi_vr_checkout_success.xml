@@ -1,0 +1,25 @@
+<?xml version="1.0"?>
+<!--
+/**
+ *
+ * @category    Vindi
+ * @package     Vindi_Payment
+ */
+ -->
+<page xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" layout="1column" xsi:noNamespaceSchemaLocation="urn:magento:framework:View/Layout/etc/page_configuration.xsd">
+    <head>
+        <css src="Vindi_Payment::css/checkout.css"/>
+        <script src="Vindi_Payment::js/payments.js" />
+    </head>
+    <body>
+        <referenceContainer name="header.container">
+            <referenceBlock name="top.search" remove="true"/>
+            <referenceBlock name="minicart" remove="true"/>
+        </referenceContainer>
+        <referenceContainer name="footer" remove="true" />
+        <referenceBlock name="catalog.topnav" remove="true" />
+        <referenceContainer name="content">
+            <block class="Vindi\Payment\Block\Custom\PaymentLinkSuccess" template="Vindi_Payment::custom/success.phtml" name="payment.link.success.block" cacheable="false" />
+        </referenceContainer>
+    </body>
+</page>

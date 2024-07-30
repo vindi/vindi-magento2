@@ -10,8 +10,11 @@ use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Sales\Model\Order;
 use Magento\Sales\Model\ResourceModel\Order\Status\CollectionFactory;
 use Vindi\Payment\Model\Config\Source\Mode;
+use Vindi\Payment\Model\Payment\BankSlip as BankSlipPayment;
+use Vindi\Payment\Model\Payment\BankSlipPix as BankSlipPixPayment;
+use Vindi\Payment\Model\Payment\Pix as PixPayment;
+use Vindi\Payment\Model\Payment\Vindi as VindiPayment;
 use Vindi\Payment\Setup\UpgradeData;
-
 class Data extends AbstractHelper
 {
     protected $scopeConfig;
@@ -65,6 +68,19 @@ class Data extends AbstractHelper
             'vindiconfiguration/general/' . $field,
             \Magento\Store\Model\ScopeInterface::SCOPE_STORE
         );
+    }
+
+    /**
+     * @return array
+     */
+    public function getAllowedMethods(): array
+    {
+        return [
+            VindiPayment::CODE,
+            BankSlipPayment::CODE,
+            BankSlipPixPayment::CODE,
+            PixPayment::CODE
+        ];
     }
 
     public function isInstallmentsAllowedInStore()
@@ -171,12 +187,35 @@ class Data extends AbstractHelper
     }
 
     /**
-    * @param $productId
-    * @return \Magento\Catalog\Api\Data\ProductInterface
-    * @throws NoSuchEntityException
-    */
+     * @param $productId
+     * @return \Magento\Catalog\Api\Data\ProductInterface
+     * @throws NoSuchEntityException
+     */
     public function getProductById($productId)
     {
         return $this->productRepository->getById($productId);
     }
+
+    /**
+     * Get configuration value
+     *
+     * @param string $config
+     * @param string $group
+     * @param string $section
+     * @param null|string|int $scopeCode
+     * @return string
+     */
+    public function getConfig(
+        string $config,
+        string $group = 'vindi',
+        string $section = 'payment',
+               $scopeCode = null
+    ): string {
+        return (string) $this->scopeConfig->getValue(
+            $section . '/' . $group . '/' . $config,
+            \Magento\Store\Model\ScopeInterface::SCOPE_STORE,
+            $scopeCode
+        );
+    }
 }
+
