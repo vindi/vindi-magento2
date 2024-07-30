@@ -38,13 +38,20 @@
                     <label>Paid Order Status</label>
                     <source_model>Magento\Sales\Model\Config\Source\Order\Status</source_model>
                 </field>
+                <field id="payment_link_template" type="select" translate="label comment" sortOrder="120" showInDefault="1"
+                       showInWebsite="1" showInStore="1">
+                    <label>Payment Link Email Template</label>
+                    <comment><![CDATA[Select the email template, if the &quot;Default&quot; option is selected, the module's default template will be considered.]]></comment>
+                    <source_model>Vindi\Payment\Model\Config\Source\PaymentLinkEmailTemplate</source_model>
+                    <config_path>vindiconfiguration/general/payment_link_template</config_path>
+                </field>
             </group>
         </section>
         <section id="checkout" showInDefault="1" showInStore="1" showInWebsite="1" sortOrder="1500" translate="label">
             <group id="vindi_pix" showInDefault="1" showInStore="1" showInWebsite="1" sortOrder="15" translate="label">
                 <label>Vindi - Pix</label>
                 <field id="info_message" showInDefault="1" showInStore="1" showInWebsite="1" sortOrder="20" translate="label" type="text">
-                    <label>PIX Payment method message</label>
+                    <label>Pix Payment method message</label>
                     <comment>Message when selecting the payment method on the checkout screen.</comment>
                 </field>
                 <field id="info_message_onepage_success" showInDefault="1" showInStore="1" showInWebsite="1" sortOrder="20" translate="label" type="text">
@@ -79,6 +86,11 @@
                         <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
                         <config_path>payment/vindi/recurring</config_path>
                     </field>
+                    <field id="payment_link_instructions" translate="label comment" type="textarea" sortOrder="20200" showInDefault="1" showInWebsite="1" showInStore="1">
+                        <label>Payment Link Instructions</label>
+                        <config_path>payment/vindi/payment_link_instructions</config_path>
+                        <comment><![CDATA[Instructions to be shown in payment link success page, it can be HTML]]></comment>
+                    </field>
                 </group>
                 <group id="vindi_pix" showInDefault="1" showInStore="1" showInWebsite="1" sortOrder="200" translate="label comment">
                     <label>Pix</label>
@@ -98,6 +110,11 @@
                         <label>Can be used for recurring purchases?</label>
                         <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
                         <config_path>payment/vindi_pix/recurring</config_path>
+                    </field>
+                    <field id="payment_link_instructions" translate="label comment" type="textarea" sortOrder="20200" showInDefault="1" showInWebsite="1" showInStore="1">
+                        <label>Payment Link Instructions</label>
+                        <config_path>payment/vindi_pix/payment_link_instructions</config_path>
+                        <comment><![CDATA[Instructions to be shown in payment link success page, it can be HTML]]></comment>
                     </field>
                 </group>
                 <group id="vindi_bankslip" showInDefault="1" showInStore="1" showInWebsite="1" sortOrder="300" translate="label comment">
@@ -119,6 +136,11 @@
                         <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
                         <config_path>payment/vindi_bankslip/recurring</config_path>
                     </field>
+                    <field id="payment_link_instructions" translate="label comment" type="textarea" sortOrder="20200" showInDefault="1" showInWebsite="1" showInStore="1">
+                        <label>Payment Link Instructions</label>
+                        <config_path>payment/vindi_bankslip/payment_link_instructions</config_path>
+                        <comment><![CDATA[Instructions to be shown in payment link success page, it can be HTML]]></comment>
+                    </field>
                 </group>
                 <group id="vindi_bankslippix" showInDefault="1" showInStore="1" showInWebsite="1" sortOrder="400" translate="label comment">
                     <label>Bolepix</label>
@@ -138,6 +160,11 @@
                         <label>Can be used for recurring purchases?</label>
                         <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
                         <config_path>payment/vindi_bankslippix/recurring</config_path>
+                    </field>
+                    <field id="payment_link_instructions" translate="label comment" type="textarea" sortOrder="20200" showInDefault="1" showInWebsite="1" showInStore="1">
+                        <label>Payment Link Instructions</label>
+                        <config_path>payment/vindi_bankslippix/payment_link_instructions</config_path>
+                        <comment><![CDATA[Instructions to be shown in payment link success page, it can be HTML]]></comment>
                     </field>
                 </group>
             </group>
