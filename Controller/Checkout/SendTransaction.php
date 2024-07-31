@@ -83,10 +83,10 @@ class SendTransaction implements HttpPostActionInterface
 
         try {
             foreach ($paymentData['additional_data'] as $index => $data) {
+                $order->getPayment()->setAdditionalInformation($index, $data);
                 $order->getPayment()->setData($index, $data);
             }
 
-            $order->getPayment()->setAdditionalInformation((array) $paymentData);
             $order->getPayment()->setMethod(str_replace('vindi_payment_link_','', $order->getPayment()->getMethod()));
             $order->getPayment()->place();
             $this->orderRepository->save($order);

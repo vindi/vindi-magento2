@@ -18,7 +18,9 @@ declare(strict_types=1);
 namespace Vindi\Payment\Block\Custom;
 
 use Magento\Backend\Block\Template\Context;
+use Magento\Catalog\Api\ProductRepositoryInterface;
 use Magento\Customer\Api\CustomerRepositoryInterface;
+use Magento\Customer\Model\Session as CustomerSession;
 use Magento\Directory\Model\CurrencyFactory;
 use Magento\Framework\Data\Form\FormKey;
 use Magento\Framework\Exception\LocalizedException;
@@ -29,6 +31,7 @@ use Magento\Store\Model\StoreManagerInterface;
 use Vindi\Payment\Helper\Data as Helper;
 use Vindi\Payment\Model\PaymentLinkService;
 use Vindi\Payment\Model\Ui\CreditCard\ConfigProvider;
+use Vindi\Payment\Model\ResourceModel\PaymentProfile\CollectionFactory as PaymentProfileCollectionFactory;
 
 class PaymentLink extends Template
 {
@@ -78,6 +81,21 @@ class PaymentLink extends Template
     protected $_currencyFactory;
 
     /**
+     * @var CustomerSession
+     */
+    private CustomerSession $customerSession;
+
+    /**
+     * @var PaymentProfileCollectionFactory
+     */
+    private PaymentProfileCollectionFactory $paymentProfileCollectionFactory;
+
+    /**
+     * @var ProductRepositoryInterface
+     */
+    private ProductRepositoryInterface $productRepository;
+
+    /**
      * @param Context $context
      * @param PaymentLinkService $paymentLinkService
      * @param ConfigProvider $configProvider
@@ -87,6 +105,9 @@ class PaymentLink extends Template
      * @param CustomerRepositoryInterface $customerRepository
      * @param PriceHelper $priceHelper
      * @param CurrencyFactory $currencyFactory
+     * @param CustomerSession $customerSession
+     * @param PaymentProfileCollectionFactory $paymentProfileCollectionFactory
+     * @param ProductRepositoryInterface $productRepository
      * @param array $data
      */
     public function __construct(
@@ -99,6 +120,9 @@ class PaymentLink extends Template
         CustomerRepositoryInterface $customerRepository,
         PriceHelper $priceHelper,
         CurrencyFactory $currencyFactory,
+        CustomerSession $customerSession,
+        PaymentProfileCollectionFactory $paymentProfileCollectionFactory,
+        ProductRepositoryInterface $productRepository,
         array $data = [])
     {
         $this->paymentLinkService = $paymentLinkService;
@@ -110,6 +134,9 @@ class PaymentLink extends Template
         $this->customerRepository = $customerRepository;
         $this->priceHelper = $priceHelper;
         $this->_currencyFactory = $currencyFactory;
+        $this->customerSession = $customerSession;
+        $this->paymentProfileCollectionFactory = $paymentProfileCollectionFactory;
+        $this->productRepository = $productRepository;
     }
 
     /**
@@ -183,7 +210,7 @@ class PaymentLink extends Template
      * @throws NoSuchEntityException
      * @throws LocalizedException
      */
-    public function getCustomerById(string|int $customerId)
+    public function getCustomerById($customerId)
     {
         return $this->customerRepository->getById($customerId);
     }
@@ -224,5 +251,56 @@ class PaymentLink extends Template
         $currency = $this->_currencyFactory->create()->load($currencyCode);
         return $currency->getCurrencySymbol();
     }
-}
 
+    /**
+     * Retrieve payment profiles for the logged-in customer
+     *
+     * @return array
+     */
+    public function getPaymentProfiles()
+    {
+        $customerId = $this->getOrder()->getCustomerId();
+        $collection = $this->paymentProfileCollectionFactory->create();
+        $collection->addFieldToFilter('customer_id', $customerId);
+        $profiles = [];
+
+        foreach ($collection as $profile) {
+            $profiles[] = [
+                'value' => $profile->getId(),
+                'text' => strtoupper($profile->getCcType()) . ' xxxx-' . substr($profile->getCcLast4(), -4)
+            ];
+        }
+
+        return $profiles;
+    }
+
+    /**
+     * Check if the logged in customer is the owner of the order
+     *
+     * @return bool
+     */
+    public function isCustomerOrderOwner(): bool
+    {
+        $customerId = $this->customerSession->getCustomerId();
+        if (!$customerId) {
+            return false;
+        }
+
+        $order = $this->getOrder();
+        return $order->getCustomerId() == $customerId;
+    }
+
+    /**
+     * Get the image URL for a product
+     *
+     * @param int $productId
+     * @return string
+     * @throws NoSuchEntityException
+     */
+    public function getImageUrl(int $productId): string
+    {
+        $product = $this->productRepository->getById($productId);
+        $imageUrl = $this->_storeManager->getStore()->getBaseUrl(\Magento\Framework\UrlInterface::URL_TYPE_MEDIA) . 'catalog/product' . $product->getImage();
+        return $imageUrl;
+    }
+}
