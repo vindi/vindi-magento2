@@ -37,9 +37,9 @@ class BankSlip extends \Magento\Payment\Block\Info
     }
 
     /**
-     * @return string
+     * @return bool
      */
-    public function hasInvoice()
+    public function hasInvoice(): bool
     {
         return $this->getOrder()->hasInvoices();
     }
@@ -49,23 +49,27 @@ class BankSlip extends \Magento\Payment\Block\Info
      *
      * @return string
      */
-    public function getPaymentMethodName()
+    public function getPaymentMethodName(): string
     {
-        return $this->getOrder()->getPayment()->getMethodInstance()->getTitle();
+        try {
+            return $this->getOrder()->getPayment()->getMethodInstance()->getTitle();
+        } catch (\Exception $e) {
+            return 'Boleto';
+        }
     }
 
-    public function canShowBankslipInfo()
+    public function canShowBankslipInfo(): bool
     {
         return $this->getOrder()->getPayment()->getMethod() === \Vindi\Payment\Model\Payment\BankSlip::CODE;
     }
 
-    public function getPrintUrl()
+    public function getPrintUrl(): string
     {
-        return $this->getOrder()->getPayment()->getAdditionalInformation('print_url');
+        return (string) $this->getOrder()->getPayment()->getAdditionalInformation('print_url');
     }
 
-    public function getDueDate()
+    public function getDueDate(): string
     {
-        return $this->getOrder()->getPayment()->getAdditionalInformation('due_at');
+        return (string) $this->getOrder()->getPayment()->getAdditionalInformation('due_at');
     }
 }

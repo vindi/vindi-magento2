@@ -255,6 +255,21 @@ class PaymentLinkService
     }
 
     /**
+     * Delete expired payment links
+     *
+     * @return void
+     */
+    public function deleteExpiredPaymentLinks(): void
+    {
+        $paymentLinks = $this->paymentLinkCollectionFactory->create();
+        foreach ($paymentLinks as $paymentLink) {
+            if ($this->isLinkExpired($paymentLink->getCreatedAt())) {
+                $this->deletePaymentLink($paymentLink);
+            }
+        }
+    }
+
+    /**
      * @param string|int $orderId
      * @return string
      * @throws NoSuchEntityException
