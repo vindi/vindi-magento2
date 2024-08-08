@@ -56,7 +56,7 @@ $paymentLink = $block->getPaymentLink();
         <div class="payment-container">
             <h1><?= __('Payment Method') ?></h1>
             <div class="border rounded-md">
-                <?php if ($paymentMethodCode == 'pix' || $paymentMethodCode == 'bankslippix'): ?>
+                <?php if ($paymentMethodCode == 'vindi_pix' || $paymentMethodCode == 'vindi_bankslippix'): ?>
                     <h3 class="text-lg font-semibold mb-4">Pix</h3>
                     <div class="flex justify-center mb-4">
                         <img src="<?= $block->getViewFileUrl('Vindi_Payment::images/payment_methods/pix.png') ?>" alt="Pix Logo" class="h-12">
@@ -64,7 +64,7 @@ $paymentLink = $block->getPaymentLink();
                     <p class="text-center text-gray-500"><?= __('You will receive the QRCode to make the payment after completing the order') ?></p>
                 <?php endif; ?>
 
-                <?php if ($paymentMethodCode == 'bankslip' || $paymentMethodCode == 'bankslippix'): ?>
+                <?php if ($paymentMethodCode == 'vindi_bankslip' || $paymentMethodCode == 'vindi_bankslippix'): ?>
                     <h3 class="text-lg font-semibold mb-4"><?= __('Bankslip') ?></h3>
                     <div class="flex justify-center mb-4">
                         <img src="<?= $block->getViewFileUrl('Vindi_Payment::images/payment_methods/bankslip.png') ?>" alt="Bankslip Logo" class="h-12">
@@ -73,8 +73,9 @@ $paymentLink = $block->getPaymentLink();
                 <?php endif; ?>
 
 
+                <?php if ($paymentMethodCode == 'vindi'): ?>
                 <h3 class="text-lg font-semibold mb-4"><?= __('Credit Card') ?></h3>
-                <?php if ($paymentMethodCode == 'vindi' && $isOrderCustomer): ?>
+                <?php if ($isOrderCustomer): ?>
                     <div class="field number required">
                         <label class="label" for="vindi_cc_number">
                             <span><?= __('Your saved cards') ?></span>
@@ -167,6 +168,7 @@ $paymentLink = $block->getPaymentLink();
                         }
                     }
                 </script>
+                <?php endif; ?>
 
                 <div class="form-group">
                     <label><?= __('CPF/CNPJ:') ?></label>
