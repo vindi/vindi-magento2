@@ -93,15 +93,18 @@ class Customer
         if ($vindiCustomerId) {
             if ($order->getPayment()->getMethod() == "vindi_pix") {
                 $customerVindi = $this->getVindiCustomerData($customer->getId());
-                $additionalInfo = $order->getPayment()->getAdditionalInformation();
-                $taxVatOrder = str_replace([' ', '-', '.'], '', $additionalInfo['document'] ?? '');
-                if ($customerVindi['registry_code'] != $taxVatOrder) {
-                    $updateData = [
-                        'registry_code' => $taxVatOrder,
-                    ];
-                    $this->updateVindiCustomer($vindiCustomerId, $updateData);
-                    $customer->setTaxvat($additionalInfo['document'] ?? '');
-                    $this->customerRepository->save($customer);
+
+                if (is_array($customerVindi)) {
+                    $additionalInfo = $order->getPayment()->getAdditionalInformation();
+                    $taxVatOrder = str_replace([' ', '-', '.'], '', $additionalInfo['document'] ?? '');
+                    if ($customerVindi['registry_code'] != $taxVatOrder) {
+                        $updateData = [
+                            'registry_code' => $taxVatOrder,
+                        ];
+                        $this->updateVindiCustomer($vindiCustomerId, $updateData);
+                        $customer->setTaxvat($additionalInfo['document'] ?? '');
+                        $this->customerRepository->save($customer);
+                    }
                 }
             }
 
