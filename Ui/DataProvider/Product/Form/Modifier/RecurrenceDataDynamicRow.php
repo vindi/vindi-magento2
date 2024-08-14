@@ -171,6 +171,9 @@ class RecurrenceDataDynamicRow extends AbstractModifier
                                 'options' => $this->planOptions->toOptionArray(),
                                 'dataScope' => 'plan',
                                 'sortOrder' => 10,
+                                'validation' => [
+                                    'required-entry' => true,
+                                ],
                             ],
                         ],
                     ],
@@ -185,6 +188,10 @@ class RecurrenceDataDynamicRow extends AbstractModifier
                                 'label' => __('Price'),
                                 'dataScope' => 'price',
                                 'sortOrder' => 20,
+                                'validation' => [
+                                    'required-entry' => true,
+                                    'validate-number' => true,
+                                ],
                             ],
                         ],
                     ],
