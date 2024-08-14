@@ -18,8 +18,8 @@ class Duration extends AbstractSource
     {
         if ($this->_options === null) {
             $this->_options = [
-                ['label' => __('defined'), 'value'   => 'Por tempo definido'],
-                ['label' => __('undefined'), 'value' => 'Por tempo indefinido']
+                ['label' => __('defined'), 'value'   => __('Temporary')],
+                ['label' => __('undefined'), 'value' => __('Indefinitely')]
             ];
         }
 
@@ -34,8 +34,8 @@ class Duration extends AbstractSource
     public function toOptionArray()
     {
         return [
-            ['value' => 'defined', 'label'   => __('Por tempo definido')],
-            ['value' => 'undefined', 'label' => __('Por tempo indefinido')]
+            ['value' => 'defined', 'label'   => __('Temporary')],
+            ['value' => 'undefined', 'label' => __('Indefinitely')]
         ];
     }
 }

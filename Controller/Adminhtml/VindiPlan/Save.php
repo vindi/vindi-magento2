@@ -236,7 +236,7 @@ class Save extends Action
             }
         }
 
-        if (isset($post["settings"]["billing_cycles"]) && $post["settings"]["billing_cycles"] !== '') {
+        if (!empty($post["settings"]["billing_cycles"])) {
             $data['billing_cycles'] = $post["settings"]["billing_cycles"];
         }
 
@@ -266,7 +266,10 @@ class Save extends Action
             $data['installments'] = empty($post["settings"]["installments"]) ? null : $post["settings"]["installments"];
         }
 
-        if (!empty($post["settings"]["duration"])) {
+        // Set 'duration' to 'undefined' if 'billing_cycles' is empty
+        if (isset($post["settings"]["billing_cycles"]) && $post["settings"]["billing_cycles"] === '') {
+            $data['duration'] = 'undefined';
+        } elseif (!empty($post["settings"]["duration"])) {
             $data['duration'] = $post["settings"]["duration"];
         }
 

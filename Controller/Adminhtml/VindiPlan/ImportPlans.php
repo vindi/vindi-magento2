@@ -9,11 +9,11 @@ use Psr\Log\LoggerInterface;
 use Vindi\Payment\Model\VindiPlanFactory;
 use Vindi\Payment\Model\VindiPlanRepository;
 use Vindi\Payment\Model\Vindi\Plan;
+use Vindi\Payment\Helper\Data;
 
 /**
  * Class ImportPlans
  * @package Vindi\Payment\Controller\Adminhtml\VindiPlan
-
  */
 class ImportPlans extends Action
 {
@@ -95,6 +95,12 @@ class ImportPlans extends Action
 
                     $vindiplan = $this->vindiplanFactory->create();
 
+                    $code = $planData['code'] ?? null;
+                    if (empty($code)) {
+                        $name = preg_replace('/[^\p{L}\p{N}\s]/u', '', $planData['name']);
+                        $code = Data::sanitizeItemSku($name);
+                    }
+
                     $vindiplan->setData([
                         'vindi_id'             => $planData['id'],
                         'name'                 => $planData['name'],
@@ -104,7 +110,7 @@ class ImportPlans extends Action
                         'billing_trigger_type' => $planData['billing_trigger_type'],
                         'billing_trigger_day'  => $planData['billing_trigger_day'],
                         'billing_cycles'       => empty($planData['billing_cycles']) ? null : $planData['billing_cycles'],
-                        'code'                 => $planData['code'],
+                        'code'                 => $code,
                         'description'          => $planData['description'],
                         'installments'         => $planData['installments'],
                         'invoice_split'        => $planData['invoice_split'],
