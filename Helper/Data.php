@@ -15,10 +15,12 @@ use Vindi\Payment\Setup\UpgradeData;
 class Data extends AbstractHelper
 {
     protected $scopeConfig;
+
     /**
      * @var AttributeSetRepositoryInterface
      */
     private $attributeSetRepository;
+
     /**
      * @var ProductRepositoryInterface
      */
@@ -28,7 +30,6 @@ class Data extends AbstractHelper
      * @var CollectionFactory
      */
     private $orderStatusCollectionFactory;
-
 
     /**
      * Data constructor.
@@ -43,7 +44,6 @@ class Data extends AbstractHelper
         ProductRepositoryInterface $productRepository,
         CollectionFactory $orderStatusCollectionFactory
     ) {
-
         $this->scopeConfig = $context->getScopeConfig();
         parent::__construct($context);
         $this->attributeSetRepository = $attributeSetRepository;
@@ -171,12 +171,33 @@ class Data extends AbstractHelper
     }
 
     /**
-    * @param $productId
-    * @return \Magento\Catalog\Api\Data\ProductInterface
-    * @throws NoSuchEntityException
-    */
+     * @param $productId
+     * @return \Magento\Catalog\Api\Data\ProductInterface
+     * @throws NoSuchEntityException
+     */
     public function getProductById($productId)
     {
         return $this->productRepository->getById($productId);
+    }
+
+    /**
+     * Check if the order is a subscription order.
+     * @param Order $order
+     * @return bool|Order\Item
+     */
+    public function isSubscriptionOrder(Order $order)
+    {
+        foreach ($order->getItems() as $item) {
+            try {
+                $options = $item->getProductOptions();
+                if (!empty($options['info_buyRequest']['selected_plan_id'])) {
+                    return $item;
+                }
+            } catch (\Exception $e) {
+                // Handle exception if necessary
+            }
+        }
+
+        return false;
     }
 }

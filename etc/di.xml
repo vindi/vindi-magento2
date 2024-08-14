@@ -160,4 +160,8 @@
             <argument name="lockManager" xsi:type="object">Magento\Framework\Lock\LockManagerInterface</argument>
         </arguments>
     </type>
-</config>
+
+    <type name="Magento\Sales\Controller\Order\Reorder">
+        <plugin name="vindi_payment_reorder_redirect_plugin" type="Vindi\Payment\Plugin\ReorderRedirectPlugin" />
+    </type>
+    </config>

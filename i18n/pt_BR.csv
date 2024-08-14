@@ -496,3 +496,5 @@
 "Temporary","Temporário"
 "Recurrence is enabled but one or more plans are missing or have no price.","A recorrência está habilitada, mas um ou mais planos estão faltando ou não têm preço."
 "Recurrence is enabled but no plans are defined.","A recorrência está habilitada, mas nenhum plano está definido."
+"There was an issue with your request.","Houve um problema com sua solicitação."
+"The product associated with this subscription is currently not available for purchase.","O produto associado a esta assinatura não está disponível para compra no momento."
