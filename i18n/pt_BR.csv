@@ -494,3 +494,5 @@
 "Subscription products have been removed from your cart after login.","Produtos de assinatura foram removidos do seu carrinho após o login."
 "Indefinitely","Por tempo indefinido"
 "Temporary","Temporário"
+"Recurrence is enabled but one or more plans are missing or have no price.","A recorrência está habilitada, mas um ou mais planos estão faltando ou não têm preço."
+"Recurrence is enabled but no plans are defined.","A recorrência está habilitada, mas nenhum plano está definido."
