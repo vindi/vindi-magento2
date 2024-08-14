@@ -13,6 +13,15 @@
     <preference for="Vindi\Payment\Api\Data\SubscriptionSearchResultsInterface" type="Magento\Framework\Api\SearchResults"/>
     <preference for="Vindi\Payment\Api\PixConfigurationInterface" type="Vindi\Payment\Helper\PixConfiguration"/>
 
+    <type name="Magento\Framework\Console\CommandList">
+        <arguments>
+            <argument name="commands" xsi:type="array">
+                <item name="vindi:process-order-creation-queue" xsi:type="object">Vindi\Payment\Console\Command\ProcessOrderCreationQueueCommand</item>
+                <item name="vindi:process-order-paid-queue" xsi:type="object">Vindi\Payment\Console\Command\ProcessOrderPaidQueueCommand</item>
+            </argument>
+        </arguments>
+    </type>
+
     <virtualType name="Vindi\Payment\Model\ResourceModel\Subscription\Grid\Collection" type="Magento\Framework\View\Element\UiComponent\DataProvider\SearchResult">
         <arguments>
             <argument name="mainTable" xsi:type="string">vindi_subscription</argument>
@@ -164,4 +173,4 @@
     <type name="Magento\Sales\Controller\Order\Reorder">
         <plugin name="vindi_payment_reorder_redirect_plugin" type="Vindi\Payment\Plugin\ReorderRedirectPlugin" />
     </type>
-    </config>
+</config>
