@@ -180,6 +180,10 @@ class Save extends Action
             return __('The number of periods to be charged is required for fixed-duration plans.');
         }
 
+        if ($settings["billing_cycles"] != "" && $settings["billing_cycles"] < 1) {
+            return __('Number of periods must be greater than or equal to 1 for temporary duration. Or empty for indefinite time!');
+        }
+
         return true;
     }
 
@@ -266,7 +270,6 @@ class Save extends Action
             $data['installments'] = empty($post["settings"]["installments"]) ? null : $post["settings"]["installments"];
         }
 
-        // Set 'duration' to 'undefined' if 'billing_cycles' is empty
         if (isset($post["settings"]["billing_cycles"]) && $post["settings"]["billing_cycles"] === '') {
             $data['duration'] = 'undefined';
         } elseif (!empty($post["settings"]["duration"])) {
