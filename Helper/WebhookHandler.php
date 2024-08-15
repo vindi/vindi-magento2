@@ -128,7 +128,7 @@ class WebhookHandler
             'response_body' => null,
             'status_code'   => 200,
             'description'   => $description,
-            'origin'        => 'webhook' // Added field 'origin'
+            'origin'        => 'webhook'
         ]);
         $this->logResource->save($log);
     }

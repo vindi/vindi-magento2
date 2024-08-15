@@ -101,22 +101,9 @@ class ImportPlans extends Action
                         $code = Data::sanitizeItemSku($name);
                     }
 
-                    $vindiplan->setData([
-                        'vindi_id'             => $planData['id'],
-                        'name'                 => $planData['name'],
-                        'status'               => $planData['status'],
-                        'interval'             => $planData['interval'],
-                        'interval_count'       => $planData['interval_count'],
-                        'billing_trigger_type' => $planData['billing_trigger_type'],
-                        'billing_trigger_day'  => $planData['billing_trigger_day'],
-                        'billing_cycles'       => empty($planData['billing_cycles']) ? null : $planData['billing_cycles'],
-                        'code'                 => $code,
-                        'description'          => $planData['description'],
-                        'installments'         => $planData['installments'],
-                        'invoice_split'        => $planData['invoice_split'],
-                        'updated_at'           => $this->dateTime->gmtDate(),
-                        'created_at'           => $this->dateTime->gmtDate()
-                    ]);
+                    $data = $this->prepareData($planData, $code);
+
+                    $vindiplan->setData($data);
 
                     $this->vindiplanRepository->save($vindiplan);
                     $importedCount++;
@@ -139,5 +126,48 @@ class ImportPlans extends Action
         }
 
         return $this->_redirect('*/*/');
+    }
+
+    /**
+     * Prepares the data to be saved based on the plan data and the code.
+     *
+     * @param array $planData The data of the plan from the Vindi API.
+     * @param string $code The processed plan code.
+     * @return array The data prepared for saving.
+     */
+    private function prepareData($planData, $code)
+    {
+        $data = [
+            'vindi_id' => $planData['id'],
+            'name' => $planData['name'],
+            'status' => $planData['status'],
+            'interval' => $planData['interval'],
+            'interval_count' => $planData['interval_count'],
+            'billing_trigger_type' => $planData['billing_trigger_type'],
+            'code' => $code,
+            'description' => $planData['description'] ?? '',
+            'installments' => $planData['installments'] ?? 1,
+            'invoice_split' => $planData['invoice_split'] ?? null,
+            'updated_at' => $this->dateTime->gmtDate(),
+            'created_at' => $this->dateTime->gmtDate()
+        ];
+
+        if ($planData['billing_trigger_type'] == 'day_of_month') {
+            $data['billing_trigger_type'] = $planData['billing_trigger_type'] ?? null;
+            $data['billing_trigger_day']  = $planData['billing_trigger_day']  ?? null;
+        } elseif ($planData['billing_trigger_type']) {
+            $data['billing_trigger_day_type_on_period']  = $planData['billing_trigger_day']  ?? null;
+            $data['billing_trigger_day_based_on_period'] = $planData['billing_trigger_type'] ?? null;
+            $data['billing_trigger_type'] = 'based_on_period';
+        }
+
+        if (empty($planData['billing_cycles'])) {
+            $data['duration'] = 'undefined';
+        } else {
+            $data['billing_cycles'] = $planData['billing_cycles'];
+            $data['duration'] = 'defined';
+        }
+
+        return $data;
     }
 }
