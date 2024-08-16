@@ -190,7 +190,7 @@ class RecurrenceDataDynamicRow extends AbstractModifier
                                 'sortOrder' => 20,
                                 'validation' => [
                                     'required-entry' => true,
-                                    'validate-number' => true,
+                                    'validate-greater-than-zero' => true,
                                 ],
                             ],
                         ],

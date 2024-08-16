@@ -98,7 +98,7 @@ class ImportPlans extends Action
                     $code = $planData['code'] ?? null;
                     if (empty($code)) {
                         $name = preg_replace('/[^\p{L}\p{N}\s]/u', '', $planData['name']);
-                        $code = Data::sanitizeItemSku($name);
+                        $code = $planData['id'] . '-' . Data::sanitizeItemSku($name);
                     }
 
                     $data = $this->prepareData($planData, $code);
@@ -171,3 +171,4 @@ class ImportPlans extends Action
         return $data;
     }
 }
+

@@ -499,3 +499,5 @@
 "There was an issue with your request.","Houve um problema com sua solicitação."
 "The product associated with this subscription is currently not available for purchase.","O produto associado a esta assinatura não está disponível para compra no momento."
 "Number of periods must be greater than or equal to 1 for temporary duration. Or empty for indefinite time!","Quantidade de períodos deve ser maior ou igual a 1 para duração temporária. Ou vazio para tempo indefinido!"
+"You cannot add a subscription product to your cart because it already contains a non-subscription product. Please complete your current purchase or remove the product before adding a subscription.","Você não pode adicionar um produto de assinatura ao carrinho, pois ele já contém um produto sem assinatura. Conclua sua compra atual ou remova o produto antes de adicionar uma assinatura."
+"Please enter a number greater than 0, without comma in this field.","Por favor, insira um número maior que 0. Para números decimais, utilize ponto."
