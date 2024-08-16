@@ -93,7 +93,7 @@ class Save extends Action
         $existingPlan = null;
         $name = preg_replace('/[^\p{L}\p{N}\s]/u', '', $post["settings"]["name"]);
         $vindiId = $post["settings"]["vindi_id"] ?? '';
-        $code = empty($post["settings"]["code"]) ? $vindiId . '-' . Data::sanitizeItemSku($name) : $post["settings"]["code"];
+        $code = empty($post["settings"]["code"]) ? Data::sanitizeItemSku($name) : $post["settings"]["code"];
 
         try {
             $data = $this->prepareData($post, $name, $code);
@@ -122,6 +122,13 @@ class Save extends Action
 
                 $vindiId = $this->plan->save($data);
 
+                $codeData = [];
+                $codeData['vindi_id'] = $vindiId;
+                $codeData['code'] = $vindiId . '-' . Data::sanitizeItemSku($name);
+
+                $this->plan->save($codeData);
+
+                $data['code'] = $codeData['code'];
                 $data = $this->prepareDataForMagentoStore($data, $post);
 
                 $vindiPlan = $this->vindiPlanFactory->create();
