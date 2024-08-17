@@ -125,7 +125,12 @@ class Customer
         $baseUrl = $this->storeManager->getStore()->getBaseUrl();
         $baseUrl = preg_replace("(^https?://)", "", rtrim($baseUrl, "/"));
         $baseUrl = preg_replace('/[^a-zA-Z0-9]/', '_', $baseUrl);
-        $uniqueCode = $baseUrl . '_' . $customer->getId() . '_' . time();
+
+        if ($customer && $customer->getId()) {
+            $uniqueCode = $baseUrl . '_' . $customer->getId() . '_' . time();
+        } else {
+            $uniqueCode = $baseUrl . '_' . $billing->getEmail() . '_' . time();
+        }
 
         $customerVindi = [
             'name'    => $billing->getFirstname() . ' ' . $billing->getLastname(),
@@ -145,7 +150,9 @@ class Customer
             );
         }
 
-        $this->registerVindiCustomer($customer->getId(), $vindiCustomerId);
+        if ($customer && $customer->getId()) {
+            $this->registerVindiCustomer($customer->getId(), $vindiCustomerId);
+        }
 
         return $vindiCustomerId;
     }
