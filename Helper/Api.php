@@ -270,7 +270,9 @@ class Api extends AbstractHelper
             '/"expiration_date":\s*"\d{2}\/\d{2}"/',
             '/"password":\s*".*?"/',
             '/"email":\s*".*?"/',
-            '/"phone":\s*"\d+"/'
+            '/"phone":\s*"\d+"/',
+            '/"card_cvv":\s*"\d+"/',
+            '/"registry_code":\s*"\d+"/'
         ];
 
         $replacements = [
@@ -279,10 +281,11 @@ class Api extends AbstractHelper
             '"expiration_date": "**/**"',
             '"password": "********"',
             '"email": "********@****.***"',
-            '"phone": "**********"'
+            '"phone": "**********"',
+            '"card_cvv": "***"',
+            '"registry_code": "************"'
         ];
 
         return preg_replace($patterns, $replacements, $data);
     }
 }
-

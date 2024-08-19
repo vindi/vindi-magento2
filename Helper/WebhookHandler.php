@@ -133,6 +133,12 @@ class WebhookHandler
         $this->logResource->save($log);
     }
 
+    /**
+     * Sanitize sensitive data from the provided input
+     *
+     * @param string $data
+     * @return string
+     */
     private function sanitizeData($data)
     {
         $patterns = [
@@ -141,7 +147,9 @@ class WebhookHandler
             '/"expiration_date":\s*"\d{2}\/\d{2}"/',
             '/"password":\s*".*?"/',
             '/"email":\s*".*?"/',
-            '/"phone":\s*"\d+"/'
+            '/"phone":\s*"\d+"/',
+            '/"card_cvv":\s*"\d+"/',
+            '/"registry_code":\s*"\d+"/'
         ];
 
         $replacements = [
@@ -150,7 +158,9 @@ class WebhookHandler
             '"expiration_date": "**/**"',
             '"password": "********"',
             '"email": "********@****.***"',
-            '"phone": "**********"'
+            '"phone": "**********"',
+            '"card_cvv": "***"',
+            '"registry_code": "************"'
         ];
 
         return preg_replace($patterns, $replacements, $data);
