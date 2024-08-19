@@ -17,6 +17,7 @@ interface SubscriptionInterface
     const PLAN = 'plan';
     const NEXT_BILLING_AT = 'next_billing_at';
     const BILL_ID = 'bill_id';
+    const RESPONSE_DATA = 'response_data';
 
     /**
      * Get id
@@ -114,4 +115,16 @@ interface SubscriptionInterface
 
     public function getBillId();
     public function setBillId($billId);
+    /**
+     * Get response_data
+     * @return string|null
+     */
+    public function getResponseData();
+
+    /**
+     * Set response_data
+     * @param string $responseData
+     * @return \Vindi\Payment\Api\Data\SubscriptionInterface
+     */
+    public function setResponseData($responseData);
 }
