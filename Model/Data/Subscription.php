@@ -181,4 +181,23 @@ class Subscription extends AbstractSimpleObject implements SubscriptionInterface
     {
         return $this->setData(self::BILL_ID, $billId);
     }
+
+    /**
+     * Get response_data
+     * @return string|null
+     */
+    public function getResponseData()
+    {
+        return $this->_get(self::RESPONSE_DATA);
+    }
+
+    /**
+     * Set response_data
+     * @param string $responseData
+     * @return SubscriptionInterface
+     */
+    public function setResponseData($responseData)
+    {
+        return $this->setData(self::RESPONSE_DATA, $responseData);
+    }
 }

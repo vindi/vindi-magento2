@@ -517,6 +517,8 @@ abstract class AbstractMethod extends OriginAbstractMethod
             $data['next_billing_at'] = $nextBillingAt->format('Y-m-d H:i:s');
         }
 
+        $data['response_data'] = json_encode($subscription);
+
         try {
             $this->connection->insert($tableName, $data);
         } catch (\Exception $e) {
