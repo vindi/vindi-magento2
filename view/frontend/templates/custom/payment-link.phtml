@@ -74,7 +74,7 @@ $paymentLink = $block->getPaymentLink();
 
 
                 <?php if ($paymentMethodCode == 'vindi'): ?>
-                <h3 class="text-lg font-semibold mb-4"><?= __('Credit Card') ?></h3>
+                    <h3 class="text-lg font-semibold mb-4"><?= __('Credit Card') ?></h3>
                 <?php if ($isOrderCustomer): ?>
                     <div class="field number required">
                         <label class="label" for="vindi_cc_number">
@@ -91,83 +91,83 @@ $paymentLink = $block->getPaymentLink();
                     </div>
                 <?php endif; ?>
 
-                <div id="credit-card-form">
-                    <div class="form-group">
-                        <input type="text" id="cc_number" class="form-input" placeholder="<?= __('Card Number') ?>">
-                    </div>
-
-                    <div class="form-group">
-                        <input type="text" id="cc_name" class="form-input" placeholder="<?= __('Name on Card') ?>">
-                    </div>
-
-                    <div class="form-row">
-                        <div class="form-group col-half">
-                            <input type="text" id="cc_expiry" class="form-input" placeholder="<?= __('MM/YY') ?>" maxlength="5">
+                    <div id="credit-card-form">
+                        <div class="form-group">
+                            <input type="text" id="cc_number" class="form-input" placeholder="<?= __('Card Number') ?>">
                         </div>
-                        <div class="form-group col-half">
-                            <input type="text" id="cc_cvv" class="form-input" placeholder="<?= __('CVV') ?>">
+
+                        <div class="form-group">
+                            <input type="text" id="cc_name" class="form-input" placeholder="<?= __('Name on Card') ?>">
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group col-half">
+                                <input type="text" id="cc_expiry" class="form-input" placeholder="<?= __('MM/YY') ?>" maxlength="5">
+                            </div>
+                            <div class="form-group col-half">
+                                <input type="text" id="cc_cvv" class="form-input" placeholder="<?= __('CVV') ?>">
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <select id="cc_installments" class="form-input">
+                                <option value="" disabled selected><?= __('Installments') ?></option>
+                            </select>
                         </div>
                     </div>
 
-                    <div class="form-group">
-                        <select id="cc_installments" class="form-input">
-                            <option value="" disabled selected><?= __('Installments') ?></option>
-                        </select>
+                    <div id="installments-only" style="display:none;">
+                        <div class="form-group">
+                            <select id="cc_installments_saved" class="form-input">
+                                <option value="" disabled selected><?= __('Installments') ?></option>
+                            </select>
+                        </div>
                     </div>
-                </div>
 
-                <div id="installments-only" style="display:none;">
-                    <div class="form-group">
-                        <select id="cc_installments_saved" class="form-input">
-                            <option value="" disabled selected><?= __('Installments') ?></option>
-                        </select>
+                    <div class="credit-card-icons">
+                        <img src="<?= $block->getViewFileUrl('Vindi_Payment::images/cc/vi.png') ?>" alt="Visa" class="h-6 cc-icon" id="cc-icon-visa">
+                        <img src="<?= $block->getViewFileUrl('Vindi_Payment::images/cc/mc.png') ?>" alt="MasterCard" class="h-6 cc-icon" id="cc-icon-mastercard">
+                        <img src="<?= $block->getViewFileUrl('Vindi_Payment::images/cc/ae.png') ?>" alt="American Express" class="h-6 cc-icon" id="cc-icon-american-express">
+                        <img src="<?= $block->getViewFileUrl('Vindi_Payment::images/cc/elo.png') ?>" alt="Elo" class="h-6 cc-icon" id="cc-icon-elo">
                     </div>
-                </div>
+                    <input type="hidden" id="cc_type" name="cc_type" value="">
 
-                <div class="credit-card-icons">
-                    <img src="<?= $block->getViewFileUrl('Vindi_Payment::images/cc/vi.png') ?>" alt="Visa" class="h-6 cc-icon" id="cc-icon-visa">
-                    <img src="<?= $block->getViewFileUrl('Vindi_Payment::images/cc/mc.png') ?>" alt="MasterCard" class="h-6 cc-icon" id="cc-icon-mastercard">
-                    <img src="<?= $block->getViewFileUrl('Vindi_Payment::images/cc/ae.png') ?>" alt="American Express" class="h-6 cc-icon" id="cc-icon-american-express">
-                    <img src="<?= $block->getViewFileUrl('Vindi_Payment::images/cc/elo.png') ?>" alt="Elo" class="h-6 cc-icon" id="cc-icon-elo">
-                </div>
-                <input type="hidden" id="cc_type" name="cc_type" value="">
+                    <script>
+                        function toggleCardForm(select) {
+                            const ccForm = document.getElementById('credit-card-form');
+                            const installmentsOnly = document.getElementById('installments-only');
 
-                <script>
-                    function toggleCardForm(select) {
-                        const ccForm = document.getElementById('credit-card-form');
-                        const installmentsOnly = document.getElementById('installments-only');
-
-                        if (select.value === "") {
-                            ccForm.style.display = 'block';
-                            installmentsOnly.style.display = 'none';
-                            populateInstallments('cc_installments');
-                        } else {
-                            ccForm.style.display = 'none';
-                            installmentsOnly.style.display = 'block';
-                            populateInstallments('cc_installments_saved');
-                        }
-                    }
-
-                    function populateInstallments(selectId) {
-                        const selectInstallments = document.getElementById(selectId);
-                        const grandTotal = <?= $order->getGrandTotal() ?>;
-                        const minInstallmentsValue = 10;
-                        const maxInstallments = 12;
-
-                        if (selectInstallments) {
-                            selectInstallments.innerHTML = '<option value="" disabled selected><?= $block->getTranslation("Installments") ?></option>';
-
-                            for (let i = 1; i <= maxInstallments; i++) {
-                                let installmentValue = (grandTotal / i).toFixed(2).replace('.', ',');
-                                if (installmentValue < minInstallmentsValue) break;
-                                let option = document.createElement('option');
-                                option.value = i;
-                                option.text = `${i}x <?= $block->getTranslation("of") . ' ' . $block->getCurrencySymbol() ?> ${installmentValue}`;
-                                selectInstallments.appendChild(option);
+                            if (select.value === "") {
+                                ccForm.style.display = 'block';
+                                installmentsOnly.style.display = 'none';
+                                populateInstallments('cc_installments');
+                            } else {
+                                ccForm.style.display = 'none';
+                                installmentsOnly.style.display = 'block';
+                                populateInstallments('cc_installments_saved');
                             }
                         }
-                    }
-                </script>
+
+                        function populateInstallments(selectId) {
+                            const selectInstallments = document.getElementById(selectId);
+                            const grandTotal = <?= $order->getGrandTotal() ?>;
+                            const minInstallmentsValue = 10;
+                            const maxInstallments = 12;
+
+                            if (selectInstallments) {
+                                selectInstallments.innerHTML = '<option value="" disabled selected><?= $block->getTranslation("Installments") ?></option>';
+
+                                for (let i = 1; i <= maxInstallments; i++) {
+                                    let installmentValue = (grandTotal / i).toFixed(2).replace('.', ',');
+                                    if (installmentValue < minInstallmentsValue) break;
+                                    let option = document.createElement('option');
+                                    option.value = i;
+                                    option.text = `${i}x <?= $block->getTranslation("of") . ' ' . $block->getCurrencySymbol() ?> ${installmentValue}`;
+                                    selectInstallments.appendChild(option);
+                                }
+                            }
+                        }
+                    </script>
                 <?php endif; ?>
 
                 <div class="form-group">
@@ -189,6 +189,14 @@ $paymentLink = $block->getPaymentLink();
                         <th class="mark" scope="row"><?= __('Cart Subtotal') ?></th>
                         <td class="amount"><?= $block->getFormattedPrice($order->getSubtotal()) ?></td>
                     </tr>
+
+                    <?php if ($order->getDiscountAmount()): ?>
+                        <tr class="totals discount">
+                            <th class="mark" scope="row"><?= __('Discount') ?></th>
+                            <td class="amount"><?= $block->getFormattedPrice($order->getDiscountAmount()) ?></td>
+                        </tr>
+                    <?php endif; ?>
+
                     <tr class="totals shipping excl">
                         <th class="mark" scope="row"><?= __('Shipping') ?></th>
                         <td class="amount"><?= $block->getFormattedPrice($order->getShippingAmount()) ?></td>

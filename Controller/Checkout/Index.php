@@ -25,6 +25,7 @@ use Magento\Framework\Controller\ResultInterface;
 use Magento\Framework\View\Result\Page;
 use Magento\Framework\View\Result\PageFactory;
 use Magento\Framework\Controller\Result\RedirectFactory;
+use Magento\Framework\Message\ManagerInterface;
 use Vindi\Payment\Model\PaymentLinkService;
 
 class Index implements HttpGetActionInterface
@@ -50,22 +51,30 @@ class Index implements HttpGetActionInterface
     private RedirectFactory $redirectFactory;
 
     /**
+     * @var ManagerInterface
+     */
+    private ManagerInterface $messageManager;
+
+    /**
      * @param PageFactory $resultPageFactory
      * @param PaymentLinkService $paymentLinkService
      * @param RequestInterface $request
      * @param RedirectFactory $redirectFactory
+     * @param ManagerInterface $messageManager
      */
     public function __construct(
         PageFactory $resultPageFactory,
         PaymentLinkService $paymentLinkService,
         RequestInterface $request,
-        RedirectFactory $redirectFactory
+        RedirectFactory $redirectFactory,
+        ManagerInterface $messageManager
     )
     {
         $this->resultPageFactory = $resultPageFactory;
         $this->paymentLinkService = $paymentLinkService;
         $this->request = $request;
         $this->redirectFactory = $redirectFactory;
+        $this->messageManager = $messageManager;
     }
 
     /**
@@ -75,8 +84,12 @@ class Index implements HttpGetActionInterface
     {
         $result = $this->resultPageFactory->create();
         $hash = $this->request->getParam('hash');
+
         if (!$this->paymentLinkService->getPaymentLinkByHash($hash)->getData()) {
-            return $this->redirectFactory->create()->setPath('noroute');
+            $this->messageManager->addWarningMessage(
+                __('The link you used has expired or does not exist anymore. Please contact support or try again.')
+            );
+            return $this->redirectFactory->create()->setPath('/');
         }
 
         return $result;
