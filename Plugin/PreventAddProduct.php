@@ -75,8 +75,7 @@ class PreventAddProduct
         }
 
         if ($this->isSubscriptionProduct($productInfo) && $hasNonSubscriptionProduct) {
-            $message = __('You cannot add a subscription product to the cart as it already contains a non-subscription product.');
-            $this->messageManager->addWarningMessage(__('You cannot add a subscription product to the cart as it already contains a non-subscription product. Please complete your current purchase or remove the non-subscription product before adding a subscription product.'));
+            $message = __('You cannot add a subscription product to your cart because it already contains a non-subscription product. Please complete your current purchase or remove the product before adding a subscription.');
             throw new LocalizedException($message);
         }
     }
@@ -100,7 +99,6 @@ class PreventAddProduct
     {
         if (isset($requestInfo['qty']) && $requestInfo['qty'] > 1) {
             $message = __('You can only purchase one unit of each subscription product per transaction. Please adjust the quantity.');
-            $this->messageManager->addWarningMessage($message);
             throw new LocalizedException($message);
         }
     }
@@ -112,7 +110,6 @@ class PreventAddProduct
     private function preventMultipleSubscriptions()
     {
         $message = __('Your cart already contains a subscription product. You can only add one subscription product per transaction. Please complete your current purchase or remove the existing subscription product to add a different one.');
-        $this->messageManager->addWarningMessage($message);
         throw new LocalizedException($message);
     }
 }

@@ -34,8 +34,8 @@ class Interval extends AbstractSource
     public function toOptionArray()
     {
         return [
-            ['value' => 'days', 'label' => __('Day')],
-            ['value' => 'months', 'label' => __('Month')]
+            ['value' => 'days', 'label' => __('Days')],
+            ['value' => 'months', 'label' => __('Months')]
         ];
     }
 }

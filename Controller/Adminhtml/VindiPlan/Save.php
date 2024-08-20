@@ -92,13 +92,14 @@ class Save extends Action
 
         $existingPlan = null;
         $name = preg_replace('/[^\p{L}\p{N}\s]/u', '', $post["settings"]["name"]);
+        $vindiId = $post["settings"]["vindi_id"] ?? '';
         $code = empty($post["settings"]["code"]) ? Data::sanitizeItemSku($name) : $post["settings"]["code"];
 
         try {
             $data = $this->prepareData($post, $name, $code);
 
-            if (!empty($post["settings"]["vindi_id"])) {
-                $existingPlan = $this->vindiPlanRepository->getByVindiId($post["settings"]["vindi_id"]);
+            if (!empty($vindiId)) {
+                $existingPlan = $this->vindiPlanRepository->getByVindiId($vindiId);
             }
 
             if ($existingPlan && $existingPlan->getId()) {
@@ -121,6 +122,13 @@ class Save extends Action
 
                 $vindiId = $this->plan->save($data);
 
+                $codeData = [];
+                $codeData['vindi_id'] = $vindiId;
+                $codeData['code'] = $vindiId . '-' . Data::sanitizeItemSku($name);
+
+                $this->plan->save($codeData);
+
+                $data['code'] = $codeData['code'];
                 $data = $this->prepareDataForMagentoStore($data, $post);
 
                 $vindiPlan = $this->vindiPlanFactory->create();
@@ -176,8 +184,8 @@ class Save extends Action
             }
         }
 
-        if ($settings["duration"] == 'undefined' && !empty($settings["billing_cycles"])) {
-            return __('The number of periods to be charged is required for fixed-duration plans.');
+        if ($settings["billing_cycles"] != "" && $settings["billing_cycles"] < 1) {
+            return __('Number of periods must be greater than or equal to 1 for temporary duration. Or empty for indefinite time!');
         }
 
         return true;
@@ -214,9 +222,7 @@ class Save extends Action
             $data['code'] = $code;
         }
 
-        if (!empty($post["settings"]["description"])) {
-            $data['description'] = $post["settings"]["description"];
-        }
+        $data['description'] = $post["settings"]["description"] ?? '';
 
         if (!empty($post["settings"]["interval"])) {
             $data['interval'] = $post["settings"]["interval"];
@@ -236,7 +242,7 @@ class Save extends Action
             }
         }
 
-        if (isset($post["settings"]["billing_cycles"]) && $post["settings"]["billing_cycles"] !== '') {
+        if (!empty($post["settings"]["billing_cycles"])) {
             $data['billing_cycles'] = $post["settings"]["billing_cycles"];
         }
 
@@ -244,6 +250,15 @@ class Save extends Action
             $data['installments'] = $post["settings"]["installments"];
         } else {
             $data['installments'] = 1;
+        }
+
+        if (isset($post["settings"]["duration"]) && isset($post["settings"]["billing_cycles"])) {
+            if ($post["settings"]["duration"] == 'undefined') {
+                $data['billing_cycles'] = null;
+            } else {
+                $data['billing_cycles'] = $post["settings"]["billing_cycles"];
+            }
+            $data['duration'] = $post["settings"]["duration"];
         }
 
         return $data;
@@ -266,7 +281,10 @@ class Save extends Action
             $data['installments'] = empty($post["settings"]["installments"]) ? null : $post["settings"]["installments"];
         }
 
-        if (!empty($post["settings"]["duration"])) {
+        if (isset($post["settings"]["billing_cycles"]) && $post["settings"]["billing_cycles"] === '') {
+            $data['duration'] = 'undefined';
+            $data['billing_cycles'] = null;
+        } elseif (!empty($post["settings"]["duration"])) {
             $data['duration'] = $post["settings"]["duration"];
         }
 
@@ -281,3 +299,4 @@ class Save extends Action
         return $data;
     }
 }
+

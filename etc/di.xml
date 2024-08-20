@@ -16,6 +16,15 @@
     <preference for="Vindi\Payment\Api\Data\PaymentLinkInterface" type="Vindi\Payment\Model\PaymentLink"/>
     <preference for="Vindi\Payment\Api\PaymentLinkRepositoryInterface" type="Vindi\Payment\Model\ResourceModel\PaymentLinkRepository"/>
 
+    <type name="Magento\Framework\Console\CommandList">
+        <arguments>
+            <argument name="commands" xsi:type="array">
+                <item name="vindi:process-order-creation-queue" xsi:type="object">Vindi\Payment\Console\Command\ProcessOrderCreationQueueCommand</item>
+                <item name="vindi:process-order-paid-queue" xsi:type="object">Vindi\Payment\Console\Command\ProcessOrderPaidQueueCommand</item>
+            </argument>
+        </arguments>
+    </type>
+
     <virtualType name="Vindi\Payment\Model\ResourceModel\Subscription\Grid\Collection" type="Magento\Framework\View\Element\UiComponent\DataProvider\SearchResult">
         <arguments>
             <argument name="mainTable" xsi:type="string">vindi_subscription</argument>
@@ -87,8 +96,8 @@
         <plugin name="vindi_recurrence_post_product_save" type="Vindi\Payment\Plugin\PostProductSave"/>
     </type>
     <type name="Magento\Checkout\Model\Cart">
-        <plugin name="vindi_recurrence_prevent_add_product_with_recurrence" type="Vindi\Payment\Plugin\PreventAddProduct"/>
-        <plugin name="vindi_recurrence_restrict_quantity_update_for_recurrence_product" type="Vindi\Payment\Plugin\RestrictQuantityUpdate"/>
+        <plugin name="vindi_recurrence_prevent_add_product_with_recurrence" type="Vindi\Payment\Plugin\PreventAddProduct" sortOrder="1"/>
+        <plugin name="vindi_recurrence_restrict_quantity_update_for_recurrence_product" type="Vindi\Payment\Plugin\RestrictQuantityUpdate" sortOrder="2"/>
     </type>
 
     <!-- SubscriptionOrder-->
@@ -166,5 +175,8 @@
 
     <type name="Magento\Sales\Model\Service\OrderService">
         <plugin name="after_place_order_plugin" type="Vindi\Payment\Plugin\Model\Service\OrderService" />
+    </type>
+    <type name="Magento\Sales\Controller\Order\Reorder">
+        <plugin name="vindi_payment_reorder_redirect_plugin" type="Vindi\Payment\Plugin\ReorderRedirectPlugin" />
     </type>
 </config>

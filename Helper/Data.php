@@ -18,10 +18,12 @@ use Vindi\Payment\Setup\UpgradeData;
 class Data extends AbstractHelper
 {
     protected $scopeConfig;
+
     /**
      * @var AttributeSetRepositoryInterface
      */
     private $attributeSetRepository;
+
     /**
      * @var ProductRepositoryInterface
      */
@@ -31,7 +33,6 @@ class Data extends AbstractHelper
      * @var CollectionFactory
      */
     private $orderStatusCollectionFactory;
-
 
     /**
      * Data constructor.
@@ -46,7 +47,6 @@ class Data extends AbstractHelper
         ProductRepositoryInterface $productRepository,
         CollectionFactory $orderStatusCollectionFactory
     ) {
-
         $this->scopeConfig = $context->getScopeConfig();
         parent::__construct($context);
         $this->attributeSetRepository = $attributeSetRepository;
@@ -197,12 +197,10 @@ class Data extends AbstractHelper
     }
 
     /**
-     * Get configuration value
-     *
-     * @param string $config
+     * @param $config
      * @param string $group
      * @param string $section
-     * @param null|string|int $scopeCode
+     * @param null $scopeCode
      * @return string
      */
     public function getConfig(
@@ -217,5 +215,24 @@ class Data extends AbstractHelper
             $scopeCode
         );
     }
-}
 
+    /**
+     * @param Order $order
+     * @return bool|\Magento\Sales\Api\Data\OrderItemInterface
+     */
+    public function isSubscriptionOrder(Order $order)
+    {
+        foreach ($order->getItems() as $item) {
+            try {
+                $options = $item->getProductOptions();
+                if (!empty($options['info_buyRequest']['selected_plan_id'])) {
+                    return $item;
+                }
+            } catch (\Exception $e) {
+                // Handle exception if necessary
+            }
+        }
+
+        return false;
+    }
+}

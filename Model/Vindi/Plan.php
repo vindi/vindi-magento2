@@ -35,7 +35,10 @@ class Plan implements PlanInterface
         $endpoint = 'plans';
         $method = 'POST';
 
-        if ($plan = $this->findOneByCode($data['code'])) {
+        if (!empty($data['vindi_id']) && $plan = $this->findOneById($data['vindi_id'])) {
+            $endpoint .= '/' . $plan['id'];
+            $method = 'PUT';
+        } elseif ($plan = $this->findOneByCode($data['code'])) {
             $endpoint .= '/' . $plan['id'];
             $method = 'PUT';
         }
@@ -63,7 +66,25 @@ class Plan implements PlanInterface
     }
 
     /**
-     * @param $page
+     * Retrieve a plan by its ID
+     *
+     * @param int $id
+     * @return array|bool
+     * @throws LocalizedException
+     */
+    public function findOneById(int $id)
+    {
+        $response = $this->api->request("plans/{$id}", 'GET');
+
+        if ($response && isset($response['plan']['id'])) {
+            return $response['plan'];
+        }
+
+        return false;
+    }
+
+    /**
+     * @param int $page
      * @return bool|mixed
      */
     public function getAllPlans($page = 1)

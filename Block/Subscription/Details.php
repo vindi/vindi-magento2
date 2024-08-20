@@ -19,6 +19,7 @@ use Vindi\Payment\Model\Config\Source\OrderStatus;
 use Magento\Payment\Helper\Data as PaymentHelper;
 use Vindi\Payment\Model\Config\Source\CardImages as CardImagesSource;
 use Vindi\Payment\Model\Config\Source\Subscription\PaymentMethod as SourcePaymentMethod;
+use Vindi\Payment\Model\SubscriptionFactory;
 
 /**
  * Class Details
@@ -41,6 +42,7 @@ class Details extends Template
     private $paymentHelper;
     private $paymentMethod;
     private $creditCardTypeSource;
+    private $subscriptionFactory;
 
     /**
      * Details constructor.
@@ -58,6 +60,7 @@ class Details extends Template
      * @param PaymentHelper $paymentHelper
      * @param SourcePaymentMethod $paymentMethod
      * @param CardImagesSource $creditCardTypeSource
+     * @param SubscriptionFactory $subscriptionFactory
      * @param array $data
      */
     public function __construct(
@@ -75,6 +78,7 @@ class Details extends Template
         PaymentHelper $paymentHelper,
         SourcePaymentMethod $paymentMethod,
         CardImagesSource $creditCardTypeSource,
+        SubscriptionFactory $subscriptionFactory,
         array $data = []
     ) {
         parent::__construct($context, $data);
@@ -91,6 +95,7 @@ class Details extends Template
         $this->paymentHelper = $paymentHelper;
         $this->paymentMethod = $paymentMethod;
         $this->creditCardTypeSource = $creditCardTypeSource;
+        $this->subscriptionFactory = $subscriptionFactory;
     }
 
     /**
@@ -569,11 +574,21 @@ class Details extends Template
     {
         if ($this->subscriptionData === null) {
             $id = $this->getRequest()->getParam('id');
-            try {
-                $request = $this->api->request('subscriptions/' . $id, 'GET');
-                $this->subscriptionData = $request['subscription'] ?? [];
-            } catch (\Exception $e) {
-                $this->_redirect('vindi/subscription/index');
+
+            $subscriptionModel = $this->subscriptionFactory->create()->load($id);
+
+            $responseData = $subscriptionModel->getData('response_data');
+
+            if ($responseData) {
+                $this->subscriptionData = json_decode($responseData, true);
+            } else {
+                $request = $this->api->request('subscriptions/'.$id, 'GET');
+                if (is_array($request) && array_key_exists('subscription', $request)) {
+                    $this->subscriptionData = $request['subscription'];
+
+                    $subscriptionModel->setData('response_data', json_encode($this->subscriptionData));
+                    $subscriptionModel->save();
+                }
             }
         }
 

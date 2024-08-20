@@ -176,34 +176,27 @@ class OrderCreator
 
         $newOrder->setTotalPaid(null);
         $newOrder->setBaseTotalPaid(null);
-        $newOrder->setTotalDue($newOrder->getGrandTotal());
-        $newOrder->setBaseTotalDue($newOrder->getBaseGrandTotal());
 
         $subtotal = 0;
-        $grandTotal = 0;
+        $taxAmount = 0;
+        $discountAmount = 0;
         foreach ($newOrderItems as $item) {
             $subtotal += $item->getRowTotal();
-            $grandTotal += $item->getRowTotal() + $item->getTaxAmount() - $item->getDiscountAmount();
+            $taxAmount += $item->getTaxAmount();
+            $discountAmount += $item->getDiscountAmount();
         }
 
-        $taxAmount = $originalOrder->getTaxAmount();
-        $baseTaxAmount = $originalOrder->getBaseTaxAmount();
-        $newOrder->setTaxAmount($taxAmount);
-        $newOrder->setBaseTaxAmount($baseTaxAmount);
-
         $shippingAmount = $originalOrder->getShippingAmount();
-        $baseShippingAmount = $originalOrder->getBaseShippingAmount();
-        $newOrder->setShippingAmount($shippingAmount);
-        $newOrder->setBaseShippingAmount($baseShippingAmount);
+        $grandTotal = $subtotal + $taxAmount + $shippingAmount - $discountAmount;
 
-        $discountAmount = $originalOrder->getDiscountAmount();
-        $baseDiscountAmount = $originalOrder->getBaseDiscountAmount();
-        $newOrder->setDiscountAmount($discountAmount);
-        $newOrder->setBaseDiscountAmount($baseDiscountAmount);
-
-        $grandTotal += $taxAmount + $shippingAmount - $discountAmount;
         $newOrder->setSubtotal($subtotal);
         $newOrder->setBaseSubtotal($subtotal);
+        $newOrder->setTaxAmount($taxAmount);
+        $newOrder->setBaseTaxAmount($taxAmount);
+        $newOrder->setShippingAmount($shippingAmount);
+        $newOrder->setBaseShippingAmount($shippingAmount);
+        $newOrder->setDiscountAmount(-abs($discountAmount));
+        $newOrder->setBaseDiscountAmount(-abs($discountAmount));
         $newOrder->setGrandTotal($grandTotal);
         $newOrder->setBaseGrandTotal($grandTotal);
         $newOrder->setTotalDue($grandTotal);
@@ -314,4 +307,3 @@ class OrderCreator
         }
     }
 }
-
