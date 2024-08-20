@@ -5,7 +5,12 @@
     </head>
     <body>
         <referenceContainer name="product.info.main">
-            <block class="Vindi\Payment\Block\Product\ProductRecurrence" name="recurrence.product.page" template="Vindi_Payment::product/recurrence.phtml" after="product.info.price"/>
+            <block class="Vindi\Payment\Block\Product\ProductRecurrence"
+                   name="recurrence.product.page"
+                   template="Vindi_Payment::product/recurrence.phtml"
+                   after="product.info.price"
+                   cacheable="false"
+            />
         </referenceContainer>
     </body>
 </page>

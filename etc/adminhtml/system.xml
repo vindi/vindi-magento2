@@ -95,7 +95,7 @@
                     <field id="recurring" showInDefault="1" showInStore="1" showInWebsite="1" sortOrder="1000" translate="label" type="select">
                         <label>Can be used for recurring purchases?</label>
                         <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
-                        <config_path>payment/vindi_pix/recurring</config_path>
+                        <config_path>payment/vindi/recurring</config_path>
                     </field>
                     <field id="payment_link_instructions" translate="label comment" type="textarea" sortOrder="20200" showInDefault="1" showInWebsite="1" showInStore="1">
                         <label>Payment Link Instructions</label>
@@ -153,7 +153,7 @@
                     <field id="recurring" showInDefault="1" showInStore="1" showInWebsite="1" sortOrder="1000" translate="label" type="select">
                         <label>Can be used for recurring purchases?</label>
                         <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
-                        <config_path>payment/vindi_pix/recurring</config_path>
+                        <config_path>payment/vindi_bankslip/recurring</config_path>
                     </field>
                     <field id="payment_link_instructions" translate="label comment" type="textarea" sortOrder="20200" showInDefault="1" showInWebsite="1" showInStore="1">
                         <label>Payment Link Instructions</label>
@@ -178,7 +178,7 @@
                     <field id="recurring" showInDefault="1" showInStore="1" showInWebsite="1" sortOrder="1000" translate="label" type="select">
                         <label>Can be used for recurring purchases?</label>
                         <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
-                        <config_path>payment/vindi_pix/recurring</config_path>
+                        <config_path>payment/vindi_bankslippix/recurring</config_path>
                     </field>
                     <field id="payment_link_instructions" translate="label comment" type="textarea" sortOrder="20200" showInDefault="1" showInWebsite="1" showInStore="1">
                         <label>Payment Link Instructions</label>

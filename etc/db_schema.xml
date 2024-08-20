@@ -17,6 +17,7 @@
         <column name="customer_email" length="255"  nullable="true" xsi:type="varchar" comment="Customer Email"/>
         <column name="next_billing_at" xsi:type="datetime" nullable="true" comment="Next Billing Date" />
         <column name="bill_id" nullable="true" xsi:type="int" comment="Bill ID"/>
+        <column name="response_data" xsi:type="text" nullable="true" comment="Subscription Response Data"/>
     </table>
     <table name="vindi_plans" resource="default" engine="innodb" comment="Vindi Plans Table">
         <column xsi:type="int" name="entity_id" padding="10" unsigned="true" nullable="false" identity="true" comment="Entity ID"/>

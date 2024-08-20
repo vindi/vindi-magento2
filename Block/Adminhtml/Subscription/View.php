@@ -10,6 +10,7 @@ use Magento\Framework\Registry;
 use Magento\Framework\Pricing\PriceCurrencyInterface;
 use Vindi\Payment\Helper\Api;
 use Vindi\Payment\Model\ResourceModel\SubscriptionOrder\CollectionFactory as SubscriptionOrderCollectionFactory;
+use Vindi\Payment\Model\SubscriptionFactory;
 
 /**
  * Class View
@@ -45,12 +46,18 @@ class View extends Container
     protected $priceHelper;
 
     /**
+     * @var SubscriptionFactory
+     */
+    private $subscriptionFactory;
+
+    /**
      * View constructor.
      * @param Context $context
      * @param Registry $registry
      * @param SubscriptionOrderCollectionFactory $subscriptionsOrderCollectionFactory
      * @param Api $api
      * @param PriceCurrencyInterface $priceHelper
+     * @param SubscriptionFactory $subscriptionFactory
      * @param array $data
      */
     public function __construct(
@@ -59,6 +66,7 @@ class View extends Container
         SubscriptionOrderCollectionFactory $subscriptionsOrderCollectionFactory,
         Api $api,
         PriceCurrencyInterface $priceHelper,
+        SubscriptionFactory $subscriptionFactory,
         array $data = []
     ) {
         parent::__construct($context, $data);
@@ -66,6 +74,7 @@ class View extends Container
         $this->registry = $registry;
         $this->subscriptionsOrderCollectionFactory = $subscriptionsOrderCollectionFactory;
         $this->priceHelper = $priceHelper;
+        $this->subscriptionFactory = $subscriptionFactory;
     }
 
     /**
@@ -411,9 +420,21 @@ class View extends Container
     {
         if ($this->subscriptions === null) {
             $id = $this->registry->registry('vindi_payment_subscription_id');
-            $request = $this->api->request('subscriptions/'.$id, 'GET');
-            if (is_array($request) && array_key_exists('subscription', $request)) {
-                $this->subscriptions = $request['subscription'];
+
+            $subscriptionModel = $this->subscriptionFactory->create()->load($id);
+
+            $responseData = $subscriptionModel->getData('response_data');
+
+            if ($responseData) {
+                $this->subscriptions = json_decode($responseData, true);
+            } else {
+                $request = $this->api->request('subscriptions/'.$id, 'GET');
+                if (is_array($request) && array_key_exists('subscription', $request)) {
+                    $this->subscriptions = $request['subscription'];
+
+                    $subscriptionModel->setData('response_data', json_encode($this->subscriptions));
+                    $subscriptionModel->save();
+                }
             }
         }
 
