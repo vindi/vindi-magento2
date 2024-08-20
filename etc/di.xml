@@ -93,8 +93,8 @@
         <plugin name="vindi_recurrence_post_product_save" type="Vindi\Payment\Plugin\PostProductSave"/>
     </type>
     <type name="Magento\Checkout\Model\Cart">
-        <plugin name="vindi_recurrence_prevent_add_product_with_recurrence" type="Vindi\Payment\Plugin\PreventAddProduct"/>
-        <plugin name="vindi_recurrence_restrict_quantity_update_for_recurrence_product" type="Vindi\Payment\Plugin\RestrictQuantityUpdate"/>
+        <plugin name="vindi_recurrence_prevent_add_product_with_recurrence" type="Vindi\Payment\Plugin\PreventAddProduct" sortOrder="1"/>
+        <plugin name="vindi_recurrence_restrict_quantity_update_for_recurrence_product" type="Vindi\Payment\Plugin\RestrictQuantityUpdate" sortOrder="2"/>
     </type>
 
     <!-- SubscriptionOrder-->
