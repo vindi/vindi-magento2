@@ -100,12 +100,14 @@ class Api extends AbstractHelper
         $requestId = number_format(microtime(true), 2, '', '');
         $dataToLog = null !== $dataToLog ? json_encode($dataToLog) : $requestBody;
 
+        $sanitizedDataToLog = $this->helperData->sanitizeData($dataToLog);
+
         $this->logger->info(__(sprintf(
             '[Request #%s]: New Api Request.\n%s %s\n%s',
             $requestId,
             $method,
             $url,
-            $dataToLog
+            $sanitizedDataToLog
         )));
 
         $ch = curl_init();
@@ -137,8 +139,9 @@ class Api extends AbstractHelper
         $body = substr($response, curl_getinfo($ch, CURLINFO_HEADER_SIZE));
 
         if (curl_errno($ch) || $response === false) {
+            $sanitizedResponse = $this->helperData->sanitizeData(print_r($response, true));
             $this->logger->error(
-                __(sprintf('[Request #%s]: Error while executing request!\n%s', $requestId, print_r($response, true)))
+                __(sprintf('[Request #%s]: Error while executing request!\n%s', $requestId, $sanitizedResponse))
             );
             curl_close($ch);
             $this->logApiRequest($endpoint, $method, $requestBody, $response, $statusCode, 'Error while executing request');
@@ -149,14 +152,17 @@ class Api extends AbstractHelper
 
         $status = "HTTP Status: $statusCode";
 
-        $this->logger->info(__(sprintf('[Request #%s]: New API Answer.\n%s\n%s', $requestId, $status, $body)));
+        $sanitizedBody = $this->helperData->sanitizeData($body);
+
+        $this->logger->info(__(sprintf('[Request #%s]: New API Answer.\n%s\n%s', $requestId, $status, $sanitizedBody)));
         $responseBody = json_decode($body, true);
 
         if (!$responseBody) {
+            $sanitizedBody = $this->helperData->sanitizeData(print_r($body, true));
             $this->logger->info(__(sprintf(
                 '[Request #%s]: Error while recovering request body! %s',
                 $requestId,
-                print_r($body, true)
+                $sanitizedBody
             )));
 
             $this->logApiRequest($endpoint, $method, $requestBody, $response, $statusCode, 'Error while recovering request body');
@@ -199,9 +205,11 @@ class Api extends AbstractHelper
             foreach ($response['errors'] as $error) {
                 $message = $this->getErrorMessage($error, $endpoint);
 
-                $this->messageManager->addErrorMessage($message);
+                $sanitizedMessage = $this->helperData->sanitizeData($message);
 
-                $this->lastError = $message;
+                $this->messageManager->addErrorMessage($sanitizedMessage);
+
+                $this->lastError = $sanitizedMessage;
             }
 
             return false;
@@ -241,8 +249,8 @@ class Api extends AbstractHelper
      */
     private function logApiRequest($endpoint, $method, $requestBody, $responseBody, $statusCode, $description)
     {
-        $sanitizedRequestBody  = $this->sanitizeData($requestBody);
-        $sanitizedResponseBody = $this->sanitizeData($responseBody);
+        $sanitizedRequestBody  = $this->helperData->sanitizeData($requestBody);
+        $sanitizedResponseBody = $this->helperData->sanitizeData($responseBody);
 
         $log = $this->logFactory->create();
         $log->setData([
@@ -255,37 +263,5 @@ class Api extends AbstractHelper
         ]);
         $this->logResource->save($log);
     }
-
-    /**
-     * Sanitize sensitive data in the log entries
-     *
-     * @param string $data
-     * @return string
-     */
-    private function sanitizeData($data)
-    {
-        $patterns = [
-            '/"card_number":\s*"\d+"/',
-            '/"cvv":\s*"\d+"/',
-            '/"expiration_date":\s*"\d{2}\/\d{2}"/',
-            '/"password":\s*".*?"/',
-            '/"email":\s*".*?"/',
-            '/"phone":\s*"\d+"/',
-            '/"card_cvv":\s*"\d+"/',
-            '/"registry_code":\s*"\d+"/'
-        ];
-
-        $replacements = [
-            '"card_number": "**** **** **** ****"',
-            '"cvv": "***"',
-            '"expiration_date": "**/**"',
-            '"password": "********"',
-            '"email": "********@****.***"',
-            '"phone": "**********"',
-            '"card_cvv": "***"',
-            '"registry_code": "************"'
-        ];
-
-        return preg_replace($patterns, $replacements, $data);
-    }
 }
+
