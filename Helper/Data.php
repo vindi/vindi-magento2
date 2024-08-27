@@ -235,4 +235,49 @@ class Data extends AbstractHelper
 
         return false;
     }
+
+    /**
+     * Sanitize sensitive data in the log entries
+     *
+     * @param string $data
+     * @return string
+     */
+    public function sanitizeData($data)
+    {
+        $patterns = [
+            '/"card_number":\s*"\d+"/',
+            '/"cvv":\s*"\d+"/',
+            '/"expiration_date":\s*"\d{2}\/\d{2}"/',
+            '/"password":\s*".*?"/',
+            '/"email":\s*".*?"/',
+            '/"phone":\s*"\d+"/',
+            '/"card_cvv":\s*"\d+"/',
+            '/"registry_code[_\d]*":\s*"\d[\d.\/\\\\-]*"/',
+            '/"holder_name":\s*".*?"/',
+            '/"street":\s*".*?"/',
+            '/"number":\s*".*?"/',
+            '/"zipcode":\s*"\d+"/',
+            '/"token":\s*".*?"/',
+            '/"gateway_token":\s*".*?"/'
+        ];
+
+        $replacements = [
+            '"card_number": "**** **** **** ****"',
+            '"cvv": "***"',
+            '"expiration_date": "**/**"',
+            '"password": "********"',
+            '"email": "********@****.***"',
+            '"phone": "**********"',
+            '"card_cvv": "***"',
+            '"registry_code$1": "************"',
+            '"holder_name": "********"',
+            '"street": "********"',
+            '"number": "***"',
+            '"zipcode": "*****-***"',
+            '"token": "************"',
+            '"gateway_token": "************"'
+        ];
+
+        return preg_replace($patterns, $replacements, $data);
+    }
 }
