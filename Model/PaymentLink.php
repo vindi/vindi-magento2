@@ -40,7 +40,7 @@ class PaymentLink extends AbstractModel implements PaymentLinkInterface
     }
 
     /**
-     * @ingeritdoc
+     * @inheritdoc
      */
     public function getEntityId()
     {
@@ -48,15 +48,16 @@ class PaymentLink extends AbstractModel implements PaymentLinkInterface
     }
 
     /**
-     * @ingeritdoc
+     * @inheritdoc
      */
     public function setEntityId($entityId)
     {
         $this->setData(self::ENTITY_ID, $entityId);
+        return $this;
     }
 
     /**
-     * @ingeritdoc
+     * @inheritdoc
      */
     public function getLink()
     {
@@ -64,15 +65,16 @@ class PaymentLink extends AbstractModel implements PaymentLinkInterface
     }
 
     /**
-     * @ingeritdoc
+     * @inheritdoc
      */
     public function setLink(string $link)
     {
         $this->setData(self::LINK, $link);
+        return $this;
     }
 
     /**
-     * @ingeritdoc
+     * @inheritdoc
      */
     public function getOrderId()
     {
@@ -80,15 +82,16 @@ class PaymentLink extends AbstractModel implements PaymentLinkInterface
     }
 
     /**
-     * @ingeritdoc
+     * @inheritdoc
      */
     public function setOrderId(int $orderId)
     {
         $this->setData(self::ORDER_ID, $orderId);
+        return $this;
     }
 
     /**
-     * @ingeritdoc
+     * @inheritdoc
      */
     public function getCreatedAt()
     {
@@ -96,15 +99,16 @@ class PaymentLink extends AbstractModel implements PaymentLinkInterface
     }
 
     /**
-     * @ingeritdoc
+     * @inheritdoc
      */
     public function setCreatedAt($createdAt)
     {
         $this->setData(self::CREATED_AT, $createdAt);
+        return $this;
     }
 
     /**
-     * @ingeritdoc
+     * @inheritdoc
      */
     public function getVindiPaymentMethod()
     {
@@ -112,10 +116,11 @@ class PaymentLink extends AbstractModel implements PaymentLinkInterface
     }
 
     /**
-     * @ingeritdoc
+     * @inheritdoc
      */
     public function setVindiPaymentMethod($vindiPaymentMethod)
     {
         $this->setData(self::VINDI_PAYMENT_METHOD, $vindiPaymentMethod);
+        return $this;
     }
 }

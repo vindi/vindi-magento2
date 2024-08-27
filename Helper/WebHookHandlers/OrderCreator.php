@@ -236,6 +236,7 @@ class OrderCreator
     public function updatePaymentDetails(Order $order, $billData)
     {
         $paymentMethod = $order->getPayment()->getMethod();
+        $charge = $billData['bill']['charges'][0] ?? [];
         $transactionDetails = $billData['bill']['charges'][0]['last_transaction']['gateway_response_fields'] ?? [];
         $additionalInformation = $order->getPayment()->getAdditionalInformation();
 
@@ -248,13 +249,15 @@ class OrderCreator
                     'qrcode_url' => $transactionDetails['qrcode_url'] ?? null,
                     'print_url' => $transactionDetails['print_url'] ?? null,
                     'max_days_to_keep_waiting_payment' => $transactionDetails['max_days_to_keep_waiting_payment'] ?? null,
-                    'due_at' => $transactionDetails['due_at'] ?? null
+                    'due_at' => $charge["due_at"] ?? null
                 ]);
                 break;
 
             case 'vindi_bankslip':
-                $additionalInformation['print_url'] = $transactionDetails['print_url'] ?? null;
-                $additionalInformation['due_at'] = $transactionDetails['due_at'] ?? null;
+                $additionalInformation = array_merge($additionalInformation, [
+                    'print_url' => $charge['print_url'] ?? null,
+                    'due_at' => $charge['due_at'] ?? null,
+                ]);
                 break;
 
             case 'vindi':
@@ -307,3 +310,4 @@ class OrderCreator
         }
     }
 }
+

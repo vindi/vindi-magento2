@@ -27,6 +27,7 @@ class WebhookHandler
     private $subscription;
     private $logFactory;
     private $logResource;
+    private $helperData;
 
     public function __construct(
         RemoteAddress $remoteAddress,
@@ -37,7 +38,8 @@ class WebhookHandler
         BillCanceled $billCanceled,
         Subscription $subscription,
         LogFactory $logFactory,
-        LogResource $logResource
+        LogResource $logResource,
+        Data $helperData
     ) {
         $this->remoteAddress = $remoteAddress;
         $this->logger = $logger;
@@ -48,6 +50,7 @@ class WebhookHandler
         $this->subscription = $subscription;
         $this->logFactory = $logFactory;
         $this->logResource = $logResource;
+        $this->helperData = $helperData;
     }
 
     public function getRemoteIp()
@@ -124,7 +127,7 @@ class WebhookHandler
         $log->setData([
             'endpoint'      => $endpoint,
             'method'        => $method,
-            'request_body'  => $this->sanitizeData($requestBody),
+            'request_body'  => $this->helperData->sanitizeData($requestBody),
             'response_body' => null,
             'status_code'   => 200,
             'description'   => $description,
@@ -132,37 +135,5 @@ class WebhookHandler
         ]);
         $this->logResource->save($log);
     }
-
-    /**
-     * Sanitize sensitive data from the provided input
-     *
-     * @param string $data
-     * @return string
-     */
-    private function sanitizeData($data)
-    {
-        $patterns = [
-            '/"card_number":\s*"\d+"/',
-            '/"cvv":\s*"\d+"/',
-            '/"expiration_date":\s*"\d{2}\/\d{2}"/',
-            '/"password":\s*".*?"/',
-            '/"email":\s*".*?"/',
-            '/"phone":\s*"\d+"/',
-            '/"card_cvv":\s*"\d+"/',
-            '/"registry_code":\s*"\d+"/'
-        ];
-
-        $replacements = [
-            '"card_number": "**** **** **** ****"',
-            '"cvv": "***"',
-            '"expiration_date": "**/**"',
-            '"password": "********"',
-            '"email": "********@****.***"',
-            '"phone": "**********"',
-            '"card_cvv": "***"',
-            '"registry_code": "************"'
-        ];
-
-        return preg_replace($patterns, $replacements, $data);
-    }
 }
+
