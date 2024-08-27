@@ -1,12 +1,6 @@
 <?php
 
 /**
- *
- *
- *
- *
- *
- *
  * DISCLAIMER
  *
  * Do not edit or add to this file if you wish to upgrade this extension to newer
@@ -14,8 +8,6 @@
  *
  * @category    Vindi
  * @package     Vindi_Payment
- *
- *
  */
 
 namespace Vindi\Payment\Block\Sales\Order\Totals;
@@ -25,7 +17,7 @@ use Magento\Sales\Model\Order;
 /**
  * Class Interest
  *
- * @package MercadoPago\Core\Block\Sales\Order\Totals
+ * @package Vindi\Payment\Block\Sales\Order\Totals
  */
 class Interest extends \Magento\Framework\View\Element\Template
 {
@@ -57,7 +49,7 @@ class Interest extends \Magento\Framework\View\Element\Template
                 'value' => $this->getSource()->getVindiInterestAmount(),
                 'label' => __('Interest Rate'),
             ]);
-            //@phpstan-ignore-next-line
+
             $this->getParentBlock()->addTotalBefore($total, $this->getBeforeCondition());
         }
 

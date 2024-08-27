@@ -3,7 +3,6 @@
 declare(strict_types=1);
 
 /**
- *
  * DISCLAIMER
  *
  * Do not edit or add to this file if you wish to upgrade this extension to newer
@@ -11,8 +10,6 @@ declare(strict_types=1);
  *
  * @category    Vindi
  * @package     Vindi_Payment
- *
- *
  */
 
 namespace Vindi\Payment\Model\ResourceModel;
@@ -27,22 +24,22 @@ use Magento\Framework\Exception\NoSuchEntityException;
 class PaymentLinkRepository implements PaymentLinkRepositoryInterface
 {
     /**
-     * @var PaymentLink
+     * @var ResourcePaymentLink
      */
     protected $resource;
 
     /**
-     * @var PaymentLinkFactory
+     * @var \Vindi\Payment\Model\PaymentLinkFactory
      */
-    protected PaymentLinkFactory $paymentLinkFactory;
+    protected $paymentLinkFactory;
 
     /**
-     * @param PaymentLink $resource
-     * @param PaymentLinkFactory $paymentLinkFactory
+     * @param ResourcePaymentLink $resource
+     * @param \Vindi\Payment\Model\PaymentLinkFactory $paymentLinkFactory
      */
     public function __construct(
         ResourcePaymentLink $resource,
-        PaymentLinkFactory $paymentLinkFactory,
+        \Vindi\Payment\Model\PaymentLinkFactory $paymentLinkFactory
     ) {
         $this->resource = $resource;
         $this->paymentLinkFactory = $paymentLinkFactory;
@@ -68,7 +65,7 @@ class PaymentLinkRepository implements PaymentLinkRepositoryInterface
     public function save(\Vindi\Payment\Api\Data\PaymentLinkInterface $paymentLink)
     {
         try {
-            $paymentLink = $this->resource->save($paymentLink);
+            $this->resource->save($paymentLink);
         } catch (\Exception $exception) {
             throw new CouldNotSaveException(__(
                 'Could not save the paymentLink info: %1',
