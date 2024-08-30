@@ -11,8 +11,7 @@
 A integração do módulo da Vindi permite criação e gestão de planos e assinaturas através do Magento 2 de forma transparente.
 
 # Requisitos
-- PHP **7.x.x** ou superior
-- MySQL **5.6.x** ou superior
+- Magento 2.3.6+
 - cURL habilitado para o PHP
 - Certificado SSL
 - Conta ativa na [Vindi](https://www.vindi.com.br "Vindi")
@@ -57,6 +56,26 @@ A integração do módulo da Vindi permite criação e gestão de planos e assin
     - Para finalizar a configuração, basta clicar na opção "Criar Webhook"
 1. Habilitando/Configurando os métodos de pagamento
     - Em *Lojas -> Vendas -> Métodos de pagamento*, configure e habilite o método de pagamento **Vindi - Cartão de Crédito**
+
+## Novidades na Versão 2.x
+
+A versão 2.x do módulo Vindi para Magento 2 apresenta melhorias significativas e mudanças em relação à versão anterior 1.x. 
+Por favor, revise estas mudanças com atenção antes de realizar a atualização da versão 1.x para a versão 2.x:
+
+### 1. Gestão Independente de Planos
+
+- **Novo na 2.x:** Agora, os planos de assinatura podem ser gerenciados de forma independente dos produtos. Após configurar os planos, você pode associá-los a produtos específicos. Isso representa uma mudança significativa em relação à versão 1.x, onde cada produto só podia estar vinculado a um único plano, e o produto precisava ser do tipo "bundle".
+- **Impacto da Atualização:** As assinaturas existentes criadas na versão 1.x **não** serão atualizadas no Magento após a atualização para a versão 2.x. Os lojistas precisarão gerenciar essas assinaturas manualmente, se necessário.
+
+### 2. Gestão de Assinaturas pelo Cliente
+
+- **Novo na 2.x:** Os clientes agora podem gerenciar suas assinaturas diretamente na área da conta do cliente na sua loja Magento. No entanto, esta funcionalidade está disponível apenas para novas assinaturas criadas com a versão 2.x.
+- **Impacto da Atualização:** As assinaturas criadas com a versão 1.x **não** terão seus perfis de pagamento salvos na área da conta do cliente após a atualização. Apenas novas assinaturas se beneficiarão dessa funcionalidade.
+
+### 3. Geração de Pedidos por Ciclo
+
+- **Novo na 2.x:** O módulo agora gera um novo pedido para cada ciclo de assinatura, permitindo a logística individual de cada item e a gestão de pedidos. Isso substitui o comportamento anterior da versão 1.x, onde apenas faturas eram geradas para cada ciclo.
+- **Impacto da Atualização:** O comportamento antigo de gerar apenas faturas para os ciclos de assinatura foi completamente removido na versão 2.x. Os lojistas precisarão ajustar seu fluxo de trabalho para se adaptar ao novo processo de geração de pedidos.
 
 ## Dúvidas
 Caso necessite de informações sobre a plataforma ou a API, por favor, siga através do canal [Atendimento Vindi](http://atendimento.vindi.com.br/hc/pt-br)
