@@ -32,7 +32,7 @@ class SubscriptionOrderTest extends TestCase
      */
     protected $managerInterface;
 
-    public function setUp()
+    public function setUp(): void
     {
         $this->objectManager = new ObjectManager($this);
         $this->customerRepositoryInterface = $this->getMockBuilder(CustomerRepositoryInterface::class)
@@ -44,13 +44,13 @@ class SubscriptionOrderTest extends TestCase
     }
 
     public function testOrderWithTax()
-    {       
+    {
         $vindiProductId = 'taxa';
         $amount         = 1.00;
 
         $order = $this->createOrderMock($amount, 0.00, 0.00);
         $list  = $this->createVindiProductManagementMock($vindiProductId)->findOrCreateProductsToSubscription($order);
-        
+
         $this->makeAssertions($list, $vindiProductId, $amount);
     }
 
@@ -95,7 +95,7 @@ class SubscriptionOrderTest extends TestCase
             ->getMock();
 
         $requestResponses = [];
-        
+
         $requestResponses[] = [
             'product' => [
                 'id' => 'fake_sku'
@@ -172,10 +172,10 @@ class SubscriptionOrderTest extends TestCase
 
         $itemMock->method('getName')
             ->willReturn('FAKE_NAME');
-            
+
         $itemMock->method('getPrice')
             ->willReturn($price);
-            
+
         $itemMock->method('getProduct')
             ->willReturn($this->createProductMock($type));
 

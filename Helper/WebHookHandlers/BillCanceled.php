@@ -24,16 +24,23 @@ class BillCanceled
      */
     protected $orderRepository;
 
+    /**
+     * @var \Magento\Framework\Api\SearchCriteriaBuilder
+     */
+    protected $searchCriteriaBuilder;
+
     public function __construct(
         \Magento\Sales\Api\OrderRepositoryInterface $orderRepository,
         \Vindi\Payment\Model\Payment\Bill $bill,
         \Vindi\Payment\Helper\WebHookHandlers\Order $order,
-        \Psr\Log\LoggerInterface $logger
+        \Psr\Log\LoggerInterface $logger,
+        \Magento\Framework\Api\SearchCriteriaBuilder $searchCriteriaBuilder
     ) {
         $this->orderRepository = $orderRepository;
         $this->bill = $bill;
         $this->order = $order;
         $this->logger = $logger;
+        $this->searchCriteriaBuilder = $searchCriteriaBuilder;
     }
 
     /**
@@ -51,8 +58,18 @@ class BillCanceled
             return false;
         }
 
-        /** @var \Magento\Sales\Model\Order $order */
-        if (!($order = $this->getOrderFromBill($bill['id']))) {
+        $isSubscription = isset($bill['subscription']['id']);
+        $order = null;
+
+        if ($isSubscription) {
+            $order = $this->getOrderByVindiBillAndSubscriptionId($bill['id'], $bill['subscription']['id']);
+        }
+
+        if (!$order) {
+            $order = $this->getOrderFromBill($bill['id']);
+        }
+
+        if (!$order) {
             $this->logger->warning(__('Order not found'));
             return false;
         }
@@ -81,5 +98,31 @@ class BillCanceled
         }
 
         return $this->order->getOrder(compact('bill'));
+    }
+
+    /**
+     * @param $vindiBillId
+     * @param $subscriptionId
+     * @return bool|\Magento\Sales\Api\Data\OrderInterface
+     */
+    private function getOrderByVindiBillAndSubscriptionId($vindiBillId, $subscriptionId)
+    {
+        $searchCriteria = $this->searchCriteriaBuilder
+            ->addFilter('vindi_bill_id', $vindiBillId, 'eq')
+            ->addFilter('vindi_subscription_id', $subscriptionId, 'eq')
+            ->create();
+
+        $orderList = $this->orderRepository
+            ->getList($searchCriteria)
+            ->getItems();
+
+        try {
+            return reset($orderList);
+        } catch (\Exception $e) {
+            $this->logger->error(__('Order with Vindi Bill ID #%1 and Subscription ID #%2 not found', $vindiBillId, $subscriptionId));
+            $this->logger->error($e->getMessage());
+        }
+
+        return false;
     }
 }

@@ -29,7 +29,7 @@ class BillingTriggerDaysOfTheMonth extends AbstractSource
     private function getRangeOptions()
     {
         $range =  [];
-        for ($number = 1; $number <= 30; $number++) {
+        for ($number = 1; $number <= 31; $number++) {
             $range[] = [
                 'label' => __('Day %1', $number),
                 'value' => $number

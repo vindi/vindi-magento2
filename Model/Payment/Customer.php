@@ -2,14 +2,24 @@
 
 namespace Vindi\Payment\Model\Payment;
 
-
 use Magento\Customer\Api\CustomerRepositoryInterface;
 use Magento\Framework\Message\ManagerInterface;
 use Magento\Sales\Model\Order;
 use Vindi\Payment\Helper\Api;
+use Magento\Customer\Api\Data\CustomerInterface;
+use Magento\Customer\Api\AddressRepositoryInterface;
+use Magento\Framework\Exception\NoSuchEntityException;
+use Magento\Store\Model\StoreManagerInterface;
+use Vindi\Payment\Model\ResourceModel\PaymentProfile\CollectionFactory as PaymentProfileCollectionFactory;
+use Vindi\Payment\Model\ResourceModel\VindiCustomer\CollectionFactory as VindiCustomerCollectionFactory;
+use Vindi\Payment\Model\VindiCustomerFactory;
 
 class Customer
 {
+    /**
+     * @var CustomerRepositoryInterface
+     */
+    protected $addressRepository;
 
     /** @var CustomerRepositoryInterface */
     protected $customerRepository;
@@ -20,19 +30,46 @@ class Customer
     /** @var ManagerInterface  */
     protected $messageManager;
 
+    /** @var StoreManagerInterface  */
+    protected $storeManager;
+
+    /** @var PaymentProfileCollectionFactory */
+    protected $paymentProfileCollectionFactory;
+
+    /** @var VindiCustomerCollectionFactory */
+    protected $vindiCustomerCollectionFactory;
+
+    /** @var VindiCustomerFactory */
+    protected $vindiCustomerFactory;
+
     /**
      * @param CustomerRepositoryInterface $customerRepository
      * @param Api $api
      * @param ManagerInterface $messageManager
+     * @param AddressRepositoryInterface $addressRepository
+     * @param StoreManagerInterface $storeManager
+     * @param PaymentProfileCollectionFactory $paymentProfileCollectionFactory
+     * @param VindiCustomerCollectionFactory $vindiCustomerCollectionFactory
+     * @param VindiCustomerFactory $vindiCustomerFactory
      */
     public function __construct(
         CustomerRepositoryInterface $customerRepository,
         Api $api,
-        ManagerInterface $messageManager
+        ManagerInterface $messageManager,
+        AddressRepositoryInterface $addressRepository,
+        StoreManagerInterface $storeManager,
+        PaymentProfileCollectionFactory $paymentProfileCollectionFactory,
+        VindiCustomerCollectionFactory $vindiCustomerCollectionFactory,
+        VindiCustomerFactory $vindiCustomerFactory
     ) {
         $this->customerRepository = $customerRepository;
         $this->api = $api;
         $this->messageManager = $messageManager;
+        $this->addressRepository = $addressRepository;
+        $this->storeManager = $storeManager;
+        $this->paymentProfileCollectionFactory = $paymentProfileCollectionFactory;
+        $this->vindiCustomerCollectionFactory = $vindiCustomerCollectionFactory;
+        $this->vindiCustomerFactory = $vindiCustomerFactory;
     }
 
     /**
@@ -46,28 +83,32 @@ class Customer
     {
         $billing = $order->getBillingAddress();
         $customer = null;
-        $customerId = null;
+        $vindiCustomerId = null;
 
         if (!$order->getCustomerIsGuest()) {
             $customer = $this->customerRepository->get($billing->getEmail());
-            $customerId = $this->findVindiCustomer($customer->getId());
+            $vindiCustomerId = $this->findVindiCustomerIdByCustomerId($customer->getId());
         }
 
-        if ($customerId) {
-            if($order->getPayment()->getMethod() == "vindi_pix") {
+        if ($vindiCustomerId) {
+            if ($order->getPayment()->getMethod() == "vindi_pix") {
                 $customerVindi = $this->getVindiCustomerData($customer->getId());
-                $taxVatOrder = str_replace([' ', '-', '.'], '', $order->getPayment()->getAdditionalInformation()['document']);
-                if ($customerVindi['registry_code'] != $taxVatOrder) {
-                    $updateData = [
-                        'registry_code' => $taxVatOrder,
-                    ];
-                    $this->updateVindiCustomer($customerId, $updateData);
-                    $customer->setTaxvat($order->getPayment()->getAdditionalInformation()['document']);
-                    $this->customerRepository->save($customer);
+
+                if (is_array($customerVindi)) {
+                    $additionalInfo = $order->getPayment()->getAdditionalInformation();
+                    $taxVatOrder = str_replace([' ', '-', '.'], '', $additionalInfo['document'] ?? '');
+                    if ($customerVindi['registry_code'] != $taxVatOrder) {
+                        $updateData = [
+                            'registry_code' => $taxVatOrder,
+                        ];
+                        $this->updateVindiCustomer($vindiCustomerId, $updateData);
+                        $customer->setTaxvat($additionalInfo['document'] ?? '');
+                        $this->customerRepository->save($customer);
+                    }
                 }
             }
 
-            return $customerId;
+            return $vindiCustomerId;
         }
 
         $address = [
@@ -81,25 +122,171 @@ class Customer
             'country' => $billing->getCountryId(),
         ];
 
+        $baseUrl = $this->storeManager->getStore()->getBaseUrl();
+        $baseUrl = preg_replace("(^https?://)", "", rtrim($baseUrl, "/"));
+        $baseUrl = preg_replace('/[^a-zA-Z0-9]/', '_', $baseUrl);
+
+        if ($customer && $customer->getId()) {
+            $uniqueCode = $baseUrl . '_' . $customer->getId() . '_' . time();
+        } else {
+            $uniqueCode = $baseUrl . '_' . $billing->getEmail() . '_' . time();
+        }
+
         $customerVindi = [
-            'name' => $billing->getFirstname() . ' ' . $billing->getLastname(),
-            'email' => $billing->getEmail(),
-            'registry_code' => $this->getDocumentGuest($order),
-            'code' => $customer ? $customer->getId() : '',
-            'phones' => $this->formatPhone($billing->getTelephone()),
+            'name'    => $billing->getFirstname() . ' ' . $billing->getLastname(),
+            'email'   => $billing->getEmail(),
+            'registry_code' => $this->getDocument($order),
+            'code'    => $uniqueCode,
+            'phones'  => $this->formatPhone($billing->getTelephone()),
             'address' => $address
         ];
 
-        $customerId = $this->createCustomer($customerVindi);
+        $vindiCustomerId = $this->createCustomer($customerVindi);
 
-        if ($customerId === false) {
+        if ($vindiCustomerId === false) {
             $this->messageManager->addErrorMessage(__('Failed while registering user. Check the data and try again'));
             throw new \Magento\Framework\Exception\LocalizedException(
                 __('Failed while registering user. Check the data and try again')
             );
         }
 
-        return $customerId;
+        if ($customer && $customer->getId()) {
+            $this->registerVindiCustomer($customer->getId(), $vindiCustomerId);
+        }
+
+        return $vindiCustomerId;
+    }
+
+    /**
+     * Find or create a customer on Vindi based on Magento customer account.
+     *
+     * @param CustomerInterface $customer
+     * @return array|bool|mixed
+     * @throws \Magento\Framework\Exception\LocalizedException
+     */
+    public function findOrCreateFromCustomerAccount(CustomerInterface $customer)
+    {
+        $vindiCustomerId = $this->findVindiCustomerIdByCustomerId($customer->getId());
+
+        if ($vindiCustomerId) {
+            return $vindiCustomerId;
+        }
+
+        $billingAddressId = $customer->getDefaultBilling();
+        if (!$billingAddressId) {
+            throw new \Magento\Framework\Exception\LocalizedException(
+                __('Please add a billing address to your account before proceeding.')
+            );
+        }
+
+        try {
+            $billingAddress = $this->addressRepository->getById($billingAddressId);
+        } catch (NoSuchEntityException $e) {
+            throw new \Magento\Framework\Exception\LocalizedException(
+                __('Billing address not set for customer.')
+            );
+        }
+
+        $billingStreet = $billingAddress->getStreet();
+
+        if (!$billingStreet) {
+            $street = $billingAddress->getStreetLine(1);
+            $number = $billingAddress->getStreetLine(2);
+            $additionalDetails = $billingAddress->getStreetLine(3);
+            $neighborhood = $billingAddress->getStreetLine(4);
+        }
+
+        $street = $billingStreet[0] ?? '';
+        $number = $billingStreet[1] ?? '';
+        $additionalDetails = $billingStreet[2] ?? '';
+        $neighborhood = $billingStreet[3] ?? '';
+
+        $region = $billingAddress->getRegion();
+
+        $state = null;
+        if ($region !== null) {
+            $state = $region->getRegionCode();
+        }
+
+        if (!$state) {
+            $state = $billingAddress->getRegionCode();
+        }
+
+        $address = [
+            'street' => $street,
+            'number' => $number,
+            'additional_details' => $additionalDetails,
+            'neighborhood' => $neighborhood,
+            'zipcode' => $billingAddress->getPostcode(),
+            'city' => $billingAddress->getCity(),
+            'state' => $state,
+            'country' => $billingAddress->getCountryId(),
+        ];
+
+        $registryCode = $customer->getTaxvat();
+        if (empty($registryCode)) {
+            throw new \Magento\Framework\Exception\LocalizedException(
+                __('The registry code (CPF/CNPJ) is required for creating a customer on Vindi.')
+            );
+        }
+
+        $baseUrl = $this->storeManager->getStore()->getBaseUrl();
+        $baseUrl = preg_replace("(^https?://)", "", rtrim($baseUrl, "/"));
+        $baseUrl = preg_replace('/[^a-zA-Z0-9]/', '_', $baseUrl);
+        $uniqueCode = $baseUrl . '_' . $customer->getId() . '_' . time();
+
+        $customerVindi = [
+            'name' => $customer->getFirstname() . ' ' . $customer->getLastname(),
+            'email' => $customer->getEmail(),
+            'registry_code' => $registryCode,
+            'code' => $uniqueCode,
+            'phones' => $this->formatPhone($billingAddress->getTelephone()),
+            'address' => $address
+        ];
+
+        $vindiCustomerId = $this->createCustomer($customerVindi);
+
+        if ($vindiCustomerId === false) {
+            $this->messageManager->addErrorMessage(__('Failed while registering user. Check the data and try again'));
+            return false;
+        }
+
+        $this->registerVindiCustomer($customer->getId(), $vindiCustomerId);
+
+        return $vindiCustomerId;
+    }
+
+    /**
+     * Register Vindi customer ID in vindi_customers table.
+     *
+     * @param int $magentoCustomerId
+     * @param string $vindiCustomerId
+     */
+    protected function registerVindiCustomer($magentoCustomerId, $vindiCustomerId)
+    {
+        $vindiCustomer = $this->vindiCustomerFactory->create();
+        $vindiCustomer->setMagentoCustomerId($magentoCustomerId);
+        $vindiCustomer->setVindiCustomerId($vindiCustomerId);
+        $vindiCustomer->save();
+    }
+
+    /**
+     * Find Vindi customer ID by Magento customer ID using ORM.
+     *
+     * @param int $customerId
+     * @return string|false
+     */
+    public function findVindiCustomerIdByCustomerId($customerId)
+    {
+        $collection = $this->vindiCustomerCollectionFactory->create();
+        $item = $collection->addFieldToFilter('magento_customer_id', $customerId)->getFirstItem();
+        if ($item->getId()) {
+            return $item->getVindiCustomerId();
+        }
+
+        $collection = $this->paymentProfileCollectionFactory->create();
+        $item = $collection->addFieldToFilter('customer_id', $customerId)->getFirstItem();
+        return $item->getVindiCustomerId() ?: false;
     }
 
     /**
@@ -118,15 +305,14 @@ class Customer
         return false;
     }
 
-
     /**
      * Update customer Vindi.
      *
-     * @param string $query
-     *
+     * @param string $customerId
+     * @param array $body
      * @return array|bool|mixed
      */
-    public function updateVindiCustomer($customerId ,$body)
+    public function updateVindiCustomer($customerId, $body)
     {
         $response = $this->api->request("customers/{$customerId}", 'PUT', $body);
 
@@ -150,6 +336,43 @@ class Customer
 
         if ($response && (1 === count($response['customers'])) && isset($response['customers'][0]['id'])) {
             return $response['customers'][0]['id'];
+        }
+
+        return false;
+    }
+
+    /**
+     * Make an API request to retrieve an existing Customer by Email.
+     *
+     * @param string $query
+     *
+     * @return array|bool|mixed
+     */
+    public function findVindiCustomerByEmail($query)
+    {
+        $response = $this->api->request("customers?query=email={$query}", 'GET');
+
+        if ($response && isset($response['customers']) && count($response['customers']) > 0) {
+            $customers = $response['customers'];
+            $activeCustomer = null;
+            $inactiveCustomer = null;
+
+            foreach ($customers as $customer) {
+                if ($customer['status'] == 'active') {
+                    $activeCustomer = $customer;
+                    break;
+                } elseif ($customer['status'] == 'inactive') {
+                    $inactiveCustomer = $customer;
+                }
+            }
+
+            if ($activeCustomer) {
+                return $activeCustomer['id'];
+            } elseif ($inactiveCustomer) {
+                return $inactiveCustomer['id'];
+            } else {
+                return $customers[0]['id'];
+            }
         }
 
         return false;
@@ -194,12 +417,12 @@ class Customer
      *
      * @return mixed|string
      */
-    protected function getDocumentGuest(Order $order)
+    protected function getDocument(Order $order)
     {
-        if($document = $order->getData('customer_taxvat')) {
-            return $document;
+        $document = (string) $order->getPayment()->getAdditionalInformation('document');
+        if (!$document) {
+            $document = (string) $order->getData('customer_taxvat');
         }
-
-        return $order->getPayment()->getAdditionalInformation('document') ?: '';
+        return $document;
     }
 }

@@ -25,4 +25,17 @@ class Interval extends AbstractSource
 
         return $this->_options;
     }
+
+    /**
+     * Get a text for option value
+     * @param string|integer $value
+     * @return string|bool
+     */
+    public function toOptionArray()
+    {
+        return [
+            ['value' => 'days', 'label' => __('Days')],
+            ['value' => 'months', 'label' => __('Months')]
+        ];
+    }
 }

@@ -2,14 +2,12 @@
 
 <page xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
       xsi:noNamespaceSchemaLocation="urn:magento:framework:View/Layout/etc/page_configuration.xsd">
-
-    <update handle="customer_account"/>
     <head>
         <css src="Vindi_Payment::css/pix.css" />
     </head>
     <body>
-        <referenceBlock name="sales.order.info.buttons">
-            <block class="Vindi\Payment\Block\Order\Info\Buttons" name="vindi.payment.order.info.buttons" cacheable="false"/>
-        </referenceBlock>
+        <referenceContainer name="content">
+            <block class="Vindi\Payment\Block\Order\View\Subscription" name="order_subscription" template="Vindi_Payment::order/view/subscription.phtml" before="-"/>
+        </referenceContainer>
     </body>
 </page>

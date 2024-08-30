@@ -4,7 +4,10 @@
     <event name="payment_method_assign_data">
         <observer name="vindi_gateway_data_assign" instance="Vindi\Payment\Observer\DataAssignObserver" />
     </event>
-    <event name="catalog_product_save_after">
-        <observer name="vindi_plan_sync" instance="Vindi\Payment\Observer\ProductSaveObserver" />
+    <event name="catalog_product_save_before">
+        <observer name="vindi_payment_save_recurrence_data" instance="Vindi\Payment\Observer\SaveRecurrenceData" />
+    </event>
+    <event name="sales_order_save_after">
+        <observer name="vindi_payment_order_save_after" instance="Vindi\Payment\Observer\OrderSaveAfter" />
     </event>
 </config>

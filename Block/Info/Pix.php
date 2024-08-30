@@ -2,10 +2,10 @@
 
 namespace Vindi\Payment\Block\Info;
 
-
 use Magento\Backend\Block\Template\Context;
 use Magento\Framework\Pricing\Helper\Data;
 use Magento\Framework\Serialize\Serializer\Json;
+use Magento\Framework\Stdlib\DateTime\TimezoneInterface;
 use Magento\Payment\Block\Info;
 use Vindi\Payment\Api\PixConfigurationInterface;
 use Vindi\Payment\Model\Payment\PaymentMethod;
@@ -17,7 +17,6 @@ use Vindi\Payment\Model\Payment\PaymentMethod;
  */
 class Pix extends Info
 {
-
     /**
      * @var string
      */
@@ -33,6 +32,9 @@ class Pix extends Info
      */
     protected $pixConfiguration;
 
+    /** @var TimezoneInterface */
+    protected $timezone;
+
     /**
      * @var Json
      */
@@ -41,10 +43,12 @@ class Pix extends Info
     protected $paymentMethod;
 
     /**
+     * Pix constructor.
      * @param PaymentMethod $paymentMethod
      * @param Data $currency
      * @param Context $context
      * @param PixConfigurationInterface $pixConfiguration
+     * @param TimezoneInterface $timezone
      * @param Json $json
      * @param array $data
      */
@@ -53,6 +57,7 @@ class Pix extends Info
         Data $currency,
         Context $context,
         PixConfigurationInterface $pixConfiguration,
+        TimezoneInterface $timezone,
         Json $json,
         array $data = []
     ) {
@@ -60,7 +65,17 @@ class Pix extends Info
         $this->paymentMethod = $paymentMethod;
         $this->currency = $currency;
         $this->pixConfiguration = $pixConfiguration;
+        $this->timezone = $timezone;
         $this->json = $json;
+    }
+
+    /**
+     * Disable block cache
+     */
+    protected function _construct()
+    {
+        parent::_construct();
+        $this->setCacheLifetime(false);
     }
 
     /**
@@ -82,6 +97,16 @@ class Pix extends Info
     public function getOrder()
     {
         return $this->getInfo()->getOrder();
+    }
+
+    /**
+     * Get order payment method name
+     *
+     * @return string
+     */
+    public function getPaymentMethodName()
+    {
+        return $this->getOrder()->getPayment()->getMethodInstance()->getTitle();
     }
 
     /**
@@ -112,6 +137,15 @@ class Pix extends Info
         $timestampMaxDays = strtotime($daysToPayment);
 
         return $paymentMethod && $this->isValidToPayment($timestampMaxDays);
+    }
+
+    /**
+     * @return bool
+     * @throws \Magento\Framework\Exception\LocalizedException
+     */
+    public function hasInvoice()
+    {
+        return $this->getOrder()->hasInvoices();
     }
 
     /**
@@ -167,15 +201,15 @@ class Pix extends Info
             return false;
         }
 
-        return $timestampMaxDays >= strtotime("now");
+        return $timestampMaxDays >= $this->timezone->scopeTimeStamp();
     }
 
     /**
-     * @return mixed
+     * @return string
      * @throws \Magento\Framework\Exception\LocalizedException
      */
-    protected function getMaxDaysToPayment()
+    protected function getMaxDaysToPayment(): string
     {
-        return $this->getOrder()->getPayment()->getAdditionalInformation('max_days_to_keep_waiting_payment');
+        return (string) $this->getOrder()->getPayment()->getAdditionalInformation('max_days_to_keep_waiting_payment');
     }
 }

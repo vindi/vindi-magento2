@@ -13,6 +13,15 @@
     <preference for="Vindi\Payment\Api\Data\SubscriptionSearchResultsInterface" type="Magento\Framework\Api\SearchResults"/>
     <preference for="Vindi\Payment\Api\PixConfigurationInterface" type="Vindi\Payment\Helper\PixConfiguration"/>
 
+    <type name="Magento\Framework\Console\CommandList">
+        <arguments>
+            <argument name="commands" xsi:type="array">
+                <item name="vindi:process-order-creation-queue" xsi:type="object">Vindi\Payment\Console\Command\ProcessOrderCreationQueueCommand</item>
+                <item name="vindi:process-order-paid-queue" xsi:type="object">Vindi\Payment\Console\Command\ProcessOrderPaidQueueCommand</item>
+            </argument>
+        </arguments>
+    </type>
+
     <virtualType name="Vindi\Payment\Model\ResourceModel\Subscription\Grid\Collection" type="Magento\Framework\View\Element\UiComponent\DataProvider\SearchResult">
         <arguments>
             <argument name="mainTable" xsi:type="string">vindi_subscription</argument>
@@ -33,5 +42,135 @@
     </type>
     <type name="Magento\Sales\Model\Order\Payment">
         <plugin name="setOrderStatusOnPlace" type="Vindi\Payment\Plugin\SetOrderStatusOnPlace" />
+    </type>
+
+    <!-- VindiPlan-->
+    <preference for="Vindi\Payment\Api\Data\VindiPlanInterface" type="Vindi\Payment\Model\VindiPlan"/>
+    <preference for="Vindi\Payment\Api\Data\VindiPlanSearchResultInterface" type="Vindi\Payment\Model\VindiPlanSearchResult"/>
+    <preference for="Vindi\Payment\Api\VindiPlanRepositoryInterface" type="Vindi\Payment\Model\VindiPlanRepository"/>
+
+    <type name="Magento\Framework\View\Element\UiComponent\DataProvider\CollectionFactory">
+        <arguments>
+            <argument name="collections" xsi:type="array">
+                <item name="vindi_payment_vindiplan_listing_data_source" xsi:type="string">Vindi\Payment\Model\ResourceModel\VindiPlan\Grid\Collection</item>
+                <item name="vindi_payment_vindiplan_data_source" xsi:type="string">Vindi\Payment\Model\ResourceModel\VindiPlan\Form\DataProvider</item>
+            </argument>
+        </arguments>
+    </type>
+
+    <virtualType name="Vindi\Payment\Model\ResourceModel\VindiPlan\Grid\Collection" type="Magento\Framework\View\Element\UiComponent\DataProvider\SearchResult">
+        <arguments>
+            <argument name="mainTable" xsi:type="string">vindi_plans</argument>
+            <argument name="resourceModel" xsi:type="string">Vindi\Payment\Model\ResourceModel\VindiPlan</argument>
+        </arguments>
+    </virtualType>
+
+    <!-- PaymentProfile-->
+    <preference for="Vindi\Payment\Api\Data\PaymentProfileInterface" type="Vindi\Payment\Model\PaymentProfile"/>
+    <preference for="Vindi\Payment\Api\Data\PaymentProfileSearchResultInterface" type="Vindi\Payment\Model\PaymentProfileSearchResult"/>
+    <preference for="Vindi\Payment\Api\PaymentProfileRepositoryInterface" type="Vindi\Payment\Model\PaymentProfileRepository"/>
+
+    <type name="Magento\Framework\View\Element\UiComponent\DataProvider\CollectionFactory">
+        <arguments>
+            <argument name="collections" xsi:type="array">
+                <item name="vindi_payment_paymentprofile_listing_data_source" xsi:type="string">Vindi\Payment\Model\ResourceModel\PaymentProfile\Grid\Collection</item>
+                <item name="vindi_payment_paymentprofile_data_source" xsi:type="string">Vindi\Payment\Model\ResourceModel\PaymentProfile\Form\DataProvider</item>
+            </argument>
+        </arguments>
+    </type>
+
+    <virtualType name="Vindi\Payment\Model\ResourceModel\PaymentProfile\Grid\Collection" type="Magento\Framework\View\Element\UiComponent\DataProvider\SearchResult">
+        <arguments>
+            <argument name="mainTable" xsi:type="string">vindi_payment_profiles</argument>
+            <argument name="resourceModel" xsi:type="string">Vindi\Payment\Model\ResourceModel\PaymentProfile</argument>
+        </arguments>
+    </virtualType>
+
+    <type name="Magento\Catalog\Block\Product\View">
+        <plugin name="vindi_payment_disable_qty_rendering" type="Vindi\Payment\Plugin\DisableQtyRendering" sortOrder="10" disabled="false"/>
+    </type>
+    <type name="Magento\Catalog\Model\Product">
+        <plugin name="vindi_recurrence_post_product_save" type="Vindi\Payment\Plugin\PostProductSave"/>
+    </type>
+    <type name="Magento\Checkout\Model\Cart">
+        <plugin name="vindi_recurrence_prevent_add_product_with_recurrence" type="Vindi\Payment\Plugin\PreventAddProduct" sortOrder="1"/>
+        <plugin name="vindi_recurrence_restrict_quantity_update_for_recurrence_product" type="Vindi\Payment\Plugin\RestrictQuantityUpdate" sortOrder="2"/>
+    </type>
+
+    <!-- SubscriptionOrder-->
+    <preference for="Vindi\Payment\Api\Data\SubscriptionOrderInterface" type="Vindi\Payment\Model\SubscriptionOrder"/>
+    <preference for="Vindi\Payment\Api\Data\SubscriptionOrderSearchResultInterface" type="Vindi\Payment\Model\SubscriptionOrderSearchResult"/>
+    <preference for="Vindi\Payment\Api\SubscriptionOrderRepositoryInterface" type="Vindi\Payment\Model\SubscriptionOrderRepository"/>
+
+    <type name="Magento\Framework\View\Element\UiComponent\DataProvider\CollectionFactory">
+        <arguments>
+            <argument name="collections" xsi:type="array">
+                <item name="vindi_payment_subscriptionorder_listing_data_source" xsi:type="string">Vindi\Payment\Model\ResourceModel\SubscriptionOrder\Grid\Collection</item>
+                <item name="vindi_payment_subscriptionorder_data_source" xsi:type="string">Vindi\Payment\Model\ResourceModel\SubscriptionOrder\Form\DataProvider</item>
+            </argument>
+        </arguments>
+    </type>
+
+    <virtualType name="Vindi\Payment\Model\ResourceModel\SubscriptionOrder\Grid\Collection" type="Magento\Framework\View\Element\UiComponent\DataProvider\SearchResult">
+        <arguments>
+            <argument name="mainTable" xsi:type="string">vindi_subscription_orders</argument>
+            <argument name="resourceModel" xsi:type="string">Vindi\Payment\Model\ResourceModel\SubscriptionOrder</argument>
+        </arguments>
+    </virtualType>
+
+    <type name="Magento\Payment\Model\MethodList">
+        <plugin name="vindi_payment_filter_recurring_payments" type="Vindi\Payment\Plugin\FilterRecurringPayments" sortOrder="10"/>
+    </type>
+    <type name="Vindi\Payment\Plugin\FilterRecurringPayments">
+        <arguments>
+            <argument name="checkoutSession" xsi:type="object">Magento\Checkout\Model\Session</argument>
+        </arguments>
+    </type>
+
+    <preference for="Vindi\Payment\Api\OrderCreationQueueRepositoryInterface" type="Vindi\Payment\Model\OrderCreationQueueRepository"/>
+
+    <type name="Vindi\Payment\Logger\Handler">
+        <arguments>
+            <argument name="filesystem" xsi:type="object">Magento\Framework\Filesystem\Driver\File</argument>
+        </arguments>
+    </type>
+    <type name="Vindi\Payment\Logger\Logger">
+        <arguments>
+            <argument name="name" xsi:type="string">vindi_payment_module</argument>
+            <argument name="handlers"  xsi:type="array">
+                <item name="system" xsi:type="object">Vindi\Payment\Logger\Handler</item>
+            </argument>
+        </arguments>
+    </type>
+
+    <!-- Log-->
+    <preference for="Vindi\Payment\Api\Data\LogInterface" type="Vindi\Payment\Model\Log"/>
+    <preference for="Vindi\Payment\Api\Data\LogSearchResultInterface" type="Vindi\Payment\Model\LogSearchResult"/>
+    <preference for="Vindi\Payment\Api\LogRepositoryInterface" type="Vindi\Payment\Model\LogRepository"/>
+
+    <type name="Magento\Framework\View\Element\UiComponent\DataProvider\CollectionFactory">
+        <arguments>
+            <argument name="collections" xsi:type="array">
+                <item name="vindi_payment_log_listing_data_source" xsi:type="string">Vindi\Payment\Model\ResourceModel\Log\Grid\Collection</item>
+                <item name="vindi_payment_log_data_source" xsi:type="string">Vindi\Payment\Model\ResourceModel\Log\Form\DataProvider</item>
+            </argument>
+        </arguments>
+    </type>
+
+    <virtualType name="Vindi\Payment\Model\ResourceModel\Log\Grid\Collection" type="Magento\Framework\View\Element\UiComponent\DataProvider\SearchResult">
+        <arguments>
+            <argument name="mainTable" xsi:type="string">vindi_api_logs</argument>
+            <argument name="resourceModel" xsi:type="string">Vindi\Payment\Model\ResourceModel\Log</argument>
+        </arguments>
+    </virtualType>
+
+    <type name="Vindi\Payment\Cron\ProcessOrderCreationQueue">
+        <arguments>
+            <argument name="lockManager" xsi:type="object">Magento\Framework\Lock\LockManagerInterface</argument>
+        </arguments>
+    </type>
+
+    <type name="Magento\Sales\Controller\Order\Reorder">
+        <plugin name="vindi_payment_reorder_redirect_plugin" type="Vindi\Payment\Plugin\ReorderRedirectPlugin" />
     </type>
 </config>

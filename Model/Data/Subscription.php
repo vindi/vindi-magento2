@@ -143,4 +143,61 @@ class Subscription extends AbstractSimpleObject implements SubscriptionInterface
     {
         return $this->setData(self::STATUS, $status);
     }
+
+    /**
+     * Get next_billing_at
+     * @return string|null
+     */
+    public function getNextBillingAt()
+    {
+        return $this->_get(self::NEXT_BILLING_AT);
+    }
+
+    /**
+     * Set next_billing_at
+     * @param string $nextBillingAt
+     * @return SubscriptionInterface
+     */
+    public function setNextBillingAt($nextBillingAt)
+    {
+        return $this->setData(self::NEXT_BILLING_AT, $nextBillingAt);
+    }
+
+    /**
+     * Get end_at
+     * @return string|null
+     */
+    public function getBillId()
+    {
+        return $this->_get(self::BILL_ID);
+    }
+
+    /**
+     * Set end_at
+     * @param string $billId
+     * @return SubscriptionInterface
+     */
+    public function setBillId($billId)
+    {
+        return $this->setData(self::BILL_ID, $billId);
+    }
+
+    /**
+     * Get response_data
+     * @return string|null
+     */
+    public function getResponseData()
+    {
+        return $this->_get(self::RESPONSE_DATA);
+    }
+
+    /**
+     * Set response_data
+     * @param string $responseData
+     * @return SubscriptionInterface
+     */
+    public function setResponseData($responseData)
+    {
+        return $this->setData(self::RESPONSE_DATA, $responseData);
+    }
 }

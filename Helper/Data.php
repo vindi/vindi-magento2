@@ -15,10 +15,12 @@ use Vindi\Payment\Setup\UpgradeData;
 class Data extends AbstractHelper
 {
     protected $scopeConfig;
+
     /**
      * @var AttributeSetRepositoryInterface
      */
     private $attributeSetRepository;
+
     /**
      * @var ProductRepositoryInterface
      */
@@ -28,7 +30,6 @@ class Data extends AbstractHelper
      * @var CollectionFactory
      */
     private $orderStatusCollectionFactory;
-
 
     /**
      * Data constructor.
@@ -43,7 +44,6 @@ class Data extends AbstractHelper
         ProductRepositoryInterface $productRepository,
         CollectionFactory $orderStatusCollectionFactory
     ) {
-
         $this->scopeConfig = $context->getScopeConfig();
         parent::__construct($context);
         $this->attributeSetRepository = $attributeSetRepository;
@@ -53,7 +53,7 @@ class Data extends AbstractHelper
 
     public function getCreditCardConfig($field, $group = 'vindi')
     {
-        return $this->scopeConfig->getValue(
+        return (string) $this->scopeConfig->getValue(
             'payment/' . $group . '/' . $field,
             \Magento\Store\Model\ScopeInterface::SCOPE_STORE
         );
@@ -61,7 +61,7 @@ class Data extends AbstractHelper
 
     public function getModuleGeneralConfig($field)
     {
-        return $this->scopeConfig->getValue(
+        return (string) $this->scopeConfig->getValue(
             'vindiconfiguration/general/' . $field,
             \Magento\Store\Model\ScopeInterface::SCOPE_STORE
         );
@@ -151,8 +151,8 @@ class Data extends AbstractHelper
             "[^a-zA-Z0-9-]",
             "-",
             strtr(
-                utf8_decode(trim(preg_replace('/[ -]+/', '-', $code))),
-                utf8_decode("áàãâéêíóôõúüñçÁÀÃÂÉÊÍÓÔÕÚÜÑÇ"),
+                mb_convert_encoding(trim(preg_replace('/[ -]+/', '-', $code)), 'ISO-8859-1', 'UTF-8'),
+                mb_convert_encoding("áàãâéêíóôõúüñçÁÀÃÂÉÊÍÓÔÕÚÜÑÇ", 'ISO-8859-1', 'UTF-8'),
                 "aaaaeeiooouuncAAAAEEIOOOUUNC-"
             )
         ));
@@ -171,12 +171,78 @@ class Data extends AbstractHelper
     }
 
     /**
-    * @param $productId
-    * @return \Magento\Catalog\Api\Data\ProductInterface
-    * @throws NoSuchEntityException
-    */
+     * @param $productId
+     * @return \Magento\Catalog\Api\Data\ProductInterface
+     * @throws NoSuchEntityException
+     */
     public function getProductById($productId)
     {
         return $this->productRepository->getById($productId);
+    }
+
+    /**
+     * Check if the order is a subscription order.
+     * @param Order $order
+     * @return bool|Order\Item
+     */
+    public function isSubscriptionOrder(Order $order)
+    {
+        foreach ($order->getItems() as $item) {
+            try {
+                $options = $item->getProductOptions();
+                if (!empty($options['info_buyRequest']['selected_plan_id'])) {
+                    return $item;
+                }
+            } catch (\Exception $e) {
+                // Handle exception if necessary
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * Sanitize sensitive data in the log entries
+     *
+     * @param string $data
+     * @return string
+     */
+    public function sanitizeData($data)
+    {
+        $patterns = [
+            '/"card_number":\s*"\d+"/',
+            '/"cvv":\s*"\d+"/',
+            '/"expiration_date":\s*"\d{2}\/\d{2}"/',
+            '/"password":\s*".*?"/',
+            '/"email":\s*".*?"/',
+            '/"phone":\s*"\d+"/',
+            '/"card_cvv":\s*"\d+"/',
+            '/"registry_code[_\d]*":\s*"\d[\d.\/\\\\-]*"/',
+            '/"holder_name":\s*".*?"/',
+            '/"street":\s*".*?"/',
+            '/"number":\s*".*?"/',
+            '/"zipcode":\s*"\d+"/',
+            '/"token":\s*".*?"/',
+            '/"gateway_token":\s*".*?"/'
+        ];
+
+        $replacements = [
+            '"card_number": "**** **** **** ****"',
+            '"cvv": "***"',
+            '"expiration_date": "**/**"',
+            '"password": "********"',
+            '"email": "********@****.***"',
+            '"phone": "**********"',
+            '"card_cvv": "***"',
+            '"registry_code$1": "************"',
+            '"holder_name": "********"',
+            '"street": "********"',
+            '"number": "***"',
+            '"zipcode": "*****-***"',
+            '"token": "************"',
+            '"gateway_token": "************"'
+        ];
+
+        return preg_replace($patterns, $replacements, $data);
     }
 }

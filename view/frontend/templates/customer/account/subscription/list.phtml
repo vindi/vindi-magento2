@@ -1,0 +1,38 @@
+<?php
+/** @var \Vindi\Payment\Block\Subscription\SubscriptionList $block */
+$subscriptions = $block->getSubscriptions();
+$pageTitle = __("Subscriptions");
+?>
+<?php if (count($subscriptions)): ?>
+    <div class="subscriptions-list">
+        <table>
+            <thead>
+            <tr>
+                <th><?= __('ID') ?></th>
+                <th><?= __('Client') ?></th>
+                <th><?= __('Plan') ?></th>
+                <th><?= __('Start') ?></th>
+                <th><?= __('Payment Method') ?></th>
+                <th><?= __('Status') ?></th>
+            </tr>
+            </thead>
+            <tbody>
+            <?php foreach ($subscriptions as $subscription): ?>
+                <tr onclick="window.location='<?= $block->getUrl('vindi_vr/subscription/details', ['id' => $subscription->getId()]) ?>';" style="cursor: pointer;">
+                    <td><?= $subscription->getId() ?></td>
+                    <td><?= $subscription->getClient() ?></td>
+                    <td><?= $subscription->getPlan() ?></td>
+                    <td><?= $block->getStartAt($subscription->getStartAt()) ?></td>
+                    <td><?= $block->getPaymentMethodLabel($subscription->getPaymentMethod()) ?></td>
+                    <td><?= $block->getStatusLabel($subscription->getStatus()) ?></td>
+                </tr>
+            <?php endforeach; ?>
+            </tbody>
+        </table>
+        <div class="pager">
+            <?= $block->getPagerHtml(); ?>
+        </div>
+    </div>
+<?php else: ?>
+    <p><?= __('There are no subscriptions for this customer.') ?></p>
+<?php endif; ?>

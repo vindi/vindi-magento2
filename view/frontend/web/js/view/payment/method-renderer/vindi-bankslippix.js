@@ -17,18 +17,23 @@ define(
                 taxvat: taxvat
             },
 
+            initialize: function () {
+                this._super();
+                this.taxvat.value(window?.checkoutConfig?.payment?.vindi_bankslippix?.customer_taxvat);
+            },
+
             getInfoMessage: function () {
-                return window?.checkoutConfig?.payment?.vindi_pix?.info_message;
+                return window?.checkoutConfig?.payment?.vindi_bankslippix?.info_message;
             },
 
             isActiveDocument: function () {
-                return window?.checkoutConfig?.payment?.vindi_pix?.enabledDocument;
+                return window?.checkoutConfig?.payment?.vindi_bankslippix?.enabledDocument;
             },
 
             checkCpf: function (self, event) {
                 this.formatTaxvat(event.target)
                 const message = documentValidate.isValidTaxvat(this?.taxvat?.value()) ? '' : 'CPF/CNPJ inválido';
-                $('#cpfResponse').text(message);
+                $('#cpfResponseBankSlipPix').text(message);
             },
 
             formatTaxvat: function (target) {
@@ -66,4 +71,3 @@ define(
         });
     }
 );
-

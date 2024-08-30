@@ -1,12 +1,36 @@
 <?xml version="1.0"?>
 <config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
         xsi:noNamespaceSchemaLocation="urn:magento:framework:ObjectManager/etc/config.xsd">
+
     <type name="Magento\Checkout\Model\CompositeConfigProvider">
         <arguments>
             <argument name="configProviders" xsi:type="array">
                 <item name="test_module_configprovider" xsi:type="object">Vindi\Payment\Model\ConfigProvider</item>
                 <item name="vindi_pix_configprovider" xsi:type="object">Vindi\Payment\Model\Pix\ConfigProvider</item>
+                <item name="vindi_bankslip_configprovider" xsi:type="object">Vindi\Payment\Model\Bankslip\ConfigProvider</item>
+                <item name="vindi_bankslippix_configprovider" xsi:type="object">Vindi\Payment\Model\BankslipPix\ConfigProvider</item>
             </argument>
         </arguments>
     </type>
+
+    <type name="Magento\Quote\Model\Quote">
+        <plugin name="add_custom_option_plugin" type="Vindi\Payment\Plugin\AddCustomOptionToQuoteItem" sortOrder="10"/>
+    </type>
+    <type name="Magento\Catalog\Model\Product">
+        <plugin name="vindi_payment_customprice_product" type="Vindi\Payment\Plugin\ProductPlugin" sortOrder="10" disabled="false"/>
+        <plugin name="vindi_payment_hidecartbutton" type="Vindi\Payment\Plugin\HideCartButton" sortOrder="32"/>
+    </type>
+    <type name="Magento\Framework\Pricing\Render\Amount">
+        <plugin name="vindi_payment_custom_price_template" type="Vindi\Payment\Plugin\CustomPriceTemplate" sortOrder="10"/>
+    </type>
+
+    <type name="Magento\Framework\Mail\Template\TransportBuilder">
+        <arguments>
+            <argument name="templateVars" xsi:type="array">
+                <item name="store" xsi:type="object">Magento\Store\Model\StoreManagerInterface</item>
+            </argument>
+        </arguments>
+    </type>
+
+    <preference for="Vindi\Payment\Api\CcConfigurationInterface" type="Vindi\Payment\Model\Config\CcConfiguration" />
 </config>
