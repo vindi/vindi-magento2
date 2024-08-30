@@ -66,9 +66,9 @@ class UpgradeData implements UpgradeDataInterface
     ) {
         $this->setup = $setup;
 
-        if (version_compare($context->getVersion(), '2.0.0', '<')) {
-            $this->removeProductAttributesAndSets();
-        }
+        // if (version_compare($context->getVersion(), '2.0.0', '<')) {
+        //     $this->removeProductAttributesAndSets();
+        // }
     }
 
     /**
