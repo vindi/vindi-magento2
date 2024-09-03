@@ -1,0 +1,106 @@
+.paymentProfiles-list {
+    font-family: Arial, sans-serif;
+}
+
+.paymentProfiles-list table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+}
+
+.paymentProfiles-list th, .paymentProfiles-list td {
+    padding: 8px;
+    text-align: left;
+}
+
+.paymentProfiles-list th {
+    background-color: #f2f2f2;
+}
+
+.paymentProfiles-list tr:nth-child(even) {
+    background-color: #f9f9f9;
+}
+
+.paymentProfiles-list tr:hover {
+    background-color: #eaeaea;
+}
+
+.paymentProfiles-list .pager {
+    margin: 20px 0;
+    text-align: center;
+    list-style: none;
+    padding: 0;
+}
+
+.paymentProfiles-list .pager .items {
+    display: inline-block;
+    padding-left: 0;
+}
+
+.paymentProfiles-list .pager .items li {
+    display: inline;
+    margin: 0 5px;
+}
+
+.paymentProfiles-list .pager .items li a,
+.paymentProfiles-list .pager .items li strong {
+    padding: 5px 10px;
+    border: 1px solid #ddd;
+    background-color: #f9f9f9;
+    color: #333;
+    text-decoration: none;
+}
+
+.paymentProfiles-list .pager .items li.current strong,
+.paymentProfiles-list .pager .items li a:hover {
+    background-color: #eaeaea;
+}
+
+.paymentProfiles-list .pager .limiter,
+.paymentProfiles-list .pager .toolbar-amount,
+.paymentProfiles-list .pager .toolbar-number {
+    display: inline-block;
+    margin: 0 10px;
+}
+
+.paymentProfiles-list .pager .limiter select {
+    padding: 5px;
+    border: 1px solid #ddd;
+}
+
+.paymentProfiles-list .pager .limiter-label,
+.paymentProfiles-list .pager .limiter-text {
+    margin-right: 5px;
+}
+
+.paymentProfiles-list .card-icon {
+    width: 50px;
+    height: auto;
+}
+
+.paymentProfiles-list th, .paymentProfiles-list td {
+    padding: 8px;
+    text-align: left;
+    vertical-align: middle;
+}
+
+.add-card-button .button {
+    background-color: #0056b3;
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 16px;
+    text-decoration: none;
+    display: inline-block;
+}
+
+.add-card-button .button:hover {
+    background-color: #004494;
+}
+
+.add-card-button {
+    float: right;
+    margin-top: 20px;
+}

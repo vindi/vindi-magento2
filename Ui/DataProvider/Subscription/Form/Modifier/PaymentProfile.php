@@ -7,6 +7,7 @@ use Magento\Ui\DataProvider\Modifier\ModifierInterface;
 use Magento\Ui\Component\Form\Field;
 use Magento\Ui\Component\Form\Fieldset;
 use Vindi\Payment\Helper\Api;
+use Vindi\Payment\Model\ResourceModel\PaymentProfile\Collection as PaymentProfileCollection;
 
 /**
  * Class PaymentProfile
@@ -18,6 +19,15 @@ class PaymentProfile implements ModifierInterface
      * @var Registry
      */
     private $registry;
+
+    /**
+     * @var PaymentProfileCollection
+     */
+    private $paymentProfileCollection;
+
+    /**
+     * @var array|null
+     */
     private $subscriptions;
     /**
      * @var Api
@@ -28,13 +38,16 @@ class PaymentProfile implements ModifierInterface
      * PaymentProfile constructor.
      * @param Registry $registry
      * @param Api $api
+     * @param PaymentProfileCollection $paymentProfileCollection
      */
     public function __construct(
         Registry $registry,
-        Api $api
+        Api $api,
+        PaymentProfileCollection $paymentProfileCollection
     ) {
         $this->registry = $registry;
         $this->api = $api;
+        $this->paymentProfileCollection = $paymentProfileCollection;
     }
 
     /**
@@ -83,25 +96,32 @@ class PaymentProfile implements ModifierInterface
     }
 
     /**
+     * Get payment profiles from the collection
+     *
      * @return array
      */
     public function getPaymentProfiles()
     {
-        $options = [];
+        $data = $this->getSubscriptionData();
 
-        $endpoint = 'payment_profiles?query=customer_id%3D' . $this->getCustomerId() . '%20status%3Dactive%20type%3DPaymentProfile%3A%3ACreditCard';
-
-        $request = $this->api->request($endpoint,'GET');
-
-        if (!is_array($request) && !array_key_exists('payment_profiles', $request)) {
-            return $options;
+        if (isset($data['payment_method']['code']) && $data['payment_method']['code'] !== 'credit_card') {
+            return [];
         }
 
-        foreach ($request['payment_profiles'] as $profile) {
-            $options[] = [
-                'value' => $profile['id'],
-                'label' => $profile['payment_method']['public_name'] . ' - ' . $profile['payment_company']['name'] . ' ('. $profile['card_number_last_four'] .  ')'
-            ];
+        $options = [];
+        $customerId = $this->getCustomerId();
+
+        if ($customerId) {
+            $paymentProfileCollection = $this->paymentProfileCollection->addFieldToFilter('vindi_customer_id', $customerId)
+                ->setOrder('created_at', 'DESC');
+
+            foreach ($paymentProfileCollection as $profile) {
+                $ccName = $profile->getCcName() ? ' (' . $profile->getCcName() . ')' : '';
+                $options[] = [
+                    'value' => $profile->getPaymentProfileId(),
+                    'label' => $profile->getCcType() . '****' . $profile->getCcLast4() . $ccName
+                ];
+            }
         }
 
         return $options;

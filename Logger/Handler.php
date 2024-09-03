@@ -1,0 +1,17 @@
+<?php
+namespace Vindi\Payment\Logger;
+
+class Handler extends \Magento\Framework\Logger\Handler\Base
+{
+    /**
+     * Logging level
+     * @var int
+     */
+    protected $loggerType = Logger::INFO;
+
+    /**
+     * File name
+     * @var string
+     */
+    protected $fileName = '/var/log/vindi_payment_module.log';
+}

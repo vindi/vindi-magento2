@@ -12,6 +12,10 @@
                     <item name="class" xsi:type="string">Vindi\Payment\Ui\DataProvider\Product\Form\Modifier\BillingTriggerUpdate</item>
                     <item name="sortOrder" xsi:type="number">20</item>
                 </item>
+                <item name="vindi_recurrence_attribute" xsi:type="array">
+                    <item name="class" xsi:type="string">Vindi\Payment\Ui\DataProvider\Product\Form\Modifier\RecurrenceDataDynamicRow</item>
+                    <item name="sortOrder" xsi:type="number">20</item>
+                </item>
             </argument>
         </arguments>
     </virtualType>

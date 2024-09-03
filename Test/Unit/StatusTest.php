@@ -9,20 +9,20 @@ class StatusTest extends \PHPUnit\Framework\TestCase
 
     protected $objectManager;
     protected $paymentMock;
-    
-    public function setUp()
+
+    public function setUp(): void
     {
         $this->objectManager = new \Magento\Framework\TestFramework\Unit\Helper\ObjectManager($this);
         $this->paymentMock   = $this->createPaymentMock();
     }
 
     public function testGetStatusToOrderCompleteWithNoStatusConfigured()
-    {       
+    {
         $this->assertEquals(Order::STATE_PROCESSING, $this->createHelperObjectManager(null)->getStatusToOrderComplete());
     }
 
     public function testGetStatusToOrderCompleteWithPendingStatusConfigured()
-    {       
+    {
         $this->assertEquals('pending', $this->createHelperObjectManager('pending')->getStatusToOrderComplete());
     }
 
@@ -32,7 +32,7 @@ class StatusTest extends \PHPUnit\Framework\TestCase
             ->willReturn(
                 \Vindi\Payment\Model\Payment\Vindi::CODE
             );
-        
+
         $result = $this->createPluginObjectManager(Order::STATE_PROCESSING)->afterPlace($this->paymentMock, 'Expected Result');
 
         $this->assertEquals('Expected Result', $result);
@@ -41,7 +41,7 @@ class StatusTest extends \PHPUnit\Framework\TestCase
     }
 
     public function testSetPendingOrderStatusOnPlaceCreditCard()
-    {       
+    {
         $this->paymentMock->method('getMethod')
             ->willReturn(
                 \Vindi\Payment\Model\Payment\Vindi::CODE
@@ -90,7 +90,7 @@ class StatusTest extends \PHPUnit\Framework\TestCase
 
         $helperMock->method('getStatusToOrderComplete')
             ->willReturn($statusToOrderComplete);
-        
+
         return $helperMock;
     }
 
@@ -99,7 +99,7 @@ class StatusTest extends \PHPUnit\Framework\TestCase
         $contextMock = $this->getMockBuilder(\Magento\Framework\App\Helper\Context::class)
             ->disableOriginalConstructor()
             ->getMock();
-        
+
         $scopeConfigMock = $this->getMockBuilder(\Magento\Framework\App\Config\ScopeConfigInterface::class)
             ->disableOriginalConstructor()
             ->getMock();
@@ -124,7 +124,7 @@ class StatusTest extends \PHPUnit\Framework\TestCase
             ->willReturn($this->createOrderMock());
 
         return $paymentMock;
-    }    
+    }
 
     private function createOrderMock()
     {

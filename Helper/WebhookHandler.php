@@ -2,51 +2,44 @@
 
 namespace Vindi\Payment\Helper;
 
+use Magento\Framework\HTTP\PhpEnvironment\RemoteAddress;
+use Vindi\Payment\Logger\Logger;
+use Vindi\Payment\Helper\WebHookHandlers\BillCreated;
+use Vindi\Payment\Helper\WebHookHandlers\BillPaid;
+use Vindi\Payment\Helper\WebHookHandlers\ChargeRejected;
+use Vindi\Payment\Helper\WebHookHandlers\BillCanceled;
+use Vindi\Payment\Helper\WebHookHandlers\Subscription;
+use Vindi\Payment\Model\LogFactory;
+use Vindi\Payment\Model\ResourceModel\Log as LogResource;
 
+/**
+ * Class WebhookHandler
+ * @package Vindi\Payment\Helper
+ */
 class WebhookHandler
 {
-    /**
-     * @var \Magento\Framework\HTTP\PhpEnvironment\RemoteAddress
-     */
     protected $remoteAddress;
-
-    /**
-     * @var \Psr\Log\LoggerInterface
-     */
     protected $logger;
-
-    /**
-     * @var \Vindi\Payment\Helper\WebHookHandlers\BillCreated
-     */
     protected $billCreated;
-
-    /**
-     * @var \Vindi\Payment\Helper\WebHookHandlers\BillPaid
-     */
     protected $billPaid;
-
-    /**
-     * @var \Vindi\Payment\Helper\WebHookHandlers\ChargeRejected
-     */
     protected $chargeRejected;
-
-    /**
-     * @var \Vindi\Payment\Helper\WebHookHandlers\BillCanceled
-     */
     protected $billCanceled;
-    /**
-     * @var WebHookHandlers\Subscription
-     */
     private $subscription;
+    private $logFactory;
+    private $logResource;
+    private $helperData;
 
     public function __construct(
-        \Magento\Framework\HTTP\PhpEnvironment\RemoteAddress $remoteAddress,
-        \Psr\Log\LoggerInterface $logger,
-        \Vindi\Payment\Helper\WebHookHandlers\BillCreated $billCreated,
-        \Vindi\Payment\Helper\WebHookHandlers\BillPaid $billPaid,
-        \Vindi\Payment\Helper\WebHookHandlers\ChargeRejected $chargeRejected,
-        \Vindi\Payment\Helper\WebHookHandlers\BillCanceled $billCanceled,
-        \Vindi\Payment\Helper\WebHookHandlers\Subscription $subscription
+        RemoteAddress $remoteAddress,
+        Logger $logger,
+        BillCreated $billCreated,
+        BillPaid $billPaid,
+        ChargeRejected $chargeRejected,
+        BillCanceled $billCanceled,
+        Subscription $subscription,
+        LogFactory $logFactory,
+        LogResource $logResource,
+        Data $helperData
     ) {
         $this->remoteAddress = $remoteAddress;
         $this->logger = $logger;
@@ -55,6 +48,9 @@ class WebhookHandler
         $this->chargeRejected = $chargeRejected;
         $this->billCanceled = $billCanceled;
         $this->subscription = $subscription;
+        $this->logFactory = $logFactory;
+        $this->logResource = $logResource;
+        $this->helperData = $helperData;
     }
 
     public function getRemoteIp()
@@ -62,13 +58,6 @@ class WebhookHandler
         return $this->remoteAddress->getRemoteAddress();
     }
 
-    /**
-     * Handle incoming webhook.
-     *
-     * @param string $body
-     *
-     * @return bool
-     */
     public function handle($body)
     {
         try {
@@ -85,28 +74,66 @@ class WebhookHandler
             return false;
         }
 
+        $result = false;
+        $description = '';
+
         switch ($type) {
             case 'test':
                 $this->logger->info(__('Webhook test event.'));
+                $description = 'Webhook test event';
                 break;
             case 'bill_created':
-                return $this->billCreated->billCreated($data);
+                $result = $this->billCreated->billCreated($data);
+                $description = 'Bill created event';
+                break;
             case 'bill_paid':
-                return $this->billPaid->billPaid($data);
+                $result = $this->billPaid->billPaid($data);
+                $description = 'Bill paid event';
+                break;
             case 'charge_rejected':
-                return $this->chargeRejected->chargeRejected($data);
+                $result = $this->chargeRejected->chargeRejected($data);
+                $description = 'Charge rejected event';
+                break;
             case 'bill_canceled':
-                return $this->billCanceled->billCanceled($data);
+                $result = $this->billCanceled->billCanceled($data);
+                $description = 'Bill canceled event';
+                break;
             case 'subscription_created':
-                return $this->subscription->created($data);
+                $result = $this->subscription->created($data);
+                $description = 'Subscription created event';
+                break;
             case 'subscription_canceled':
-                return $this->subscription->canceled($data);
+                $result = $this->subscription->canceled($data);
+                $description = 'Subscription canceled event';
+                break;
             case 'subscription_reactivated':
-                return $this->subscription->reactivated($data);
+                $result = $this->subscription->reactivated($data);
+                $description = 'Subscription reactivated event';
+                break;
             default:
                 $this->logger->warning(__(sprintf('Webhook event ignored by plugin: "%s".', $type)));
+                $description = sprintf('Ignored event: %s', $type);
                 break;
         }
-        return false;
+
+        $this->logApiRequest($type, 'POST', $body, $description);
+
+        return $result;
+    }
+
+    private function logApiRequest($endpoint, $method, $requestBody, $description)
+    {
+        $log = $this->logFactory->create();
+        $log->setData([
+            'endpoint'      => $endpoint,
+            'method'        => $method,
+            'request_body'  => $this->helperData->sanitizeData($requestBody),
+            'response_body' => null,
+            'status_code'   => 200,
+            'description'   => $description,
+            'origin'        => 'webhook'
+        ]);
+        $this->logResource->save($log);
     }
 }
+

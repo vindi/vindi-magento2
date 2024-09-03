@@ -1,0 +1,94 @@
+.payment-profile-edit {
+    font-family: Arial, sans-serif;
+    background-color: #fff;
+    /*padding: 20px;*/
+    border-radius: 8px;
+    max-width: 600px;
+}
+
+.payment-profile-edit h3, .payment-profile-edit .title {
+    color: #333;
+    font-size: 20px;
+}
+
+.payment-profile-edit hr {
+    border: none;
+    height: 1px;
+    background-color: #ddd;
+    margin: 10px 0;
+}
+
+.payment-profile-edit form {
+    display: block;
+    margin-top: 20px;
+}
+
+.payment-profile-edit label {
+    display: block;
+    margin-bottom: 5px;
+    color: #666;
+}
+
+.payment-profile-edit input[type="text"] {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 20px;
+    border-radius: 4px;
+    border: 1px solid #ddd;
+    box-sizing: border-box;
+}
+
+.payment-profile-edit button {
+    background-color: #0056b3;
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 16px;
+}
+
+.payment-profile-edit button:hover {
+    background-color: #004494;
+}
+
+.payment-profile-edit .card-icons {
+    display: flex;
+    justify-content: space-around;
+    margin-bottom: 20px;
+}
+
+.payment-profile-edit .card-icons img {
+    height: 32px;
+}
+
+.payment-profile-edit .form-group {
+    margin-bottom: 20px;
+}
+
+.payment-profile-edit .form-row {
+    display: flex;
+    gap: 10px;
+}
+
+.payment-profile-edit .form-row > div {
+    flex: 1;
+}
+
+.payment-profile-edit .title {
+    font-size: 20px;
+}
+
+.payment-profile-edit .card-type-input {
+    display: none;
+}
+
+.payment-profile-edit .card-type-label {
+    border: 2px solid transparent;
+    display: inline-block;
+    cursor: pointer;
+}
+
+.payment-profile-edit .card-type-input:checked + .card-type-label {
+    border-color: #0056b3;
+}

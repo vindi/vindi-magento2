@@ -13,5 +13,113 @@
 		<column length="30" name="payment_method" nullable="true" xsi:type="varchar"/>
 		<column name="payment_profile" nullable="true" xsi:type="int"/>
 		<column length="20" name="status" nullable="true" xsi:type="varchar"/>
-	</table>
+        <column name="customer_id" nullable="true" xsi:type="int" comment="Customer ID"/>
+        <column name="customer_email" length="255"  nullable="true" xsi:type="varchar" comment="Customer Email"/>
+        <column name="next_billing_at" xsi:type="datetime" nullable="true" comment="Next Billing Date" />
+        <column name="bill_id" nullable="true" xsi:type="int" comment="Bill ID"/>
+        <column name="response_data" xsi:type="text" nullable="true" comment="Subscription Response Data"/>
+    </table>
+    <table name="vindi_plans" resource="default" engine="innodb" comment="Vindi Plans Table">
+        <column xsi:type="int" name="entity_id" padding="10" unsigned="true" nullable="false" identity="true" comment="Entity ID"/>
+        <column xsi:type="int" name="vindi_id" nullable="false" comment="Vindi ID"/>
+        <column xsi:type="varchar" name="name" length="255" nullable="false" comment="Plan Name"/>
+        <column xsi:type="varchar" name="interval" length="255" nullable="false" comment="Interval Duration"/>
+        <column xsi:type="int" name="interval_count" nullable="false" comment="Number of Intervals"/>
+        <column xsi:type="varchar" name="billing_trigger_type" length="255" nullable="false" comment="Billing Trigger Type"/>
+        <column xsi:type="int" name="billing_trigger_day" nullable="false" comment="Billing Trigger Day"/>
+        <column xsi:type="int" name="billing_cycles" nullable="true" comment="Billing Cycles"/>
+        <column xsi:type="varchar" name="code" length="255" nullable="false" comment="External Code"/>
+        <column xsi:type="text" name="description" nullable="true" comment="Plan Description"/>
+        <column xsi:type="int" name="description_display_on_product_page" nullable="false" default="0" comment="Display Description on Product Page" />
+        <column xsi:type="int" name="installments" nullable="true" default="1" comment="Number of Installments"/>
+        <column xsi:type="boolean" name="invoice_split" nullable="false" comment="Invoice Split"/>
+        <column xsi:type="varchar" name="status" length="255" nullable="false" comment="Plan Status"/>
+        <column xsi:type="text" name="metadata" nullable="true" comment="Metadata"/>
+        <column xsi:type="varchar" name="duration" length="255" nullable="true" comment="Duration"/>
+        <column xsi:type="varchar" name="billing_trigger_day_type_on_period" length="255" nullable="true" comment="Billing Trigger Day Type On Period"/>
+        <column xsi:type="varchar" name="billing_trigger_day_based_on_period" length="255" nullable="true" comment="Billing Trigger Day Based On Period"/>
+        <column xsi:type="timestamp" name="updated_at" nullable="false" default="CURRENT_TIMESTAMP" on_update="true"/>
+        <column xsi:type="timestamp" name="created_at" nullable="false" default="CURRENT_TIMESTAMP" on_update="false"/>
+        <constraint xsi:type="primary" referenceId="PRIMARY">
+            <column name="entity_id"/>
+        </constraint>
+        <index referenceId="VINDI_PLANS_NAME_INDEX" indexType="fulltext">
+            <column name="name"/>
+        </index>
+    </table>
+    <table name="vindi_payment_profiles" resource="default" engine="innodb" comment="Vindi Payment Profiles Table">
+        <column xsi:type="int" name="entity_id" padding="10" unsigned="true" nullable="false" identity="true" comment="Entity ID"/>
+        <column xsi:type="int" name="payment_profile_id" nullable="false" comment="Payment Profile ID"/>
+        <column xsi:type="int" name="vindi_customer_id" nullable="false" comment="Vindi Customer ID"/>
+        <column xsi:type="int" name="customer_id" nullable="false" comment="Customer ID"/>
+        <column xsi:type="varchar" length="255" name="customer_email" nullable="false" comment="Customer Email"/>
+        <column xsi:type="varchar" length="255" name="status" nullable="false" comment="Status of the Payment Profile"/>
+        <column xsi:type="text" name="token" nullable="false" comment="Token for Payment Profile Reference"/>
+        <column xsi:type="varchar" length="255" name="type" nullable="false" comment="Type of the Payment Profile"/>
+        <column xsi:type="varchar" length="255" name="cc_type" nullable="false" comment="Credit Card Type"/>
+        <column xsi:type="varchar" length="4" name="cc_last_4" nullable="false" comment="Last 4 Digits of Credit Card Number"/>
+        <column xsi:type="varchar" length="255" name="cc_name" nullable="false" comment="Credit Card Holder Name"/>
+        <column xsi:type="varchar" length="5" name="cc_exp_date" nullable="false" comment="Credit Card Expiry Date (MM/YY)"/>
+        <column xsi:type="varchar" length="255" name="cc_number" nullable="false" comment="Credit Card Number"/>
+        <column xsi:type="timestamp" name="created_at" nullable="false" default="CURRENT_TIMESTAMP" comment="Creation Time"/>
+        <column xsi:type="timestamp" name="updated_at" nullable="false" default="CURRENT_TIMESTAMP" on_update="true" comment="Update Time"/>
+        <constraint xsi:type="primary" referenceId="PRIMARY">
+            <column name="entity_id"/>
+        </constraint>
+    </table>
+    <table name="vindi_subscription_orders" resource="default" engine="innodb" comment="Subscription Orders Table">
+        <column xsi:type="int" name="entity_id" padding="10" unsigned="true" nullable="false" identity="true" comment="Entity ID"/>
+        <column xsi:type="varchar" length="255" name="order_id" nullable="false" comment="Order ID"/>
+        <column xsi:type="varchar" length="255" name="increment_id" nullable="false" comment="Increment ID"/>
+        <column name="subscription_id" xsi:type="int" padding="10" unsigned="true" nullable="false" comment="Subscription ID"/>
+        <column name="created_at" xsi:type="datetime" nullable="false" comment="Creation Date"/>
+        <column name="total" xsi:type="decimal" precision="12" scale="4" nullable="false" comment="Total Amount"/>
+        <column name="status" xsi:type="varchar" length="20" nullable="false" comment="Order Status"/>
+        <constraint xsi:type="primary" referenceId="PRIMARY">
+            <column name="entity_id"/>
+        </constraint>
+    </table>
+    <table name="vindi_order_creation_queue" resource="default" engine="innodb" comment="Order Creation Queue Table">
+        <column xsi:type="int" name="queue_id" nullable="false" identity="true" unsigned="true" comment="Queue ID"/>
+        <column xsi:type="text" name="bill_data" nullable="false" comment="Serialized Bill Data"/>
+        <column xsi:type="varchar" name="status" nullable="false" default="pending" length="32" comment="Status"/>
+        <column xsi:type="varchar" name="type" nullable="false" length="32" comment="Event Type"/>
+        <column xsi:type="timestamp" name="created_at" nullable="false" default="CURRENT_TIMESTAMP" comment="Creation Time"/>
+        <column xsi:type="timestamp" name="updated_at" nullable="false" default="CURRENT_TIMESTAMP" on_update="true" comment="Update Time"/>
+        <constraint xsi:type="primary" referenceId="PRIMARY">
+            <column name="queue_id"/>
+        </constraint>
+    </table>
+    <table name="vindi_api_logs" resource="default" engine="innodb" comment="Vindi API Logs Table">
+        <column xsi:type="int" name="entity_id" nullable="false" identity="true" unsigned="true" comment="Log ID"/>
+        <column xsi:type="varchar" length="255" name="endpoint" nullable="false" comment="API Endpoint"/>
+        <column xsi:type="varchar" length="10" name="method" nullable="false" comment="HTTP Method"/>
+        <column xsi:type="text" name="request_body" nullable="true" comment="Request Body"/>
+        <column xsi:type="text" name="response_body" nullable="true" comment="Response Body"/>
+        <column xsi:type="int" name="status_code" nullable="false" comment="HTTP Status Code"/>
+        <column xsi:type="text" name="description" nullable="true" comment="Description of the request"/>
+        <column xsi:type="varchar" length="255" name="origin" nullable="true" comment="Origin"/>
+        <column xsi:type="datetime" name="created_at" nullable="false" default="CURRENT_TIMESTAMP" comment="Created At"/>
+        <column xsi:type="datetime" name="updated_at" nullable="false" default="CURRENT_TIMESTAMP" on_update="true" comment="Updated At"/>
+        <constraint xsi:type="primary" referenceId="PRIMARY">
+            <column name="entity_id"/>
+        </constraint>
+    </table>
+    <table comment="Vindi Customers Table" engine="innodb" name="vindi_customers" resource="default">
+        <column xsi:type="int" name="entity_id" padding="10" unsigned="true" nullable="false" identity="true" comment="Entity ID"/>
+        <column xsi:type="int" name="magento_customer_id" nullable="false" comment="Magento Customer ID"/>
+        <column xsi:type="varchar" name="vindi_customer_id" length="255" nullable="false" comment="Vindi Customer ID"/>
+        <constraint xsi:type="primary" referenceId="PRIMARY">
+            <column name="entity_id"/>
+        </constraint>
+        <index referenceId="VINDI_CUSTOMERS_MAGENTO_CUSTOMER_ID_INDEX" indexType="btree">
+            <column name="magento_customer_id"/>
+        </index>
+        <index referenceId="VINDI_CUSTOMERS_VINDI_CUSTOMER_ID_INDEX" indexType="btree">
+            <column name="vindi_customer_id"/>
+        </index>
+    </table>
+    <table name="sales_order">
+        <column xsi:type="boolean" name="vindi_subscription_can_create_new_order" nullable="false" default="0" comment="Vindi Subscription Can Create New Order"/>
+    </table>
 </schema>

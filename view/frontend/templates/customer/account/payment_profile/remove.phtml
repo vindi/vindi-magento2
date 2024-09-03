@@ -1,0 +1,47 @@
+<?php
+/** @var \Vindi\Payment\Block\PaymentProfile\Remove $block */
+$paymentProfile  = $block->getPaymentProfile();
+$subscriptions  = $block->getPaymentProfileSubscriptions();
+
+$cardType    = $paymentProfile->getCcType();
+$cardLast4  = $paymentProfile->getCcLast4();
+?>
+<div class="payment-profile-remove">
+    <div>
+        <p class="title"><?= __('Remove Payment Profile') ?></p>
+        <hr>
+
+        <?php if (count($subscriptions)): ?>
+            <div class="alert alert-warning">
+                <?= __("This card is associated with the following subscriptions:") ?>
+                <ul class="subscriptions-list">
+                    <?php foreach ($subscriptions as $subscription): ?>
+                        <li><?= $subscription->getName() ?></li>
+                    <?php endforeach; ?>
+                </ul>
+                <?= __("Before removing it, you must change the payment method of the subscription so that the service continues to work normally. Click on") ?>
+                <strong><a href="<?= $block->getUrl('vindi_vr/subscription/index') ?>" target="_blank"><?= __("My Subscriptions") ?></a></strong>,
+                <?= __("select the subscription by clicking on") ?>
+                <strong><?= __("VIEW DETAILS") ?></strong>
+                <?= __("and click on") ?> <strong><?= __("EDIT METHOD") ?></strong>.
+            </div>
+        <?php endif; ?>
+
+        <form id="payment-profile-remove-form" action="<?= $block->getUrl('vindi_vr/paymentprofile/delete') ?>" method="POST">
+            <input type="hidden" name="form_key" value="<?= $block->getFormKey() ?>">
+            <input type="hidden" name="entity_id" value="<?= $paymentProfile->getId() ?>">
+
+            <div class="cofirm-text">
+                <span><?= __('Confirm that you really want to delete the card') ?></span>
+                <strong><?= __('%1 ****%2 ', $cardType, $cardLast4) ?></strong>
+            </div>
+
+            <div class="buttons-set">
+                <button type="button" class="back" onclick="window.location.href='<?= $block->getUrl('vindi_vr/paymentprofile/index') ?>'"><?= __('Back'); ?></button>
+                <?php if (!count($subscriptions)): ?>
+                    <button type="submit" class="confirm"><?= __('Confirm Remove') ?></button>
+                <?php endif; ?>
+            </div>
+        </form>
+    </div>
+</div>

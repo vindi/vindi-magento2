@@ -20,10 +20,15 @@ class BankSlip extends \Magento\Payment\Block\Info
         \Magento\Backend\Block\Template\Context $context,
         array $data = []
     ) {
-
         parent::__construct($context, $data);
         $this->paymentMethod = $paymentMethod;
         $this->currency = $currency;
+    }
+
+    protected function _construct()
+    {
+        parent::_construct();
+        $this->setCacheLifetime(false);
     }
 
     public function getOrder()
@@ -31,18 +36,40 @@ class BankSlip extends \Magento\Payment\Block\Info
         return $this->getInfo()->getOrder();
     }
 
-    public function canShowBankslipInfo()
+    /**
+     * @return bool
+     */
+    public function hasInvoice(): bool
+    {
+        return $this->getOrder()->hasInvoices();
+    }
+
+    /**
+     * Get order payment method name
+     *
+     * @return string
+     */
+    public function getPaymentMethodName(): string
+    {
+        try {
+            return $this->getOrder()->getPayment()->getMethodInstance()->getTitle();
+        } catch (\Exception $e) {
+            return 'Boleto';
+        }
+    }
+
+    public function canShowBankslipInfo(): bool
     {
         return $this->getOrder()->getPayment()->getMethod() === \Vindi\Payment\Model\Payment\BankSlip::CODE;
     }
 
-    public function getPrintUrl()
+    public function getPrintUrl(): string
     {
-        return $this->getOrder()->getPayment()->getAdditionalInformation('print_url');
+        return (string) $this->getOrder()->getPayment()->getAdditionalInformation('print_url');
     }
 
-    public function getDueDate()
+    public function getDueDate(): string
     {
-        return $this->getOrder()->getPayment()->getAdditionalInformation('due_at');
+        return (string) $this->getOrder()->getPayment()->getAdditionalInformation('due_at');
     }
 }

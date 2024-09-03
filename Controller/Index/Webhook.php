@@ -5,7 +5,7 @@ namespace Vindi\Payment\Controller\Index;
 use Magento\Framework\App\Action\Action;
 use Magento\Framework\App\Action\Context;
 use Magento\Framework\View\Result\PageFactory;
-use Psr\Log\LoggerInterface;
+use Vindi\Payment\Logger\Logger;
 use Vindi\Payment\Helper\Api;
 use Vindi\Payment\Helper\Data;
 use Vindi\Payment\Helper\WebhookHandler;
@@ -23,7 +23,7 @@ class Webhook extends Action
      */
     private $api;
     /**
-     * @var LoggerInterface
+     * @var Logger
      */
     private $logger;
     /**
@@ -34,7 +34,7 @@ class Webhook extends Action
     /**
      * Webhook constructor.
      * @param Api $api
-     * @param LoggerInterface $logger
+     * @param Logger $logger
      * @param WebhookHandler $webhookHandler
      * @param Data $helperData
      * @param Context $context
@@ -42,7 +42,7 @@ class Webhook extends Action
      */
     public function __construct(
         Api $api,
-        LoggerInterface $logger,
+        Logger $logger,
         WebhookHandler $webhookHandler,
         Data $helperData,
         Context $context,
@@ -68,6 +68,7 @@ class Webhook extends Action
         }
 
         $body = file_get_contents('php://input');
+        $this->logger->info("=========================");
         $this->logger->info(__(sprintf("Webhook New Event!\n%s", $body)));
 
         $this->webhookHandler->handle($body);

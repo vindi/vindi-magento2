@@ -1,0 +1,21 @@
+<?xml version="1.0"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:Event/etc/events.xsd">
+    <event name="checkout_cart_product_add_after">
+        <observer name="vindi_payment_adjust_price" instance="Vindi\Payment\Observer\AdjustPrice"/>
+    </event>
+    <event name="customer_login">
+        <observer name="vindi_recurrence_prevent_cart_merge" instance="Vindi\Payment\Observer\PreventCartMergeAfterLogin" />
+    </event>
+    <event name="customer_register_success">
+        <observer name="vindi_recurrence_set_registration_flag" instance="Vindi\Payment\Observer\SetRegistrationFlag" />
+    </event>
+    <event name="sales_order_view">
+        <observer name="vindi_payment_add_order_to_registry" instance="Vindi\Payment\Observer\AddOrderToRegistry"/>
+    </event>
+    <event name="controller_action_predispatch_checkout_index_index">
+        <observer name="redirect_if_not_logged_in" instance="Vindi\Payment\Observer\RedirectIfNotLoggedIn" />
+    </event>
+    <event name="controller_action_predispatch_checkout_cart_index">
+        <observer name="redirect_if_not_logged_in" instance="Vindi\Payment\Observer\RedirectIfNotLoggedIn" />
+    </event>
+</config>

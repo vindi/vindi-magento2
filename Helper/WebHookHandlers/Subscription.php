@@ -8,6 +8,7 @@ use Magento\Sales\Api\Data\OrderInterface;
 use Magento\Sales\Api\OrderRepositoryInterface;
 use Magento\Sales\Model\OrderFactory;
 use Psr\Log\LoggerInterface;
+use Vindi\Payment\Model\SubscriptionRepository;
 
 /**
  * Class Subscription
@@ -33,22 +34,30 @@ class Subscription
     private $orderFactory;
 
     /**
+     * @var SubscriptionRepository
+     */
+    protected $subscriptionRepository;
+
+    /**
      * Subscription constructor.
      * @param OrderRepositoryInterface $orderRepository
      * @param SearchCriteriaBuilder $searchCriteriaBuilder
      * @param OrderFactory $orderFactory
      * @param LoggerInterface $logger
+     * @param SubscriptionRepository $subscriptionRepository
      */
     public function __construct(
         OrderRepositoryInterface $orderRepository,
         SearchCriteriaBuilder $searchCriteriaBuilder,
         OrderFactory $orderFactory,
-        LoggerInterface $logger
+        LoggerInterface $logger,
+        SubscriptionRepository $subscriptionRepository
     ) {
         $this->logger = $logger;
         $this->orderRepository = $orderRepository;
         $this->searchCriteriaBuilder = $searchCriteriaBuilder;
         $this->orderFactory = $orderFactory;
+        $this->subscriptionRepository = $subscriptionRepository;
     }
 
     /**
@@ -78,10 +87,21 @@ class Subscription
             return false;
         }
 
+        if (isset($data['subscription']['id'])) {
+            return false;
+        }
+
+        $subscriptionId = $data['subscription']['id'];
+
         $order->addCommentToStatusHistory(__('The subscription was canceled')->getText());
         $this->orderRepository->save($order);
 
         $this->cancel($order->getIncrementId());
+
+        $objectManager = \Magento\Framework\App\ObjectManager::getInstance();
+        $subscription = $objectManager->create(\Vindi\Payment\Model\Subscription::class)->load($subscriptionId);
+        $subscription->setStatus('canceled');
+        $subscription->save();
 
         return true;
     }

@@ -9,15 +9,6 @@ use Magento\Framework\App\Helper\AbstractHelper;
 
 class PixConfiguration extends AbstractHelper implements PixConfigurationInterface
 {
-
-    /**
-     * @inheritDoc
-     */
-    public function isEnabledDocument(string $scopeType = ScopeInterface::SCOPE_STORE, string $scopeCode = null)
-    {
-        return $this->scopeConfig->isSetFlag(static::PATH_ENABLED_DOCUMENT, $scopeType, $scopeCode);
-    }
-
     /**
      * @inheritDoc
      */
