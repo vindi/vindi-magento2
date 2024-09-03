@@ -1,5 +1,22 @@
 # Notas das versões
 
+## [2.0.0 - 03/09/2024](https://github.com/vindi/vindi-magento2/releases/tag/2.0.0)
+**Breaking changes**
+- Adiciona suporte para Magento 2.4+
+- Adiciona suporte à PHP 8
+- Adiciona gestão de planos no painel administrativo
+- Adiciona gestão de assinaturas no painel administrativo
+- Adiciona gestão de assinaturas na central do cliente
+- Adiciona possibilidade de alterar método de pagamento de assinaturas
+- Adiciona possibilidade de ter vários planos por produto
+- Ajustado configurações no painel, unificando-as
+- Adiciona log de apis no painel
+- Adiciona informação do pagamento ne tela de pedido
+- Adiciona dados de assinatura na tela de pedido
+- Adiciona cron para limpeza de logs antigos
+- Adiciona comando no bin/magento para rodar cron manualmente, se necessário 
+- Adiciona dados da assinatura no additional_information do item do pedido
+
 ## [1.5.0 - 07/05/2024](https://github.com/vindi/vindi-magento2/releases/tag/1.5.0)
 - Insere método de pagamento Bolepix
 
