@@ -1,10 +1,6 @@
 <?xml version="1.0"?>
 <page xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" layout="admin-2columns-left"
       xsi:noNamespaceSchemaLocation="urn:magento:framework:View/Layout/etc/page_configuration.xsd">
-    <head>
-        <css src="Vindi_Payment::css/grid.css"/>
-        <script src="Vindi_Payment::js/payments.js" />
-    </head>
 <body>
     <referenceContainer name="left">
         <referenceBlock name="sales_order_tabs">
@@ -16,15 +12,5 @@
             </action>
         </referenceBlock>
     </referenceContainer>
-    <referenceContainer name="order_totals">
-        <block class="Vindi\Payment\Block\Sales\Order\Totals\Interest" name="vindi_interest">
-            <action method="setBeforeCondition">
-                <argument name="condition" xsi:type="string">shipping</argument>
-            </action>
-        </block>
-    </referenceContainer>
-    <referenceBlock name="order_additional_info">
-        <block class="Vindi\Payment\Block\Adminhtml\Order\LinkField" name="admin.link.field" template="Vindi_Payment::link-field.phtml" />
-    </referenceBlock>
 </body>
 </page>

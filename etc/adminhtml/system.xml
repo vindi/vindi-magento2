@@ -97,11 +97,6 @@
                         <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
                         <config_path>payment/vindi/recurring</config_path>
                     </field>
-                    <field id="payment_link_instructions" translate="label comment" type="textarea" sortOrder="20200" showInDefault="1" showInWebsite="1" showInStore="1">
-                        <label>Payment Link Instructions</label>
-                        <config_path>payment/vindi/payment_link_instructions</config_path>
-                        <comment><![CDATA[Instructions to be shown in payment link success page, it can be HTML]]></comment>
-                    </field>
                 </group>
                 <group id="vindi_pix" showInDefault="1" showInStore="1" showInWebsite="1" sortOrder="200" translate="label comment">
                     <label>Pix</label>
@@ -130,11 +125,6 @@
                         <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
                         <config_path>payment/vindi_pix/recurring</config_path>
                     </field>
-                    <field id="payment_link_instructions" translate="label comment" type="textarea" sortOrder="20200" showInDefault="1" showInWebsite="1" showInStore="1">
-                        <label>Payment Link Instructions</label>
-                        <config_path>payment/vindi_pix/payment_link_instructions</config_path>
-                        <comment><![CDATA[Instructions to be shown in payment link success page, it can be HTML]]></comment>
-                    </field>
                 </group>
                 <group id="vindi_bankslip" showInDefault="1" showInStore="1" showInWebsite="1" sortOrder="300" translate="label comment">
                     <label>Boleto Bancário</label>
@@ -155,11 +145,6 @@
                         <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
                         <config_path>payment/vindi_bankslip/recurring</config_path>
                     </field>
-                    <field id="payment_link_instructions" translate="label comment" type="textarea" sortOrder="20200" showInDefault="1" showInWebsite="1" showInStore="1">
-                        <label>Payment Link Instructions</label>
-                        <config_path>payment/vindi_bankslip/payment_link_instructions</config_path>
-                        <comment><![CDATA[Instructions to be shown in payment link success page, it can be HTML]]></comment>
-                    </field>
                 </group>
                 <group id="vindi_bankslippix" showInDefault="1" showInStore="1" showInWebsite="1" sortOrder="400" translate="label comment">
                     <label>Bolepix</label>
@@ -179,11 +164,6 @@
                         <label>Can be used for recurring purchases?</label>
                         <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
                         <config_path>payment/vindi_bankslippix/recurring</config_path>
-                    </field>
-                    <field id="payment_link_instructions" translate="label comment" type="textarea" sortOrder="20200" showInDefault="1" showInWebsite="1" showInStore="1">
-                        <label>Payment Link Instructions</label>
-                        <config_path>payment/vindi_bankslippix/payment_link_instructions</config_path>
-                        <comment><![CDATA[Instructions to be shown in payment link success page, it can be HTML]]></comment>
                     </field>
                 </group>
             </group>

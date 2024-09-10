@@ -17,11 +17,12 @@ class AdvancedEditing extends GenericButton implements ButtonProviderInterface
     /**
      * @var Data
      */
-    private $helperData;
+    protected $helperData;
+
     /**
      * @var Registry
      */
-    private $registry;
+    protected $registry;
 
     /**
      * AdvancedEditing constructor.
@@ -34,7 +35,7 @@ class AdvancedEditing extends GenericButton implements ButtonProviderInterface
         Registry $registry,
         Data $helperData
     ) {
-        parent::__construct($context);
+        parent::__construct($context, $registry);  // Passing both context and registry to the parent constructor
         $this->helperData = $helperData;
         $this->registry = $registry;
     }
@@ -65,6 +66,6 @@ class AdvancedEditing extends GenericButton implements ButtonProviderInterface
             $prefix = '';
         }
 
-        return 'https://'.$prefix.'app.vindi.com.br/admin/subscriptions/' . $id;
+        return 'https://' . $prefix . 'app.vindi.com.br/admin/subscriptions/' . $id;
     }
 }

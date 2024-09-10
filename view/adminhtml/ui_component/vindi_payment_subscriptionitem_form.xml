@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<form xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Ui:etc/ui_configuration.xsd">
+    <argument name="data" xsi:type="array">
+        <item name="js_config" xsi:type="array">
+            <item name="provider" xsi:type="string">vindi_payment_subscriptionitem_form.vindi_subscription_item_data_source</item>
+        </item>
+        <item name="label" xsi:type="string" translate="true">Edit Item</item>
+        <item name="reverseMetadataMerge" xsi:type="boolean">true</item>
+    </argument>
+    <settings>
+        <buttons>
+            <button class="Vindi\Payment\Block\Adminhtml\Subscription\Item\Edit\BackButton" name="back"/>
+            <button class="Vindi\Payment\Block\Adminhtml\Subscription\Edit\SaveChangesButton" name="save_and_continue"/>
+        </buttons>
+        <layout>
+            <navContainerName>left</navContainerName>
+            <type>tabs</type>
+        </layout>
+        <deps>
+            <dep>vindi_payment_subscriptionitem_form.vindi_subscription_item_data_source</dep>
+        </deps>
+    </settings>
+    <dataSource name="vindi_subscription_item_data_source">
+        <argument name="data" xsi:type="array">
+            <item name="js_config" xsi:type="array">
+                <item name="component" xsi:type="string">Magento_Ui/js/form/provider</item>
+            </item>
+        </argument>
+        <settings>
+            <submitUrl path="vindi_payment/subscription/savesubscriptionitem"/>
+        </settings>
+        <dataProvider class="Vindi\Payment\Model\VindiSubscriptionItem\DataProvider" name="vindi_subscription_item_data_source">
+            <settings>
+                <requestFieldName>entity_id</requestFieldName>
+                <primaryFieldName>entity_id</primaryFieldName>
+            </settings>
+        </dataProvider>
+    </dataSource>
+    <fieldset name="settings">
+        <settings>
+            <label translate="true">Edit Item</label>
+        </settings>
+        <field name="entity_id" formElement="input">
+            <argument name="data" xsi:type="array">
+                <item name="config" xsi:type="array">
+                    <item name="source" xsi:type="string">menu</item>
+                </item>
+            </argument>
+            <settings>
+                <dataType>text</dataType>
+                <visible>false</visible>
+                <dataScope>entity_id</dataScope>
+            </settings>
+        </field>
+        <field name="price" sortOrder="10" formElement="input">
+            <argument name="data" xsi:type="array">
+                <item name="config" xsi:type="array">
+                    <item name="source" xsi:type="string">menu</item>
+                </item>
+            </argument>
+            <settings>
+                <dataType>price</dataType>
+                <label translate="true">Price</label>
+                <dataScope>price</dataScope>
+                <validation>
+                    <rule name="validate-zero-or-greater" xsi:type="boolean">true</rule>
+                    <rule name="required-entry" xsi:type="boolean">true</rule>
+                </validation>
+            </settings>
+        </field>
+    </fieldset>
+</form>
