@@ -13,6 +13,9 @@
     <preference for="Vindi\Payment\Api\Data\SubscriptionSearchResultsInterface" type="Magento\Framework\Api\SearchResults"/>
     <preference for="Vindi\Payment\Api\PixConfigurationInterface" type="Vindi\Payment\Helper\PixConfiguration"/>
 
+    <preference for="Vindi\Payment\Api\Data\PaymentLinkInterface" type="Vindi\Payment\Model\PaymentLink"/>
+    <preference for="Vindi\Payment\Api\PaymentLinkRepositoryInterface" type="Vindi\Payment\Model\ResourceModel\PaymentLinkRepository"/>
+
     <type name="Magento\Framework\Console\CommandList">
         <arguments>
             <argument name="commands" xsi:type="array">
@@ -170,6 +173,9 @@
         </arguments>
     </type>
 
+    <type name="Magento\Sales\Model\Service\OrderService">
+        <plugin name="after_place_order_plugin" type="Vindi\Payment\Plugin\Model\Service\OrderService" />
+    </type>
     <type name="Magento\Sales\Controller\Order\Reorder">
         <plugin name="vindi_payment_reorder_redirect_plugin" type="Vindi\Payment\Plugin\ReorderRedirectPlugin" />
     </type>

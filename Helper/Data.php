@@ -10,8 +10,11 @@ use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Sales\Model\Order;
 use Magento\Sales\Model\ResourceModel\Order\Status\CollectionFactory;
 use Vindi\Payment\Model\Config\Source\Mode;
+use Vindi\Payment\Model\Payment\BankSlip as BankSlipPayment;
+use Vindi\Payment\Model\Payment\BankSlipPix as BankSlipPixPayment;
+use Vindi\Payment\Model\Payment\Pix as PixPayment;
+use Vindi\Payment\Model\Payment\Vindi as VindiPayment;
 use Vindi\Payment\Setup\UpgradeData;
-
 class Data extends AbstractHelper
 {
     protected $scopeConfig;
@@ -65,6 +68,19 @@ class Data extends AbstractHelper
             'vindiconfiguration/general/' . $field,
             \Magento\Store\Model\ScopeInterface::SCOPE_STORE
         );
+    }
+
+    /**
+     * @return array
+     */
+    public function getAllowedMethods(): array
+    {
+        return [
+            VindiPayment::CODE,
+            BankSlipPayment::CODE,
+            BankSlipPixPayment::CODE,
+            PixPayment::CODE
+        ];
     }
 
     public function isInstallmentsAllowedInStore()
@@ -181,9 +197,28 @@ class Data extends AbstractHelper
     }
 
     /**
-     * Check if the order is a subscription order.
+     * @param $config
+     * @param string $group
+     * @param string $section
+     * @param null $scopeCode
+     * @return string
+     */
+    public function getConfig(
+        string $config,
+        string $group = 'vindi',
+        string $section = 'payment',
+               $scopeCode = null
+    ): string {
+        return (string) $this->scopeConfig->getValue(
+            $section . '/' . $group . '/' . $config,
+            \Magento\Store\Model\ScopeInterface::SCOPE_STORE,
+            $scopeCode
+        );
+    }
+
+    /**
      * @param Order $order
-     * @return bool|Order\Item
+     * @return bool|\Magento\Sales\Api\Data\OrderItemInterface
      */
     public function isSubscriptionOrder(Order $order)
     {

@@ -17,5 +17,8 @@
         <job name="vindi_payment_clean_order_queue" instance="Vindi\Payment\Cron\CleanOrderQueue" method="execute">
             <schedule>0 2 * * *</schedule>
         </job>
+        <job name="vindi_payment_delete_expired_links" instance="Vindi\Payment\Cron\DeleteExpiredLinks" method="execute">
+            <schedule>30 3 * * *</schedule>
+        </job>
     </group>
 </config>

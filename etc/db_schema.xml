@@ -119,6 +119,16 @@
             <column name="vindi_customer_id"/>
         </index>
     </table>
+    <table name="vindi_vr_payment_link" resource="default" engine="innodb" comment="Vindi Payment Link">
+        <column xsi:type="int" name="entity_id" padding="10" unsigned="true" nullable="false" identity="true" comment="ID"/>
+        <column xsi:type="varchar" name="link" length="255" nullable="false" comment="Payment Link"/>
+        <column xsi:type="varchar" name="vindi_payment_method" length="255" nullable="false" comment="Payment Method"/>
+        <column xsi:type="int" name="order_id" unsigned="true" nullable="false" comment="Order Id"/>
+        <column xsi:type="timestamp" name="created_at" nullable="false" default="CURRENT_TIMESTAMP" on_update="true" comment="Created Datetime"/>
+        <constraint xsi:type="primary" referenceId="PRIMARY">
+            <column name="entity_id"/>
+        </constraint>
+    </table>
     <table name="sales_order">
         <column xsi:type="boolean" name="vindi_subscription_can_create_new_order" nullable="false" default="0" comment="Vindi Subscription Can Create New Order"/>
     </table>
