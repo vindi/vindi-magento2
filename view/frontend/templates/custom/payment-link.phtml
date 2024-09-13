@@ -60,7 +60,7 @@ $paymentLink = $block->getPaymentLink();
                         <h3 class="label">Pix</h3>
                         <div class="instructions pix"><?= __('You will receive the QRCode to make the payment after completing the order') ?></div>
                     <?php endif; ?>
-    
+
                     <?php if ($paymentMethodCode == 'vindi_bankslip'): ?>
                         <h3 class="label"><?= __('Bankslip') ?></h3>
                         <div class="instructions bankslip"><?= __('You will receive the bankslip to make the payment after completing the order') ?></div>
@@ -70,8 +70,7 @@ $paymentLink = $block->getPaymentLink();
                         <h3 class="label"><?= __('BankslipPix') ?></h3>
                         <div class="instructions bankslippix"><?= __('After clicking Complete Purchase, you will be redirected to download the Bolepix and finalize your purchase securely, allowing you to make the payment via bank slip or PIX.') ?></div>
                     <?php endif; ?>
-    
-    
+
                     <?php if ($paymentMethodCode == 'vindi'): ?>
                         <h3 class="label"><?= __('Credit Card') ?></h3>
                     <?php if ($isOrderCustomer): ?>
