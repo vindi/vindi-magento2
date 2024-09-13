@@ -274,6 +274,40 @@ class VindiSubscriptionItem extends \Magento\Framework\Model\AbstractModel imple
     }
 
     /**
+     * @return int|null
+     */
+    public function getMagentoProductId()
+    {
+        return $this->getData(self::MAGENTO_PRODUCT_ID);
+    }
+
+    /**
+     * @param int|null $magentoProductId
+     * @return $this
+     */
+    public function setMagentoProductId($magentoProductId)
+    {
+        return $this->setData(self::MAGENTO_PRODUCT_ID, $magentoProductId);
+    }
+
+    /**
+     * @return string|null
+     */
+    public function getMagentoProductSku()
+    {
+        return $this->getData(self::MAGENTO_PRODUCT_SKU);
+    }
+
+    /**
+     * @param string|null $magentoProductSku
+     * @return $this
+     */
+    public function setMagentoProductSku($magentoProductSku)
+    {
+        return $this->setData(self::MAGENTO_PRODUCT_SKU, $magentoProductSku);
+    }
+
+    /**
      * @return string
      */
     public function getCreatedAt()

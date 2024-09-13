@@ -432,6 +432,7 @@ class View extends Container
                     $subscriptionItem->setPricingSchemaId($item['pricing_schema']['id']);
                     $subscriptionItem->setPricingSchemaType($item['pricing_schema']['schema_type']);
                     $subscriptionItem->setPricingSchemaFormat($item['pricing_schema']['schema_format'] ?? 'N/A');
+                    $subscriptionItem->setMagentoProductSku($item['product']['code']);
                     $subscriptionItem->save();
                 }
             }

@@ -40,9 +40,12 @@
         <column name="cycles" xsi:type="int" nullable="true" comment="Number of Cycles"/>
         <column name="discount_type" xsi:type="varchar" length="50" nullable="true" comment="Discount Type"/>
         <column name="discount_percentage" xsi:type="decimal" precision="5" scale="2" nullable="true" comment="Discount Percentage"/>
+        <column name="magento_product_id" xsi:type="int" nullable="true" comment="Magento Product ID"/>
+        <column name="magento_product_sku" xsi:type="varchar" length="255" nullable="true" comment="Magento Product SKU"/>
         <column name="created_at" xsi:type="timestamp" nullable="false" default="CURRENT_TIMESTAMP" comment="Creation Time"/>
         <column name="updated_at" xsi:type="timestamp" nullable="false" default="CURRENT_TIMESTAMP" on_update="true" comment="Update Time"/>
     </table>
+
 
     <table name="vindi_subscription_orders" resource="default" engine="innodb" comment="Subscription Orders Table">
         <column xsi:type="int" name="entity_id" padding="10" unsigned="true" nullable="false" identity="true" comment="Entity ID"/>

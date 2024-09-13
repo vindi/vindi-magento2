@@ -24,6 +24,8 @@ interface VindiSubscriptionItemInterface
     const CYCLES                = 'cycles';
     const DISCOUNT_TYPE         = 'discount_type';
     const DISCOUNT_PERCENTAGE   = 'discount_percentage';
+    const MAGENTO_PRODUCT_ID    = 'magento_product_id';
+    const MAGENTO_PRODUCT_SKU   = 'magento_product_sku';
     const CREATED_AT            = 'created_at';
     const UPDATED_AT            = 'updated_at';
 
@@ -86,6 +88,14 @@ interface VindiSubscriptionItemInterface
     public function getDiscountPercentage();
 
     public function setDiscountPercentage($discountPercentage);
+
+    public function getMagentoProductId();
+
+    public function setMagentoProductId($magentoProductId);
+
+    public function getMagentoProductSku();
+
+    public function setMagentoProductSku($magentoProductSku);
 
     public function getCreatedAt();
 
