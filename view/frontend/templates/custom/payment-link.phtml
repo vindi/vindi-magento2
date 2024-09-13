@@ -17,7 +17,6 @@ $paymentLink = $block->getPaymentLink();
     $instructions = $block->getInstructions();
     $isOrderCustomer = $block->isCustomerOrderOwner();
     $paymentProfiles = $block->getPaymentProfiles();
-    $block->deletePaymentLink($paymentLink);
     ?>
     <div class="vindi-link-container">
         <div class="customer-data">
@@ -88,16 +87,16 @@ $paymentLink = $block->getPaymentLink();
                             </div>
                         </div>
                     <?php endif; ?>
-    
+
                         <div id="credit-card-form">
                             <div class="form-group">
                                 <input type="text" id="cc_number" class="form-input" placeholder="<?= __('Card Number') ?>">
                             </div>
-    
+
                             <div class="form-group">
                                 <input type="text" id="cc_name" class="form-input" placeholder="<?= __('Name on Card') ?>">
                             </div>
-    
+
                             <div class="form-row">
                                 <div class="form-group col-half">
                                     <input type="text" id="cc_expiry" class="form-input" placeholder="<?= __('MM/YY') ?>" maxlength="5">
@@ -106,14 +105,14 @@ $paymentLink = $block->getPaymentLink();
                                     <input type="text" id="cc_cvv" class="form-input" placeholder="<?= __('CVV') ?>">
                                 </div>
                             </div>
-    
+
                             <div class="form-group">
                                 <select id="cc_installments" class="form-input">
                                     <option value="" disabled selected><?= __('Installments') ?></option>
                                 </select>
                             </div>
                         </div>
-    
+
                         <div id="installments-only" style="display:none;">
                             <div class="form-group">
                                 <select id="cc_installments_saved" class="form-input">
@@ -121,7 +120,7 @@ $paymentLink = $block->getPaymentLink();
                                 </select>
                             </div>
                         </div>
-    
+
                         <div class="credit-card-icons">
                             <img src="<?= $block->getViewFileUrl('Vindi_Payment::images/cc/vi.png') ?>" alt="Visa" class="h-6 cc-icon" id="cc-icon-visa">
                             <img src="<?= $block->getViewFileUrl('Vindi_Payment::images/cc/mc.png') ?>" alt="MasterCard" class="h-6 cc-icon" id="cc-icon-mastercard">
@@ -129,12 +128,12 @@ $paymentLink = $block->getPaymentLink();
                             <img src="<?= $block->getViewFileUrl('Vindi_Payment::images/cc/elo.png') ?>" alt="Elo" class="h-6 cc-icon" id="cc-icon-elo">
                         </div>
                         <input type="hidden" id="cc_type" name="cc_type" value="">
-    
+
                         <script>
                             function toggleCardForm(select) {
                                 const ccForm = document.getElementById('credit-card-form');
                                 const installmentsOnly = document.getElementById('installments-only');
-    
+
                                 if (select.value === "") {
                                     ccForm.style.display = 'block';
                                     installmentsOnly.style.display = 'none';
@@ -145,16 +144,16 @@ $paymentLink = $block->getPaymentLink();
                                     populateInstallments('cc_installments_saved');
                                 }
                             }
-    
+
                             function populateInstallments(selectId) {
                                 const selectInstallments = document.getElementById(selectId);
                                 const grandTotal = <?= $order->getGrandTotal() ?>;
                                 const minInstallmentsValue = 10;
                                 const maxInstallments = 12;
-    
+
                                 if (selectInstallments) {
                                     selectInstallments.innerHTML = '<option value="" disabled selected><?= $block->getTranslation("Installments") ?></option>';
-    
+
                                     for (let i = 1; i <= maxInstallments; i++) {
                                         let installmentValue = (grandTotal / i).toFixed(2).replace('.', ',');
                                         if (installmentValue < minInstallmentsValue) break;
@@ -168,7 +167,7 @@ $paymentLink = $block->getPaymentLink();
                         </script>
                     <?php endif; ?>
                 </div>
-                
+
                 <div class="form-group">
                     <label><strong><?= __('CPF/CNPJ:') ?></strong></label>
                     <input type="text" id="taxvat" class="form-input" placeholder="<?= __('Responsible CPF') ?>" value="<?= htmlspecialchars($taxvat, ENT_QUOTES, 'UTF-8') ?>">
