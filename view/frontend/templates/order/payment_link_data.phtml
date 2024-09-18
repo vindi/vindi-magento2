@@ -1,0 +1,10 @@
+<?php
+/* @var $block \Vindi\Payment\Block\Customer\Order\PaymentLinkColumn */
+$order = $block->getOrder();
+$paymentLink = $block->getPaymentLink($order->getId());
+?>
+<td data-th="<?= $block->escapeHtml(__('Payment Link')) ?>" class="col">
+    <?php if ($paymentLink): ?>
+        <a href="<?= $block->escapeUrl($paymentLink); ?>" target="_blank"><?= $block->escapeHtml(__('Access link')) ?></a>
+    <?php endif; ?>
+</td>

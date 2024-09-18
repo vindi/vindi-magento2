@@ -22,6 +22,7 @@ interface PaymentLinkInterface extends ExtensibleDataInterface
     const LINK = 'link';
     const ORDER_ID = 'order_id';
     const VINDI_PAYMENT_METHOD = 'vindi_payment_method';
+    const CUSTOMER_ID = 'customer_id';
     const CREATED_AT = 'created_at';
 
     /**
@@ -35,7 +36,7 @@ interface PaymentLinkInterface extends ExtensibleDataInterface
     public function setEntityId(int $entityId);
 
     /**
-     * @return int
+     * @return string
      */
     public function getLink();
 
@@ -55,7 +56,6 @@ interface PaymentLinkInterface extends ExtensibleDataInterface
     public function setOrderId(int $orderId);
 
     /**
-     *
      * @return string
      */
     public function getCreatedAt();
@@ -74,4 +74,14 @@ interface PaymentLinkInterface extends ExtensibleDataInterface
      * @param string $vindiPaymentMethod
      */
     public function setVindiPaymentMethod(string $vindiPaymentMethod);
+
+    /**
+     * @return int
+     */
+    public function getCustomerId();
+
+    /**
+     * @param int $customerId
+     */
+    public function setCustomerId(int $customerId);
 }

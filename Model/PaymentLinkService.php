@@ -196,12 +196,14 @@ class PaymentLinkService
         $link = '';
         try {
             $paymentLink = $this->getPaymentLink($orderId);
+            $order = $this->getOrderByOrderId($orderId);
             if (!$paymentLink->getData()) {
                 $paymentLink = $this->paymentLinkFactory->create();
             }
 
             $link = $this->buildPaymentLink($orderId);
             $paymentLink->setOrderId((int)$orderId);
+            $paymentLink->setCustomerId($order->getCustomerId());
             $paymentLink->setLink($link);
             $paymentLink->setVindiPaymentMethod($paymentMethod);
             $this->linkRepository->save($paymentLink);
@@ -271,6 +273,47 @@ class PaymentLinkService
 
     /**
      * @param string|int $orderId
+     * @return PaymentLink|bool
+     */
+    public function getPaymentLinkByOrderId($orderId)
+    {
+        $paymentLink = $this->paymentLinkFactory->create()->load($orderId, 'order_id');
+        return $paymentLink->getId() ? $paymentLink : false;
+    }
+
+    /**
+     * Get payment link by customer ID.
+     *
+     * @param int $customerId
+     * @return PaymentLink|false
+     */
+    public function getPaymentLinkByCustomerId($customerId)
+    {
+        $paymentLink = $this->paymentLinkCollectionFactory->create()
+            ->addFieldToFilter('customer_id', $customerId)
+            ->getFirstItem();
+
+        return $paymentLink->getId() ? $paymentLink : false;
+    }
+
+    /**
+     * Get the most recent payment link by customer ID.
+     *
+     * @param int $customerId
+     * @return PaymentLink|false
+     */
+    public function getMostRecentPaymentLinkByCustomerId($customerId)
+    {
+        $paymentLink = $this->paymentLinkCollectionFactory->create()
+            ->addFieldToFilter('customer_id', $customerId)
+            ->setOrder('created_at', 'DESC')
+            ->getFirstItem();
+
+        return $paymentLink->getId() ? $paymentLink : false;
+    }
+
+    /**
+     * @param string|int $orderId
      * @return string
      * @throws NoSuchEntityException
      */
@@ -280,3 +323,4 @@ class PaymentLinkService
             hash_hmac('sha256', $orderId . date("Y/m/d h:i:s"), $this->helper->getModuleGeneralConfig("api_key"));
     }
 }
+

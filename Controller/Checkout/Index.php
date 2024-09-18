@@ -26,6 +26,8 @@ use Magento\Framework\View\Result\Page;
 use Magento\Framework\View\Result\PageFactory;
 use Magento\Framework\Controller\Result\RedirectFactory;
 use Magento\Framework\Message\ManagerInterface;
+use Magento\Customer\Model\Session as CustomerSession;
+use Magento\Sales\Api\OrderRepositoryInterface;
 use Vindi\Payment\Model\PaymentLinkService;
 
 class Index implements HttpGetActionInterface
@@ -56,25 +58,40 @@ class Index implements HttpGetActionInterface
     private ManagerInterface $messageManager;
 
     /**
+     * @var CustomerSession
+     */
+    private CustomerSession $customerSession;
+
+    /**
+     * @var OrderRepositoryInterface
+     */
+    private OrderRepositoryInterface $orderRepository;
+
+    /**
      * @param PageFactory $resultPageFactory
      * @param PaymentLinkService $paymentLinkService
      * @param RequestInterface $request
      * @param RedirectFactory $redirectFactory
      * @param ManagerInterface $messageManager
+     * @param CustomerSession $customerSession
+     * @param OrderRepositoryInterface $orderRepository
      */
     public function __construct(
         PageFactory $resultPageFactory,
         PaymentLinkService $paymentLinkService,
         RequestInterface $request,
         RedirectFactory $redirectFactory,
-        ManagerInterface $messageManager
-    )
-    {
+        ManagerInterface $messageManager,
+        CustomerSession $customerSession,
+        OrderRepositoryInterface $orderRepository
+    ) {
         $this->resultPageFactory = $resultPageFactory;
         $this->paymentLinkService = $paymentLinkService;
         $this->request = $request;
         $this->redirectFactory = $redirectFactory;
         $this->messageManager = $messageManager;
+        $this->customerSession = $customerSession;
+        $this->orderRepository = $orderRepository;
     }
 
     /**
@@ -85,9 +102,33 @@ class Index implements HttpGetActionInterface
         $result = $this->resultPageFactory->create();
         $hash = $this->request->getParam('hash');
 
-        if (!$this->paymentLinkService->getPaymentLinkByHash($hash)->getData()) {
+        $paymentLink = $this->paymentLinkService->getPaymentLinkByHash($hash);
+        if (!$paymentLink->getData()) {
             $this->messageManager->addWarningMessage(
                 __('The link you used has expired or does not exist anymore. Please contact support or try again.')
+            );
+            return $this->redirectFactory->create()->setPath('/');
+        }
+
+        if (!$this->customerSession->isLoggedIn()) {
+            $this->messageManager->addWarningMessage(
+                __('You need to log in to access the payment link.')
+            );
+            return $this->redirectFactory->create()->setPath('customer/account/login');
+        }
+
+        $customerId = $paymentLink->getData('customer_id');
+        if (!$customerId) {
+            $orderId = $paymentLink->getData('order_id');
+            $order = $this->orderRepository->get($orderId);
+            $customerId = $order->getCustomerId();
+        }
+
+        $loggedInCustomerId = $this->customerSession->getCustomerId();
+
+        if ($customerId !== $loggedInCustomerId) {
+            $this->messageManager->addWarningMessage(
+                __('Only the customer associated with this payment link can access it.')
             );
             return $this->redirectFactory->create()->setPath('/');
         }
@@ -95,3 +136,4 @@ class Index implements HttpGetActionInterface
         return $result;
     }
 }
+

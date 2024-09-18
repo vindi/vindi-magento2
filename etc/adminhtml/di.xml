@@ -34,4 +34,9 @@
             <argument name="pool" xsi:type="object">Vindi\Payment\Model\Subscription\DataProvider\Modifier\Pool</argument>
         </arguments>
     </type>
+    <type name="Magento\Sales\Ui\Component\Listing\ColumnFactory">
+        <arguments>
+            <argument name="customColumnRenderer" xsi:type="object">Vindi\Payment\Ui\Component\Listing\Column\PaymentLink</argument>
+        </arguments>
+    </type>
 </config>
