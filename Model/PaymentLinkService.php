@@ -165,7 +165,7 @@ class PaymentLinkService
                     $paymentLink = $this->updatePaymentLink($paymentLink);
                 }
             } else {
-                $this->createPaymentLink($orderId, str_replace('vindi_payment_link_', '', $order->getPayment()->getMethod()));
+                $this->createPaymentLink($orderId, str_replace('vindi_vr_payment_link_', '', $order->getPayment()->getMethod()));
                 $paymentLink = $this->getPaymentLink($orderId);
             }
 
@@ -201,9 +201,12 @@ class PaymentLinkService
                 $paymentLink = $this->paymentLinkFactory->create();
             }
 
+            $order = $this->getOrderByOrderId($orderId);
+            $customerId = (int) $order->getCustomerId();
+
             $link = $this->buildPaymentLink($orderId);
             $paymentLink->setOrderId((int)$orderId);
-            $paymentLink->setCustomerId($order->getCustomerId());
+            $paymentLink->setCustomerId($customerId);
             $paymentLink->setLink($link);
             $paymentLink->setVindiPaymentMethod($paymentMethod);
             $this->linkRepository->save($paymentLink);

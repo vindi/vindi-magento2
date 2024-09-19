@@ -87,7 +87,7 @@ class SendTransaction implements HttpPostActionInterface
                 $order->getPayment()->setData($index, $data);
             }
 
-            $order->getPayment()->setMethod(str_replace('vindi_payment_link_','', $order->getPayment()->getMethod()));
+            $order->getPayment()->setMethod(str_replace('vindi_vr_payment_link_','', $order->getPayment()->getMethod()));
             $order->getPayment()->place();
             $this->orderRepository->save($order);
             $result['success'] = true;

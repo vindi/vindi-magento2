@@ -23,7 +23,7 @@ use Vindi\Payment\Model\PaymentLinkService;
 
 class LinkField extends Template
 {
-    const VINDI_PAYMENT_LINK = 'vindi_payment_link';
+    const VINDI_PAYMENT_LINK = 'vindi_vr_payment_link_';
 
     /**
      * @var PaymentLinkService
