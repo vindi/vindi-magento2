@@ -2,19 +2,6 @@
 
 declare(strict_types=1);
 
-/**
- *
- * DISCLAIMER
- *
- * Do not edit or add to this file if you wish to upgrade this extension to newer
- * version in the future.
- *
- * @category    Vindi
- * @package     Vindi_Payment
- *
- *
- */
-
 namespace Vindi\Payment\Controller\Checkout;
 
 use Magento\Framework\App\Action\HttpGetActionInterface;
@@ -111,6 +98,8 @@ class Index implements HttpGetActionInterface
         }
 
         if (!$this->customerSession->isLoggedIn()) {
+            $this->customerSession->setBeforeAuthUrl($this->request->getUriString());
+
             $this->messageManager->addWarningMessage(
                 __('You need to log in to access the payment link.')
             );
@@ -136,4 +125,3 @@ class Index implements HttpGetActionInterface
         return $result;
     }
 }
-

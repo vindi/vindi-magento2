@@ -1,3 +1,6 @@
+<?php
+/** @var \Vindi\Payment\Block\Customer\PaymentLinkNotification $block */
+?>
 <?php if ($paymentLink = $block->getPaymentLink()): ?>
     <div class="message notice">
         <strong><?php echo __('A payment link has been generated for you.'); ?></strong>

@@ -6,7 +6,7 @@
  */
 
 ?>
-<?php if(str_contains($block->getPaymentMethod(), $block::VINDI_PAYMENT_LINK)): ?>
+<?php if (str_contains($block->getPaymentMethod(), $block::VINDI_PAYMENT_LINK)): ?>
     <section class="admin__page-section">
         <div class="admin__page-section-title">
         <span class="title">
@@ -16,26 +16,41 @@
         <div class="admin__page-section-item-content edit-checkoutfield-date"
              style="display: flex;flex-direction: row;flex-wrap: nowrap;align-items: center;"
              id="edit-checkoutfield-info-form">
-            <fieldset class="admin__fieldset" style="display: <?= !$block->getPaymentLink() ? 'none' : 'block' ?>">
-                <input type="hidden" name="form_key" value="<?php echo $block->getFormKey() ?>" />
-                <input type="hidden" id="orderid" value="<?php
-                $objectManager = \Magento\Framework\App\ObjectManager::getInstance();
-                $request = $objectManager->get('Magento\Framework\App\Request\Http');
-                echo $param = $request->getParam('order_id');?>"/>
-                <span class="link" style="display: none"><?= $block->getPaymentLink(); ?></span>
-                <input type="text"
-                       class="admin__control-text"
-                       value="<?php echo $block->getPaymentLink(); ?>"
-                       style="margin-right: 10px"
-                       readonly>
-                <button class="pix-copy-button"
-                        style="margin-right: 10px"
-                        data-text="<?= $block->escapeHtml(__('Copied!')) ?>"
-                        onclick="vindiVr.copyCode(this, '.link', false)">
-                    <?= $block->escapeHtml(__('Copy link')) ?>
+
+            <?php if ($block->isLinkPaid()): ?>
+                <div>
+                    <span>
+                        <?php /* @escapeNotVerified */ echo __('The payment link has already been paid.') ?>
+                    </span>
+                </div>
+            <?php else: ?>
+
+                <fieldset class="admin__fieldset" style="display: <?= !$block->getPaymentLink() || $block->isLinkExpired() ? 'none' : 'block' ?>">
+                    <input type="hidden" name="form_key" value="<?php echo $block->getFormKey() ?>" />
+                    <input type="hidden" id="orderid" value="<?php
+                    $objectManager = \Magento\Framework\App\ObjectManager::getInstance();
+                    $request = $objectManager->get('Magento\Framework\App\Request\Http');
+                    echo $param = $request->getParam('order_id'); ?>"/>
+
+                    <span class="link" style="display: none"><?= $block->getPaymentLink(); ?></span>
+
+                    <input type="text"
+                           class="admin__control-text"
+                           value="<?php echo $block->getPaymentLink(); ?>"
+                           style="margin-right: 10px"
+                           readonly>
+                    <button class="pix-copy-button"
+                            style="margin-right: 10px"
+                            data-text="<?= $block->escapeHtml(__('Copied!')) ?>"
+                            onclick="vindiVr.copyCode(this, '.link', false)">
+                        <?= $block->escapeHtml(__('Copy link')) ?>
+                    </button>
+                </fieldset>
+
+                <button id="vind_payment_send" class="action-default action-secondary action-send">
+                    <?php /* @escapeNotVerified */ echo __('Create and send new payment link') ?>
                 </button>
-            </fieldset>
-            <button id="vind_payment_send" class="action-default action-secondary action-send"><?php /* @escapeNotVerified */ echo __('Create and send new payment link') ?></button>
+            <?php endif; ?>
         </div>
     </section>
 
@@ -72,4 +87,4 @@
             });
         });
     </script>
-<?php endif?>
+<?php endif ?>

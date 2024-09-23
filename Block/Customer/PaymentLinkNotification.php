@@ -47,7 +47,7 @@ class PaymentLinkNotification extends Template
     }
 
     /**
-     * Check if there is a payment link for the logged-in customer.
+     * Check if there is a pending payment link for the logged-in customer.
      *
      * @return string|false
      */
@@ -64,9 +64,12 @@ class PaymentLinkNotification extends Template
         }
 
         $customerId = $this->customerSession->getCustomerId();
-        $paymentLink = $this->paymentLinkService->getMostRecentPaymentLinkByCustomerId($customerId);
+        $paymentLink = $this->paymentLinkService->getMostRecentPendingPaymentLinkByCustomerId($customerId);
 
-        return $paymentLink ? $paymentLink->getLink() : false;
+        if ($paymentLink && $paymentLink->getStatus() === 'pending') {
+            return $paymentLink->getLink();
+        }
+
+        return false;
     }
 }
-

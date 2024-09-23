@@ -651,3 +651,8 @@
 "Error sending the payment link.","Erro ao enviar o link de pagamento."
 "Confirmation","Confirmação"
 "Are you sure you want to send the payment link to the selected orders?","Tem certeza de que deseja enviar o link de pagamento para os pedidos selecionados?"
+"Link pending","Link pendente"
+"Link expired","Link expirado"
+"Link paid","Link pago"
+"Unknown status","Status desconhecido"
+"The payment link has already been paid.","O link de pagamento já foi pago."

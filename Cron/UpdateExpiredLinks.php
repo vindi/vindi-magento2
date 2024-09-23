@@ -7,7 +7,7 @@ namespace Vindi\Payment\Cron;
 use Vindi\Payment\Model\PaymentLinkService;
 use Psr\Log\LoggerInterface;
 
-class DeleteExpiredLinks
+class UpdateExpiredLinks
 {
     /**
      * @var PaymentLinkService
@@ -32,15 +32,15 @@ class DeleteExpiredLinks
     }
 
     /**
-     * Execute the cron job to delete expired payment links.
+     * Execute the cron job to update the status of expired payment links.
      */
     public function execute(): void
     {
         try {
-            $this->paymentLinkService->deleteExpiredPaymentLinks();
-            $this->logger->info('Expired payment links deleted successfully.');
+            $this->paymentLinkService->updateExpiredPaymentLinks();
+            $this->logger->info('Expired payment links updated successfully.');
         } catch (\Exception $e) {
-            $this->logger->error('Error deleting expired payment links: ' . $e->getMessage());
+            $this->logger->error('Error updating expired payment links: ' . $e->getMessage());
         }
     }
 }

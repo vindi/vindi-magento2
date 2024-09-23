@@ -54,8 +54,7 @@ class SendTransaction implements HttpPostActionInterface
         RequestInterface $httpRequest,
         OrderRepositoryInterface $orderRepository,
         ManagerInterface $messageManager
-    )
-    {
+    ) {
         $this->resultJsonFactory = $resultJsonFactory;
         $this->paymentLinkService = $paymentLinkService;
         $this->httpRequest = $httpRequest;
@@ -87,9 +86,16 @@ class SendTransaction implements HttpPostActionInterface
                 $order->getPayment()->setData($index, $data);
             }
 
-            $order->getPayment()->setMethod(str_replace('vindi_vr_payment_link_','', $order->getPayment()->getMethod()));
+            $order->getPayment()->setMethod(str_replace('vindi_vr_payment_link_', '', $order->getPayment()->getMethod()));
             $order->getPayment()->place();
             $this->orderRepository->save($order);
+
+            $paymentLink = $this->paymentLinkService->getPaymentLinkByOrderId($orderId);
+            if ($paymentLink) {
+                $paymentLink->setStatus('paid');
+                $this->paymentLinkService->savePaymentLink($paymentLink);
+            }
+
             $result['success'] = true;
         } catch (\Exception $e) {
             $this->messageManager->addErrorMessage(__($e->getMessage()));
@@ -99,4 +105,3 @@ class SendTransaction implements HttpPostActionInterface
         return $resultJson->setData($result);
     }
 }
-

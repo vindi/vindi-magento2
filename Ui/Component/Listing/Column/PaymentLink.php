@@ -46,8 +46,22 @@ class PaymentLink extends Column
                 $paymentLink = $this->paymentLinkService->getPaymentLinkByOrderId($orderId);
 
                 if ($paymentLink) {
-                    $link = $paymentLink->getLink();
-                    $item[$this->getData('name')] = __('Link generated');
+                    $status = $paymentLink->getStatus();
+
+                    switch ($status) {
+                        case 'pending':
+                            $item[$this->getData('name')] = __('Link pending');
+                            break;
+                        case 'expired':
+                            $item[$this->getData('name')] = __('Link expired');
+                            break;
+                        case 'paid':
+                            $item[$this->getData('name')] = __('Link paid');
+                            break;
+                        default:
+                            $item[$this->getData('name')] = __('Unknown status');
+                            break;
+                    }
                 } else {
                     $item[$this->getData('name')] = '';
                 }

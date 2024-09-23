@@ -38,7 +38,7 @@ class PaymentLinkColumn extends Template
     }
 
     /**
-     * Get payment link by order ID.
+     * Get pending payment link by order ID.
      *
      * @param int $orderId
      * @return bool|string
@@ -46,6 +46,9 @@ class PaymentLinkColumn extends Template
     public function getPaymentLink($orderId)
     {
         $paymentLink = $this->paymentLinkService->getPaymentLinkByOrderId($orderId);
-        return $paymentLink ? $paymentLink->getLink() : false;
+        if ($paymentLink && $paymentLink->getStatus() === 'pending') {
+            return $paymentLink->getLink();
+        }
+        return false;
     }
 }

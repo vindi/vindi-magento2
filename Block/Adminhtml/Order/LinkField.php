@@ -2,19 +2,6 @@
 
 declare(strict_types=1);
 
-/**
- *
- * DISCLAIMER
- *
- * Do not edit or add to this file if you wish to upgrade this extension to newer
- * version in the future.
- *
- * @category    Vindi
- * @package     Vindi_Payment
- *
- *
- */
-
 namespace Vindi\Payment\Block\Adminhtml\Order;
 
 use \Magento\Backend\Block\Template;
@@ -38,8 +25,8 @@ class LinkField extends Template
     public function __construct(
         Context $context,
         PaymentLinkService $paymentLinkService,
-        array $data = [])
-    {
+        array $data = []
+    ) {
         $this->paymentLinkService = $paymentLinkService;
         parent::__construct($context, $data);
     }
@@ -49,8 +36,7 @@ class LinkField extends Template
      */
     public function getOrderId()
     {
-        $orderId = $this->getRequest()->getParam('order_id');
-        return $orderId;
+        return $this->getRequest()->getParam('order_id');
     }
 
     /**
@@ -74,4 +60,27 @@ class LinkField extends Template
         }
         return null;
     }
+
+    /**
+     * Check if the payment link status is "paid"
+     *
+     * @return bool
+     */
+    public function isLinkPaid(): bool
+    {
+        $paymentLink = $this->paymentLinkService->getPaymentLink($this->getOrderId());
+        return $paymentLink->getStatus() === 'paid';
+    }
+
+    /**
+     * Check if the payment link is expired
+     *
+     * @return bool
+     */
+    public function isLinkExpired(): bool
+    {
+        $paymentLink = $this->paymentLinkService->getPaymentLink($this->getOrderId());
+        return $paymentLink->getStatus() === 'expired';
+    }
 }
+

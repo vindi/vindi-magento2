@@ -24,6 +24,7 @@ interface PaymentLinkInterface extends ExtensibleDataInterface
     const VINDI_PAYMENT_METHOD = 'vindi_payment_method';
     const CUSTOMER_ID = 'customer_id';
     const CREATED_AT = 'created_at';
+    const STATUS = 'status';
 
     /**
      * @return int
@@ -84,4 +85,14 @@ interface PaymentLinkInterface extends ExtensibleDataInterface
      * @param int $customerId
      */
     public function setCustomerId(int $customerId);
+
+    /**
+     * @return string
+     */
+    public function getStatus();
+
+    /**
+     * @param string $status
+     */
+    public function setStatus(string $status);
 }
