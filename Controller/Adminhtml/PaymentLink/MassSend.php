@@ -108,6 +108,8 @@ class MassSend extends Action
 
         try {
             $errors = 0;
+            $successes = 0;
+
             foreach ($orderIds as $orderId) {
                 try {
                     $order = $this->orderRepository->get($orderId);
@@ -117,8 +119,17 @@ class MassSend extends Action
                         continue;
                     }
 
+                    $paymentLink = $this->paymentLinkService->getPaymentLink($orderId);
+
+                    if ($paymentLink->getStatus() === 'paid') {
+                        $this->messageManager->addWarningMessage(__('Payment link for order ID %1 has already been paid and will not be sent.', $orderId));
+                        continue;
+                    }
+
                     $success = $this->paymentLinkService->sendPaymentLinkEmail($order->getEntityId());
-                    if (!$success) {
+                    if ($success) {
+                        $successes++;
+                    } else {
                         $errors++;
                     }
                 } catch (\Exception $e) {
@@ -127,10 +138,13 @@ class MassSend extends Action
                 }
             }
 
-            if ($errors === 0) {
-                $this->messageManager->addSuccessMessage(__('The payment link was successfully sent for all selected orders.'));
-            } else {
-                $this->messageManager->addErrorMessage(__('%1 orders failed to send the payment link.', $errors));
+            if ($errors === 0 && $successes > 0) {
+                $this->messageManager->addSuccessMessage(__('%1 orders were successfully sent the payment link.', $successes));
+            } elseif ($errors > 0 && $successes > 0) {
+                $this->messageManager->addSuccessMessage(__('%1 orders were successfully sent the payment link.', $successes));
+                $this->messageManager->addWarningMessage(__('%1 orders failed to send the payment link.', $errors));
+            } elseif ($errors > 0 && $successes === 0) {
+                $this->messageManager->addErrorMessage(__('No orders were successfully sent. %1 orders failed to send the payment link.', $errors));
             }
         } catch (\Exception $e) {
             $this->logger->critical($e);
