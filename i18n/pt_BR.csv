@@ -660,3 +660,4 @@
 "%1 orders were successfully sent the payment link.","%1 pedidos foram enviados com sucesso o link de pagamento."
 "%1 orders failed to send the payment link.","%1 pedidos falharam ao enviar o link de pagamento."
 "No orders were successfully sent. %1 orders failed to send the payment link.","Nenhum pedido foi enviado com sucesso. %1 pedidos falharam ao enviar o link de pagamento."
+"No payment link found for order ID %1.","Nenhum link de pagamento encontrado para o ID do pedido %1."

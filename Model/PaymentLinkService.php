@@ -137,7 +137,7 @@ class PaymentLinkService
     public function getPaymentLinkByHash(string $hash)
     {
         return $this->paymentLinkCollectionFactory->create()
-            ->addFieldToFilter('link', ['like' => '%'.$hash.'%'])
+            ->addFieldToFilter('link', ['like' => '%' . $hash . '%'])
             ->getFirstItem();
     }
 
@@ -158,6 +158,12 @@ class PaymentLinkService
     {
         try {
             $paymentLink = $this->getPaymentLink($orderId);
+
+            if (!$paymentLink || !$paymentLink->getId()) {
+                $this->logger->error('Payment link not found for order ID: ' . $orderId);
+                return false;
+            }
+
             $order = $this->getOrderByOrderId($orderId);
 
             if ($paymentLink->getData()) {
@@ -167,6 +173,11 @@ class PaymentLinkService
             } else {
                 $this->createPaymentLink($orderId, str_replace('vindi_vr_payment_link_', '', $order->getPayment()->getMethod()));
                 $paymentLink = $this->getPaymentLink($orderId);
+            }
+
+            if (!$paymentLink || !$paymentLink->getId()) {
+                $this->logger->error('Failed to generate payment link for order ID: ' . $orderId);
+                return false;
             }
 
             $templateVars = [
@@ -243,6 +254,7 @@ class PaymentLinkService
             $link = $this->buildPaymentLink($paymentLink->getOrderId());
             $paymentLink->setCreatedAt($this->dateTimeFactory->create()->format('Y-m-d H:i:s'));
             $paymentLink->setLink($link);
+            $paymentLink->setStatus('pending');
             $this->linkRepository->save($paymentLink);
         } catch (\Exception $exception) {
             $this->logger->error($exception->getMessage());

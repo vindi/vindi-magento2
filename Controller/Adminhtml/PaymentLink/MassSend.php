@@ -2,18 +2,6 @@
 
 declare(strict_types=1);
 
-/**
- *
- * DISCLAIMER
- *
- * Do not edit or add to this file if you wish to upgrade this extension to newer
- * version in the future.
- *
- * @category    Vindi
- * @package     Vindi_Payment
- *
- */
-
 namespace Vindi\Payment\Controller\Adminhtml\PaymentLink;
 
 use Magento\Backend\App\Action;
@@ -121,6 +109,11 @@ class MassSend extends Action
 
                     $paymentLink = $this->paymentLinkService->getPaymentLink($orderId);
 
+                    if (!$paymentLink || !$paymentLink->getId()) {
+                        $this->messageManager->addWarningMessage(__('No payment link found for order ID %1.', $orderId));
+                        continue;
+                    }
+
                     if ($paymentLink->getStatus() === 'paid') {
                         $this->messageManager->addWarningMessage(__('Payment link for order ID %1 has already been paid and will not be sent.', $orderId));
                         continue;
@@ -154,3 +147,4 @@ class MassSend extends Action
         return $resultRedirect->setPath('sales/order/index');
     }
 }
+
