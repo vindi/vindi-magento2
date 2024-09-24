@@ -19,9 +19,9 @@ use Vindi\Payment\Model\PaymentLinkFactory;
 class PaymentLinkService
 {
     /**
-     * Payment link expiration time, 24 hours
+     * Payment link expiration time, 20 days (in hours)
      */
-    public const LINK_EXPIRATION_TIME = 24;
+    public const LINK_EXPIRATION_TIME = 480;
 
     /**
      * Sales email config path
@@ -304,22 +304,6 @@ class PaymentLinkService
     }
 
     /**
-     * Get the most recent payment link by customer ID.
-     *
-     * @param int $customerId
-     * @return PaymentLink|false
-     */
-    public function getMostRecentPaymentLinkByCustomerId($customerId)
-    {
-        $paymentLink = $this->paymentLinkCollectionFactory->create()
-            ->addFieldToFilter('customer_id', $customerId)
-            ->setOrder('created_at', 'DESC')
-            ->getFirstItem();
-
-        return $paymentLink->getId() ? $paymentLink : false;
-    }
-
-    /**
      * Get the most recent pending payment link by customer ID.
      *
      * @param int $customerId
@@ -347,4 +331,3 @@ class PaymentLinkService
             hash_hmac('sha256', $orderId . date("Y/m/d h:i:s"), $this->helper->getModuleGeneralConfig("api_key"));
     }
 }
-
