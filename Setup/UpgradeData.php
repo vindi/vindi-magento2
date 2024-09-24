@@ -98,7 +98,7 @@ class UpgradeData implements UpgradeDataInterface
         }
 
         $entityTypeId = $categorySetup->getEntityTypeId(Product::ENTITY);
-        $attributeSetId = $categorySetup->getAttributeSetId($entityTypeId, self::VINDI_PLANOS);
+        $attributeSetId = $categorySetup->getAttributeSet($entityTypeId, self::VINDI_PLANOS, 'attribute_set_id');
         if ($attributeSetId) {
             $attributeGroupId = $categorySetup->getAttributeGroupId($entityTypeId, $attributeSetId, self::VINDI_PLAN_SETTINGS);
             if ($attributeGroupId) {
