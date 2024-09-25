@@ -39,4 +39,7 @@
             <argument name="customColumnRenderer" xsi:type="object">Vindi\Payment\Ui\Component\Listing\Column\PaymentLink</argument>
         </arguments>
     </type>
+    <type name="Magento\Sales\Model\Service\OrderService">
+        <plugin name="vindi_payment_after_place_order_plugin" type="Vindi\Payment\Plugin\Model\Service\OrderService" />
+    </type>
 </config>

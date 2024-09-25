@@ -263,6 +263,38 @@ class PaymentLinkService
     }
 
     /**
+     * Update payment link status to 'pending'.
+     *
+     * @param PaymentLink $paymentLink
+     * @return void
+     */
+    public function updatePaymentLinkStatusToPending(PaymentLink $paymentLink): void
+    {
+        try {
+            $paymentLink->setStatus('pending');
+            $this->linkRepository->save($paymentLink);
+        } catch (\Exception $e) {
+            $this->logger->error('Error updating payment link status to pending: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Update payment link status to 'expired'.
+     *
+     * @param PaymentLink $paymentLink
+     * @return void
+     */
+    public function updatePaymentLinkStatusToExpired(PaymentLink $paymentLink): void
+    {
+        try {
+            $paymentLink->setStatus('expired');
+            $this->linkRepository->save($paymentLink);
+        } catch (\Exception $e) {
+            $this->logger->error('Error updating payment link status to expired: ' . $e->getMessage());
+        }
+    }
+
+    /**
      * @param string $linkCreatedAt
      * @return bool
      */

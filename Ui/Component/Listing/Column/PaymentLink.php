@@ -55,8 +55,8 @@ class PaymentLink extends Column
                         case 'expired':
                             $item[$this->getData('name')] = __('Link expired');
                             break;
-                        case 'paid':
-                            $item[$this->getData('name')] = __('Link paid');
+                        case 'processed':
+                            $item[$this->getData('name')] = __('Link processed');
                             break;
                         default:
                             $item[$this->getData('name')] = __('Unknown status');

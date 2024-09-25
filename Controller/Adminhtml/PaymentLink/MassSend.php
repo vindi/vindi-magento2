@@ -45,7 +45,7 @@ class MassSend extends Action
     /**
      * Maximum number of orders allowed for processing at once.
      */
-    private const MAX_ORDERS = 50;
+    private const MAX_ORDERS = 10;
 
     /**
      * @param Context $context
@@ -104,18 +104,19 @@ class MassSend extends Action
                     $paymentMethod = $order->getPayment()->getMethod();
 
                     if (!str_contains($paymentMethod, LinkField::VINDI_PAYMENT_LINK)) {
+                        $this->messageManager->addWarningMessage(__('Order ID %1 is not an order with a payment link or has already been processed.', $order->getIncrementId()));
                         continue;
                     }
 
                     $paymentLink = $this->paymentLinkService->getPaymentLink($orderId);
 
                     if (!$paymentLink || !$paymentLink->getId()) {
-                        $this->messageManager->addWarningMessage(__('No payment link found for order ID %1.', $orderId));
+                        $this->messageManager->addWarningMessage(__('No payment link found for order ID %1.', $order->getIncrementId()));
                         continue;
                     }
 
-                    if ($paymentLink->getStatus() === 'paid') {
-                        $this->messageManager->addWarningMessage(__('Payment link for order ID %1 has already been paid and will not be sent.', $orderId));
+                    if ($paymentLink->getStatus() === 'processed') {
+                        $this->messageManager->addWarningMessage(__('Payment link for order ID %1 has already been processed and will not be sent.', $order->getIncrementId()));
                         continue;
                     }
 
@@ -147,4 +148,3 @@ class MassSend extends Action
         return $resultRedirect->setPath('sales/order/index');
     }
 }
-

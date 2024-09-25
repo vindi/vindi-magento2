@@ -92,7 +92,7 @@ class SendTransaction implements HttpPostActionInterface
 
             $paymentLink = $this->paymentLinkService->getPaymentLinkByOrderId($orderId);
             if ($paymentLink) {
-                $paymentLink->setStatus('paid');
+                $paymentLink->setStatus('processed');
                 $this->paymentLinkService->savePaymentLink($paymentLink);
             }
 

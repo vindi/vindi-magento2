@@ -661,3 +661,7 @@
 "%1 orders failed to send the payment link.","%1 pedidos falharam ao enviar o link de pagamento."
 "No orders were successfully sent. %1 orders failed to send the payment link.","Nenhum pedido foi enviado com sucesso. %1 pedidos falharam ao enviar o link de pagamento."
 "No payment link found for order ID %1.","Nenhum link de pagamento encontrado para o ID do pedido %1."
+"The payment link has already been processed.","O link de pagamento já foi processado."
+"Link processed","Link processado"
+"Payment link for order ID %1 has already been processed and will not be sent.","O link de pagamento para o ID do pedido %1 já foi processado e não será enviado."
+"Order ID %1 is not an order with a payment link or has already been processed.","O ID do pedido %1 não é um pedido com um link de pagamento ou ele já foi processado."

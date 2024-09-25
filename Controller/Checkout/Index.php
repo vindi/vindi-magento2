@@ -97,6 +97,17 @@ class Index implements HttpGetActionInterface
             return $this->redirectFactory->create()->setPath('/');
         }
 
+        if ($this->paymentLinkService->isLinkExpired($paymentLink->getCreatedAt())) {
+            $this->paymentLinkService->updatePaymentLinkStatusToExpired($paymentLink);
+        }
+
+        if ($paymentLink->getData('status') !== 'pending') {
+            $this->messageManager->addErrorMessage(
+                __('Only pending payment links can be accessed.')
+            );
+            return $this->redirectFactory->create()->setPath('/');
+        }
+
         if (!$this->customerSession->isLoggedIn()) {
             $this->customerSession->setBeforeAuthUrl($this->request->getUriString());
 
