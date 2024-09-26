@@ -104,7 +104,7 @@
                         <config_path>payment/vindi/recurring</config_path>
                     </field>
                     <field id="payment_link_instructions" translate="label comment" type="textarea" sortOrder="20200" showInDefault="1" showInWebsite="1" showInStore="1">
-                        <label>Payment Link Instructions</label>
+                        <label>Instructions on the payment link success page</label>
                         <config_path>payment/vindi/payment_link_instructions</config_path>
                         <comment><![CDATA[Instructions to be shown in payment link success page, it can be HTML]]></comment>
                     </field>
@@ -137,7 +137,7 @@
                         <config_path>payment/vindi_pix/recurring</config_path>
                     </field>
                     <field id="payment_link_instructions" translate="label comment" type="textarea" sortOrder="20200" showInDefault="1" showInWebsite="1" showInStore="1">
-                        <label>Payment Link Instructions</label>
+                        <label>Instructions on the payment link success page</label>
                         <config_path>payment/vindi_pix/payment_link_instructions</config_path>
                         <comment><![CDATA[Instructions to be shown in payment link success page, it can be HTML]]></comment>
                     </field>
@@ -162,7 +162,7 @@
                         <config_path>payment/vindi_bankslip/recurring</config_path>
                     </field>
                     <field id="payment_link_instructions" translate="label comment" type="textarea" sortOrder="20200" showInDefault="1" showInWebsite="1" showInStore="1">
-                        <label>Payment Link Instructions</label>
+                        <label>Instructions on the payment link success page</label>
                         <config_path>payment/vindi_bankslip/payment_link_instructions</config_path>
                         <comment><![CDATA[Instructions to be shown in payment link success page, it can be HTML]]></comment>
                     </field>
@@ -187,7 +187,7 @@
                         <config_path>payment/vindi_bankslippix/recurring</config_path>
                     </field>
                     <field id="payment_link_instructions" translate="label comment" type="textarea" sortOrder="20200" showInDefault="1" showInWebsite="1" showInStore="1">
-                        <label>Payment Link Instructions</label>
+                        <label>Instructions on the payment link success page</label>
                         <config_path>payment/vindi_bankslippix/payment_link_instructions</config_path>
                         <comment><![CDATA[Instructions to be shown in payment link success page, it can be HTML]]></comment>
                     </field>
