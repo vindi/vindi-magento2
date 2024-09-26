@@ -665,3 +665,6 @@
 "Link processed","Link processado"
 "Payment link for order ID %1 has already been processed and will not be sent.","O link de pagamento para o ID do pedido %1 já foi processado e não será enviado."
 "Order ID %1 is not an order with a payment link or has already been processed.","O ID do pedido %1 não é um pedido com um link de pagamento ou ele já foi processado."
+"Payment Link Email Template","Template de E-mail do Link de Pagamento"
+"Select the email template, if the &quot;Default&quot; option is selected, the module's default template will be considered.","Selecione o modelo de e-mail, se a opção &quot;Padrão&quot; for selecionada, o modelo padrão do módulo será considerado."
+"Payment Link Notification","Notificação de Link de Pagamento"

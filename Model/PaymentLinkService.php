@@ -244,10 +244,12 @@ class PaymentLinkService
     }
 
     /**
+     * Update payment link.
+     *
      * @param PaymentLink $paymentLink
-     * @return string
+     * @return PaymentLink
      */
-    public function updatePaymentLink(PaymentLink $paymentLink): string
+    public function updatePaymentLink(PaymentLink $paymentLink)
     {
         $link = '';
         try {
@@ -259,7 +261,8 @@ class PaymentLinkService
         } catch (\Exception $exception) {
             $this->logger->error($exception->getMessage());
         }
-        return $link;
+
+        return $paymentLink;
     }
 
     /**
