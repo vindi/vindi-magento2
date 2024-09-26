@@ -1,5 +1,8 @@
 # Notas das versões
 
+## [2.0.1 - 26/09/2024](https://github.com/vindi/vindi-magento2/releases/tag/2.0.1)
+- Corrige erro "The attribute set ID is incorrect. Verify the ID and try again" durante a etapa de atualização do novo módulo de recorrência.
+
 ## [2.0.0 - 03/09/2024](https://github.com/vindi/vindi-magento2/releases/tag/2.0.0)
 **Breaking changes**
 - Adiciona suporte para Magento 2.4+
