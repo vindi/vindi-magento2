@@ -87,6 +87,11 @@ class SaveSubscriptionItem extends Action
             $subscriptionItem->setPrice($price);
             $this->subscriptionItemRepository->save($subscriptionItem);
 
+            $this->_eventManager->dispatch(
+                'vindi_payment_subscription_item_updated',
+                ['subscription_item' => $subscriptionItem]
+            );
+
             $this->messageManager->addSuccessMessage(__('Price updated successfully.'));
 
             return $resultRedirect->setPath('*/*/editsubscriptionitem', ['entity_id' => $subscriptionItem->getId()]);

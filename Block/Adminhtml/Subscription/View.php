@@ -8,6 +8,7 @@ use Magento\Backend\Block\Widget\Container;
 use Magento\Backend\Block\Widget\Context;
 use Magento\Framework\Registry;
 use Magento\Framework\Pricing\PriceCurrencyInterface;
+use Vindi\Payment\Model\Vindi\Subscription as VindiSubscription;
 use Vindi\Payment\Helper\Api;
 use Vindi\Payment\Model\ResourceModel\SubscriptionOrder\CollectionFactory as SubscriptionOrderCollectionFactory;
 use Vindi\Payment\Model\SubscriptionFactory;
@@ -30,6 +31,11 @@ class View extends Container
      * @var array|null
      */
     private $periods = null;
+
+    /**
+     * @var VindiSubscription
+     */
+    private $vindiSubscription;
 
     /**
      * @var Api
@@ -72,6 +78,7 @@ class View extends Container
      * @param Context $context
      * @param Registry $registry
      * @param SubscriptionOrderCollectionFactory $subscriptionsOrderCollectionFactory
+     * @param VindiSubscription $vindiSubscription
      * @param Api $api
      * @param PriceCurrencyInterface $priceHelper
      * @param SubscriptionFactory $subscriptionFactory
@@ -83,6 +90,7 @@ class View extends Container
         Context $context,
         Registry $registry,
         SubscriptionOrderCollectionFactory $subscriptionsOrderCollectionFactory,
+        VindiSubscription $vindiSubscription,
         Api $api,
         PriceCurrencyInterface $priceHelper,
         SubscriptionFactory $subscriptionFactory,
@@ -91,6 +99,7 @@ class View extends Container
         array $data = []
     ) {
         parent::__construct($context, $data);
+        $this->vindiSubscription = $vindiSubscription;
         $this->api = $api;
         $this->registry = $registry;
         $this->subscriptionsOrderCollectionFactory = $subscriptionsOrderCollectionFactory;
@@ -390,19 +399,14 @@ class View extends Container
     }
 
     /**
-     * Fetch subscription data directly from the API.
+     * Fetch subscription data from the Vindi API using the VindiSubscription model.
      *
      * @param int $subscriptionId
      * @return array|null
      */
     public function fetchSubscriptionDataFromApi($subscriptionId)
     {
-        $request = $this->api->request('subscriptions/' . $subscriptionId, 'GET');
-        if (is_array($request) && isset($request['subscription'])) {
-            return $request['subscription'];
-        }
-
-        return null;
+        return $this->vindiSubscription->getSubscriptionById($subscriptionId);
     }
 
     /**
@@ -464,3 +468,4 @@ class View extends Container
         return $this->subscriptions;
     }
 }
+
