@@ -43,23 +43,36 @@
             <item name="config" xsi:type="array">
                 <item name="label" xsi:type="string" translate="true">Products</item>
                 <item name="collapsible" xsi:type="boolean">false</item>
-                <item name="sortOrder" xsi:type="number">40</item>
+                <item name="sortOrder" xsi:type="number">10</item>
             </item>
         </argument>
         <container name="assign_subscription_items_container">
             <argument name="data" xsi:type="array">
                 <item name="config" xsi:type="array">
-                    <item name="sortOrder" xsi:type="number">170</item>
+                    <item name="sortOrder" xsi:type="number">20</item>
                 </item>
             </argument>
             <htmlContent name="html_content">
                 <argument name="block" xsi:type="object">Vindi\Payment\Block\Adminhtml\Subscription\Edit\SubscriptionItems</argument>
             </htmlContent>
         </container>
+        <field name="payment_method" sortOrder="30" formElement="hidden">
+            <settings>
+                <dataType>text</dataType>
+                <label translate="true">Payment Method</label>
+                <dataScope>payment_method</dataScope>
+                <disabled>true</disabled>
+            </settings>
+        </field>
     </fieldset>
 
     <!-- Fieldset: Payment Settings -->
-    <fieldset name="payment_settings" sortOrder="30">
+    <fieldset name="payment_settings" sortOrder="20">
+        <argument name="data" xsi:type="array">
+            <item name="config" xsi:type="array">
+                <item name="additionalClasses" xsi:type="string">payment-settings-fieldset</item>
+            </item>
+        </argument>
         <settings>
             <label translate="true">Payment Profile</label>
         </settings>
