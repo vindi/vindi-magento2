@@ -69,6 +69,8 @@ class SaveSubscriptionItem extends Action
                 throw new LocalizedException(__('Missing required data: entity_id or price.'));
             }
 
+            $price = number_format((float) $price, 2, '.', '');
+
             $subscriptionItem = $this->subscriptionItemRepository->getById($entityId);
 
             $data = [

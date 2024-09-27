@@ -72,6 +72,8 @@ class DataProvider extends \Magento\Ui\DataProvider\ModifierPoolDataProvider
         /** @var \Vindi\Payment\Model\VindiSubscriptionItem $subscriptionItem */
         foreach ($items as $subscriptionItem) {
             $result['settings']  = $subscriptionItem->getData();
+            $price = number_format((float) $result['settings']['price'], 2, '.', '');
+            $result['settings']['price'] = $price;
             $result['entity_id'] = $subscriptionItem->getEntityId();
 
             $this->loadedData[$subscriptionItem->getEntityId()] = $result;

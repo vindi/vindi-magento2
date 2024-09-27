@@ -56,6 +56,7 @@
             <argument name="data" xsi:type="array">
                 <item name="config" xsi:type="array">
                     <item name="source" xsi:type="string">menu</item>
+                    <item name="addbefore" xsi:type="string">R$</item>
                 </item>
             </argument>
             <settings>
