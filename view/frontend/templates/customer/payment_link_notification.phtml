@@ -4,6 +4,6 @@
 <?php if ($paymentLink = $block->getPaymentLink()): ?>
     <div class="message notice">
         <strong><?php echo __('A payment link has been generated for you.'); ?></strong>
-        <a href="<?php echo $paymentLink; ?>"><?php echo __('Click here'); ?></a> <?php echo __('to access it.'); ?>
+        <a href="<?php echo $block->getUrl('sales/order/history'); ?>"><?php echo __('Click here'); ?></a> <?php echo __('to access it.'); ?>
     </div>
 <?php endif; ?>

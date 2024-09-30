@@ -67,7 +67,7 @@ class PaymentLinkNotification extends Template
         $paymentLink = $this->paymentLinkService->getMostRecentPendingPaymentLinkByCustomerId($customerId);
 
         if ($paymentLink && $paymentLink->getStatus() === 'pending') {
-            return $paymentLink->getLink();
+            return true;
         }
 
         return false;
