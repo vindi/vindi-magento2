@@ -16,4 +16,7 @@
     <event name="sales_order_place_before">
         <observer name="change_payment_method_before_order_creation" instance="Vindi\Payment\Observer\ChangePaymentBeforePlace" />
     </event>
+    <event name="sales_order_save_after">
+        <observer name="vindi_payment_cancel_order_observer" instance="Vindi\Payment\Observer\CancelOrderObserver" />
+    </event>
 </config>

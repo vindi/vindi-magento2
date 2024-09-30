@@ -102,7 +102,7 @@ class Index implements HttpGetActionInterface
         }
 
         if ($paymentLink->getData('status') !== 'pending') {
-            $this->messageManager->addErrorMessage(
+            $this->messageManager->addWarningMessage(
                 __('Only pending payment links can be accessed.')
             );
             return $this->redirectFactory->create()->setPath('/');
