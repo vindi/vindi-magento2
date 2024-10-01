@@ -55,12 +55,6 @@
                         <comment>Message that will be presented to the customer on the success screen, after completing the order.</comment>
                         <config_path>checkout/vindi_pix/info_message_onepage_success</config_path>
                     </field>
-                    <field id="payment_link_template" type="select" translate="label comment" sortOrder="120" showInDefault="1" showInWebsite="1" showInStore="1">
-                        <label>Payment Link Email Template</label>
-                        <comment><![CDATA[Select the email template, if the &quot;Default&quot; option is selected, the module's default template will be considered.]]></comment>
-                        <source_model>Vindi\Payment\Model\Config\Source\EmailTemplate</source_model>
-                        <config_path>vindiconfiguration/general/payment_link_template</config_path>
-                    </field>
                 </group>
                 <group id="vindi_cc" showInDefault="1" showInStore="1" showInWebsite="1" sortOrder="100" translate="label">
                     <label>Credit Card</label>
