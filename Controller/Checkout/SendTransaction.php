@@ -13,6 +13,7 @@ use Magento\Framework\Controller\ResultInterface;
 use Magento\Framework\Message\ManagerInterface;
 use Magento\Sales\Api\OrderRepositoryInterface;
 use Vindi\Payment\Model\PaymentLinkService;
+use Vindi\Payment\Model\PaymentProfileRepository;
 
 class SendTransaction implements HttpPostActionInterface
 {
@@ -42,24 +43,32 @@ class SendTransaction implements HttpPostActionInterface
     private ManagerInterface $messageManager;
 
     /**
+     * @var PaymentProfileRepository
+     */
+    private PaymentProfileRepository $paymentProfileRepository;
+
+    /**
      * @param JsonFactory $resultJsonFactory
      * @param PaymentLinkService $paymentLinkService
      * @param RequestInterface $httpRequest
      * @param OrderRepositoryInterface $orderRepository
      * @param ManagerInterface $messageManager
+     * @param PaymentProfileRepository $paymentProfileRepository
      */
     public function __construct(
         JsonFactory $resultJsonFactory,
         PaymentLinkService $paymentLinkService,
         RequestInterface $httpRequest,
         OrderRepositoryInterface $orderRepository,
-        ManagerInterface $messageManager
+        ManagerInterface $messageManager,
+        PaymentProfileRepository $paymentProfileRepository
     ) {
         $this->resultJsonFactory = $resultJsonFactory;
         $this->paymentLinkService = $paymentLinkService;
         $this->httpRequest = $httpRequest;
         $this->orderRepository = $orderRepository;
         $this->messageManager = $messageManager;
+        $this->paymentProfileRepository = $paymentProfileRepository;
     }
 
     /**
@@ -86,6 +95,10 @@ class SendTransaction implements HttpPostActionInterface
                 $order->getPayment()->setData($index, $data);
             }
 
+            if (!empty($paymentData["additional_data"]["payment_profile"])) {
+                $this->setPaymentProfileInformation((int)$paymentData["additional_data"]["payment_profile"], $order);
+            }
+
             $order->getPayment()->setMethod(str_replace('vindi_vr_payment_link_', '', $order->getPayment()->getMethod()));
             $order->getPayment()->place();
             $this->orderRepository->save($order);
@@ -103,5 +116,27 @@ class SendTransaction implements HttpPostActionInterface
         }
 
         return $resultJson->setData($result);
+    }
+
+    /**
+     * Set payment profile information on the order payment.
+     *
+     * @param int $paymentProfileId
+     * @param \Magento\Sales\Model\Order $order
+     * @return void
+     */
+    private function setPaymentProfileInformation(int $paymentProfileId, \Magento\Sales\Model\Order $order): void
+    {
+        $paymentProfile = $this->paymentProfileRepository->getById($paymentProfileId);
+
+        $order->getPayment()->setAdditionalInformation('cc_last_4', $paymentProfile->getCcLast4());
+        $order->getPayment()->setAdditionalInformation('cc_type', $paymentProfile->getCcType());
+        $order->getPayment()->setAdditionalInformation('cc_exp_date', $paymentProfile->getCcExpDate());
+        $order->getPayment()->setAdditionalInformation('cc_owner', $paymentProfile->getCcName());
+
+        $order->getPayment()->setData('cc_last_4', $paymentProfile->getCcLast4());
+        $order->getPayment()->setData('cc_type', $paymentProfile->getCcType());
+        $order->getPayment()->setData('cc_exp_date', $paymentProfile->getCcExpDate());
+        $order->getPayment()->setData('cc_owner', $paymentProfile->getCcName());
     }
 }
