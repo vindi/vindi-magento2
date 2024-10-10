@@ -1,0 +1,12 @@
+<?xml version="1.0"?>
+<listing xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:Ui/etc/ui_configuration.xsd">
+    <columns name="sales_order_columns">
+        <column name="payment_link" class="Vindi\Payment\Ui\Component\Listing\Column\PaymentLink">
+            <settings>
+                <label translate="true">Payment Link</label>
+                <sortable>false</sortable>
+                <filter>false</filter>
+            </settings>
+        </column>
+    </columns>
+</listing>

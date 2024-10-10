@@ -1,0 +1,4 @@
+.data-grid-cell-content {
+    overflow-wrap: break-word;
+    max-width: 600px;
+}
