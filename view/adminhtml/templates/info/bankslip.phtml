@@ -1,4 +1,10 @@
-<?php if ($block->canShowBankslipInfo()) : ?>
+<?php
+
+use Vindi\Payment\Block\Info\BankSlip;
+
+/** @var $block BankSlip */
+?>
+<?php if (!$block->hasInvoice() && $block->canShowBankslipInfo()) : ?>
     <dl class="payment-method">
         <dt class="title"><strong><?php echo $block->escapeHtml($block->getMethod()->getTitle()) ?></strong></dt>
         <dd class="content">

@@ -12,7 +12,6 @@ declare(strict_types=1);
  * @category    Vindi
  * @package     Vindi_Payment
  *
- *
  */
 
 namespace Vindi\Payment\Controller\Checkout;
@@ -24,6 +23,7 @@ use Magento\Framework\Controller\Result\RedirectFactory;
 use Magento\Framework\Message\ManagerInterface;
 use Vindi\Payment\Helper\Data;
 use Vindi\Payment\Model\PaymentLinkService;
+use Magento\Sales\Model\OrderRepository;
 
 class Success implements HttpGetActionInterface
 {
@@ -58,12 +58,18 @@ class Success implements HttpGetActionInterface
     private ManagerInterface $messageManager;
 
     /**
+     * @var OrderRepository
+     */
+    private OrderRepository $orderRepository;
+
+    /**
      * @param PageFactory $resultPageFactory
      * @param PaymentLinkService $paymentLinkService
      * @param RequestInterface $request
      * @param RedirectFactory $redirectFactory
      * @param Data $helperData
      * @param ManagerInterface $messageManager
+     * @param OrderRepository $orderRepository
      */
     public function __construct(
         PageFactory $resultPageFactory,
@@ -71,7 +77,8 @@ class Success implements HttpGetActionInterface
         RequestInterface $request,
         RedirectFactory $redirectFactory,
         Data $helperData,
-        ManagerInterface $messageManager
+        ManagerInterface $messageManager,
+        OrderRepository $orderRepository
     )
     {
         $this->resultPageFactory = $resultPageFactory;
@@ -80,6 +87,7 @@ class Success implements HttpGetActionInterface
         $this->redirectFactory = $redirectFactory;
         $this->helperData = $helperData;
         $this->messageManager = $messageManager;
+        $this->orderRepository = $orderRepository;
     }
 
     /**
@@ -94,6 +102,16 @@ class Success implements HttpGetActionInterface
             if (!$orderId) {
                 $this->messageManager->addWarningMessage(
                     __('The order ID is missing or invalid. Please contact support or try again.')
+                );
+
+                return $this->redirectFactory->create()->setPath('/');
+            }
+
+            $order = $this->orderRepository->get($orderId);
+
+            if ($order->hasInvoices()) {
+                $this->messageManager->addWarningMessage(
+                    __('This order has already been paid.')
                 );
 
                 return $this->redirectFactory->create()->setPath('/');
