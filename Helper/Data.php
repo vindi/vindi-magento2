@@ -10,10 +10,13 @@ use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Sales\Model\Order;
 use Magento\Sales\Model\ResourceModel\Order\Status\CollectionFactory;
 use Vindi\Payment\Model\Config\Source\Mode;
-use Vindi\Payment\Setup\UpgradeData;
 
 class Data extends AbstractHelper
 {
+
+    const VINDI_PLAN_SETTINGS = 'Vindi Plan Settings';
+    const VINDI_PLANOS = 'Vindi Planos';
+
     protected $scopeConfig;
 
     /**
@@ -167,7 +170,7 @@ class Data extends AbstractHelper
     {
         $product = $this->productRepository->getById($productId);
         $attrSet = $this->attributeSetRepository->get($product->getAttributeSetId());
-        return $attrSet->getAttributeSetName() == UpgradeData::VINDI_PLANOS;
+        return $attrSet->getAttributeSetName() == self::VINDI_PLANOS;
     }
 
     /**
