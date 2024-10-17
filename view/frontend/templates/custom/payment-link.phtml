@@ -75,7 +75,7 @@ $paymentLink = $block->getPaymentLink();
                     <?php if ($isOrderCustomer): ?>
                         <div class="field number required">
                             <label class="label" for="vindi_cc_number">
-                                <span><?= __('Your saved cards') ?></span>
+                                <span style="font-size: 80%;"><?= __('Your saved cards') ?></span>
                             </label>
                             <div class="control">
                                 <select name="payment[payment_profile]" class="input-text select" id="vindi_cc_number" data-container="vindi-cc-number" onchange="toggleCardForm(this)">
@@ -86,6 +86,7 @@ $paymentLink = $block->getPaymentLink();
                                 </select>
                             </div>
                         </div>
+                        <br>
                     <?php endif; ?>
 
                         <div id="credit-card-form">
