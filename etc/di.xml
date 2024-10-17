@@ -8,9 +8,6 @@
     <preference for="Vindi\Payment\Api\ProductManagementInterface" type="Vindi\Payment\Model\Vindi\ProductManagement"/>
     <preference for="Vindi\Payment\Model\Subscription\SyncSubscriptionInterface" type="Vindi\Payment\Model\Subscription\SyncSubscription"/>
     <preference for="Vindi\Payment\Api\SubscriptionInterface" type="Vindi\Payment\Model\Vindi\Subscription"/>
-    <preference for="Vindi\Payment\Api\SubscriptionRepositoryInterface" type="Vindi\Payment\Model\SubscriptionRepository"/>
-    <preference for="Vindi\Payment\Api\Data\SubscriptionInterface" type="Vindi\Payment\Model\Data\Subscription"/>
-    <preference for="Vindi\Payment\Api\Data\SubscriptionSearchResultsInterface" type="Magento\Framework\Api\SearchResults"/>
     <preference for="Vindi\Payment\Api\PixConfigurationInterface" type="Vindi\Payment\Helper\PixConfiguration"/>
 
     <type name="Magento\Framework\Console\CommandList">
@@ -22,20 +19,26 @@
         </arguments>
     </type>
 
-    <virtualType name="Vindi\Payment\Model\ResourceModel\Subscription\Grid\Collection" type="Magento\Framework\View\Element\UiComponent\DataProvider\SearchResult">
-        <arguments>
-            <argument name="mainTable" xsi:type="string">vindi_subscription</argument>
-            <argument name="resourceModel" xsi:type="string">Vindi\Payment\Model\ResourceModel\Subscription\Collection</argument>
-        </arguments>
-    </virtualType>
+    <!-- Subscription-->
+    <preference for="Vindi\Payment\Api\Data\SubscriptionInterface" type="Vindi\Payment\Model\Subscription"/>
+    <preference for="Vindi\Payment\Api\Data\SubscriptionSearchResultsInterface" type="Vindi\Payment\Model\SubscriptionSearchResult"/>
+    <preference for="Vindi\Payment\Api\SubscriptionRepositoryInterface" type="Vindi\Payment\Model\SubscriptionRepository"/>
 
     <type name="Magento\Framework\View\Element\UiComponent\DataProvider\CollectionFactory">
         <arguments>
             <argument name="collections" xsi:type="array">
                 <item name="vindi_payment_subscription_listing_data_source" xsi:type="string">Vindi\Payment\Model\ResourceModel\Subscription\Grid\Collection</item>
+                <item name="vindi_payment_subscription_data_source" xsi:type="string">Vindi\Payment\Model\ResourceModel\Subscription\Form\DataProvider</item>
             </argument>
         </arguments>
     </type>
+
+    <virtualType name="Vindi\Payment\Model\ResourceModel\Subscription\Grid\Collection" type="Magento\Framework\View\Element\UiComponent\DataProvider\SearchResult">
+        <arguments>
+            <argument name="mainTable" xsi:type="string">vindi_subscription</argument>
+            <argument name="resourceModel" xsi:type="string">Vindi\Payment\Model\ResourceModel\Subscription</argument>
+        </arguments>
+    </virtualType>
 
     <type name="Magento\Framework\App\Request\CsrfValidator">
         <plugin name="csrf_validator_skip" type="Vindi\Payment\Plugin\CsrfValidatorSkip" />
@@ -173,4 +176,25 @@
     <type name="Magento\Sales\Controller\Order\Reorder">
         <plugin name="vindi_payment_reorder_redirect_plugin" type="Vindi\Payment\Plugin\ReorderRedirectPlugin" />
     </type>
+
+    <!-- VindiSubscriptionItem -->
+    <preference for="Vindi\Payment\Api\Data\VindiSubscriptionItemInterface" type="Vindi\Payment\Model\VindiSubscriptionItem"/>
+    <preference for="Vindi\Payment\Api\Data\VindiSubscriptionItemSearchResultInterface" type="Vindi\Payment\Model\VindiSubscriptionItemSearchResult"/>
+    <preference for="Vindi\Payment\Api\VindiSubscriptionItemRepositoryInterface" type="Vindi\Payment\Model\VindiSubscriptionItemRepository"/>
+
+    <type name="Magento\Framework\View\Element\UiComponent\DataProvider\CollectionFactory">
+        <arguments>
+            <argument name="collections" xsi:type="array">
+                <item name="vindi_subscription_item_listing_data_source" xsi:type="string">Vindi\Payment\Model\ResourceModel\VindiSubscriptionItem\Grid\Collection</item>
+                <item name="vindi_subscription_item_data_source" xsi:type="string">Vindi\Payment\Model\ResourceModel\VindiSubscriptionItem\Form\DataProvider</item>
+            </argument>
+        </arguments>
+    </type>
+
+    <virtualType name="Vindi\Payment\Model\ResourceModel\VindiSubscriptionItem\Grid\Collection" type="Magento\Framework\View\Element\UiComponent\DataProvider\SearchResult">
+        <arguments>
+            <argument name="mainTable" xsi:type="string">vindi_subscription_item</argument>
+            <argument name="resourceModel" xsi:type="string">Vindi\Payment\Model\ResourceModel\VindiSubscriptionItem</argument>
+        </arguments>
+    </virtualType>
 </config>
