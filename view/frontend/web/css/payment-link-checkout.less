@@ -1,0 +1,377 @@
+// Payment Link Page
+.vindi-link-container {
+    @media (min-width: 768px) {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        grid-column-gap: 30px;
+
+        .customer-information {
+            padding-bottom: 40px;
+        }
+    }
+
+    p {
+        margin-bottom: 20px;
+    }
+
+    h2 {
+        color: #828282;
+        padding-bottom: 15px;
+        border-bottom: 1px solid #e0e0e0;
+    }
+
+    .customer-shipping {
+        > div {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            grid-column-gap: 10px;
+        }
+
+        p {
+            margin-bottom: 25px;
+        }
+
+        strong {
+            display: block;
+        }
+    }
+
+    .payment-method-box {
+        padding: 18px 27px;
+        margin-bottom: 20px;
+        border: 1px solid #e7e7e7;
+
+        .label {
+            font-weight: 700;
+            font-size: 20px;
+            display: block;
+            margin: 0 0 30px;
+        }
+
+        .instructions {
+            font-size: 12px;
+            color: #979797;
+            text-align: center;
+            padding: 0 20px;
+
+            &:before {
+                display: block;
+                margin: auto;
+                padding-bottom: 30px;
+            }
+            
+            &.bankslip:before {
+                content: url('../images/boleto.png');
+            }
+
+            &.bankslippix:before {
+                content: url('../images/bolepix.png');
+            }
+
+            &.pix:before {
+                content: url('../images/pix.png');
+            }
+        }
+    }
+
+    .summary {
+        &__content {
+            padding: 20px 25px 80px;
+            background-color: #f5f5f5;
+            margin-bottom: 20px;
+        }
+
+        summary {
+            padding: 15px 0;
+            border-bottom: 1px solid #bdbdbd;
+            font-size: 18px;
+            font-weight: 300;
+            color: #828282;
+            background-image: url("data:image/svg+xml,%3Csvg width='10' height='6' viewBox='0 0 10 6' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0.84375 1L5.02384 5L9.20394 1' stroke='%23828282' stroke-width='1.4'/%3E%3C/svg%3E%0A");
+            background-repeat: no-repeat;
+            background-position: right center;
+            cursor: pointer;
+        }
+
+        details[open] {
+            summary {
+                background-image: url("data:image/svg+xml,%3Csvg width='10' height='6' viewBox='0 0 10 6' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0.84375 5L5.02384 1L9.20394 5' stroke='%23828282' stroke-width='1.4'/%3E%3C/svg%3E%0A");
+            }
+            > div {
+                border-bottom: 1px solid #bdbdbd;
+                padding: 5px 0;
+            }
+        }
+
+        .flex-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        &-item {
+            padding: 8px 0;
+
+            &__name {
+                font-size: 14px;
+                padding-right: 15px;
+            }
+
+            &__value {
+                font-size: 16px;
+            }
+        }
+
+        &-totals {
+            padding-top: 40px;
+        }
+        
+        &-total {
+            &__title {
+                color: #828282;
+                font-size: 18px;
+            }
+
+            &__amount {
+                font-size: 26px;
+            }
+        }
+
+        &-total,
+        &-shipping,
+        &-discount {
+            &__amount {
+                color: #4f4f4f;
+            }
+
+            &__name {
+                font-size: 16px;
+                color: #4f4f4f;
+            }
+        }
+
+        &-shipping,
+        &-discount {
+            &__amount {
+                font-size: 20px;
+            }
+        }
+    }
+
+    .actions-toolbar {
+        .action.primary {
+            min-height: 40px;
+            width: 100%;
+        }
+    }
+
+    .container-vindi_vp_cc .vindi-vp-cc-container {
+        padding: 0;
+    }
+}
+
+
+
+@media (max-width: 768px) {
+    .vindi_vp-checkout-index {
+        padding-bottom: 80px;
+    }
+
+    .vindi-link-container {
+        .actions-toolbar {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: #fff;
+            padding: 15px;
+            box-shadow: 0 0 10px 0 rgba(0, 0, 0, 0.3);
+        }
+    }
+}
+
+// Payment Success Page
+.payment-success {
+    max-width: 1020px;
+    margin: auto;
+
+    &__header {
+        text-align: center;
+        padding-bottom: 25px;
+    }
+
+    &__ico {
+        margin-bottom: 10px;
+    }
+
+    &__title {
+        max-width: 780px;
+        margin: auto auto 15px;
+    }
+
+    &__subtitle {
+        font-weight: 300;
+        font-size: 14px;
+    }
+
+    .button-container {
+        text-align: center;
+        padding-bottom: 25px;
+    }
+
+    &__container {
+        border: 1px solid #c6c6c6;
+        border-radius: 5px;
+        min-height: 376px;
+
+        @media (min-width: 768px) {
+            display: flex;
+        }
+
+        .content {
+            max-width: 550px;
+            margin: auto;
+            padding: 20px 16px 35px;
+        }
+
+        h3 {
+            text-align: center;
+            font-size: 17px;
+            margin: 0 0 30px;
+        }
+
+        strong {
+            font-weight: 600;
+            color: #666;
+            display: block;
+            margin-bottom: 10px;
+        }
+
+        .vindi-bankslip {
+            flex: 1;
+            padding: 25px;
+    
+            button {
+                margin-top: 20px;
+            }
+        }
+    
+        .vindi-pix {
+            flex: 0 0 400px;
+            padding: 25px;
+            border-top: 1px solid #c6c6c6;
+    
+            @media (min-width: 768px) {
+                border-left: 1px solid #c6c6c6;
+                border-top: 0;
+            }
+    
+            button {
+                margin-top: 25px;
+            }
+        }
+    }
+    
+    .vindi-pix-qrcode {
+        max-width: 150px;
+        margin: auto;
+        display: block;
+    }
+
+    .bankslip-number,
+    .pix-qrcode {
+        word-break: break-word;
+        font-weight: 600;
+    }
+
+    .align-button {
+        text-align: center;
+        padding-top: 25px;
+    }
+}
+
+.payment-container select {
+    height: auto; /* Adjust select height */
+}
+
+.form-group {
+    margin-bottom: 20px;
+}
+
+.form-row {
+    display: flex;
+    justify-content: space-between;
+}
+
+.form-row .form-group {
+    flex: 1;
+    margin-right: 10px;
+}
+
+.form-row .form-group:last-child {
+    margin-right: 0;
+}
+
+.cc-icon {
+    filter: grayscale(100%);
+    transition: filter 0.3s ease;
+}
+
+.cc-icon.highlighted {
+    filter: grayscale(0%);
+}
+
+#loading-overlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(255, 255, 255, 0.8);
+    justify-content: center;
+    align-items: center;
+    z-index: 9999;
+}
+
+.loader {
+    border: 16px solid #f3f3f3;
+    border-radius: 50%;
+    border-top: 16px solid #3498db;
+    width: 120px;
+    height: 120px;
+    animation: spin 2s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+.warning-message {
+    display: none;
+    margin-top: 20px;
+    padding: 10px;
+    background-color: #fff3cd;
+    color: #856404;
+    border: 1px solid #ffeeba;
+    border-radius: 5px;
+}
+
+.bankslip-view {
+    margin-top: 20px;
+}
+
+.qrcode {
+    text-align: center;
+}
+
+.qr-code {
+    max-width: 100%;
+    height: auto;
+}
+
+.pix-code {
+    text-align: center;
+    margin-top: 20px;
+}

@@ -2,97 +2,95 @@
 
 namespace Vindi\Payment\Model\Subscription;
 
-use Magento\Ui\DataProvider\AbstractDataProvider;
-use Magento\Ui\DataProvider\Modifier\PoolInterface;
-use Magento\Ui\DataProvider\Modifier\ModifierInterface;
+use Vindi\Payment\Helper\Data;
 use Vindi\Payment\Model\ResourceModel\Subscription\CollectionFactory;
 use Magento\Framework\App\Request\DataPersistorInterface;
+use Magento\Ui\DataProvider\Modifier\PoolInterface;
 
 /**
  * Class DataProvider
  * @package Vindi\Payment\Model\Subscription
  */
-class DataProvider extends AbstractDataProvider
+class DataProvider extends \Magento\Ui\DataProvider\ModifierPoolDataProvider
 {
+    /**
+     * @var \Vindi\Payment\Model\ResourceModel\Subscription\Collection
+     */
     protected $collection;
 
+    /**
+     * @var DataPersistorInterface
+     */
     protected $dataPersistor;
 
-    protected $loadedData;
     /**
-     * @var PoolInterface
+     * @var array
      */
-    private $pool;
+    protected $loadedData;
 
     /**
-     * Constructor
-     *
+     * @var Data
+     */
+    protected $helper;
+
+    /**
+     * DataProvider constructor.
      * @param string $name
      * @param string $primaryFieldName
      * @param string $requestFieldName
-     * @param CollectionFactory $collectionFactory
+     * @param CollectionFactory $subscriptionCollectionFactory
      * @param DataPersistorInterface $dataPersistor
-     * @param PoolInterface $pool
+     * @param Data $helper
      * @param array $meta
      * @param array $data
+     * @param PoolInterface|null $pool
      */
     public function __construct(
-        $name,
-        $primaryFieldName,
-        $requestFieldName,
-        CollectionFactory $collectionFactory,
+        string $name,
+        string $primaryFieldName,
+        string $requestFieldName,
+        CollectionFactory $subscriptionCollectionFactory,
         DataPersistorInterface $dataPersistor,
-        PoolInterface $pool,
+        Data $helper,
         array $meta = [],
-        array $data = []
+        array $data = [],
+        PoolInterface $pool = null
     ) {
-        $this->collection = $collectionFactory->create();
+        $this->collection = $subscriptionCollectionFactory->create();
         $this->dataPersistor = $dataPersistor;
-        parent::__construct($name, $primaryFieldName, $requestFieldName, $meta, $data);
-        $this->pool = $pool;
+        $this->helper = $helper;
+        parent::__construct($name, $primaryFieldName, $requestFieldName, $meta, $data, $pool);
     }
 
     /**
-     * @inheritDoc
+     * @return array
      */
     public function getData()
     {
         if (isset($this->loadedData)) {
             return $this->loadedData;
         }
-        $items = $this->collection->getItems();
-        foreach ($items as $model) {
-            $this->loadedData[$model->getId()] = $model->getData();
-        }
-        $data = $this->dataPersistor->get('vindi_payment_subscription');
 
+        $items = $this->collection->getItems();
+
+        /** @var \Vindi\Payment\Model\Subscription $subscription */
+        foreach ($items as $subscription) {
+            $result['settings'] = $subscription->getData();
+            $result['id'] = $subscription->getId();
+
+            $result['vindi_subscription_items_grid']['payment_method'] = $subscription->getPaymentMethod();
+
+            $this->loadedData[$subscription->getId()] = $result;
+        }
+
+        $data = $this->dataPersistor->get('vindi_payment_subscription');
         if (!empty($data)) {
-            $model = $this->collection->getNewEmptyItem();
-            $model->setData($data);
-            $this->loadedData[$model->getId()] = $model->getData();
+            $subscription = $this->collection->getNewEmptyItem();
+            $subscription->setData($data);
+            $this->loadedData[$subscription->getId()] = $subscription->getData();
             $this->dataPersistor->clear('vindi_payment_subscription');
         }
 
-        /** @var ModifierInterface $modifier */
-        foreach ($this->pool->getModifiersInstances() as $modifier) {
-            $this->loadedData = $modifier->modifyData($this->loadedData);
-        }
-
         return $this->loadedData;
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public function getMeta()
-    {
-        $meta = parent::getMeta();
-
-        /** @var ModifierInterface $modifier */
-        foreach ($this->pool->getModifiersInstances() as $modifier) {
-            $meta = $modifier->modifyMeta($meta);
-        }
-
-        return $meta;
     }
 }

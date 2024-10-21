@@ -1,38 +1,95 @@
-<?xml version="1.0" ?>
+<?xml version="1.0" encoding="UTF-8"?>
 <form xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Ui:etc/ui_configuration.xsd">
     <argument name="data" xsi:type="array">
         <item name="js_config" xsi:type="array">
-            <item name="provider" xsi:type="string">vindi_payment_subscription_form.subscription_form_data_source</item>
+            <item name="provider" xsi:type="string">vindi_payment_subscription_form.vindi_payment_subscription_data_source</item>
         </item>
-        <item name="label" translate="true" xsi:type="string">General Information</item>
-        <item name="template" xsi:type="string">templates/form/collapsible</item>
+        <item name="label" xsi:type="string" translate="true">Information</item>
+        <item name="reverseMetadataMerge" xsi:type="boolean">true</item>
     </argument>
     <settings>
         <buttons>
             <button class="Vindi\Payment\Block\Adminhtml\Subscription\Edit\BackButton" name="back"/>
-<!--            <button class="Vindi\Payment\Block\Adminhtml\Subscription\Edit\AdvancedEditing" name="advanced_editing"/>-->
             <button class="Vindi\Payment\Block\Adminhtml\Subscription\Edit\SaveChangesButton" name="save_and_continue"/>
         </buttons>
-        <namespace>vindi_payment_subscription_form</namespace>
-        <dataScope>data</dataScope>
+        <layout>
+            <navContainerName>left</navContainerName>
+            <type>tabs</type>
+        </layout>
         <deps>
-            <dep>vindi_payment_subscription_form.subscription_form_data_source</dep>
+            <dep>vindi_payment_subscription_form.vindi_payment_subscription_data_source</dep>
         </deps>
     </settings>
-    <dataSource name="subscription_form_data_source">
+    <dataSource name="vindi_payment_subscription_data_source">
         <argument name="data" xsi:type="array">
             <item name="js_config" xsi:type="array">
                 <item name="component" xsi:type="string">Magento_Ui/js/form/provider</item>
             </item>
         </argument>
         <settings>
-            <submitUrl path="*/*/save"/>
+            <submitUrl path="vindi_payment/subscription/save"/>
         </settings>
-        <dataProvider class="Vindi\Payment\Model\Subscription\DataProvider" name="subscription_form_data_source">
+        <dataProvider class="Vindi\Payment\Model\Subscription\DataProvider" name="vindi_payment_subscription_data_source">
             <settings>
                 <requestFieldName>id</requestFieldName>
                 <primaryFieldName>id</primaryFieldName>
             </settings>
         </dataProvider>
     </dataSource>
+
+    <!-- Fieldset: Subscription Items Grid -->
+    <fieldset name="vindi_subscription_items_grid" sortOrder="10">
+        <argument name="data" xsi:type="array">
+            <item name="config" xsi:type="array">
+                <item name="label" xsi:type="string" translate="true">Products</item>
+                <item name="collapsible" xsi:type="boolean">false</item>
+                <item name="sortOrder" xsi:type="number">10</item>
+            </item>
+        </argument>
+        <container name="assign_subscription_items_container">
+            <argument name="data" xsi:type="array">
+                <item name="config" xsi:type="array">
+                    <item name="sortOrder" xsi:type="number">20</item>
+                </item>
+            </argument>
+            <htmlContent name="html_content">
+                <argument name="block" xsi:type="object">Vindi\Payment\Block\Adminhtml\Subscription\Edit\SubscriptionItems</argument>
+            </htmlContent>
+        </container>
+        <field name="payment_method" sortOrder="30" formElement="hidden">
+            <settings>
+                <dataType>text</dataType>
+                <label translate="true">Payment Method</label>
+                <dataScope>payment_method</dataScope>
+                <disabled>true</disabled>
+            </settings>
+        </field>
+    </fieldset>
+
+    <!-- Fieldset: Payment Settings -->
+    <fieldset name="payment_settings" sortOrder="20">
+        <argument name="data" xsi:type="array">
+            <item name="config" xsi:type="array">
+                <item name="additionalClasses" xsi:type="string">payment-settings-fieldset</item>
+            </item>
+        </argument>
+        <settings>
+            <label translate="true">Payment Profile</label>
+        </settings>
+        <field name="payment_profile" sortOrder="10" formElement="select">
+            <settings>
+                <dataType>select</dataType>
+                <label translate="true">Credit Card</label>
+                <dataScope>payment_profile</dataScope>
+                <notice translate="true">Cards will only be available for subscriptions registered as a credit card.</notice>
+            </settings>
+            <formElements>
+                <select>
+                    <settings>
+                        <options class="Vindi\Payment\Model\Config\Source\PaymentProfiles"/>
+                    </settings>
+                </select>
+            </formElements>
+        </field>
+    </fieldset>
 </form>

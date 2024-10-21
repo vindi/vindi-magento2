@@ -357,7 +357,9 @@ abstract class AbstractMethod extends OriginAbstractMethod
             $body['payment_profile'] = ['id' => $paymentProfile->getData('payment_profile_id')];
         }
 
-        if ($installments = $payment->getAdditionalInformation('installments')) {
+        $installments = $payment->getAdditionalInformation('installments') ?: $payment->getInstallments();
+
+        if ($installments) {
             $body['installments'] = (int)$installments;
         }
 

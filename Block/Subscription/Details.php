@@ -12,6 +12,7 @@ use Vindi\Payment\Model\ResourceModel\PaymentProfile\CollectionFactory as Paymen
 use Magento\Sales\Model\ResourceModel\Order\CollectionFactory as OrderCollectionFactory;
 use Magento\Customer\Api\AddressRepositoryInterface;
 use Magento\Framework\Pricing\PriceCurrencyInterface;
+use Vindi\Payment\Model\Vindi\Subscription as VindiSubscription;
 use Vindi\Payment\Helper\Api;
 use Vindi\Payment\Model\ResourceModel\SubscriptionOrder\CollectionFactory as SubscriptionOrderCollectionFactory;
 use Magento\Framework\Registry;
@@ -32,6 +33,7 @@ class Details extends Template
     protected $paymentProfileCollectionFactory;
     protected $orderCollectionFactory;
     protected $addressRepository;
+    private $vindiSubscription;
     private $api;
     protected $priceHelper;
     private $registry;
@@ -52,6 +54,7 @@ class Details extends Template
      * @param PaymentProfileCollectionFactory $paymentProfileCollectionFactory
      * @param OrderCollectionFactory $orderCollectionFactory
      * @param AddressRepositoryInterface $addressRepository
+     * @param VindiSubscription $vindiSubscription
      * @param Api $api
      * @param PriceCurrencyInterface $priceHelper
      * @param Registry $registry
@@ -70,6 +73,7 @@ class Details extends Template
         PaymentProfileCollectionFactory $paymentProfileCollectionFactory,
         OrderCollectionFactory $orderCollectionFactory,
         AddressRepositoryInterface $addressRepository,
+        VindiSubscription $vindiSubscription,
         Api $api,
         PriceCurrencyInterface $priceHelper,
         Registry $registry,
@@ -87,6 +91,7 @@ class Details extends Template
         $this->paymentProfileCollectionFactory = $paymentProfileCollectionFactory;
         $this->orderCollectionFactory = $orderCollectionFactory;
         $this->addressRepository = $addressRepository;
+        $this->vindiSubscription = $vindiSubscription;
         $this->api = $api;
         $this->priceHelper = $priceHelper;
         $this->registry = $registry;
@@ -582,10 +587,9 @@ class Details extends Template
             if ($responseData) {
                 $this->subscriptionData = json_decode($responseData, true);
             } else {
-                $request = $this->api->request('subscriptions/'.$id, 'GET');
-                if (is_array($request) && array_key_exists('subscription', $request)) {
-                    $this->subscriptionData = $request['subscription'];
+                $this->subscriptionData = $this->vindiSubscription->getSubscriptionById($id);
 
+                if ($this->subscriptionData) {
                     $subscriptionModel->setData('response_data', json_encode($this->subscriptionData));
                     $subscriptionModel->save();
                 }
@@ -624,3 +628,4 @@ class Details extends Template
         return null;
     }
 }
+

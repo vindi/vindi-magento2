@@ -10,6 +10,7 @@ use Magento\Framework\Exception\LocalizedException;
 use Vindi\Payment\Model\SubscriptionOrderRepository;
 use Vindi\Payment\Model\SubscriptionOrderFactory;
 use Vindi\Payment\Model\Payment\Bill as PaymentBill;
+use Vindi\Payment\Helper\Data;
 
 class OrderCreator
 {
@@ -161,12 +162,28 @@ class OrderCreator
             $newOrder->setShippingAddress($shippingAddress);
         }
 
+        $shippingAmount = $originalOrder->getShippingAmount();
         $newOrderItems = [];
         foreach ($originalOrder->getAllVisibleItems() as $originalItem) {
             $newItem = clone $originalItem;
             $newItem->setId(null)->setOrderId(null);
+
+            foreach ($billData['bill_items'] as $billItem) {
+                if (Data::sanitizeItemSku($newItem->getSku()) === $billItem['product']['code']) {
+                    $newPrice = $billItem["pricing_schema"]["price"];
+                    if ($newItem->getPrice() != $newPrice) {
+                        $newItem->setPrice($newPrice);
+                        $newItem->setBasePrice($newPrice);
+                        $newItem->setRowTotal($newPrice * $newItem->getQtyOrdered());
+                        $newItem->setBaseRowTotal($newPrice * $newItem->getQtyOrdered());
+                    }
+                } elseif ($billItem['product']['code'] === 'frete') {
+                    $shippingAmount = $billItem["pricing_schema"]["price"];
+                }
+            }
             $newOrderItems[] = $newItem;
         }
+
         $newOrder->setItems($newOrderItems);
 
         $originalPayment = $originalOrder->getPayment();
@@ -186,7 +203,6 @@ class OrderCreator
             $discountAmount += $item->getDiscountAmount();
         }
 
-        $shippingAmount = $originalOrder->getShippingAmount();
         $grandTotal = $subtotal + $taxAmount + $shippingAmount - $discountAmount;
 
         $newOrder->setSubtotal($subtotal);
@@ -310,4 +326,3 @@ class OrderCreator
         }
     }
 }
-

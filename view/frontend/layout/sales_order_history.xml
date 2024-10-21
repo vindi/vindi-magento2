@@ -1,0 +1,12 @@
+<?xml version="1.0"?>
+<page xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:View/Layout/etc/page_configuration.xsd">
+    <body>
+        <referenceBlock name="sales.order.history.extra.column.header">
+            <block name="vindi.payment.link.column.header" template="Vindi_Payment::order/payment_link_header.phtml" after="status"/>
+        </referenceBlock>
+
+        <referenceBlock name="sales.order.history.extra.container">
+            <block class="Vindi\Payment\Block\Customer\Order\PaymentLinkColumn" name="vindi.payment.link.column.data" template="Vindi_Payment::order/payment_link_data.phtml" after="status"/>
+        </referenceBlock>
+    </body>
+</page>

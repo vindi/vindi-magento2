@@ -1,6 +1,5 @@
 <?php
 
-
 namespace Vindi\Payment\Setup;
 
 use Magento\Framework\Setup\InstallDataInterface;
@@ -9,7 +8,6 @@ use Magento\Framework\Setup\ModuleDataSetupInterface;
 
 class InstallData implements InstallDataInterface
 {
-
     /**
      * {@inheritdoc}
      */
@@ -17,7 +15,6 @@ class InstallData implements InstallDataInterface
         ModuleDataSetupInterface $setup,
         ModuleContextInterface $context
     ) {
-
         $data = [
             'scope' => 'default',
             'scope_id' => 0,
@@ -25,9 +22,15 @@ class InstallData implements InstallDataInterface
             'value' => self::generateRandomHash(),
         ];
         $setup->getConnection()
-        ->insertOnDuplicate($setup->getTable('core_config_data'), $data, ['value']);
+            ->insertOnDuplicate($setup->getTable('core_config_data'), $data, ['value']);
     }
 
+    /**
+     * Generate a random hash string
+     *
+     * @return string
+     * @throws \Exception
+     */
     public static function generateRandomHash()
     {
         $length = 15;
@@ -37,11 +40,13 @@ class InstallData implements InstallDataInterface
         if (false === ($max = mb_strlen($characters, $encoding))) {
             throw new \BadMethodCallException('Invalid encoding passed');
         }
+
         $string = '';
         $max--;
         for ($i = 0; $i < $length; ++$i) {
-            $string .= $characters[mt_rand(0, $max)];
+            $string .= $characters[random_int(0, $max)];
         }
+
         return $string;
     }
 }
