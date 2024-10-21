@@ -1,16 +1,20 @@
 <?php
 
-namespace Vindi\Payment\Block\Adminhtml\Subscription\Edit;
+namespace Vindi\Payment\Block\Adminhtml\Subscription\Item\Edit;
 
 use Magento\Framework\View\Element\UiComponent\Control\ButtonProviderInterface;
+use Vindi\Payment\Block\Adminhtml\Subscription\Edit\GenericButton;
 
 /**
  * Class BackButton
- * @package Vindi\Payment\Block\Adminhtml\Subscription\Edit
+ *
+ * @package Vindi\Payment\Block\Adminhtml\Subscription\Item\Edit
  */
 class BackButton extends GenericButton implements ButtonProviderInterface
 {
     /**
+     * Get button data
+     *
      * @return array
      */
     public function getButtonData()
@@ -34,6 +38,16 @@ class BackButton extends GenericButton implements ButtonProviderInterface
             return $this->getUrl('*/*/');
         }
 
-        return $this->getUrl('*/*/view', ['id' => $this->getModelId()]);
+        return $this->getUrl('*/*/edit', ['id' => $this->getModelId()]);
+    }
+
+    /**
+     * Get model ID
+     *
+     * @return int|null
+     */
+    public function getModelId()
+    {
+        return $this->registry->registry('subscription_item')->getSubscriptionId();
     }
 }
