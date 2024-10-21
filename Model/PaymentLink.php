@@ -123,4 +123,38 @@ class PaymentLink extends AbstractModel implements PaymentLinkInterface
         $this->setData(self::VINDI_PAYMENT_METHOD, $vindiPaymentMethod);
         return $this;
     }
+
+    /**
+     * @inheritdoc
+     */
+    public function getCustomerId()
+    {
+        return $this->getData(self::CUSTOMER_ID);
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function setCustomerId(int $customerId)
+    {
+        $this->setData(self::CUSTOMER_ID, $customerId);
+        return $this;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function getStatus()
+    {
+        return $this->getData(self::STATUS);
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function setStatus(string $status)
+    {
+        $this->setData(self::STATUS, $status);
+        return $this;
+    }
 }

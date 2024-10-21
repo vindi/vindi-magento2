@@ -19,9 +19,9 @@ use Vindi\Payment\Model\PaymentLinkFactory;
 class PaymentLinkService
 {
     /**
-     * Payment link expiration time, 24 hours
+     * Payment link expiration time, 20 days (in hours)
      */
-    public const LINK_EXPIRATION_TIME = 24;
+    public const LINK_EXPIRATION_TIME = 480;
 
     /**
      * Sales email config path
@@ -29,9 +29,9 @@ class PaymentLinkService
     public const SALES_EMAIL = 'trans_email/ident_sales/email';
 
     /**
-     * Path to get the payment link template
+     * Sales name config path
      */
-    public const PAYMENT_LINK_TEMPLATE_PATH = 'vindiconfiguration/general/payment_link_template';
+    public const SALES_NAME = 'trans_email/ident_sales/name';
 
     /**
      * @var PaymentLinkCollectionFactory
@@ -137,7 +137,7 @@ class PaymentLinkService
     public function getPaymentLinkByHash(string $hash)
     {
         return $this->paymentLinkCollectionFactory->create()
-            ->addFieldToFilter('link', ['like' => '%'.$hash.'%'])
+            ->addFieldToFilter('link', ['like' => '%' . $hash . '%'])
             ->getFirstItem();
     }
 
@@ -158,6 +158,12 @@ class PaymentLinkService
     {
         try {
             $paymentLink = $this->getPaymentLink($orderId);
+
+            if (!$paymentLink || !$paymentLink->getId()) {
+                $this->logger->error('Payment link not found for order ID: ' . $orderId);
+                return false;
+            }
+
             $order = $this->getOrderByOrderId($orderId);
 
             if ($paymentLink->getData()) {
@@ -165,8 +171,13 @@ class PaymentLinkService
                     $paymentLink = $this->updatePaymentLink($paymentLink);
                 }
             } else {
-                $this->createPaymentLink($orderId, str_replace('vindi_payment_link_', '', $order->getPayment()->getMethod()));
+                $this->createPaymentLink($orderId, str_replace('vindi_vr_payment_link_', '', $order->getPayment()->getMethod()));
                 $paymentLink = $this->getPaymentLink($orderId);
+            }
+
+            if (!$paymentLink || !$paymentLink->getId()) {
+                $this->logger->error('Failed to generate payment link for order ID: ' . $orderId);
+                return false;
             }
 
             $templateVars = [
@@ -175,10 +186,11 @@ class PaymentLinkService
             ];
             $from = [
                 'email' => $this->scopeConfig->getValue(self::SALES_EMAIL, ScopeInterface::SCOPE_STORE),
-                'name' => $this->scopeConfig->getValue(self::SALES_EMAIL, ScopeInterface::SCOPE_STORE)
+                'name' => $this->scopeConfig->getValue(self::SALES_NAME, ScopeInterface::SCOPE_STORE)
             ];
 
-            $emailTemplateId = $this->scopeConfig->getValue(self::PAYMENT_LINK_TEMPLATE_PATH, ScopeInterface::SCOPE_STORE);
+            $emailTemplateId = 'payment_link_template';
+
             $this->sendEmailService->sendEmailTemplate($emailTemplateId, $order->getCustomerEmail(), $order->getCustomerFirstname(), $from, $templateVars);
             return true;
         } catch (\Exception $exception) {
@@ -196,14 +208,20 @@ class PaymentLinkService
         $link = '';
         try {
             $paymentLink = $this->getPaymentLink($orderId);
+            $order = $this->getOrderByOrderId($orderId);
             if (!$paymentLink->getData()) {
                 $paymentLink = $this->paymentLinkFactory->create();
             }
 
+            $order = $this->getOrderByOrderId($orderId);
+            $customerId = (int) $order->getCustomerId();
+
             $link = $this->buildPaymentLink($orderId);
             $paymentLink->setOrderId((int)$orderId);
+            $paymentLink->setCustomerId($customerId);
             $paymentLink->setLink($link);
             $paymentLink->setVindiPaymentMethod($paymentMethod);
+            $paymentLink->setStatus('pending');
             $this->linkRepository->save($paymentLink);
         } catch (\Exception $exception) {
             $this->logger->error($exception->getMessage());
@@ -212,21 +230,72 @@ class PaymentLinkService
     }
 
     /**
+     * Save the payment link
+     *
      * @param PaymentLink $paymentLink
-     * @return string
+     * @return void
      */
-    public function updatePaymentLink(PaymentLink $paymentLink): string
+    public function savePaymentLink(PaymentLink $paymentLink): void
+    {
+        try {
+            $this->linkRepository->save($paymentLink);
+        } catch (\Exception $e) {
+            $this->logger->error('Error saving payment link: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Update payment link.
+     *
+     * @param PaymentLink $paymentLink
+     * @return PaymentLink
+     */
+    public function updatePaymentLink(PaymentLink $paymentLink)
     {
         $link = '';
         try {
             $link = $this->buildPaymentLink($paymentLink->getOrderId());
             $paymentLink->setCreatedAt($this->dateTimeFactory->create()->format('Y-m-d H:i:s'));
             $paymentLink->setLink($link);
+            $paymentLink->setStatus('pending');
             $this->linkRepository->save($paymentLink);
         } catch (\Exception $exception) {
             $this->logger->error($exception->getMessage());
         }
-        return $link;
+
+        return $paymentLink;
+    }
+
+    /**
+     * Update payment link status to 'pending'.
+     *
+     * @param PaymentLink $paymentLink
+     * @return void
+     */
+    public function updatePaymentLinkStatusToPending(PaymentLink $paymentLink): void
+    {
+        try {
+            $paymentLink->setStatus('pending');
+            $this->linkRepository->save($paymentLink);
+        } catch (\Exception $e) {
+            $this->logger->error('Error updating payment link status to pending: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Update payment link status to 'expired'.
+     *
+     * @param PaymentLink $paymentLink
+     * @return void
+     */
+    public function updatePaymentLinkStatusToExpired(PaymentLink $paymentLink): void
+    {
+        try {
+            $paymentLink->setStatus('expired');
+            $this->linkRepository->save($paymentLink);
+        } catch (\Exception $e) {
+            $this->logger->error('Error updating payment link status to expired: ' . $e->getMessage());
+        }
     }
 
     /**
@@ -242,31 +311,61 @@ class PaymentLinkService
     }
 
     /**
-     * @param PaymentLink $paymentLink
-     * @return void
-     */
-    public function deletePaymentLink(PaymentLink $paymentLink): void
-    {
-        try {
-            $this->linkRepository->delete($paymentLink);
-        } catch (\Exception $e) {
-            $this->logger->error($e->getMessage());
-        }
-    }
-
-    /**
-     * Delete expired payment links
+     * Update expired payment links to set status as 'expired'.
      *
      * @return void
      */
-    public function deleteExpiredPaymentLinks(): void
+    public function updateExpiredPaymentLinks(): void
     {
         $paymentLinks = $this->paymentLinkCollectionFactory->create();
         foreach ($paymentLinks as $paymentLink) {
             if ($this->isLinkExpired($paymentLink->getCreatedAt())) {
-                $this->deletePaymentLink($paymentLink);
+                $paymentLink->setStatus('expired');
+                $this->savePaymentLink($paymentLink);
             }
         }
+    }
+
+    /**
+     * @param string|int $orderId
+     * @return PaymentLink|bool
+     */
+    public function getPaymentLinkByOrderId($orderId)
+    {
+        $paymentLink = $this->paymentLinkFactory->create()->load($orderId, 'order_id');
+        return $paymentLink->getId() ? $paymentLink : false;
+    }
+
+    /**
+     * Get payment link by customer ID.
+     *
+     * @param int $customerId
+     * @return PaymentLink|false
+     */
+    public function getPaymentLinkByCustomerId($customerId)
+    {
+        $paymentLink = $this->paymentLinkCollectionFactory->create()
+            ->addFieldToFilter('customer_id', $customerId)
+            ->getFirstItem();
+
+        return $paymentLink->getId() ? $paymentLink : false;
+    }
+
+    /**
+     * Get the most recent pending payment link by customer ID.
+     *
+     * @param int $customerId
+     * @return PaymentLink|false
+     */
+    public function getMostRecentPendingPaymentLinkByCustomerId($customerId)
+    {
+        $paymentLink = $this->paymentLinkCollectionFactory->create()
+            ->addFieldToFilter('customer_id', $customerId)
+            ->addFieldToFilter('status', 'pending')
+            ->setOrder('created_at', 'DESC')
+            ->getFirstItem();
+
+        return $paymentLink->getId() ? $paymentLink : false;
     }
 
     /**

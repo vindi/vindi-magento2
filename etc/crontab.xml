@@ -2,9 +2,6 @@
 <config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
         xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Cron:etc/crontab.xsd">
     <group id="default">
-<!--        <job instance="Vindi\Payment\Cron\SyncSubscriptions" method="execute" name="vindi_payment_sync_subscriptions">-->
-<!--            <schedule>0 * * * *</schedule>-->
-<!--        </job>-->
         <job name="vindi_payment_process_order_creation_queue" instance="Vindi\Payment\Cron\ProcessOrderCreationQueue" method="execute">
             <schedule>*/1 * * * *</schedule>
         </job>
@@ -16,6 +13,9 @@
         </job>
         <job name="vindi_payment_clean_order_queue" instance="Vindi\Payment\Cron\CleanOrderQueue" method="execute">
             <schedule>0 2 * * *</schedule>
+        </job>
+        <job name="vindi_payment_update_expired_links" instance="Vindi\Payment\Cron\UpdateExpiredLinks" method="execute">
+            <schedule>30 3 * * *</schedule>
         </job>
     </group>
 </config>
