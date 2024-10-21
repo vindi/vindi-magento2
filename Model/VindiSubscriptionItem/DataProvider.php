@@ -1,20 +1,16 @@
 <?php
 
-namespace Vindi\Payment\Model\Subscription;
+namespace Vindi\Payment\Model\VindiSubscriptionItem;
 
 use Vindi\Payment\Helper\Data;
-use Vindi\Payment\Model\ResourceModel\Subscription\CollectionFactory;
+use Vindi\Payment\Model\ResourceModel\VindiSubscriptionItem\CollectionFactory;
 use Magento\Framework\App\Request\DataPersistorInterface;
 use Magento\Ui\DataProvider\Modifier\PoolInterface;
 
-/**
- * Class DataProvider
- * @package Vindi\Payment\Model\Subscription
- */
 class DataProvider extends \Magento\Ui\DataProvider\ModifierPoolDataProvider
 {
     /**
-     * @var \Vindi\Payment\Model\ResourceModel\Subscription\Collection
+     * @var \Vindi\Payment\Model\ResourceModel\VindiSubscriptionItem\Collection
      */
     protected $collection;
 
@@ -38,7 +34,7 @@ class DataProvider extends \Magento\Ui\DataProvider\ModifierPoolDataProvider
      * @param string $name
      * @param string $primaryFieldName
      * @param string $requestFieldName
-     * @param CollectionFactory $subscriptionCollectionFactory
+     * @param CollectionFactory $subscriptionItemCollectionFactory
      * @param DataPersistorInterface $dataPersistor
      * @param Data $helper
      * @param array $meta
@@ -49,14 +45,14 @@ class DataProvider extends \Magento\Ui\DataProvider\ModifierPoolDataProvider
         string $name,
         string $primaryFieldName,
         string $requestFieldName,
-        CollectionFactory $subscriptionCollectionFactory,
+        CollectionFactory $subscriptionItemCollectionFactory,
         DataPersistorInterface $dataPersistor,
         Data $helper,
         array $meta = [],
         array $data = [],
         PoolInterface $pool = null
     ) {
-        $this->collection = $subscriptionCollectionFactory->create();
+        $this->collection = $subscriptionItemCollectionFactory->create();
         $this->dataPersistor = $dataPersistor;
         $this->helper = $helper;
         parent::__construct($name, $primaryFieldName, $requestFieldName, $meta, $data, $pool);
@@ -73,22 +69,22 @@ class DataProvider extends \Magento\Ui\DataProvider\ModifierPoolDataProvider
 
         $items = $this->collection->getItems();
 
-        /** @var \Vindi\Payment\Model\Subscription $subscription */
-        foreach ($items as $subscription) {
-            $result['settings'] = $subscription->getData();
-            $result['id'] = $subscription->getId();
+        /** @var \Vindi\Payment\Model\VindiSubscriptionItem $subscriptionItem */
+        foreach ($items as $subscriptionItem) {
+            $result['settings']  = $subscriptionItem->getData();
+            $price = number_format((float) $result['settings']['price'], 2, '.', '');
+            $result['settings']['price'] = $price;
+            $result['entity_id'] = $subscriptionItem->getEntityId();
 
-            $result['vindi_subscription_items_grid']['payment_method'] = $subscription->getPaymentMethod();
-
-            $this->loadedData[$subscription->getId()] = $result;
+            $this->loadedData[$subscriptionItem->getEntityId()] = $result;
         }
 
-        $data = $this->dataPersistor->get('vindi_payment_subscription');
+        $data = $this->dataPersistor->get('vindi_payment_subscription_item');
         if (!empty($data)) {
-            $subscription = $this->collection->getNewEmptyItem();
-            $subscription->setData($data);
-            $this->loadedData[$subscription->getId()] = $subscription->getData();
-            $this->dataPersistor->clear('vindi_payment_subscription');
+            $subscriptionItem = $this->collection->getNewEmptyItem();
+            $subscriptionItem->setData($data);
+            $this->loadedData[$subscriptionItem->getEntityId()] = $subscriptionItem->getData();
+            $this->dataPersistor->clear('vindi_payment_subscription_item');
         }
 
         return $this->loadedData;
