@@ -19,19 +19,19 @@
             </argument>
         </arguments>
     </virtualType>
-    <virtualType name="Vindi\Payment\Model\Subscription\DataProvider\Modifier\Pool" type="Magento\Ui\DataProvider\Modifier\Pool">
-        <arguments>
-            <argument name="modifiers" xsi:type="array">
-                <item name="payment_profile" xsi:type="array">
-                    <item name="class" xsi:type="string">Vindi\Payment\Ui\DataProvider\Subscription\Form\Modifier\PaymentProfile</item>
-                    <item name="sortOrder" xsi:type="number">10</item>
-                </item>
-            </argument>
-        </arguments>
-    </virtualType>
-    <type name="Vindi\Payment\Model\Subscription\DataProvider">
-        <arguments>
-            <argument name="pool" xsi:type="object">Vindi\Payment\Model\Subscription\DataProvider\Modifier\Pool</argument>
-        </arguments>
-    </type>
+<!--    <virtualType name="Vindi\Payment\Model\Subscription\DataProvider\Modifier\Pool" type="Magento\Ui\DataProvider\Modifier\Pool">-->
+<!--        <arguments>-->
+<!--            <argument name="modifiers" xsi:type="array">-->
+<!--                <item name="payment_profile" xsi:type="array">-->
+<!--                    <item name="class" xsi:type="string">Vindi\Payment\Ui\DataProvider\Subscription\Form\Modifier\PaymentProfile</item>-->
+<!--                    <item name="sortOrder" xsi:type="number">10</item>-->
+<!--                </item>-->
+<!--            </argument>-->
+<!--        </arguments>-->
+<!--    </virtualType>-->
+<!--    <type name="Vindi\Payment\Model\Subscription\DataProvider">-->
+<!--        <arguments>-->
+<!--            <argument name="pool" xsi:type="object">Vindi\Payment\Model\Subscription\DataProvider\Modifier\Pool</argument>-->
+<!--        </arguments>-->
+<!--    </type>-->
 </config>
