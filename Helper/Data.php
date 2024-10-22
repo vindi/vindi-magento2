@@ -14,9 +14,13 @@ use Vindi\Payment\Model\Payment\BankSlip as BankSlipPayment;
 use Vindi\Payment\Model\Payment\BankSlipPix as BankSlipPixPayment;
 use Vindi\Payment\Model\Payment\Pix as PixPayment;
 use Vindi\Payment\Model\Payment\Vindi as VindiPayment;
-use Vindi\Payment\Setup\UpgradeData;
+
 class Data extends AbstractHelper
 {
+
+    const VINDI_PLAN_SETTINGS = 'Vindi Plan Settings';
+    const VINDI_PLANOS = 'Vindi Planos';
+
     protected $scopeConfig;
 
     /**
@@ -183,7 +187,7 @@ class Data extends AbstractHelper
     {
         $product = $this->productRepository->getById($productId);
         $attrSet = $this->attributeSetRepository->get($product->getAttributeSetId());
-        return $attrSet->getAttributeSetName() == UpgradeData::VINDI_PLANOS;
+        return $attrSet->getAttributeSetName() == self::VINDI_PLANOS;
     }
 
     /**

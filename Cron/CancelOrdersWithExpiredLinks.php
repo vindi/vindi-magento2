@@ -76,6 +76,12 @@ class CancelOrdersWithExpiredLinks
                 if ($order && $order->canCancel()) {
                     $this->orderManagement->cancel($orderId);
                     $this->logger->info(sprintf('Order ID %s has been canceled due to expired payment link.', $orderId));
+
+                    if ($paymentLink->getStatus() !== 'processed') {
+                        $paymentLink->setStatus('processed');
+                        $paymentLink->save();
+                        $this->logger->info(sprintf('Payment link for order ID %s has been updated to "processed".', $orderId));
+                    }
                 }
             }
         } catch (\Exception $e) {
@@ -83,4 +89,3 @@ class CancelOrdersWithExpiredLinks
         }
     }
 }
-
