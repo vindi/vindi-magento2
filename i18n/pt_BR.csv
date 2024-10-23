@@ -668,6 +668,8 @@
 "Payment Link Email Template","Template de E-mail do Link de Pagamento"
 "Select the email template, if the &quot;Default&quot; option is selected, the module's default template will be considered.","Selecione o modelo de e-mail, se a opção &quot;Padrão&quot; for selecionada, o modelo padrão do módulo será considerado."
 "Payment Link Notification","Notificação de Link de Pagamento"
+"Select the email template. If the 'Default' option is selected, the default template for payment link notification will be used. Alternatively, you can choose custom templates created from the default template.","Selecione o modelo de e-mail. Se a opção 'Padrão' for selecionada, será utilizado o template padrão para notificação de link de pagamento. Alternativamente, você pode escolher templates customizados criados a partir do template padrão."
+"Payment Link Notification (Default)","Notificação de Link de Pagamento (Padrão)"
 "Error to send the payment link.","Erro ao enviar o link de pagamento."
 "Payment Link Information","Informações do Link de Pagamento"
 "Payment Link:","Link de Pagamento:"

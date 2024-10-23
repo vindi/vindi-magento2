@@ -1,47 +1,52 @@
 <?php
 namespace Vindi\Payment\Model\Config\Source;
 
-use Magento\Email\Model\Template\Config;
+use Magento\Framework\Data\OptionSourceInterface;
+use Magento\Email\Model\ResourceModel\Template\CollectionFactory as TemplateCollectionFactory;
 
-/**
- *
- *
- *
- *
- *
- *
- *
- * DISCLAIMER
- *
- * Do not edit or add to this file if you wish to upgrade this extension to newer
- * version in the future.
- *
- * @category    Vindi
- * @package     Vindi_Payment
- *
- *
- */
-class EmailTemplate implements \Magento\Framework\Data\OptionSourceInterface
+class EmailTemplate implements OptionSourceInterface
 {
     /**
-     * @var Config
+     * @var TemplateCollectionFactory
      */
-    private $emailTemplateConfig;
+    private $templateCollectionFactory;
 
     /**
      * EmailTemplate constructor.
-     * @param Config $emailTemplateConfig
+     * @param TemplateCollectionFactory $templateCollectionFactory
      */
-    public function __construct(Config $emailTemplateConfig)
-    {
-        $this->emailTemplateConfig = $emailTemplateConfig;
+    public function __construct(
+        TemplateCollectionFactory $templateCollectionFactory
+    ) {
+        $this->templateCollectionFactory = $templateCollectionFactory;
     }
 
     /**
+     * Get available email templates including custom templates based on 'vindi_vr_payment_link_template'
+     *
      * @return array
      */
     public function toOptionArray()
     {
-        return $this->emailTemplateConfig->getAvailableTemplates();
+        $options = [];
+
+        $collection = $this->templateCollectionFactory->create();
+        $collection->load();
+
+        $options[] = [
+            'value' => 'vindi_vr_payment_link_template',
+            'label' => __('Payment Link Notification (Default)'),
+        ];
+
+        foreach ($collection as $template) {
+            if (strpos($template->getOrigTemplateCode(), 'vindi_vr_payment_link_template') !== false) {
+                $options[] = [
+                    'value' => $template->getTemplateId(),
+                    'label' => $template->getTemplateCode(),
+                ];
+            }
+        }
+
+        return $options;
     }
 }
