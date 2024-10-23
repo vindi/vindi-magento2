@@ -36,7 +36,7 @@ class PaymentLinkService
     /**
      * Payment link template path
      */
-    public const PAYMENT_LINK_TEMPLATE_PATH = 'vindiconfiguration/general/payment_link_template';
+    public const PAYMENT_LINK_TEMPLATE_PATH = 'vindiconfiguration/general/vindi_vr_payment_link_template';
 
     /**
      * @var PaymentLinkCollectionFactory
@@ -195,7 +195,7 @@ class PaymentLinkService
             ];
 
             $emailTemplateId = $this->scopeConfig->getValue(self::PAYMENT_LINK_TEMPLATE_PATH, ScopeInterface::SCOPE_STORE)
-                ?: 'payment_link_template';
+                ?: 'vindi_vr_payment_link_template';
 
             $this->sendEmailService->sendEmailTemplate($emailTemplateId, $order->getCustomerEmail(), $order->getCustomerFirstname(), $from, $templateVars);
             return true;

@@ -19,6 +19,47 @@
         <column name="bill_id" nullable="true" xsi:type="int" comment="Bill ID"/>
         <column name="response_data" xsi:type="text" nullable="true" comment="Subscription Response Data"/>
     </table>
+
+    <table comment="Vindi Subscription Item Table" engine="innodb" name="vindi_subscription_item" resource="default">
+        <column comment="Entity Id" identity="true" name="entity_id" nullable="false" padding="10" unsigned="true"
+                xsi:type="int"/>
+        <constraint referenceId="PRIMARY" xsi:type="primary">
+            <column name="entity_id"/>
+        </constraint>
+        <column name="subscription_id" xsi:type="int" nullable="false" comment="Subscription ID"/>
+        <column name="product_item_id" xsi:type="int" nullable="false" comment="Product Item ID"/>
+        <column name="product_name" xsi:type="varchar" length="255" nullable="false" comment="Product Name"/>
+        <column name="product_code" xsi:type="varchar" length="255" nullable="false" comment="Product Code"/>
+        <column name="quantity" xsi:type="int" nullable="false" comment="Product Quantity"/>
+        <column name="price" xsi:type="decimal" precision="12" scale="4" nullable="false" comment="Product Price"/>
+        <column name="pricing_schema_id" xsi:type="int" nullable="false" comment="Pricing Schema ID"/>
+        <column name="pricing_schema_type" xsi:type="varchar" length="50" nullable="false" comment="Pricing Schema Type"/>
+        <column name="pricing_schema_short_format" xsi:type="varchar" length="255" nullable="true" comment="Pricing Schema Short Format"/>
+        <column name="status" xsi:type="varchar" length="50" nullable="false" comment="Product Status"/>
+        <column name="uses" xsi:type="int" nullable="true" comment="Number of Uses"/>
+        <column name="cycles" xsi:type="int" nullable="true" comment="Number of Cycles"/>
+        <column name="discount_type" xsi:type="varchar" length="50" nullable="true" comment="Discount Type"/>
+        <column name="discount_percentage" xsi:type="decimal" precision="5" scale="2" nullable="true" comment="Discount Percentage"/>
+        <column name="magento_product_id" xsi:type="int" nullable="true" comment="Magento Product ID"/>
+        <column name="magento_product_sku" xsi:type="varchar" length="255" nullable="true" comment="Magento Product SKU"/>
+        <column name="created_at" xsi:type="timestamp" nullable="false" default="CURRENT_TIMESTAMP" comment="Creation Time"/>
+        <column name="updated_at" xsi:type="timestamp" nullable="false" default="CURRENT_TIMESTAMP" on_update="true" comment="Update Time"/>
+    </table>
+
+
+    <table name="vindi_subscription_orders" resource="default" engine="innodb" comment="Subscription Orders Table">
+        <column xsi:type="int" name="entity_id" padding="10" unsigned="true" nullable="false" identity="true" comment="Entity ID"/>
+        <column xsi:type="varchar" length="255" name="order_id" nullable="false" comment="Order ID"/>
+        <column xsi:type="varchar" length="255" name="increment_id" nullable="false" comment="Increment ID"/>
+        <column name="subscription_id" xsi:type="int" padding="10" unsigned="true" nullable="false" comment="Subscription ID"/>
+        <column name="created_at" xsi:type="datetime" nullable="false" comment="Creation Date"/>
+        <column name="total" xsi:type="decimal" precision="12" scale="4" nullable="false" comment="Total Amount"/>
+        <column name="status" xsi:type="varchar" length="20" nullable="false" comment="Order Status"/>
+        <constraint xsi:type="primary" referenceId="PRIMARY">
+            <column name="entity_id"/>
+        </constraint>
+    </table>
+
     <table name="vindi_plans" resource="default" engine="innodb" comment="Vindi Plans Table">
         <column xsi:type="int" name="entity_id" padding="10" unsigned="true" nullable="false" identity="true" comment="Entity ID"/>
         <column xsi:type="int" name="vindi_id" nullable="false" comment="Vindi ID"/>
@@ -47,6 +88,7 @@
             <column name="name"/>
         </index>
     </table>
+
     <table name="vindi_payment_profiles" resource="default" engine="innodb" comment="Vindi Payment Profiles Table">
         <column xsi:type="int" name="entity_id" padding="10" unsigned="true" nullable="false" identity="true" comment="Entity ID"/>
         <column xsi:type="int" name="payment_profile_id" nullable="false" comment="Payment Profile ID"/>
@@ -67,18 +109,7 @@
             <column name="entity_id"/>
         </constraint>
     </table>
-    <table name="vindi_subscription_orders" resource="default" engine="innodb" comment="Subscription Orders Table">
-        <column xsi:type="int" name="entity_id" padding="10" unsigned="true" nullable="false" identity="true" comment="Entity ID"/>
-        <column xsi:type="varchar" length="255" name="order_id" nullable="false" comment="Order ID"/>
-        <column xsi:type="varchar" length="255" name="increment_id" nullable="false" comment="Increment ID"/>
-        <column name="subscription_id" xsi:type="int" padding="10" unsigned="true" nullable="false" comment="Subscription ID"/>
-        <column name="created_at" xsi:type="datetime" nullable="false" comment="Creation Date"/>
-        <column name="total" xsi:type="decimal" precision="12" scale="4" nullable="false" comment="Total Amount"/>
-        <column name="status" xsi:type="varchar" length="20" nullable="false" comment="Order Status"/>
-        <constraint xsi:type="primary" referenceId="PRIMARY">
-            <column name="entity_id"/>
-        </constraint>
-    </table>
+
     <table name="vindi_order_creation_queue" resource="default" engine="innodb" comment="Order Creation Queue Table">
         <column xsi:type="int" name="queue_id" nullable="false" identity="true" unsigned="true" comment="Queue ID"/>
         <column xsi:type="text" name="bill_data" nullable="false" comment="Serialized Bill Data"/>
@@ -138,6 +169,8 @@
         </index>
     </table>
     <table name="sales_order">
+        <column xsi:type="int" padding="11" name="vindi_subscription_id" nullable="true" comment="Vindi Subscription Id"/>
+        <column xsi:type="int" padding="11" name="vindi_bill_id" nullable="true" comment="Vindi Bill Id"/>
         <column xsi:type="boolean" name="vindi_subscription_can_create_new_order" nullable="false" default="0" comment="Vindi Subscription Can Create New Order"/>
     </table>
 </schema>
