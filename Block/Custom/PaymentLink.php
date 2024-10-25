@@ -229,7 +229,7 @@ class PaymentLink extends Template
      */
     public function getInstructions()
     {
-        $method = str_replace('vindi_payment_link_','', $this->getPaymentLink()->getVindiPaymentMethod());
+        $method = str_replace('vindi_vr_payment_link_','', $this->getPaymentLink()->getVindiPaymentMethod());
         return $this->helper->getConfig('checkout_instructions', $method);
     }
 

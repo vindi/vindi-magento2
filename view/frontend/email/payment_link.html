@@ -5,20 +5,19 @@
 @-->
 <!--@styles
 body,td { color:#2f2f2f; font:11px/1.35em Verdana, Arial, Helvetica, sans-serif; }
-a { color: #1a73e8; text-decoration: none; }
+a { color: #ffffff; text-decoration: none; }
 .pay-now-button {
     display: inline-block;
     padding: 10px 20px;
     background-color: #1a73e8;
-    color: #ffffff;
+    color: #ffffff !important;
     font-size: 16px;
     font-weight: bold;
     border-radius: 4px;
     text-align: center;
-    text-decoration: none;
 }
-.pay-now-button:hover {
-    text-decoration: none;
+.pay-now-button:hover, .pay-now-button:visited {
+    color: #ffffff !important;
 }
 @-->
 {{template config_path="design/email/header_template"}}
@@ -39,7 +38,7 @@ a { color: #1a73e8; text-decoration: none; }
                             <tbody>
                             <tr>
                                 <td align="center" valign="top" style="padding:20px;">
-                                    <a href="{{var payment_link}}" style="display:inline-block;padding:10px 20px;background-color:#1a73e8;color:#ffffff;font-size:16px;font-weight:bold;border-radius:4px;text-align:center;">{{trans "Pay Now"}}</a>
+                                    <a href="{{var payment_link}}" class="pay-now-button">{{trans "Pay Now"}}</a>
                                 </td>
                             </tr>
                             <tr>

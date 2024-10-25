@@ -12,7 +12,6 @@ declare(strict_types=1);
  * @category    Vindi
  * @package     Vindi_Payment
  *
- *
  */
 
 namespace Vindi\Payment\Observer;
@@ -20,10 +19,24 @@ namespace Vindi\Payment\Observer;
 use Magento\Framework\Event\ObserverInterface;
 use Magento\Framework\Exception\CouldNotSaveException;
 use Magento\Framework\Exception\NoSuchEntityException;
-
+use Vindi\Payment\Helper\Data as VindiHelper;
 
 class ChangePaymentBeforePlace implements ObserverInterface
 {
+    /**
+     * @var VindiHelper
+     */
+    private VindiHelper $helper;
+
+    /**
+     * @param VindiHelper $helper
+     */
+    public function __construct(
+        VindiHelper $helper
+    ) {
+        $this->helper = $helper;
+    }
+
     /**
      * @throws NoSuchEntityException
      * @throws CouldNotSaveException
@@ -31,8 +44,10 @@ class ChangePaymentBeforePlace implements ObserverInterface
     public function execute(\Magento\Framework\Event\Observer $observer)
     {
         $order = $observer->getEvent()->getOrder();
-        if ($order->getData() && str_contains($order->getPayment()->getMethod(), 'vindi')) {
-            $order->getPayment()->setMethod('vindi_payment_link_' . $order->getPayment()->getMethod());
+        $paymentMethod = $order->getPayment()->getMethod();
+
+        if ($order->getData() && in_array($paymentMethod, $this->helper->getAllowedMethods())) {
+            $order->getPayment()->setMethod('vindi_vr_payment_link_' . $paymentMethod);
         }
     }
 }

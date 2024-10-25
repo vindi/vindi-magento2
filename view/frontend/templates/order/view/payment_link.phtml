@@ -1,0 +1,18 @@
+<?php
+/**
+ * @var $block \Vindi\Payment\Block\Order\View\PaymentLink
+ */
+?>
+<?php if ($block->hasPaymentLink()): ?>
+    <div class="block block-order-details-view">
+        <div class="block-title">
+            <strong><?= __('Payment Link') ?></strong>
+        </div>
+        <div class="block-content">
+            <div>
+                <strong class="box-title"><span><?= __('Link:'); ?></span></strong>
+                <a href="<?= $block->getPaymentLink() ?>" target="_blank"><?= __('Click to Pay') ?></a>
+            </div>
+        </div>
+    </div>
+<?php endif; ?>
