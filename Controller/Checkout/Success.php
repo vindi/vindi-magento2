@@ -116,6 +116,15 @@ class Success implements HttpGetActionInterface
 
                 return $this->redirectFactory->create()->setPath('/');
             }
+
+            $paymentLinkStatus = $this->paymentLinkService->getLinkStatus($orderId);
+            if ($paymentLinkStatus === 'expired') {
+                $this->messageManager->addWarningMessage(
+                    __('This payment link has expired.')
+                );
+
+                return $this->redirectFactory->create()->setPath('/');
+            }
         } catch (\Exception $e) {
             $this->messageManager->addErrorMessage(
                 __('An error occurred while processing your request. Please try again later.')
