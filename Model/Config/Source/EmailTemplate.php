@@ -39,7 +39,7 @@ class EmailTemplate implements OptionSourceInterface
         ];
 
         foreach ($collection as $template) {
-            if (strpos($template->getOrigTemplateCode(), 'vindi_vr_payment_link_template') !== false) {
+            if ($template->getOrigTemplateCode() == 'vindi_vr_payment_link_template') {
                 $options[] = [
                     'value' => $template->getTemplateId(),
                     'label' => $template->getTemplateCode(),
