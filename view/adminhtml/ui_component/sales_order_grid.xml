@@ -1,0 +1,29 @@
+<?xml version="1.0"?>
+<listing xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:Ui/etc/ui_configuration.xsd">
+    <listingToolbar name="listing_top">
+        <massaction name="listing_massaction">
+            <action name="send_payment_link">
+                <argument name="data" xsi:type="array">
+                    <item name="config" xsi:type="array">
+                        <item name="type" xsi:type="string">send_payment_link</item>
+                        <item name="label" xsi:type="string" translate="true">Send Payment Link</item>
+                        <item name="url" xsi:type="url" path="vindi_payment/paymentlink/massSend"/>
+                        <item name="confirm" xsi:type="array">
+                            <item name="title" xsi:type="string" translate="true">Confirmation</item>
+                            <item name="message" xsi:type="string" translate="true">Are you sure you want to send the payment link to the selected orders?</item>
+                        </item>
+                    </item>
+                </argument>
+            </action>
+        </massaction>
+    </listingToolbar>
+    <columns name="sales_order_columns">
+        <column name="payment_link" class="Vindi\Payment\Ui\Component\Listing\Column\PaymentLink">
+            <settings>
+                <label translate="true">Payment Link</label>
+                <sortable>false</sortable>
+                <filter>false</filter>
+            </settings>
+        </column>
+    </columns>
+</listing>
