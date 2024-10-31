@@ -107,26 +107,19 @@ class Success implements HttpGetActionInterface
                 return $this->redirectFactory->create()->setPath('/');
             }
 
-            $order = $this->orderRepository->get($orderId);
+            $paymentLink = $this->paymentLinkService->getPaymentLinkByOrderId($orderId);
 
-            if ($order->hasInvoices()) {
+            if ($paymentLink && $paymentLink->getSuccessPageAccessed()) {
                 $this->messageManager->addWarningMessage(
-                    __('This order has already been paid.')
+                    __('The payment success page has already been accessed.')
                 );
 
                 return $this->redirectFactory->create()->setPath('/');
             }
 
-            $paymentLink = $this->paymentLinkService->getPaymentLink($orderId);
-            $paymentLinkStatus = $paymentLink->getStatus();
+            $paymentLink->setSuccessPageAccessed(true);
+            $this->paymentLinkService->savePaymentLink($paymentLink);
 
-            if ($paymentLinkStatus === 'expired') {
-                $this->messageManager->addWarningMessage(
-                    __('This payment link has expired.')
-                );
-
-                return $this->redirectFactory->create()->setPath('/');
-            }
         } catch (\Exception $e) {
             $this->messageManager->addErrorMessage(
                 __('An error occurred while processing your request. Please try again later.')
