@@ -29,14 +29,9 @@ class PaymentLinkService
     public const SALES_EMAIL = 'trans_email/ident_sales/email';
 
     /**
-     * Sales name config path
-     */
-    public const SALES_NAME = 'trans_email/ident_sales/name';
-
-    /**
      * Path to get the payment link template
      */
-    public const PAYMENT_LINK_TEMPLATE_PATH = 'vindiconfiguration/general/payment_link_template';
+    public const SALES_NAME = 'trans_email/ident_sales/name';
 
     /**
      * @var PaymentLinkCollectionFactory
@@ -298,6 +293,7 @@ class PaymentLinkService
         try {
             $paymentLink->setStatus('expired');
             $paymentLink->setExpiredAt($this->dateTimeFactory->create()->format('Y-m-d H:i:s'));
+
             $this->linkRepository->save($paymentLink);
         } catch (\Exception $e) {
             $this->logger->error('Error updating payment link status to expired: ' . $e->getMessage());
@@ -328,6 +324,7 @@ class PaymentLinkService
             if ($this->isLinkExpired($paymentLink->getCreatedAt())) {
                 $paymentLink->setStatus('expired');
                 $paymentLink->setExpiredAt($this->dateTimeFactory->create()->format('Y-m-d H:i:s'));
+
                 $this->savePaymentLink($paymentLink);
             }
         }
