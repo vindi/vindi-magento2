@@ -1,10 +1,14 @@
-<?php if ($block->canShowBankslipInfo()) : ?>
-    <dl class="payment-method">
-        <dt class="title"><strong><?php echo $block->escapeHtml($block->getMethod()->getTitle()) ?></strong></dt>
-        <dd class="content">
-            <br/>
-            <p><?php echo sprintf(__('Print Url: %s'), '<a target="_blank" href="'. $block->getPrintUrl() . '">'. $block->getPrintUrl() . '</a>') ?></p>
-            <br/>
-        </dd>
-    </dl>
+<?php
+
+use Vindi\Payment\Block\Info\BankSlip;
+
+/** @var $block BankSlip */
+?>
+<dt class="title"><strong><?php echo $block->escapeHtml($block->getMethod()->getTitle()) ?></strong></dt>
+<?php if (!$block->hasInvoice() && $block->canShowBankslipInfo()) : ?>
+    <dd class="content">
+        <br/>
+        <p><?php echo sprintf(__('Print Url: %s'), '<a target="_blank" href="'. $block->getPrintUrl() . '">'. $block->getPrintUrl() . '</a>') ?></p>
+        <br/>
+    </dd>
 <?php endif; ?>

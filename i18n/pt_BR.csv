@@ -675,6 +675,7 @@
 "Payment Link:","Link de Pagamento:"
 "Click to Pay","Clique para Pagar"
 "Only pending payment links can be accessed.","Somente links de pagamento pendentes podem ser acessados."
+"This order has already been paid.","Este pedido já foi pago."
 "Payment Profile","Perfil de Pagamento"
 "Credit Card","Cartão de Crédito"
 "Select the payment profile for this subscription.","Selecione o perfil de pagamento para esta assinatura."
@@ -696,3 +697,5 @@
 "API request failed: %1","Solicitação da API falhou: %1"
 "Invalid Subscription ID.","ID de Assinatura Inválido."
 "Failed to update product item. Check the data and try again.","Falha ao atualizar o item do produto. Verifique os dados e tente novamente."
+"This payment link has expired.","Este link de pagamento expirou."
+"The payment success page has already been accessed.","A página de sucesso do pagamento já foi acessada."

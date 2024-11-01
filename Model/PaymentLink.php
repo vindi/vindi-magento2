@@ -2,16 +2,6 @@
 
 declare(strict_types=1);
 
-/**
- * DISCLAIMER
- *
- * Do not edit or add to this file if you wish to upgrade this extension to newer
- * version in the future.
- *
- * @category    Vindi
- * @package     Vindi_Payment
- */
-
 namespace Vindi\Payment\Model;
 
 use Vindi\Payment\Api\Data\PaymentLinkInterface;
@@ -174,4 +164,22 @@ class PaymentLink extends AbstractModel implements PaymentLinkInterface
         $this->setData(self::EXPIRED_AT, $expiredAt);
         return $this;
     }
+
+    /**
+     * @inheritdoc
+     */
+    public function getSuccessPageAccessed()
+    {
+        return $this->getData(self::SUCCESS_PAGE_ACCESSED);
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function setSuccessPageAccessed(bool $successPageAccessed)
+    {
+        $this->setData(self::SUCCESS_PAGE_ACCESSED, $successPageAccessed);
+        return $this;
+    }
 }
+
