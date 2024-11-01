@@ -29,7 +29,7 @@ class PaymentLinkService
     public const SALES_EMAIL = 'trans_email/ident_sales/email';
 
     /**
-     * Path to get the payment link template
+     * Sales name config path
      */
     public const SALES_NAME = 'trans_email/ident_sales/name';
 
