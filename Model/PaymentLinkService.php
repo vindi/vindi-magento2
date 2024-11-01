@@ -299,6 +299,7 @@ class PaymentLinkService
         try {
             $paymentLink->setStatus('expired');
             $paymentLink->setExpiredAt($this->dateTimeFactory->create()->format('Y-m-d H:i:s'));
+
             $this->linkRepository->save($paymentLink);
         } catch (\Exception $e) {
             $this->logger->error('Error updating payment link status to expired: ' . $e->getMessage());
@@ -329,6 +330,7 @@ class PaymentLinkService
             if ($this->isLinkExpired($paymentLink->getCreatedAt())) {
                 $paymentLink->setStatus('expired');
                 $paymentLink->setExpiredAt($this->dateTimeFactory->create()->format('Y-m-d H:i:s'));
+
                 $this->savePaymentLink($paymentLink);
             }
         }

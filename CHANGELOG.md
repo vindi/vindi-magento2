@@ -1,5 +1,11 @@
 # Notas das versões
 
+## [2.1.0 - 30/10/2024](https://github.com/vindi/vindi-magento2/releases/tag/2.1.0)
+- Adiciona a possibilidade de edição de valor de itens em uma assinatura
+- Adiciona a funcionalidade de link de pagamento
+- Adiciona a funcionalidade de envio de e-mail em massa no link de pagamento
+- Remove classes deprecadas pelo Magento
+
 ## [2.0.1 - 26/09/2024](https://github.com/vindi/vindi-magento2/releases/tag/2.0.1)
 - Corrige erro "The attribute set ID is incorrect. Verify the ID and try again" durante a etapa de atualização do novo módulo de recorrência.
 
