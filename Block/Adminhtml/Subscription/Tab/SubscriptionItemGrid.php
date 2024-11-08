@@ -137,6 +137,15 @@ class SubscriptionItemGrid extends \Magento\Backend\Block\Widget\Grid\Extended
                         ],
                         'field' => 'entity_id',
                     ],
+                    [
+                        'caption' => __('Delete'),
+                        'url' => [
+                            'base' => 'vindi_payment/subscription/deletesubscriptionitem',
+                            'params' => ['form_key' => $this->getFormKey()]
+                        ],
+                        'confirm' => __('Are you sure you want to delete this item?'),
+                        'field' => 'entity_id',
+                    ],
                 ],
                 'filter' => false,
                 'sortable' => false,

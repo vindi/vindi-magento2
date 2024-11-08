@@ -694,3 +694,5 @@
 "API request failed: %1","Solicitação da API falhou: %1"
 "Invalid Subscription ID.","ID de Assinatura Inválido."
 "Failed to update product item. Check the data and try again.","Falha ao atualizar o item do produto. Verifique os dados e tente novamente."
+"Add Item","Adicionar Item"
+"Subscription #%1 > Add New Item","Assinatura #%1 > Adicionar Novo Item"
