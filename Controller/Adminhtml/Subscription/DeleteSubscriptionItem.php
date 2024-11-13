@@ -106,6 +106,20 @@ class DeleteSubscriptionItem extends Action
             $subscriptionItem = $this->vindiSubscriptionItemRepository->getById($entityId);
             $subscriptionId = $subscriptionItem->getSubscriptionId();
             $productItemId  = $subscriptionItem->getProductItemId();
+            $productCode    = $subscriptionItem->getProductCode();
+
+            if ($productCode === 'frete') {
+                $this->messageManager->addErrorMessage(__("Cannot delete item with product code 'frete'."));
+                return $resultRedirect->setPath('vindi_payment/subscription/edit', ['id' => $subscriptionId]);
+            }
+
+            $itemsCollection = $this->vindiSubscriptionItemCollectionFactory->create();
+            $itemsCollection->addFieldToFilter('subscription_id', $subscriptionId);
+
+            if ($itemsCollection->getSize() < 3) {
+                $this->messageManager->addErrorMessage(__("Cannot delete item. Subscription must have at least one product item besides 'frete'."));
+                return $resultRedirect->setPath('vindi_payment/subscription/edit', ['id' => $subscriptionId]);
+            }
 
             if (!$productItemId) {
                 throw new LocalizedException(__('Product item ID not found for the given subscription item.'));
@@ -217,3 +231,4 @@ class DeleteSubscriptionItem extends Action
         return $this->vindiSubscription->getSubscriptionById($subscriptionId);
     }
 }
+

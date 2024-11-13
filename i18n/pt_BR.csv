@@ -709,3 +709,5 @@
 "The item was successfully deleted from the subscription.","O item foi excluído com sucesso da assinatura."
 "An error occurred while deleting the item from the subscription.","Ocorreu um erro ao excluir o item da assinatura."
 "Temporary (%1/%2)","Temporário (%1/%2)"
+"Cannot delete item with product code 'frete'.","Não é possível excluir o item com o código do produto 'frete'."
+"Cannot delete item. Subscription must have at least one product item besides 'frete'.","Não é possível excluir o item. A assinatura deve ter pelo menos um item de produto além de 'frete'."
