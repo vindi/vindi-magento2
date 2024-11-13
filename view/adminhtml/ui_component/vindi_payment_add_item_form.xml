@@ -71,7 +71,7 @@
                 </validation>
                 <elementTmpl>ui/grid/filters/elements/ui-select</elementTmpl>
                 <label translate="true">Product</label>
-                <dataScope>data.size</dataScope>
+                <dataScope>data.sku</dataScope>
                 <componentType>field</componentType>
                 <listens>
                     <link name="${ $.namespace }.${ $.namespace }:responseData">setParsed</link>
@@ -94,10 +94,79 @@
             <settings>
                 <validation>
                     <rule name="required-entry" xsi:type="boolean">true</rule>
+                    <rule name="validate-digits" xsi:type="boolean">true</rule>
+                    <rule name="min" xsi:type="number">1</rule>
                 </validation>
                 <dataType>text</dataType>
                 <label translate="true">Quantity</label>
                 <dataScope>quantity</dataScope>
+            </settings>
+        </field>
+        <field name="status" sortOrder="30" formElement="checkbox">
+            <argument name="data" xsi:type="array">
+                <item name="config" xsi:type="array">
+                    <item name="source" xsi:type="string">menu</item>
+                    <item name="default" xsi:type="number">1</item>
+                </item>
+            </argument>
+            <settings>
+                <dataType>boolean</dataType>
+                <label translate="true">Status</label>
+                <dataScope>status</dataScope>
+            </settings>
+            <formElements>
+                <checkbox>
+                    <settings>
+                        <valueMap>
+                            <map name="false" xsi:type="number">0</map>
+                            <map name="true" xsi:type="number">1</map>
+                        </valueMap>
+                        <prefer>toggle</prefer>
+                    </settings>
+                </checkbox>
+            </formElements>
+        </field>
+        <field name="cycles" component="Vindi_Payment/js/components/select-swatches" sortOrder="40"
+               formElement="select">
+            <argument name="data" xsi:type="array">
+                <item name="config" xsi:type="array">
+                    <item name="filterOptions" xsi:type="boolean">true</item>
+                    <item name="multiple" xsi:type="boolean">false</item>
+                    <item name="showCheckbox" xsi:type="boolean">true</item>
+                    <item name="disableLabel" xsi:type="boolean">true</item>
+                </item>
+            </argument>
+            <settings>
+                <required>true</required>
+                <elementTmpl>ui/grid/filters/elements/ui-select</elementTmpl>
+                <label translate="true">Cycles</label>
+                <dataScope>data.cycles</dataScope>
+                <componentType>field</componentType>
+            </settings>
+            <formElements>
+                <select>
+                    <settings>
+                        <options class="Vindi\Payment\Ui\Component\Form\Subscription\Cycles"/>
+                    </settings>
+                </select>
+            </formElements>
+        </field>
+        <field name="price" sortOrder="50" formElement="input">
+            <argument name="data" xsi:type="array">
+                <item name="config" xsi:type="array">
+                    <item name="source" xsi:type="string">menu</item>
+                </item>
+            </argument>
+            <settings>
+                <validation>
+                    <rule name="required-entry" xsi:type="boolean">true</rule>
+                    <rule name="validate-number" xsi:type="boolean">true</rule>
+                    <rule name="greater-than-zero" xsi:type="boolean">true</rule>
+                    <rule name="min" xsi:type="number">0.01</rule>
+                </validation>
+                <dataType>text</dataType>
+                <label translate="true">Price</label>
+                <dataScope>price</dataScope>
             </settings>
         </field>
     </fieldset>

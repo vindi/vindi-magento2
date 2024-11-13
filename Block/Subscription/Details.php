@@ -454,11 +454,20 @@ class Details extends Template
      * Get cycle label
      *
      * @param $cycle
+     * @param $uses
      * @return string
      */
-    public function getCycleLabel($cycle)
+    public function getCycleLabel($cycle, $uses = null)
     {
-        return is_null($cycle) ? __('Permanent') : $cycle;
+        if (is_null($cycle)) {
+            return __('Permanent');
+        }
+
+        if (is_null($uses)) {
+            return $cycle;
+        }
+
+        return __('Temporary (%1/%2)', $uses, $cycle);
     }
 
     /**
