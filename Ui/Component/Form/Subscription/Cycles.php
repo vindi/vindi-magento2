@@ -12,7 +12,7 @@ class Cycles implements OptionSourceInterface
     public function toOptionArray()
     {
         $options = [
-            ['value' => '', 'label' => __('Permanent')],
+            ['value' => '-1', 'label' => __('Permanent')],
         ];
 
         for ($i = 1; $i <= 24; $i++) {

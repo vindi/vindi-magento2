@@ -129,6 +129,10 @@ class SaveAddNewItem extends Action
                 throw new LocalizedException(__('Missing required data: product_sku, quantity, subscription_id, status, cycles, or price.'));
             }
 
+            if ($cycles == '-1') {
+                $cycles = '';
+            }
+
             $product = $this->productRepository->get($productSku);
             $vindiProductId = $this->productManagement->findOrCreate($product);
             $statusValue = $status ? 'active' : 'inactive';
