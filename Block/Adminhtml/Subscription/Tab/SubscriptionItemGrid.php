@@ -71,7 +71,7 @@ class SubscriptionItemGrid extends \Magento\Backend\Block\Widget\Grid\Extended
         $subscriptionId = $this->getRequest()->getParam('id');
 
         $collection = $this->subscriptionItemFactory->create()
-            ->addFieldToSelect(['entity_id', 'product_item_id', 'product_name', 'price', 'status'])
+            ->addFieldToSelect(['entity_id', 'product_item_id', 'product_name', 'price', 'status', 'cycles', 'uses'])
             ->addFieldToFilter('subscription_id', $subscriptionId);
 
         $this->setCollection($collection);
@@ -137,6 +137,17 @@ class SubscriptionItemGrid extends \Magento\Backend\Block\Widget\Grid\Extended
         );
 
         $this->addColumn(
+            'duration',
+            [
+                'header' => __('Duration'),
+                'index' => 'cycles',
+                'header_css_class' => 'col-duration',
+                'column_css_class' => 'col-duration',
+                'frame_callback' => [$this, 'renderDurationColumn'],
+            ]
+        );
+
+        $this->addColumn(
             'edit_action',
             [
                 'header' => __('Action'),
@@ -171,6 +182,31 @@ class SubscriptionItemGrid extends \Magento\Backend\Block\Widget\Grid\Extended
         );
 
         return parent::_prepareColumns();
+    }
+
+    /**
+     * Render the Duration column value
+     *
+     * @param string $value
+     * @param \Magento\Framework\DataObject $row
+     * @param \Magento\Backend\Block\Widget\Grid\Column $column
+     * @param bool $isExport
+     * @return string
+     */
+    public function renderDurationColumn($value, $row, $column, $isExport)
+    {
+        $cycle = $row->getData('cycles');
+        $uses  = $row->getData('uses');
+
+        if (is_null($cycle)) {
+            return __('Permanent');
+        }
+
+        if (is_null($uses)) {
+            return $cycle;
+        }
+
+        return __('Temporary (%1/%2)', $uses, $cycle);
     }
 
     /**
