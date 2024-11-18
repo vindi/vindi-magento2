@@ -15,11 +15,6 @@ use Vindi\Payment\Model\VindiSubscriptionItemFactory;
 use Vindi\Payment\Model\Vindi\Subscription as VindiSubscription;
 use Magento\Framework\App\ResourceConnection;
 
-/**
- * Class DeleteSubscriptionItem
- *
- * Controller for deleting a product item in the Vindi subscription
- */
 class DeleteSubscriptionItem extends Action
 {
     /** @var ProductItems */
@@ -50,17 +45,11 @@ class DeleteSubscriptionItem extends Action
     private $resource;
 
     /**
-     * DeleteSubscriptionItem constructor.
      * @param Context $context
      * @param ProductItems $productItems
      * @param RedirectFactory $resultRedirectFactory
      * @param ManagerInterface $messageManager
-     * @param VindiSubscriptionItemRepositoryInterface $vindiSubscriptionItemRepository
-     * @param VindiSubscriptionItemCollectionFactory $vindiSubscriptionItemCollectionFactory
-     * @param SubscriptionRepositoryInterface $subscriptionRepository
-     * @param VindiSubscriptionItemFactory $vindiSubscriptionItemFactory
-     * @param VindiSubscription $vindiSubscription
-     * @param ResourceConnection $resource
+     * @param EventManager $eventManager
      */
     public function __construct(
         Context $context,
@@ -87,14 +76,14 @@ class DeleteSubscriptionItem extends Action
     }
 
     /**
-     * Execute action based on request and return result
+     * Execute action
      *
      * @return \Magento\Framework\Controller\Result\Redirect
      */
     public function execute()
     {
         $resultRedirect = $this->resultRedirectFactory->create();
-        $request  = $this->getRequest();
+        $request = $this->getRequest();
         $entityId = $request->getParam('entity_id');
 
         if (!$entityId) {
@@ -128,9 +117,7 @@ class DeleteSubscriptionItem extends Action
             $isDeleted = $this->productItems->deleteProductItem($productItemId);
 
             if ($isDeleted) {
-                $this->updateSubscriptionData($subscriptionId);
-                $this->updateSubscriptionItems($subscriptionId);
-                $this->checkAndSaveSubscriptionItems($subscriptionId);
+                $this->eventManager->dispatch('vindi_subscription_update', ['subscription_id' => $subscriptionId]);
                 $this->messageManager->addSuccessMessage(__('The item was successfully deleted from the subscription.'));
             } else {
                 throw new LocalizedException(__('Failed to delete the item from the subscription.'));
@@ -143,92 +130,4 @@ class DeleteSubscriptionItem extends Action
 
         return $resultRedirect->setPath('vindi_payment/subscription/edit', ['id' => $subscriptionId]);
     }
-
-    /**
-     * Update the "response_data" field in the "vindi_subscription" table.
-     *
-     * @param int $subscriptionId
-     * @return void
-     */
-    private function updateSubscriptionData($subscriptionId)
-    {
-        try {
-            $connection = $this->resource->getConnection();
-            $tableName = $connection->getTableName('vindi_subscription');
-            $subscriptionData = $this->fetchSubscriptionDataFromApi($subscriptionId);
-
-            if ($subscriptionData) {
-                $connection->update(
-                    $tableName,
-                    ['response_data' => json_encode($subscriptionData)],
-                    ['id = ?' => $subscriptionId]
-                );
-            }
-        } catch (\Exception $e) {
-            $this->messageManager->addErrorMessage(__('An error occurred while updating subscription data.'));
-        }
-    }
-
-    /**
-     * Update the items in the "vindi_subscription_item" table corresponding to the subscription.
-     *
-     * @param int $subscriptionId
-     * @return void
-     */
-    private function updateSubscriptionItems($subscriptionId)
-    {
-        $itemsCollection = $this->vindiSubscriptionItemCollectionFactory->create();
-        $itemsCollection->addFieldToFilter('subscription_id', $subscriptionId);
-
-        foreach ($itemsCollection as $item) {
-            $item->delete();
-        }
-    }
-
-    /**
-     * Check if subscription items are saved in the database and save them if not.
-     *
-     * @param int $subscriptionId
-     * @return void
-     */
-    private function checkAndSaveSubscriptionItems($subscriptionId)
-    {
-        $itemsCollection = $this->vindiSubscriptionItemCollectionFactory->create();
-        $itemsCollection->addFieldToFilter('subscription_id', $subscriptionId);
-
-        if ($itemsCollection->getSize() == 0) {
-            $subscriptionData = $this->fetchSubscriptionDataFromApi($subscriptionId);
-            if (isset($subscriptionData['product_items'])) {
-                foreach ($subscriptionData['product_items'] as $item) {
-                    $subscriptionItem = $this->vindiSubscriptionItemFactory->create();
-                    $subscriptionItem->setSubscriptionId($subscriptionId);
-                    $subscriptionItem->setProductItemId($item['id']);
-                    $subscriptionItem->setProductName($item['product']['name']);
-                    $subscriptionItem->setProductCode($item['product']['code']);
-                    $subscriptionItem->setStatus($item['status']);
-                    $subscriptionItem->setQuantity($item['quantity']);
-                    $subscriptionItem->setUses($item['uses']);
-                    $subscriptionItem->setCycles($item['cycles']);
-                    $subscriptionItem->setPrice($item['pricing_schema']['price']);
-                    $subscriptionItem->setPricingSchemaId($item['pricing_schema']['id']);
-                    $subscriptionItem->setPricingSchemaType($item['pricing_schema']['schema_type']);
-                    $subscriptionItem->setPricingSchemaFormat($item['pricing_schema']['schema_format'] ?? 'N/A');
-                    $subscriptionItem->setMagentoProductSku($item['product']['code']);
-                    $subscriptionItem->save();
-                }
-            }
-        }
-    }
-
-    /**
-     * Retrieve subscription data by ID from the API
-     *
-     * @param int $subscriptionId
-     * @return array|null
-     */
-    private function fetchSubscriptionDataFromApi($subscriptionId)
-    {
-        return $this->vindiSubscription->getSubscriptionById($subscriptionId);
-    }
 }
-

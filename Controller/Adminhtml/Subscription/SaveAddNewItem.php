@@ -4,24 +4,15 @@ namespace Vindi\Payment\Controller\Adminhtml\Subscription;
 
 use Magento\Backend\App\Action;
 use Magento\Backend\App\Action\Context;
+use Magento\Framework\Controller\Result\RedirectFactory;
 use Magento\Framework\Controller\Result\JsonFactory;
 use Magento\Catalog\Api\ProductRepositoryInterface;
 use Vindi\Payment\Model\Vindi\ProductItems;
 use Vindi\Payment\Model\Vindi\ProductManagement;
 use Magento\Framework\Exception\LocalizedException;
-use Magento\Framework\Controller\Result\RedirectFactory;
 use Magento\Framework\Message\ManagerInterface;
-use Vindi\Payment\Model\ResourceModel\VindiSubscriptionItem\CollectionFactory as VindiSubscriptionItemCollectionFactory;
-use Vindi\Payment\Api\SubscriptionRepositoryInterface;
-use Vindi\Payment\Model\Vindi\Subscription as VindiSubscription;
-use Vindi\Payment\Model\VindiSubscriptionItemFactory;
-use Magento\Framework\App\ResourceConnection;
+use Magento\Framework\Event\ManagerInterface as EventManager;
 
-/**
- * Class SaveAddNewItem
- *
- * @package Vindi\Payment\Controller\Adminhtml\Subscription
- */
 class SaveAddNewItem extends Action
 {
     /** @var ProductRepositoryInterface */
@@ -31,10 +22,10 @@ class SaveAddNewItem extends Action
     protected $productManagement;
 
     /** @var ProductItems */
-    protected $productItems;
+    private $productItems;
 
     /** @var JsonFactory */
-    protected $resultJsonFactory;
+    private $resultJsonFactory;
 
     /** @var RedirectFactory */
     protected $resultRedirectFactory;
@@ -42,36 +33,16 @@ class SaveAddNewItem extends Action
     /** @var ManagerInterface */
     protected $messageManager;
 
-    /** @var VindiSubscriptionItemCollectionFactory */
-    private $vindiSubscriptionItemCollectionFactory;
-
-    /** @var SubscriptionRepositoryInterface */
-    private $subscriptionRepository;
-
-    /** @var VindiSubscriptionItemFactory */
-    private $vindiSubscriptionItemFactory;
-
-    /** @var VindiSubscription */
-    private $vindiSubscription;
-
-    /** @var ResourceConnection */
-    private $resource;
+    /** @var EventManager */
+    private $eventManager;
 
     /**
-     * SaveAddNewItem constructor.
-     *
      * @param Context $context
-     * @param ProductRepositoryInterface $productRepository
-     * @param ProductManagement $productManagement
      * @param ProductItems $productItems
      * @param JsonFactory $resultJsonFactory
      * @param RedirectFactory $resultRedirectFactory
      * @param ManagerInterface $messageManager
-     * @param VindiSubscriptionItemCollectionFactory $vindiSubscriptionItemCollectionFactory
-     * @param SubscriptionRepositoryInterface $subscriptionRepository
-     * @param VindiSubscriptionItemFactory $vindiSubscriptionItemFactory
-     * @param VindiSubscription $vindiSubscription
-     * @param ResourceConnection $resource
+     * @param EventManager $eventManager
      */
     public function __construct(
         Context $context,
@@ -81,11 +52,7 @@ class SaveAddNewItem extends Action
         JsonFactory $resultJsonFactory,
         RedirectFactory $resultRedirectFactory,
         ManagerInterface $messageManager,
-        VindiSubscriptionItemCollectionFactory $vindiSubscriptionItemCollectionFactory,
-        SubscriptionRepositoryInterface $subscriptionRepository,
-        VindiSubscriptionItemFactory $vindiSubscriptionItemFactory,
-        VindiSubscription $vindiSubscription,
-        ResourceConnection $resource
+        EventManager $eventManager
     ) {
         parent::__construct($context);
         $this->productRepository = $productRepository;
@@ -94,15 +61,11 @@ class SaveAddNewItem extends Action
         $this->resultJsonFactory = $resultJsonFactory;
         $this->resultRedirectFactory = $resultRedirectFactory;
         $this->messageManager = $messageManager;
-        $this->vindiSubscriptionItemCollectionFactory = $vindiSubscriptionItemCollectionFactory;
-        $this->subscriptionRepository = $subscriptionRepository;
-        $this->vindiSubscriptionItemFactory = $vindiSubscriptionItemFactory;
-        $this->vindiSubscription = $vindiSubscription;
-        $this->resource = $resource;
+        $this->eventManager = $eventManager;
     }
 
     /**
-     * Execute action based on request and return result
+     * Execute action
      *
      * @return \Magento\Framework\Controller\Result\Json|\Magento\Framework\Controller\Result\Redirect
      */
@@ -154,12 +117,9 @@ class SaveAddNewItem extends Action
                 throw new LocalizedException(__('Failed to create new item in Vindi subscription.'));
             }
 
-            $this->updateSubscriptionData($subscriptionId);
-            $this->updateSubscriptionItems($subscriptionId);
-            $this->checkAndSaveSubscriptionItems($subscriptionId);
+            $this->eventManager->dispatch('vindi_subscription_update', ['subscription_id' => $subscriptionId]);
 
             $this->messageManager->addSuccessMessage(__('New item added to subscription successfully.'));
-
             return $resultRedirect->setPath('vindi_payment/subscription/edit', ['id' => $subscriptionId]);
         } catch (LocalizedException $e) {
             $this->messageManager->addErrorMessage($e->getMessage());
@@ -168,92 +128,5 @@ class SaveAddNewItem extends Action
         }
 
         return $resultRedirect->setPath('vindi_payment/subscription/edit', ['id' => $this->getRequest()->getParam('subscription_id')]);
-    }
-
-    /**
-     * Update the "response_data" field in the "vindi_subscription" table.
-     *
-     * @param int $subscriptionId
-     * @return void
-     */
-    private function updateSubscriptionData($subscriptionId)
-    {
-        try {
-            $connection = $this->resource->getConnection();
-            $tableName = $connection->getTableName('vindi_subscription');
-            $subscriptionData = $this->fetchSubscriptionDataFromApi($subscriptionId);
-
-            if ($subscriptionData) {
-                $connection->update(
-                    $tableName,
-                    ['response_data' => json_encode($subscriptionData)],
-                    ['id = ?' => $subscriptionId]
-                );
-            }
-        } catch (\Exception $e) {
-            $this->messageManager->addErrorMessage(__('An error occurred while updating subscription data.'));
-        }
-    }
-
-    /**
-     * Update the items in the "vindi_subscription_item" table corresponding to the subscription.
-     *
-     * @param int $subscriptionId
-     * @return void
-     */
-    private function updateSubscriptionItems($subscriptionId)
-    {
-        $itemsCollection = $this->vindiSubscriptionItemCollectionFactory->create();
-        $itemsCollection->addFieldToFilter('subscription_id', $subscriptionId);
-
-        foreach ($itemsCollection as $item) {
-            $item->delete();
-        }
-    }
-
-    /**
-     * Check if subscription items are saved in the database and save them if not.
-     *
-     * @param int $subscriptionId
-     * @return void
-     */
-    private function checkAndSaveSubscriptionItems($subscriptionId)
-    {
-        $itemsCollection = $this->vindiSubscriptionItemCollectionFactory->create();
-        $itemsCollection->addFieldToFilter('subscription_id', $subscriptionId);
-
-        if ($itemsCollection->getSize() == 0) {
-            $subscriptionData = $this->fetchSubscriptionDataFromApi($subscriptionId);
-            if (isset($subscriptionData['product_items'])) {
-                foreach ($subscriptionData['product_items'] as $item) {
-                    $subscriptionItem = $this->vindiSubscriptionItemFactory->create();
-                    $subscriptionItem->setSubscriptionId($subscriptionId);
-                    $subscriptionItem->setProductItemId($item['id']);
-                    $subscriptionItem->setProductName($item['product']['name']);
-                    $subscriptionItem->setProductCode($item['product']['code']);
-                    $subscriptionItem->setStatus($item['status']);
-                    $subscriptionItem->setQuantity($item['quantity']);
-                    $subscriptionItem->setUses($item['uses']);
-                    $subscriptionItem->setCycles($item['cycles']);
-                    $subscriptionItem->setPrice($item['pricing_schema']['price']);
-                    $subscriptionItem->setPricingSchemaId($item['pricing_schema']['id']);
-                    $subscriptionItem->setPricingSchemaType($item['pricing_schema']['schema_type']);
-                    $subscriptionItem->setPricingSchemaFormat($item['pricing_schema']['schema_format'] ?? 'N/A');
-                    $subscriptionItem->setMagentoProductSku($item['product']['code']);
-                    $subscriptionItem->save();
-                }
-            }
-        }
-    }
-
-    /**
-     * Retrieve subscription data by ID from the API
-     *
-     * @param int $subscriptionId
-     * @return array|null
-     */
-    private function fetchSubscriptionDataFromApi($subscriptionId)
-    {
-        return $this->vindiSubscription->getSubscriptionById($subscriptionId);
     }
 }

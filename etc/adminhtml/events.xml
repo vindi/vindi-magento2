@@ -19,7 +19,4 @@
     <event name="sales_order_save_after">
         <observer name="vindi_payment_cancel_order_observer" instance="Vindi\Payment\Observer\CancelOrderObserver" />
     </event>
-    <event name="vindi_payment_subscription_item_updated">
-        <observer name="vindi_payment_update_subscription_data" instance="Vindi\Payment\Observer\UpdateSubscriptionData" />
-    </event>
 </config>
