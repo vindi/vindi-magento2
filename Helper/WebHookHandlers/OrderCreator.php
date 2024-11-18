@@ -10,7 +10,6 @@ use Magento\Framework\Exception\LocalizedException;
 use Vindi\Payment\Model\SubscriptionOrderRepository;
 use Vindi\Payment\Model\SubscriptionOrderFactory;
 use Vindi\Payment\Model\Payment\Bill as PaymentBill;
-use Vindi\Payment\Model\Vindi\Subscription as VindiSubscription;
 use Vindi\Payment\Helper\Data;
 
 class OrderCreator
@@ -46,11 +45,6 @@ class OrderCreator
     private $orderRepository;
 
     /**
-     * @var VindiSubscription
-     */
-    private $vindiSubscription;
-
-    /**
      * OrderCreator constructor.
      * @param OrderFactory $orderFactory
      * @param SubscriptionOrderRepository $subscriptionOrderRepository
@@ -58,7 +52,6 @@ class OrderCreator
      * @param OrderService $orderService
      * @param PaymentBill $paymentBill
      * @param OrderRepository $orderRepository
-     * @param VindiSubscription $vindiSubscription
      */
     public function __construct(
         OrderFactory $orderFactory,
@@ -66,8 +59,7 @@ class OrderCreator
         SubscriptionOrderFactory $subscriptionOrderFactory,
         OrderService $orderService,
         PaymentBill $paymentBill,
-        OrderRepository $orderRepository,
-        VindiSubscription $vindiSubscription
+        OrderRepository $orderRepository
     ) {
         $this->orderFactory = $orderFactory;
         $this->subscriptionOrderRepository = $subscriptionOrderRepository;
@@ -75,7 +67,6 @@ class OrderCreator
         $this->orderService = $orderService;
         $this->paymentBill = $paymentBill;
         $this->orderRepository = $orderRepository;
-        $this->vindiSubscription = $vindiSubscription;
     }
 
     /**
@@ -152,18 +143,6 @@ class OrderCreator
      */
     protected function replicateOrder(Order $originalOrder, $billData)
     {
-        $subscriptionId = $billData['subscription']['id'];
-        $subscription = $this->vindiSubscription->getSubscriptionById($subscriptionId);
-
-        $productItemsData = [];
-        foreach ($subscription['product_items'] as $productItem) {
-            $productItemsData[$productItem['id']] = [
-                'status' => $productItem['status'],
-                'uses'   => $productItem['uses'],
-                'cycles' => $productItem['cycles']
-            ];
-        }
-
         $newOrder = clone $originalOrder;
         $newOrder->setId(null);
         $newOrder->setIncrementId(null);
@@ -190,15 +169,6 @@ class OrderCreator
             $newItem->setId(null)->setOrderId(null);
 
             foreach ($billData['bill_items'] as $billItem) {
-                $productItemId = $billItem['product_item']['id'];
-                if (isset($productItemsData[$productItemId])) {
-                    $itemData = $productItemsData[$productItemId];
-
-                    if ($itemData['status'] === 'inactive' || ($itemData['cycles'] !== null && $itemData['cycles'] <= $itemData['uses'])) {
-                        continue 2;
-                    }
-                }
-
                 if (Data::sanitizeItemSku($newItem->getSku()) === $billItem['product']['code']) {
                     $newPrice = $billItem["pricing_schema"]["price"];
                     if ($newItem->getPrice() != $newPrice) {
