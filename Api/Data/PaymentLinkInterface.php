@@ -25,6 +25,7 @@ interface PaymentLinkInterface extends ExtensibleDataInterface
     const CUSTOMER_ID = 'customer_id';
     const CREATED_AT = 'created_at';
     const STATUS = 'status';
+    const EXPIRED_AT = 'expired_at';
 
     /**
      * @return int
@@ -32,7 +33,7 @@ interface PaymentLinkInterface extends ExtensibleDataInterface
     public function getEntityId();
 
     /**
-     * @param int $id
+     * @param int $entityId
      */
     public function setEntityId(int $entityId);
 
@@ -95,4 +96,18 @@ interface PaymentLinkInterface extends ExtensibleDataInterface
      * @param string $status
      */
     public function setStatus(string $status);
+
+    /**
+     * Get the expiration date of the payment link
+     *
+     * @return string|null
+     */
+    public function getExpiredAt();
+
+    /**
+     * Set the expiration date of the payment link
+     *
+     * @param string|null $expiredAt
+     */
+    public function setExpiredAt($expiredAt);
 }

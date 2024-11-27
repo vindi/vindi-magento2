@@ -17,5 +17,8 @@
         <job name="vindi_payment_update_expired_links" instance="Vindi\Payment\Cron\UpdateExpiredLinks" method="execute">
             <schedule>30 3 * * *</schedule>
         </job>
+        <job name="vindi_payment_cancel_orders_with_expired_links" instance="Vindi\Payment\Cron\CancelOrdersWithExpiredLinks" method="execute">
+            <schedule>0 3 * * *</schedule>
+        </job>
     </group>
 </config>
