@@ -78,7 +78,7 @@
                 <mode>2</mode>
                 <test>values</test>
                 <order_status>pending</order_status>
-                <payment_link_template>payment_link_template</payment_link_template>
+                <vindi_vr_payment_link_template>vindi_vr_payment_link_template</vindi_vr_payment_link_template>
             </general>
         </vindiconfiguration>
         <checkout>
