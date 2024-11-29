@@ -81,12 +81,12 @@ class SaveAddNewItem extends Action
 
         try {
             $subscriptionId = $request->getPostValue('id');
-            $postData = $request->getPostValue('settings');
+            $postData       = $request->getPostValue('settings');
             $productSku = $postData['data']['sku'] ?? null;
-            $quantity = $postData['quantity'] ?? null;
-            $status = $postData['status'] ?? null;
-            $cycles = $postData['data']['cycles'] ?? null;
-            $price = $postData['price'] ?? null;
+            $quantity   = $postData['quantity'] ?? null;
+            $status     = $postData['status'] ?? null;
+            $cycles     = $postData['data']['cycles'] ?? null;
+            $price      = $postData['price'] ?? null;
 
             if (!$productSku || !$quantity || !$subscriptionId || $status === null || !$cycles || $price === null) {
                 throw new LocalizedException(__('Missing required data: product_sku, quantity, subscription_id, status, cycles, or price.'));
@@ -101,15 +101,19 @@ class SaveAddNewItem extends Action
             $statusValue = $status ? 'active' : 'inactive';
 
             $data = [
-                'product_id' => $vindiProductId,
+                'product_id'      => $vindiProductId,
                 'subscription_id' => $subscriptionId,
-                'quantity' => $quantity,
-                'status' => $statusValue,
-                'cycles' => $cycles,
+                'quantity'        => $quantity,
+                'status'          => $statusValue,
+                'cycles'          => $cycles,
                 'pricing_schema' => [
                     'price' => $price
                 ]
             ];
+
+            if ($quantity > 1) {
+                $data['pricing_schema']['schema_type'] = 'per_unit';
+            }
 
             $response = $this->productItems->createProductItem($data);
 

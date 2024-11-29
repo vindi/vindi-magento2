@@ -63,30 +63,44 @@ class SaveSubscriptionItem extends Action
             $postData = $request->getPostValue();
 
             $entityId = $postData['entity_id'] ?? null;
-            $price    = $postData["settings"]["price"] ?? null;
+            $price = $postData['settings']['price'] ?? null;
+            $quantity = $postData['settings']['quantity'] ?? null;
 
-            if (!$entityId || $price === null) {
-                throw new LocalizedException(__('Missing required data: entity_id or price.'));
+            if (!$entityId) {
+                throw new LocalizedException(__('You must provide at least one of the fields: price or quantity.'));
             }
 
-            $price = number_format((float) $price, 2, '.', '');
+            $data = [];
+            if ($price !== null) {
+                $price = number_format((float)$price, 2, '.', '');
+                $data['pricing_schema'] = ['price' => $price];
+            }
+
+            if ($quantity !== null) {
+                $data['quantity'] = (int) $quantity;
+
+                if ($quantity > 1) {
+                    $data['pricing_schema']['schema_type'] = 'per_unit';
+                }
+            }
 
             $subscriptionItem = $this->subscriptionItemRepository->getById($entityId);
-
-            $data = [
-                'pricing_schema' => [
-                    'price' => $price
-                ]
-            ];
 
             $productItemId = $subscriptionItem->getProductItemId();
             $response = $this->productItems->updateProductItem($productItemId, $data);
 
             if (!$response) {
-                throw new LocalizedException(__('Failed to update price on Vindi API.'));
+                throw new LocalizedException(__('Failed to update data on Vindi API.'));
             }
 
-            $subscriptionItem->setPrice($price);
+            if ($price !== null) {
+                $subscriptionItem->setPrice($price);
+            }
+
+            if ($quantity !== null) {
+                $subscriptionItem->setQuantity($quantity);
+            }
+
             $this->subscriptionItemRepository->save($subscriptionItem);
 
             $this->_eventManager->dispatch(
@@ -94,7 +108,7 @@ class SaveSubscriptionItem extends Action
                 ['subscription_id' => $subscriptionItem->getSubscriptionId()]
             );
 
-            $this->messageManager->addSuccessMessage(__('Price updated successfully.'));
+            $this->messageManager->addSuccessMessage(__('Subscription item updated successfully.'));
 
             return $resultRedirect->setPath('*/*/editsubscriptionitem', ['entity_id' => $subscriptionItem->getId()]);
         } catch (LocalizedException $e) {

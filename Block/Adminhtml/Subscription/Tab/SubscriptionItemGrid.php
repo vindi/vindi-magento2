@@ -71,7 +71,7 @@ class SubscriptionItemGrid extends \Magento\Backend\Block\Widget\Grid\Extended
         $subscriptionId = $this->getRequest()->getParam('id');
 
         $collection = $this->subscriptionItemFactory->create()
-            ->addFieldToSelect(['entity_id', 'product_item_id', 'product_name', 'price', 'status', 'cycles', 'uses'])
+            ->addFieldToSelect(['entity_id', 'product_item_id', 'product_name', 'price', 'status', 'cycles', 'uses', 'quantity'])
             ->addFieldToFilter('subscription_id', $subscriptionId);
 
         $this->setCollection($collection);
@@ -118,6 +118,17 @@ class SubscriptionItemGrid extends \Magento\Backend\Block\Widget\Grid\Extended
                 ),
                 'header_css_class' => 'col-price',
                 'column_css_class' => 'col-price',
+            ]
+        );
+
+        $this->addColumn(
+            'quantity',
+            [
+                'header' => __('Quantity'),
+                'index' => 'quantity',
+                'type' => 'number',
+                'header_css_class' => 'col-quantity',
+                'column_css_class' => 'col-quantity',
             ]
         );
 

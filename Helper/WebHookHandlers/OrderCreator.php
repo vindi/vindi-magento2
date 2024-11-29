@@ -84,18 +84,6 @@ class OrderCreator
         return null;
     }
 
-    public function getOrdersBySubscriptionId($subscriptionId)
-    {
-        $subscriptionOrders = $this->subscriptionOrderRepository->getListBySubscriptionId($subscriptionId);
-
-        $orders = [];
-        foreach ($subscriptionOrders as $subscriptionOrder) {
-            $orders[] = $this->orderFactory->create()->load($subscriptionOrder->getOrderId());
-        }
-
-        return $orders;
-    }
-
     protected function replicateOrder(Order $originalOrder, $billData)
     {
         $newOrder = clone $originalOrder;
@@ -132,16 +120,7 @@ class OrderCreator
             foreach ($originalOrder->getAllVisibleItems() as $originalItem) {
                 if (Data::sanitizeItemSku($originalItem->getSku()) === $sku) {
                     $found = true;
-                    $newItem = clone $originalItem;
-                    $newItem->setId(null)->setOrderId(null);
-
-                    $newPrice = $billItem['pricing_schema']['price'];
-                    if ($newItem->getPrice() != $newPrice) {
-                        $newItem->setPrice($newPrice);
-                        $newItem->setBasePrice($newPrice);
-                        $newItem->setRowTotal($newPrice * $newItem->getQtyOrdered());
-                        $newItem->setBaseRowTotal($newPrice * $newItem->getQtyOrdered());
-                    }
+                    $newItem = $this->updateOrderItemFromBill($originalItem, $billItem);
                     $newOrderItems[] = $newItem;
                     break;
                 }
@@ -197,13 +176,25 @@ class OrderCreator
         return $newOrder;
     }
 
-    /**
-     * Create a new order item based on a product and bill data
-     *
-     * @param \Magento\Catalog\Model\Product $product
-     * @param array $billItem
-     * @return \Magento\Sales\Api\Data\OrderItemInterface
-     */
+    protected function updateOrderItemFromBill($originalItem, $billItem)
+    {
+        $newItem = clone $originalItem;
+        $newItem->setId(null)->setOrderId(null);
+
+        $newPrice = $billItem['pricing_schema']['price'];
+        $newQty = $billItem['quantity'] ?? $originalItem->getQtyOrdered();
+
+        if ($newItem->getPrice() != $newPrice || $newItem->getQtyOrdered() != $newQty) {
+            $newItem->setPrice($newPrice);
+            $newItem->setBasePrice($newPrice);
+            $newItem->setQtyOrdered($newQty);
+            $newItem->setRowTotal($newPrice * $newQty);
+            $newItem->setBaseRowTotal($newPrice * $newQty);
+        }
+
+        return $newItem;
+    }
+
     protected function createNewOrderItem($product, $billItem)
     {
         $orderItem = $this->orderItemFactory->create();
@@ -284,32 +275,5 @@ class OrderCreator
 
         $order->getPayment()->setAdditionalInformation($additionalInformation);
         $this->orderRepository->save($order);
-    }
-
-    protected function verifyAndRetrySavingPaymentDetails(Order $order, $billData)
-    {
-        $paymentMethod = $order->getPayment()->getMethod();
-        $additionalInformation = $order->getPayment()->getAdditionalInformation();
-
-        $requiredFields = [];
-        switch ($paymentMethod) {
-            case 'vindi_pix':
-            case 'vindi_bankslippix':
-                $requiredFields = ['qrcode_original_path', 'qrcode_path', 'qrcode_url', 'print_url', 'due_at'];
-                break;
-
-            case 'vindi_bankslip':
-                $requiredFields = ['print_url', 'due_at'];
-                break;
-
-            case 'vindi':
-                $requiredFields = ['card_holder_name', 'card_last_4', 'card_expiry_date', 'card_brand', 'authorization_code', 'transaction_id', 'nsu'];
-                break;
-        }
-
-        $missingFields = array_diff($requiredFields, array_keys($additionalInformation));
-        if (!empty($missingFields)) {
-            $this->updatePaymentDetails($order, $billData);
-        }
     }
 }

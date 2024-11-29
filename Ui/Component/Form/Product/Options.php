@@ -58,18 +58,57 @@ class Options implements OptionSourceInterface
 
         $subscriptionItemCollection = $this->subscriptionItemCollectionFactory->create();
         $subscriptionItemCollection->addFieldToFilter('subscription_id', $subscriptionId);
-        $existingProductSkus = $subscriptionItemCollection->getColumnValues('magento_product_sku');
+        $existingProductData = $subscriptionItemCollection->getData();
 
         $options = [];
         foreach ($productCollection as $product) {
-            if (!in_array(Data::sanitizeItemSku($product->getSku()), $existingProductSkus)) {
+            $sku = Data::sanitizeItemSku($product->getSku());
+            $existingItem = $this->getSubscriptionItemBySku($existingProductData, $sku);
+
+            if (!$existingItem || $this->isProductValidForAddition($existingItem)) {
                 $options[] = [
-                    'value' => $product->getSku(),
+                    'value' => $sku,
                     'label' => $product->getName(),
                 ];
             }
         }
 
         return $options;
+    }
+
+    /**
+     * Get subscription item data by product SKU.
+     *
+     * @param array $subscriptionItems
+     * @param string $sku
+     * @return array|null
+     */
+    protected function getSubscriptionItemBySku(array $subscriptionItems, string $sku)
+    {
+        foreach ($subscriptionItems as $item) {
+            if (isset($item['magento_product_sku']) && $item['magento_product_sku'] === $sku) {
+                return $item;
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Check if the product is valid for addition based on "uses" and "cycles".
+     *
+     * @param array $item
+     * @return bool
+     */
+    protected function isProductValidForAddition(array $item)
+    {
+        if (is_null($item['cycles'])) {
+            return false;
+        }
+
+        if (isset($item['uses'], $item['cycles'])) {
+            return $item['uses'] < $item['cycles'];
+        }
+
+        return true;
     }
 }

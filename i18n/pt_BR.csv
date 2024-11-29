@@ -711,3 +711,9 @@
 "Temporary (%1/%2)","Temporário (%1/%2)"
 "Cannot delete item with product code 'frete'.","Não é possível excluir o item com o código do produto 'frete'."
 "Cannot delete item. Subscription must have at least one product item besides 'frete'.","Não é possível excluir o item. A assinatura deve ter pelo menos um item de produto além de 'frete'."
+"You must provide at least one of the fields: price or quantity.","Você deve fornecer pelo menos um dos campos: preço ou quantidade."
+"Failed to update data on Vindi API.","Falha ao atualizar os dados na API da Vindi."
+"Subscription item updated successfully.","Item de assinatura atualizado com sucesso."
+"This subscription item no longer exists.","Este item de assinatura não existe mais."
+"Failed to delete the item from the subscription.","Falha ao excluir o item da assinatura."
+

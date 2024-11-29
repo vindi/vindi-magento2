@@ -49,7 +49,12 @@ class DeleteSubscriptionItem extends Action
      * @param ProductItems $productItems
      * @param RedirectFactory $resultRedirectFactory
      * @param ManagerInterface $messageManager
-     * @param EventManager $eventManager
+     * @param VindiSubscriptionItemRepositoryInterface $vindiSubscriptionItemRepository
+     * @param VindiSubscriptionItemCollectionFactory $vindiSubscriptionItemCollectionFactory
+     * @param SubscriptionRepositoryInterface $subscriptionRepository
+     * @param VindiSubscriptionItemFactory $vindiSubscriptionItemFactory
+     * @param VindiSubscription $vindiSubscription
+     * @param ResourceConnection $resource
      */
     public function __construct(
         Context $context,
@@ -85,6 +90,7 @@ class DeleteSubscriptionItem extends Action
         $resultRedirect = $this->resultRedirectFactory->create();
         $request = $this->getRequest();
         $entityId = $request->getParam('entity_id');
+        $subscriptionId = null;
 
         if (!$entityId) {
             $this->messageManager->addErrorMessage(__('Missing required parameters.'));
@@ -97,6 +103,10 @@ class DeleteSubscriptionItem extends Action
             $productItemId  = $subscriptionItem->getProductItemId();
             $productCode    = $subscriptionItem->getProductCode();
 
+            if (!$subscriptionId) {
+                throw new LocalizedException(__('Subscription ID is missing for the item.'));
+            }
+
             if ($productCode === 'frete') {
                 $this->messageManager->addErrorMessage(__("Cannot delete item with product code 'frete'."));
                 return $resultRedirect->setPath('vindi_payment/subscription/edit', ['id' => $subscriptionId]);
@@ -105,7 +115,9 @@ class DeleteSubscriptionItem extends Action
             $itemsCollection = $this->vindiSubscriptionItemCollectionFactory->create();
             $itemsCollection->addFieldToFilter('subscription_id', $subscriptionId);
 
-            if ($itemsCollection->getSize() < 3) {
+            $validItems = $itemsCollection->addFieldToFilter('product_code', ['neq' => 'frete']);
+
+            if ($validItems->getSize() <= 1) {
                 $this->messageManager->addErrorMessage(__("Cannot delete item. Subscription must have at least one product item besides 'frete'."));
                 return $resultRedirect->setPath('vindi_payment/subscription/edit', ['id' => $subscriptionId]);
             }
@@ -116,16 +128,20 @@ class DeleteSubscriptionItem extends Action
 
             $isDeleted = $this->productItems->deleteProductItem($productItemId);
 
-            if ($isDeleted) {
-                $this->eventManager->dispatch('vindi_subscription_update', ['subscription_id' => $subscriptionId]);
-                $this->messageManager->addSuccessMessage(__('The item was successfully deleted from the subscription.'));
-            } else {
-                throw new LocalizedException(__('Failed to delete the item from the subscription.'));
+            if (!$isDeleted) {
+                $checkItem = $this->productItems->getProductItemById($productItemId);
+                if ($checkItem) {
+                    throw new LocalizedException(__('Failed to delete the item from the subscription.'));
+                }
             }
+
+            $this->vindiSubscriptionItemRepository->delete($subscriptionItem);
+            $this->_eventManager->dispatch('vindi_subscription_update', ['subscription_id' => $subscriptionId]);
+            $this->messageManager->addSuccessMessage(__('The item was successfully deleted from the subscription.'));
         } catch (LocalizedException $e) {
             $this->messageManager->addErrorMessage($e->getMessage());
         } catch (\Exception $e) {
-            $this->messageManager->addErrorMessage(__('An error occurred while deleting the item from the subscription.'));
+            $this->messageManager->addErrorMessage(__('An unexpected error occurred while deleting the subscription item.'));
         }
 
         return $resultRedirect->setPath('vindi_payment/subscription/edit', ['id' => $subscriptionId]);
