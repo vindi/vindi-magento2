@@ -27,13 +27,6 @@ class UpdateSubscriptionObserver implements ObserverInterface
     /** @var ResourceConnection */
     private $resource;
 
-    /**
-     * @param ManagerInterface $messageManager
-     * @param VindiSubscriptionItemCollectionFactory $vindiSubscriptionItemCollectionFactory
-     * @param VindiSubscription $vindiSubscription
-     * @param VindiSubscriptionItemFactory $vindiSubscriptionItemFactory
-     * @param ResourceConnection $resource
-     */
     public function __construct(
         ManagerInterface $messageManager,
         VindiSubscriptionItemCollectionFactory $vindiSubscriptionItemCollectionFactory,
@@ -48,12 +41,6 @@ class UpdateSubscriptionObserver implements ObserverInterface
         $this->resource = $resource;
     }
 
-    /**
-     * Execute the observer
-     *
-     * @param Observer $observer
-     * @return void
-     */
     public function execute(Observer $observer)
     {
         $subscriptionId = $observer->getEvent()->getData('subscription_id');
@@ -65,19 +52,12 @@ class UpdateSubscriptionObserver implements ObserverInterface
 
         try {
             $this->updateSubscriptionData($subscriptionId);
-            $this->updateSubscriptionItems($subscriptionId);
             $this->checkAndSaveSubscriptionItems($subscriptionId);
         } catch (\Exception $e) {
             $this->messageManager->addErrorMessage(__('Error updating subscription: %1', $e->getMessage()));
         }
     }
 
-    /**
-     * Update the "response_data" field in the "vindi_subscription" table.
-     *
-     * @param int $subscriptionId
-     * @return void
-     */
     private function updateSubscriptionData($subscriptionId)
     {
         $connection = $this->resource->getConnection();
@@ -94,53 +74,101 @@ class UpdateSubscriptionObserver implements ObserverInterface
     }
 
     /**
-     * Update the items in the "vindi_subscription_item" table corresponding to the subscription.
-     *
+     * Check if the subscription items have changed and save
+     * the new data to the database
      * @param int $subscriptionId
-     * @return void
-     */
-    private function updateSubscriptionItems($subscriptionId)
-    {
-        $itemsCollection = $this->vindiSubscriptionItemCollectionFactory->create();
-        $itemsCollection->addFieldToFilter('subscription_id', $subscriptionId);
-
-        foreach ($itemsCollection as $item) {
-            $item->delete();
-        }
-    }
-
-    /**
-     * Check if subscription items are saved in the database and save them if not.
-     *
-     * @param int $subscriptionId
-     * @return void
      */
     private function checkAndSaveSubscriptionItems($subscriptionId)
     {
         $itemsCollection = $this->vindiSubscriptionItemCollectionFactory->create();
         $itemsCollection->addFieldToFilter('subscription_id', $subscriptionId);
 
-        if ($itemsCollection->getSize() == 0) {
-            $subscriptionData = $this->vindiSubscription->getSubscriptionById($subscriptionId);
-            if (isset($subscriptionData['product_items'])) {
-                foreach ($subscriptionData['product_items'] as $item) {
-                    $subscriptionItem = $this->vindiSubscriptionItemFactory->create();
-                    $subscriptionItem->setSubscriptionId($subscriptionId);
-                    $subscriptionItem->setProductItemId($item['id']);
-                    $subscriptionItem->setProductName($item['product']['name']);
-                    $subscriptionItem->setProductCode($item['product']['code']);
-                    $subscriptionItem->setStatus($item['status']);
-                    $subscriptionItem->setQuantity($item['quantity']);
-                    $subscriptionItem->setUses($item['uses']);
-                    $subscriptionItem->setCycles($item['cycles']);
-                    $subscriptionItem->setPrice($item['pricing_schema']['price']);
-                    $subscriptionItem->setPricingSchemaId($item['pricing_schema']['id']);
-                    $subscriptionItem->setPricingSchemaType($item['pricing_schema']['schema_type']);
-                    $subscriptionItem->setPricingSchemaFormat($item['pricing_schema']['schema_format'] ?? 'N/A');
-                    $subscriptionItem->setMagentoProductSku($item['product']['code']);
-                    $subscriptionItem->save();
+        $existingItems = [];
+        foreach ($itemsCollection as $item) {
+            $existingItems[$item->getProductItemId()] = $item;
+        }
+
+        $subscriptionData = $this->vindiSubscription->getSubscriptionById($subscriptionId);
+
+        if (isset($subscriptionData['product_items'])) {
+            $apiItems  = $subscriptionData['product_items'];
+            $apiItemIds = array_column($apiItems, 'id');
+
+            foreach ($existingItems as $itemId => $existingItem) {
+                if (!in_array($itemId, $apiItemIds)) {
+                    $existingItem->delete();
+                }
+            }
+
+            foreach ($apiItems as $apiItem) {
+                $itemId = $apiItem['id'];
+
+                if (isset($existingItems[$itemId])) {
+                    $existingItem = $existingItems[$itemId];
+                    $this->updateItemIfChanged($existingItem, $apiItem);
+                } else {
+                    $this->createSubscriptionItem($subscriptionId, $apiItem);
                 }
             }
         }
+    }
+
+    /**
+     * Update the subscription item if any field has changed
+     * @param \Vindi\Payment\Model\VindiSubscriptionItem $existingItem
+     * @param array $apiItem
+     */
+    private function updateItemIfChanged($existingItem, $apiItem)
+    {
+        $updated = false;
+
+        $fieldsToCheck = [
+            'product_name' => $apiItem['product']['name'],
+            'product_code' => $apiItem['product']['code'],
+            'status' => $apiItem['status'],
+            'quantity' => $apiItem['quantity'],
+            'uses' => $apiItem['uses'],
+            'cycles' => $apiItem['cycles'],
+            'price' => $apiItem['pricing_schema']['price'],
+            'pricing_schema_id' => $apiItem['pricing_schema']['id'],
+            'pricing_schema_type' => $apiItem['pricing_schema']['schema_type'],
+            'pricing_schema_format' => $apiItem['pricing_schema']['schema_format'] ?? 'N/A',
+            'magento_product_sku' => $apiItem['product']['code']
+        ];
+
+        foreach ($fieldsToCheck as $field => $value) {
+            if ($existingItem->getData($field) != $value) {
+                $existingItem->setData($field, $value);
+                $updated = true;
+            }
+        }
+
+        if ($updated) {
+            $existingItem->save();
+        }
+    }
+
+    /**
+     * Create a new subscription item
+     * @param int $subscriptionId
+     * @param array $apiItem
+     */
+    private function createSubscriptionItem($subscriptionId, $apiItem)
+    {
+        $subscriptionItem = $this->vindiSubscriptionItemFactory->create();
+        $subscriptionItem->setSubscriptionId($subscriptionId);
+        $subscriptionItem->setProductItemId($apiItem['id']);
+        $subscriptionItem->setProductName($apiItem['product']['name']);
+        $subscriptionItem->setProductCode($apiItem['product']['code']);
+        $subscriptionItem->setStatus($apiItem['status']);
+        $subscriptionItem->setQuantity($apiItem['quantity']);
+        $subscriptionItem->setUses($apiItem['uses']);
+        $subscriptionItem->setCycles($apiItem['cycles']);
+        $subscriptionItem->setPrice($apiItem['pricing_schema']['price']);
+        $subscriptionItem->setPricingSchemaId($apiItem['pricing_schema']['id']);
+        $subscriptionItem->setPricingSchemaType($apiItem['pricing_schema']['schema_type']);
+        $subscriptionItem->setPricingSchemaFormat($apiItem['pricing_schema']['schema_format'] ?? 'N/A');
+        $subscriptionItem->setMagentoProductSku($apiItem['product']['code']);
+        $subscriptionItem->save();
     }
 }
