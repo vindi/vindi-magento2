@@ -67,7 +67,7 @@ class Options implements OptionSourceInterface
 
             if (!$existingItem || $this->isProductValidForAddition($existingItem)) {
                 $options[] = [
-                    'value' => $sku,
+                    'value' => $product->getSku(),
                     'label' => $product->getName(),
                 ];
             }

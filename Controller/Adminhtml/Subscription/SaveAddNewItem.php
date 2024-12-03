@@ -79,8 +79,9 @@ class SaveAddNewItem extends Action
             return $resultJson->setData(['error' => true, 'message' => __('Invalid request method.')]);
         }
 
+        $subscriptionId = $request->getPostValue('id');
+
         try {
-            $subscriptionId = $request->getPostValue('id');
             $postData       = $request->getPostValue('settings');
             $productSku = $postData['data']['sku'] ?? null;
             $quantity   = $postData['quantity'] ?? null;
@@ -124,13 +125,12 @@ class SaveAddNewItem extends Action
             $this->eventManager->dispatch('vindi_subscription_update', ['subscription_id' => $subscriptionId]);
 
             $this->messageManager->addSuccessMessage(__('New item added to subscription successfully.'));
-            return $resultRedirect->setPath('vindi_payment/subscription/edit', ['id' => $subscriptionId]);
         } catch (LocalizedException $e) {
             $this->messageManager->addErrorMessage($e->getMessage());
         } catch (\Exception $e) {
             $this->messageManager->addErrorMessage(__('An error occurred while adding the item to the subscription.'));
         }
 
-        return $resultRedirect->setPath('vindi_payment/subscription/edit', ['id' => $this->getRequest()->getParam('subscription_id')]);
+        return $resultRedirect->setPath('vindi_payment/subscription/edit', ['id' => $subscriptionId]);
     }
 }
