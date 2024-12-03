@@ -79,6 +79,7 @@
                 <validation>
                     <rule name="required-entry" xsi:type="boolean">true</rule>
                     <rule name="validate-digits" xsi:type="boolean">true</rule>
+                    <rule name="greater-than-zero" xsi:type="boolean">true</rule>
                     <rule name="min" xsi:type="number">1</rule>
                 </validation>
                 <dataType>text</dataType>
