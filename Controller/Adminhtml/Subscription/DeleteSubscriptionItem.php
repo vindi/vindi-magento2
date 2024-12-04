@@ -15,6 +15,11 @@ use Vindi\Payment\Model\VindiSubscriptionItemFactory;
 use Vindi\Payment\Model\Vindi\Subscription as VindiSubscription;
 use Magento\Framework\App\ResourceConnection;
 
+/**
+ * Class DeleteSubscriptionItem
+ *
+ * @package Vindi\Payment\Controller\Adminhtml\Subscription
+ */
 class DeleteSubscriptionItem extends Action
 {
     /** @var ProductItems */
@@ -100,8 +105,8 @@ class DeleteSubscriptionItem extends Action
         try {
             $subscriptionItem = $this->vindiSubscriptionItemRepository->getById($entityId);
             $subscriptionId = $subscriptionItem->getSubscriptionId();
-            $productItemId  = $subscriptionItem->getProductItemId();
-            $productCode    = $subscriptionItem->getProductCode();
+            $productItemId = $subscriptionItem->getProductItemId();
+            $productCode = $subscriptionItem->getProductCode();
 
             if (!$subscriptionId) {
                 throw new LocalizedException(__('Subscription ID is missing for the item.'));
@@ -115,10 +120,13 @@ class DeleteSubscriptionItem extends Action
             $itemsCollection = $this->vindiSubscriptionItemCollectionFactory->create();
             $itemsCollection->addFieldToFilter('subscription_id', $subscriptionId);
 
-            $validItems = $itemsCollection->addFieldToFilter('product_code', ['neq' => 'frete']);
+            $nonZeroItems = $itemsCollection
+                ->addFieldToFilter('product_code', ['neq' => 'frete'])
+                ->addFieldToFilter('entity_id', ['neq' => $entityId])
+                ->addFieldToFilter('price', ['gt' => 0]);
 
-            if ($validItems->getSize() <= 1) {
-                $this->messageManager->addErrorMessage(__("Cannot delete item. Subscription must have at least one product item besides 'frete'."));
+            if ($nonZeroItems->getSize() < 1) {
+                $this->messageManager->addErrorMessage(__("Cannot delete item. Subscription must have at least one non-shipping item with a price greater than zero."));
                 return $resultRedirect->setPath('vindi_payment/subscription/edit', ['id' => $subscriptionId]);
             }
 

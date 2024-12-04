@@ -7,6 +7,7 @@ use Magento\Backend\App\Action\Context;
 use Magento\Framework\Controller\Result\JsonFactory;
 use Vindi\Payment\Model\Vindi\ProductItems;
 use Vindi\Payment\Model\VindiSubscriptionItemRepository;
+use Vindi\Payment\Model\ResourceModel\VindiSubscriptionItem\CollectionFactory as VindiSubscriptionItemCollectionFactory;
 use Magento\Framework\Exception\LocalizedException;
 
 /**
@@ -25,23 +26,29 @@ class SaveSubscriptionItem extends Action
     /** @var JsonFactory */
     protected $resultJsonFactory;
 
+    /** @var VindiSubscriptionItemCollectionFactory */
+    protected $vindiSubscriptionItemCollectionFactory;
+
     /**
      * SaveSubscriptionItem constructor.
      * @param Context $context
      * @param ProductItems $productItems
      * @param VindiSubscriptionItemRepository $subscriptionItemRepository
      * @param JsonFactory $resultJsonFactory
+     * @param VindiSubscriptionItemCollectionFactory $vindiSubscriptionItemCollectionFactory
      */
     public function __construct(
         Context $context,
         ProductItems $productItems,
         VindiSubscriptionItemRepository $subscriptionItemRepository,
-        JsonFactory $resultJsonFactory
+        JsonFactory $resultJsonFactory,
+        VindiSubscriptionItemCollectionFactory $vindiSubscriptionItemCollectionFactory
     ) {
         parent::__construct($context);
         $this->productItems = $productItems;
         $this->subscriptionItemRepository = $subscriptionItemRepository;
         $this->resultJsonFactory = $resultJsonFactory;
+        $this->vindiSubscriptionItemCollectionFactory = $vindiSubscriptionItemCollectionFactory;
     }
 
     /**
@@ -77,7 +84,7 @@ class SaveSubscriptionItem extends Action
             }
 
             if ($quantity !== null) {
-                $data['quantity'] = (int) $quantity;
+                $data['quantity'] = (int)$quantity;
 
                 if ($quantity > 1) {
                     $data['pricing_schema']['schema_type'] = 'per_unit';
@@ -85,6 +92,29 @@ class SaveSubscriptionItem extends Action
             }
 
             $subscriptionItem = $this->subscriptionItemRepository->getById($entityId);
+
+            $productCode = $subscriptionItem->getProductCode();
+            $subscriptionId = $subscriptionItem->getSubscriptionId();
+
+            if ((float) $price === 0.00 && $productCode !== 'frete') {
+                $itemsCollection = $this->vindiSubscriptionItemCollectionFactory->create();
+                $itemsCollection->addFieldToFilter('subscription_id', $subscriptionId);
+
+                $totalItems = $itemsCollection->getSize();
+
+                if ($totalItems > 2) {
+                    $itemsCollection = $this->vindiSubscriptionItemCollectionFactory->create();
+                    $itemsCollection->addFieldToFilter('subscription_id', $subscriptionId);
+
+                    $nonZeroItems = $itemsCollection
+                        ->addFieldToFilter('product_code', ['neq' => 'frete'])
+                        ->addFieldToFilter('price', ['gt' => 0]);
+
+                    if ($nonZeroItems->getSize() < 2) {
+                        throw new LocalizedException(__('A subscription must have at least one non-shipping item with a price greater than zero.'));
+                    }
+                }
+            }
 
             $productItemId = $subscriptionItem->getProductItemId();
             $response = $this->productItems->updateProductItem($productItemId, $data);
@@ -110,7 +140,7 @@ class SaveSubscriptionItem extends Action
 
             $this->messageManager->addSuccessMessage(__('Subscription item updated successfully.'));
 
-            return $resultRedirect->setPath('*/*/editsubscriptionitem', ['entity_id' => $subscriptionItem->getId()]);
+            return $resultRedirect->setPath('*/*/edit', ['id' => $subscriptionItem->getSubscriptionId()]);
         } catch (LocalizedException $e) {
             $this->messageManager->addErrorMessage($e->getMessage());
         } catch (\Exception $e) {
