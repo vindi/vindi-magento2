@@ -184,13 +184,11 @@ class OrderCreator
         $newPrice = $billItem['pricing_schema']['price'];
         $newQty = $billItem['quantity'] ?? $originalItem->getQtyOrdered();
 
-        if ($newItem->getPrice() != $newPrice || $newItem->getQtyOrdered() != $newQty) {
-            $newItem->setPrice($newPrice);
-            $newItem->setBasePrice($newPrice);
-            $newItem->setQtyOrdered($newQty);
-            $newItem->setRowTotal($newPrice * $newQty);
-            $newItem->setBaseRowTotal($newPrice * $newQty);
-        }
+        $newItem->setPrice($newPrice);
+        $newItem->setBasePrice($newPrice);
+        $newItem->setQtyOrdered($newQty);
+        $newItem->setRowTotal($newPrice * $newQty);
+        $newItem->setBaseRowTotal($newPrice * $newQty);
 
         return $newItem;
     }
@@ -199,7 +197,7 @@ class OrderCreator
     {
         $orderItem = $this->orderItemFactory->create();
 
-        $price = $billItem['pricing_schema']['price'];
+        $price = $billItem['pricing_schema']['price'] ?? 0;
         $qty = $billItem['quantity'] ?? 1;
 
         $orderItem->setProductId($product->getId());
