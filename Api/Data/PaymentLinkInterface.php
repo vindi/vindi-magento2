@@ -2,16 +2,6 @@
 
 declare(strict_types=1);
 
-/**
- * DISCLAIMER
- *
- * Do not edit or add to this file if you wish to upgrade this extension to newer
- * version in the future.
- *
- * @category    Vindi
- * @package     Vindi_Payment
- */
-
 namespace Vindi\Payment\Api\Data;
 
 use Magento\Framework\Api\ExtensibleDataInterface;
@@ -25,6 +15,8 @@ interface PaymentLinkInterface extends ExtensibleDataInterface
     const CUSTOMER_ID = 'customer_id';
     const CREATED_AT = 'created_at';
     const STATUS = 'status';
+    const EXPIRED_AT = 'expired_at';
+    const SUCCESS_PAGE_ACCESSED = 'success_page_accessed';
 
     /**
      * @return int
@@ -32,7 +24,7 @@ interface PaymentLinkInterface extends ExtensibleDataInterface
     public function getEntityId();
 
     /**
-     * @param int $id
+     * @param int $entityId
      */
     public function setEntityId(int $entityId);
 
@@ -95,4 +87,32 @@ interface PaymentLinkInterface extends ExtensibleDataInterface
      * @param string $status
      */
     public function setStatus(string $status);
+
+    /**
+     * Get the expiration date of the payment link
+     *
+     * @return string|null
+     */
+    public function getExpiredAt();
+
+    /**
+     * Set the expiration date of the payment link
+     *
+     * @param string|null $expiredAt
+     */
+    public function setExpiredAt($expiredAt);
+
+    /**
+     * Check if the success page has been accessed
+     *
+     * @return bool
+     */
+    public function getSuccessPageAccessed();
+
+    /**
+     * Set the success page accessed flag
+     *
+     * @param bool $successPageAccessed
+     */
+    public function setSuccessPageAccessed(bool $successPageAccessed);
 }

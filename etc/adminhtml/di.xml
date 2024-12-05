@@ -42,4 +42,9 @@
     <type name="Magento\Sales\Model\Service\OrderService">
         <plugin name="vindi_payment_after_place_order_plugin" type="Vindi\Payment\Plugin\Model\Service\OrderService" />
     </type>
+    <type name="Vindi\Payment\Model\Config\Source\EmailTemplate">
+        <arguments>
+            <argument name="templateCollectionFactory" xsi:type="object">Magento\Email\Model\ResourceModel\Template\CollectionFactory</argument>
+        </arguments>
+    </type>
 </config>
