@@ -717,4 +717,11 @@
 "This subscription item no longer exists.","Este item de assinatura não existe mais."
 "Failed to delete the item from the subscription.","Falha ao excluir o item da assinatura."
 "This subscription no longer exists.","Esta assinatura não existe mais."
-
+"A subscription must have at least one non-shipping item with a price greater than zero.","Uma assinatura deve ter pelo menos um item (não de frete) com um preço maior que zero."
+"Cannot delete item. Subscription must have at least one non-shipping item with a price greater than zero.","Não é possível excluir o item. A assinatura deve ter pelo menos um item sem frete com preço maior que zero."
+"Shipping items must remain active.","Itens de frete devem permanecer ativos."
+"A subscription must have at least one non-shipping active item.","Uma assinatura deve ter pelo menos um item ativo (sem contar o frete)."
+"inactive","Inativo"
+"active","Ativo"
+"Inactive","Inativo"
+"Active","Ativo"

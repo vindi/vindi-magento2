@@ -72,6 +72,7 @@ class SaveSubscriptionItem extends Action
             $entityId = $postData['entity_id'] ?? null;
             $price = $postData['settings']['price'] ?? null;
             $quantity = $postData['settings']['quantity'] ?? null;
+            $status = $postData['settings']['status'] ?? null;
 
             if (!$entityId) {
                 throw new LocalizedException(__('You must provide at least one of the fields: price or quantity.'));
@@ -91,10 +92,34 @@ class SaveSubscriptionItem extends Action
                 }
             }
 
+            $data['status'] = $status;
+
             $subscriptionItem = $this->subscriptionItemRepository->getById($entityId);
 
             $productCode = $subscriptionItem->getProductCode();
             $subscriptionId = $subscriptionItem->getSubscriptionId();
+
+            if ($status !== null) {
+                if ($productCode === 'frete' && $status !== 'active') {
+                    throw new LocalizedException(__('Shipping items must remain active.'));
+                }
+
+                if ($status === 'inactive') {
+                    $itemsCollection = $this->vindiSubscriptionItemCollectionFactory->create();
+                    $itemsCollection->addFieldToFilter('subscription_id', $subscriptionId)
+                        ->addFieldToFilter('product_code', ['neq' => 'frete'])
+                        ->addFieldToFilter('entity_id', ['neq' => $entityId])
+                        ->addFieldToFilter('status', 'active');
+
+                    $activeItems = $itemsCollection->getSize();
+
+                    if ($activeItems == 0) {
+                        throw new LocalizedException(__('A subscription must have at least one non-shipping active item.'));
+                    }
+                }
+
+                $subscriptionItem->setStatus($status);
+            }
 
             if ((float) $price === 0.00 && $productCode !== 'frete') {
                 $itemsCollection = $this->vindiSubscriptionItemCollectionFactory->create();
@@ -129,6 +154,10 @@ class SaveSubscriptionItem extends Action
 
             if ($quantity !== null) {
                 $subscriptionItem->setQuantity($quantity);
+            }
+
+            if ($status !== null) {
+                $subscriptionItem->setStatus($status);
             }
 
             $this->subscriptionItemRepository->save($subscriptionItem);
