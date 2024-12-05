@@ -397,19 +397,37 @@ class Customer
     }
 
     /**
-     * @param $phone
+     * Format phone number to Vindi format.
      *
-     * @return string|null
+     * @param string $phone
+     *
+     * @return array|null
      */
     public function formatPhone($phone)
     {
-        $digits = strlen('55' . preg_replace('/^0|\D+/', '', $phone));
-        $phone_types = [
-            12 => 'landline',
-            13 => 'mobile',
-        ];
+        $cleanedPhone = preg_replace('/^0|\D+/', '', $phone);
+        $phoneNumber = '55' . $cleanedPhone;
 
-        return array_key_exists($digits, $phone_types) ? $phone_types[$digits] : null;
+        $phoneLength = strlen($phoneNumber);
+        $phoneType = null;
+
+        if ($phoneLength === 12) {
+            $phoneType = 'landline';
+        } elseif ($phoneLength === 13) {
+            $phoneType = 'mobile';
+        }
+
+        if ($phoneType) {
+            return [
+                [
+                    'phone_type' => $phoneType,
+                    'number' => $phoneNumber,
+                    'extension' => null
+                ]
+            ];
+        }
+
+        return null;
     }
 
     /**
