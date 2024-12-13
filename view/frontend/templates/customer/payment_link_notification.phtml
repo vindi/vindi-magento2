@@ -1,0 +1,9 @@
+<?php
+/** @var \Vindi\Payment\Block\Customer\PaymentLinkNotification $block */
+?>
+<?php if ($paymentLink = $block->getPaymentLink()): ?>
+    <div class="message notice">
+        <strong><?php echo __('A payment link has been generated for you.'); ?></strong>
+        <a href="<?php echo $block->getUrl('sales/order/history'); ?>"><?php echo __('Click here'); ?></a> <?php echo __('to be able to manage them.'); ?>
+    </div>
+<?php endif; ?>

@@ -34,18 +34,22 @@
                 <active>0</active>
                 <model>Vindi\Payment\Model\Payment\Vindi</model>
                 <allow_installments>0</allow_installments>
-                <title>Vindi - Cartão de Crédito</title>
+                <title>Vindi - Credit Card</title>
                 <allowspecific>0</allowspecific>
                 <payment_action>authorize</payment_action>
                 <group>offline</group>
+                <can_use_internal>1</can_use_internal>
+                <payment_link_instructions>We have sent an email with the order details.</payment_link_instructions>
             </vindi>
             <vindi_bankslip>
                 <active>0</active>
                 <model>Vindi\Payment\Model\Payment\BankSlip</model>
-                <title>Vindi - Boleto Bancário</title>
+                <title>Vindi - Bank Slip</title>
                 <allowspecific>0</allowspecific>
                 <payment_action>authorize</payment_action>
                 <group>offline</group>
+                <can_use_internal>1</can_use_internal>
+                <payment_link_instructions>To pay, copy the document code and pay at your financial institution. By clicking "View Bank Slip" you can also view the details of the slip.</payment_link_instructions>
             </vindi_bankslip>
             <vindi_pix>
                 <active>0</active>
@@ -55,6 +59,8 @@
                 <allowspecific>0</allowspecific>
                 <payment_action>authorize</payment_action>
                 <group>offline</group>
+                <can_use_internal>1</can_use_internal>
+                <payment_link_instructions>To pay, copy the code and pay at your payment institution or scan the document QR code.</payment_link_instructions>
             </vindi_pix>
             <vindi_bankslippix>
                 <active>0</active>
@@ -63,6 +69,8 @@
                 <allowspecific>0</allowspecific>
                 <payment_action>authorize</payment_action>
                 <group>offline</group>
+                <can_use_internal>1</can_use_internal>
+                <payment_link_instructions>To pay, print or scan the code or QR code of the document by clicking "View Bolepix". You can also copy the Bolepix barcode and paste it into your financial institution's app.</payment_link_instructions>
             </vindi_bankslippix>
         </payment>
         <vindiconfiguration>
@@ -70,6 +78,7 @@
                 <mode>2</mode>
                 <test>values</test>
                 <order_status>pending</order_status>
+                <payment_link_template>payment_link_template</payment_link_template>
             </general>
         </vindiconfiguration>
         <checkout>
