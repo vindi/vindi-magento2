@@ -8,6 +8,7 @@
     <body>
         <referenceContainer name="content">
             <block class="Vindi\Payment\Block\Order\View\Subscription" name="order_subscription" template="Vindi_Payment::order/view/subscription.phtml" before="-"/>
+            <block class="Vindi\Payment\Block\Order\View\PaymentLink" name="order_payment_link" template="Vindi_Payment::order/view/payment_link.phtml" before="-"/>
         </referenceContainer>
     </body>
 </page>
