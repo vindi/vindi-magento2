@@ -5,7 +5,7 @@
     <type name="Magento\Checkout\Model\CompositeConfigProvider">
         <arguments>
             <argument name="configProviders" xsi:type="array">
-                <item name="test_module_configprovider" xsi:type="object">Vindi\Payment\Model\ConfigProvider</item>
+                <item name="vindi_cc_configprovider" xsi:type="object">Vindi\Payment\Model\ConfigProvider</item>
                 <item name="vindi_pix_configprovider" xsi:type="object">Vindi\Payment\Model\Pix\ConfigProvider</item>
                 <item name="vindi_bankslip_configprovider" xsi:type="object">Vindi\Payment\Model\Bankslip\ConfigProvider</item>
                 <item name="vindi_bankslippix_configprovider" xsi:type="object">Vindi\Payment\Model\BankslipPix\ConfigProvider</item>
