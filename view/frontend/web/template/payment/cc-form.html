@@ -6,13 +6,13 @@
 
     <!-- ko if: (hasPaymentProfiles()) -->
     <div class="field number required">
-        <label data-bind="attr: {for: getCode() + '_cc_number'}" class="label">
+        <label data-bind="attr: {for: getCode() + '_cc_payment_profile'}" class="label">
             <span><!-- ko i18n: 'Your saved cards' --><!-- /ko --></span>
         </label>
         <div class="control">
             <select name="payment[payment_profile]"
                     class="input-text select"
-                    data-bind="attr: {id: getCode() + '_cc_number', 'data-container': getCode() + '-cc-number', 'data-validate': JSON.stringify({'required-number':true, 'validate-card-type':getCcAvailableTypesValues(), 'validate-card-number':'#' + getCode() + '_cc_type', 'validate-cc-type':'#' + getCode() + '_cc_type'})},
+                    data-bind="attr: {id: getCode() + '_cc_payment_profile', 'data-container': getCode() + '-cc-number', 'data-validate': JSON.stringify({'required-number':true, 'validate-card-type':getCcAvailableTypesValues(), 'validate-card-number':'#' + getCode() + '_cc_type', 'validate-cc-type':'#' + getCode() + '_cc_type'})},
                                 enable: isActive($parents),
                                 options: getPaymentProfiles(),
                                 optionsValue: 'value',
@@ -23,7 +23,7 @@
     </div>
     <!-- /ko -->
 
-    <div class="field number cc-number required vindi-cc-number-container">
+    <div class="field number cc-number required vindi-cc-number-container" data-bind="visible: !selectedPaymentProfile()">
         <div class="credit-card-types-container">
             <ul class="credit-card-types">
                 <!-- ko foreach: {data: getCcAvailableTypesValues(), as: 'item'} -->
