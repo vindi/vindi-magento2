@@ -14,17 +14,63 @@ use Vindi\Payment\Model\SubscriptionOrderFactory;
 use Vindi\Payment\Model\Payment\Bill as PaymentBill;
 use Vindi\Payment\Helper\Data;
 
+/**
+ * Class OrderCreator
+ * @package Vindi\Payment\Helper\WebHookHandlers
+ */
 class OrderCreator
 {
+    /**
+     * @var OrderFactory
+     */
     protected $orderFactory;
+
+    /**
+     * @var SubscriptionOrderRepository
+     */
     protected $subscriptionOrderRepository;
+
+    /**
+     * @var SubscriptionOrderFactory
+     */
     protected $subscriptionOrderFactory;
+
+    /**
+     * @var OrderService
+     */
     protected $orderService;
+
+    /**
+     * @var PaymentBill
+     */
     protected $paymentBill;
+
+    /**
+     * @var OrderRepository
+     */
     private $orderRepository;
+
+    /**
+     * @var ProductFactory
+     */
     private $productFactory;
+
+    /**
+     * @var OrderItemInterfaceFactory
+     */
     private $orderItemFactory;
 
+    /**
+     * OrderCreator constructor.
+     * @param OrderFactory $orderFactory
+     * @param SubscriptionOrderRepository $subscriptionOrderRepository
+     * @param SubscriptionOrderFactory $subscriptionOrderFactory
+     * @param OrderService $orderService
+     * @param PaymentBill $paymentBill
+     * @param OrderRepository $orderRepository
+     * @param ProductFactory $productFactory
+     * @param OrderItemInterfaceFactory $orderItemFactory
+     */
     public function __construct(
         OrderFactory $orderFactory,
         SubscriptionOrderRepository $subscriptionOrderRepository,
@@ -45,6 +91,10 @@ class OrderCreator
         $this->orderItemFactory = $orderItemFactory;
     }
 
+    /**
+     * @param array $billData
+     * @return bool
+     */
     public function createOrderFromBill($billData)
     {
         try {
@@ -73,6 +123,10 @@ class OrderCreator
         }
     }
 
+    /**
+     * @param string $subscriptionId
+     * @return Order|null
+     */
     public function getOrderFromSubscriptionId($subscriptionId)
     {
         $subscriptionOrder = $this->subscriptionOrderRepository->getBySubscriptionId($subscriptionId);
@@ -84,6 +138,11 @@ class OrderCreator
         return null;
     }
 
+    /**
+     * @param Order $originalOrder
+     * @param array $billData
+     * @return Order
+     */
     protected function replicateOrder(Order $originalOrder, $billData)
     {
         $newOrder = clone $originalOrder;
@@ -107,14 +166,17 @@ class OrderCreator
 
         $shippingAmount = 0;
         $newOrderItems = [];
-        $billItems = $billData['bill_items'];
+        $billItems = $this->processBillItems($billData['bill_items']);
+
+        $totalDiscount = 0;
 
         foreach ($billItems as $billItem) {
-            if ($billItem["discount"] !== null) {
+            if ($billItem['discount_amount'] !== null) {
+                $totalDiscount += $billItem['discount_amount'];
                 continue;
             }
 
-            $sku = $billItem["product_item"]["product"]["code"];
+            $sku = $billItem['product_item']['product']['code'];
             $found = false;
 
             foreach ($originalOrder->getAllVisibleItems() as $originalItem) {
@@ -151,11 +213,10 @@ class OrderCreator
 
         $subtotal = 0;
         $taxAmount = 0;
-        $discountAmount = 0;
+        $discountAmount = $totalDiscount;
         foreach ($newOrderItems as $item) {
             $subtotal += $item->getRowTotal();
             $taxAmount += $item->getTaxAmount();
-            $discountAmount += $item->getDiscountAmount();
         }
 
         $grandTotal = $subtotal + $taxAmount + $shippingAmount - $discountAmount;
@@ -176,6 +237,29 @@ class OrderCreator
         return $newOrder;
     }
 
+    /**
+     * @param array $billItems
+     * @return array
+     */
+    protected function processBillItems(array $billItems)
+    {
+        $processedItems = [];
+        foreach ($billItems as $billItem) {
+            if ($billItem['amount'] < 0) {
+                $billItem['discount_amount'] = abs($billItem['amount']);
+            } else {
+                $billItem['discount_amount'] = null;
+            }
+            $processedItems[] = $billItem;
+        }
+        return $processedItems;
+    }
+
+    /**
+     * @param Order $originalItem
+     * @param array $billItem
+     * @return Order
+     */
     protected function updateOrderItemFromBill($originalItem, $billItem)
     {
         $newItem = clone $originalItem;
@@ -193,6 +277,11 @@ class OrderCreator
         return $newItem;
     }
 
+    /**
+     * @param $product
+     * @param $billItem
+     * @return Order
+     */
     protected function createNewOrderItem($product, $billItem)
     {
         $orderItem = $this->orderItemFactory->create();
@@ -212,6 +301,10 @@ class OrderCreator
         return $orderItem;
     }
 
+    /**
+     * @param Order $order
+     * @param $subscriptionId
+     */
     protected function registerSubscriptionOrder(Order $order, $subscriptionId)
     {
         try {
@@ -230,6 +323,10 @@ class OrderCreator
         }
     }
 
+    /**
+     * @param Order $order
+     * @param $billData
+     */
     public function updatePaymentDetails(Order $order, $billData)
     {
         $paymentMethod = $order->getPayment()->getMethod();
