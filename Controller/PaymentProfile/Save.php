@@ -10,6 +10,7 @@ use Magento\Framework\App\RequestInterface;
 use Magento\Framework\App\ResponseInterface;
 use Magento\Framework\Exception\NotFoundException;
 use Magento\Framework\View\Result\PageFactory;
+use Vindi\Payment\Model\Payment\PaymentMethod;
 use Vindi\Payment\Model\Payment\Profile as PaymentProfileManager;
 use Vindi\Payment\Model\PaymentProfileFactory;
 use Vindi\Payment\Model\PaymentProfileRepository;
@@ -81,6 +82,11 @@ class Save extends Action
     protected $api;
 
     /**
+     * @var PaymentMethod
+     */
+    protected $paymentMethod;
+
+    /**
      * @param Context $context
      * @param PageFactory $resultPageFactory
      * @param Session $customerSession
@@ -93,6 +99,7 @@ class Save extends Action
      * @param SubscriptionFactory $subscriptionFactory
      * @param SubscriptionResource $subscriptionResource
      * @param Api $api
+     * @param PaymentMethod $paymentMethod
      */
     public function __construct(
         Context $context,
@@ -106,7 +113,8 @@ class Save extends Action
         VindiCustomer $vindiCustomer,
         SubscriptionFactory $subscriptionFactory,
         SubscriptionResource $subscriptionResource,
-        Api $api
+        Api $api,
+        PaymentMethod $paymentMethod
     ) {
         parent::__construct($context);
         $this->resultPageFactory = $resultPageFactory;
@@ -120,6 +128,7 @@ class Save extends Action
         $this->subscriptionFactory = $subscriptionFactory;
         $this->subscriptionResource = $subscriptionResource;
         $this->api = $api;
+        $this->paymentMethod = $paymentMethod;
     }
 
     /**
@@ -210,7 +219,7 @@ class Save extends Action
      * @param int $customerId
      * @return array
      */
-    private function formatPaymentProfileData($data, $customerId)
+    private function formatPaymentProfileData(array $data, $customerId): array
     {
         $cardNumber = preg_replace('/\D/', '', $data['cc_number']);
 
@@ -219,17 +228,16 @@ class Save extends Action
         $cardExpiration  = $expirationParts[0] . '/' . $expirationYear;
         $paymentCompanyCode = $data['cc_type'];
 
-        $formattedData = [
+        $ccTypeCode = $this->paymentMethod->getCreditCardApiCode($paymentCompanyCode);
+        return [
             'holder_name'          => $data['cc_name'],
             'card_expiration'      => $cardExpiration,
             'card_number'          => $cardNumber,
             'card_cvv'             => $data['cc_cvv'],
             'customer_id'          => $customerId,
-            'payment_company_code' => $paymentCompanyCode,
+            'payment_company_code' => $ccTypeCode,
             'payment_method_code'  => 'credit_card',
         ];
-
-        return $formattedData;
     }
 
     /**
