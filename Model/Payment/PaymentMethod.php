@@ -2,27 +2,31 @@
 
 namespace Vindi\Payment\Model\Payment;
 
-
 use Exception;
 use Vindi\Payment\Helper\Api;
 
 class PaymentMethod
 {
+    public const BANK_SLIP = 'bank_slip';
 
-    const BANK_SLIP = 'bank_slip';
+    public const BANK_SLIP_PIX = 'pix_bank_slip';
 
-    const BANK_SLIP_PIX = 'pix_bank_slip';
-
-    const PIX = 'pix';
-    const CREDIT_CARD = 'credit_card';
-    const DEBIT_CARD = 'debit_card';
+    public const PIX = 'pix';
+    public const CREDIT_CARD = 'credit_card';
+    public const DEBIT_CARD = 'debit_card';
 
     /**
      * @var \Vindi\Payment\Helper\Api
      */
-    private $api;
+    protected $api;
 
-    private $acceptBankSlip;
+    protected $methods = [];
+
+    protected $methodsCodes = [
+        'mastercard' => 'MC',
+        'visa' => 'VI',
+        'american_express' => 'AE'
+    ];
 
     /**
      * @param Api $api
@@ -35,7 +39,43 @@ class PaymentMethod
     /**
      * @return array
      */
-    public function getCreditCardTypes()
+    public function getCreditCardCodes(): array
+    {
+        $methods = $this->get();
+        $types = [];
+
+        if (!empty($methods)) {
+            foreach ($methods['credit_card'] as $type) {
+                if (isset($this->methodsCodes[$type['code']])) {
+                    $types[$this->methodsCodes[$type['code']]] = $type['name'];
+                }
+            }
+        }
+
+        return $types;
+    }
+
+    /**
+     * @return string
+     */
+    public function getCreditCardApiCode(string $ccType): string
+    {
+        $methods = $this->get();
+        if ($methods) {
+            foreach ($methods['credit_card'] as $type) {
+                if (isset($this->methodsCodes[$type['code']]) && $ccType == $this->methodsCodes[$type['code']]) {
+                    return $type['code'];
+                }
+            }
+        }
+
+        return $ccType;
+    }
+
+    /**
+     * @return array
+     */
+    public function getCreditCardTypes(): array
     {
         $methods = $this->get();
         $types = [];
@@ -52,45 +92,42 @@ class PaymentMethod
     /**
      * Make an API request to retrieve Payment Methods.
      *
-     * @return array|bool
+     * @return array
      */
-    public function get()
+    public function get(): array
     {
-        $paymentMethods = [
-            'credit_card' => [],
-            'debit_card' => [],
-            'bank_slip' => false,
-        ];
+        if (empty($this->methods)) {
+            $this->methods = [
+                'credit_card' => [],
+                'debit_card' => [],
+                'bank_slip' => false,
+            ];
 
-        $response = $this->api->request('payment_methods', 'GET');
+            $response = $this->api->request('payment_methods', 'GET');
 
-        if (false === $response) {
-            return $this->acceptBankSlip = false;
-        }
+            if ($response && isset($response['payment_methods'])) {
+                foreach ($response['payment_methods'] as $method) {
+                    if ('active' !== $method['status']) {
+                        continue;
+                    }
 
-        foreach ($response['payment_methods'] as $method) {
-            if ('active' !== $method['status']) {
-                continue;
+                    if ('PaymentMethod::CreditCard' === $method['type']) {
+                        $this->methods['credit_card'] = array_merge(
+                            $this->methods['credit_card'],
+                            $method['payment_companies']
+                        );
+                    } elseif ('PaymentMethod::DebitCard' === $method['type']) {
+                        $paymentMethods['debit_card'] = array_merge(
+                            $this->methods['debit_card'],
+                            $method['payment_companies']
+                        );
+                    } elseif ('PaymentMethod::BankSlip' === $method['type']) {
+                        $this->methods['bank_slip'] = true;
+                    }
+                }
             }
-
-            if ('PaymentMethod::CreditCard' === $method['type']) {
-                $paymentMethods['credit_card'] = array_merge(
-                    $paymentMethods['credit_card'],
-                    $method['payment_companies']
-                );
-            } elseif ('PaymentMethod::DebitCard' === $method['type']) {
-                $paymentMethods['debit_card'] = array_merge(
-                    $paymentMethods['debit_card'],
-                    $method['payment_companies']
-                );
-            } elseif ('PaymentMethod::BankSlip' === $method['type']) {
-                $paymentMethods['bank_slip'] = true;
-            }
         }
-
-        $this->acceptBankSlip = $paymentMethods['bank_slip'];
-
-        return $paymentMethods;
+        return $this->methods;
     }
 
     /**
@@ -101,7 +138,7 @@ class PaymentMethod
      */
     public function isCcTypeValid($ccType)
     {
-        $validCreditCardTypes = $this->getCreditCardTypes();
+        $validCreditCardTypes = $this->getCreditCardCodes();
         $fullName = $this->getCcTypeFullName($ccType);
         $fullTrimmedName = strtolower(str_replace(' ', '', $fullName));
 
@@ -124,7 +161,7 @@ class PaymentMethod
      */
     private function getCcTypeFullName($ccType)
     {
-        $fullNames = $this->getCreditCardTypes();
+        $fullNames = $this->getCreditCardCodes();
 
         if (isset($fullNames[$ccType])) {
             return $fullNames[$ccType];
