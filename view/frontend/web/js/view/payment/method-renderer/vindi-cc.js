@@ -3,7 +3,7 @@ define([
     'ko',
     'Magento_Checkout/js/view/payment/default',
     'Magento_Payment/js/model/credit-card-validation/credit-card-data',
-    'Magento_Payment/js/model/credit-card-validation/credit-card-number-validator',
+    'Vindi_Payment/js/model/credit-card-validation/credit-card-number-validator',
     'Magento_Checkout/js/model/quote',
     'Magento_Checkout/js/model/totals',
     'Magento_SalesRule/js/action/set-coupon-code',
