@@ -9,7 +9,6 @@
                    name="recurrence.product.page"
                    template="Vindi_Payment::product/recurrence.phtml"
                    after="product.info.price"
-                   cacheable="false"
             />
         </referenceContainer>
     </body>
