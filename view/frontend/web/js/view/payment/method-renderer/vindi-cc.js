@@ -3,7 +3,7 @@ define([
     'ko',
     'Magento_Checkout/js/view/payment/default',
     'Magento_Payment/js/model/credit-card-validation/credit-card-data',
-    'Vindi_Payment/js/model/credit-card-validation/credit-card-number-validator',
+    'Magento_Payment/js/model/credit-card-validation/credit-card-number-validator',
     'Magento_Checkout/js/model/quote',
     'Magento_Checkout/js/model/totals',
     'Magento_SalesRule/js/action/set-coupon-code',
@@ -11,7 +11,6 @@ define([
     'Magento_Catalog/js/price-utils',
     'mage/translate',
     'jquery',
-    'vindi-card-form',
     'mageUtils'
 ], function (
     _,
@@ -26,7 +25,6 @@ define([
     priceUtils,
     $t,
     $,
-    creditCardForm,
     utils
 ) {
     'use strict';
@@ -39,11 +37,9 @@ define([
             creditCardExpYear: '',
             creditCardExpMonth: '',
             creditCardNumber: '',
-            vindiCreditCardNumber: '',
             creditCardOwner: '',
             creditCardSsStartMonth: '',
             creditCardSsStartYear: '',
-            showCardData: ko.observable(true),
             creditCardVerificationNumber: '',
             selectedPaymentProfile: null,
             selectedCardType: null,
@@ -52,26 +48,13 @@ define([
             maxInstallments: 1
         },
         getData: function () {
-            let ccExpMonth = '';
-            let ccExpYear = '';
-            let ccExpDate = this.creditCardExpDate();
-
-            if (typeof ccExpDate !== "undefined" && ccExpDate !== null) {
-                let ccExpDateFull = ccExpDate.split('/');
-                ccExpMonth = ccExpDateFull[0];
-                ccExpYear = ccExpDateFull[1];
-            }
-
-            this.creditCardExpYear(ccExpYear);
-            this.creditCardExpMonth(ccExpMonth);
-
             var data = {
                 'method': this.getCode(),
                 'additional_data': {
                     'payment_profile': this.selectedPaymentProfile(),
                     'cc_type': this.selectedCardType(),
-                    'cc_exp_year': ccExpYear.length === 4 ? ccExpYear : '20' + ccExpYear,
-                    'cc_exp_month': ccExpMonth,
+                    'cc_exp_year': this.creditCardExpYear(),
+                    'cc_exp_month': this.creditCardExpMonth(),
                     'cc_number': this.creditCardNumber(),
                     'cc_owner': this.creditCardOwner(),
                     'cc_ss_start_month': this.creditCardSsStartMonth(),
@@ -89,11 +72,9 @@ define([
             this._super()
                 .observe([
                     'creditCardType',
-                    'creditCardExpDate',
                     'creditCardExpYear',
                     'creditCardExpMonth',
                     'creditCardNumber',
-                    'vindiCreditCardNumber',
                     'creditCardOwner',
                     'creditCardVerificationNumber',
                     'creditCardSsStartMonth',
@@ -112,32 +93,6 @@ define([
                 self.updateInstallments();
             });
 
-            //Set credit card number to credit card data object
-            this.vindiCreditCardNumber.subscribe(function (value) {
-                let result;
-                self.selectedCardType(null);
-
-                if (value === '' || value === null) {
-                    return false;
-                }
-
-                result = cardNumberValidator(value);
-                if (!result.isValid) {
-                    return false;
-                }
-
-                if (result.card !== null) {
-                    self.selectedCardType(result.card.type);
-                    creditCardData.creditCard = result.card;
-                }
-
-                if (result.isValid) {
-                    creditCardData.vindiCreditCardNumber = value;
-                    self.creditCardNumber(value);
-                    self.creditCardType(result.card.type);
-                }
-            });
-
             this.checkPlanInstallments();
 
             return this;
@@ -150,8 +105,13 @@ define([
                     return false;
                 }
 
-                if (!this.creditCardExpDate() || this.creditCardExpDate() == '') {
+                if (!this.creditCardExpYear() || this.creditCardExpYear() == '') {
                     this.messageContainer.addErrorMessage({'message': $t('Please enter the Credit Card Expiry Year.')});
+                    return false;
+                }
+
+                if (!this.creditCardExpMonth() || this.creditCardExpMonth() == '') {
+                    this.messageContainer.addErrorMessage({'message': $t('Please enter the Credit Card Expiry Month.')});
                     return false;
                 }
 
@@ -231,42 +191,24 @@ define([
             });
         },
 
-        getIcons: function (type) {
-            return window.checkoutConfig.payment.vindi?.icons?.hasOwnProperty(type)
-                ? window.checkoutConfig.payment.vindi.icons[type]
-                : false;
-        },
-
-        loadCard: function () {
-            let ccName = document.getElementById(this.getCode() + '_cc_owner');
-            let ccNumber = document.getElementById(this.getCode() + '_cc_number');
-            let ccExpDate = document.getElementById(this.getCode() + '_cc_exp_date');
-            let ccCvv = document.getElementById(this.getCode() + '_cc_cid');
-            let ccSingle = document.getElementById('vindi-ccsingle');
-            let ccFront = document.getElementById('vindi-front');
-            let ccBack = document.getElementById('vindi-back');
-
-            creditCardForm(ccName, ccNumber, ccExpDate, ccCvv, ccSingle, ccFront, ccBack);
-        },
-
         isActive: function () {
             return true;
         },
 
         getCcAvailableTypes: function () {
-            return window.checkoutConfig.payment.vindi.availableTypes;
+            return window.checkoutConfig.payment.vindi_cc.availableTypes['vindi_cc'];
         },
 
         getCcMonths: function () {
-            return window.checkoutConfig.payment.vindi.months['vindi'];
+            return window.checkoutConfig.payment.vindi_cc.months['vindi_cc'];
         },
 
         getCcYears: function () {
-            return window.checkoutConfig.payment.vindi.years['vindi'];
+            return window.checkoutConfig.payment.vindi_cc.years['vindi_cc'];
         },
 
         hasVerification: function () {
-            return window.checkoutConfig.payment.vindi.hasVerification['vindi'];
+            return window.checkoutConfig.payment.vindi_cc.hasVerification['vindi_cc'];
         },
 
         getCcAvailableTypesValues: function () {
@@ -302,12 +244,12 @@ define([
             });
         },
         installmentsAllowed: function () {
-            let isAllowed = parseInt(window.checkoutConfig.payment.vindi.isInstallmentsAllowedInStore);
+            let isAllowed = parseInt(window.checkoutConfig.payment.vindi_cc.isInstallmentsAllowedInStore);
             return isAllowed !== 0 ? true : false;
         },
         updateInstallments: function (maxInstallments = null) {
             let self = this;
-            let ccCheckoutConfig = window.checkoutConfig.payment.vindi;
+            let ccCheckoutConfig = window.checkoutConfig.payment.vindi_cc;
             let installments = [];
 
             if (ccCheckoutConfig) {
@@ -345,7 +287,7 @@ define([
 
         getPaymentProfiles: function () {
             let paymentProfiles = [];
-            const savedCards = window.checkoutConfig.payment?.vindi?.saved_cards;
+            const savedCards = window.checkoutConfig.payment?.vindi_cc?.saved_cards;
 
             if (savedCards) {
                 savedCards.forEach(function (card) {

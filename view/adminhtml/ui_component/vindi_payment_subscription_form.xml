@@ -11,7 +11,9 @@
         <buttons>
             <button class="Vindi\Payment\Block\Adminhtml\Subscription\Edit\BackButton" name="back"/>
             <button class="Vindi\Payment\Block\Adminhtml\Subscription\Edit\SaveChangesButton" name="save_and_continue"/>
-            <button class="Vindi\Payment\Block\Adminhtml\Subscription\Edit\AddItemButton" name="add_item"/>
+<!--            <button class="Vindi\Payment\Block\Adminhtml\Subscription\Edit\AddItemButton" name="add_item"/>-->
+<!--            <button class="Vindi\Payment\Block\Adminhtml\Subscription\Edit\AddDiscountButton" name="add_discount"/>-->
+            <button class="Vindi\Payment\Block\Adminhtml\Subscription\Edit\DropdownButton" name="dropdown_button"/>
         </buttons>
         <layout>
             <navContainerName>left</navContainerName>
@@ -62,6 +64,35 @@
                 <dataType>text</dataType>
                 <label translate="true">Payment Method</label>
                 <dataScope>payment_method</dataScope>
+                <disabled>true</disabled>
+            </settings>
+        </field>
+    </fieldset>
+
+    <!-- Fieldset: Discounts Grid -->
+    <fieldset name="vindi_subscription_item_discounts_grid" sortOrder="15">
+        <argument name="data" xsi:type="array">
+            <item name="config" xsi:type="array">
+                <item name="label" xsi:type="string" translate="true">Discounts</item>
+                <item name="collapsible" xsi:type="boolean">false</item>
+                <item name="sortOrder" xsi:type="number">15</item>
+            </item>
+        </argument>
+        <container name="assign_subscription_item_discounts_container">
+            <argument name="data" xsi:type="array">
+                <item name="config" xsi:type="array">
+                    <item name="sortOrder" xsi:type="number">20</item>
+                </item>
+            </argument>
+            <htmlContent name="html_content">
+                <argument name="block" xsi:type="object">Vindi\Payment\Block\Adminhtml\Subscription\Edit\SubscriptionItemDiscounts</argument>
+            </htmlContent>
+        </container>
+        <field name="discount_type" sortOrder="30" formElement="hidden">
+            <settings>
+                <dataType>text</dataType>
+                <label translate="true">Discount Type</label>
+                <dataScope>discount_type</dataScope>
                 <disabled>true</disabled>
             </settings>
         </field>

@@ -7,16 +7,12 @@ use Vindi\Payment\Helper\Data;
 class Profile
 {
     private $api;
-
     private $helperData;
 
     private $paymentMethod;
 
-    public function __construct(
-        \Vindi\Payment\Helper\Api $api,
-        Data $helperData,
-        PaymentMethod $paymentMethod
-    ) {
+    public function __construct(\Vindi\Payment\Helper\Api $api, Data $helperData, PaymentMethod $paymentMethod)
+    {
         $this->api = $api;
         $this->helperData = $helperData;
         $this->paymentMethod = $paymentMethod;
@@ -24,7 +20,6 @@ class Profile
 
     public function create($payment, $customerId, $paymentMethodCode)
     {
-        $ccTypeCode = $this->paymentMethod->getCreditCardApiCode($payment->getCcType());
         $creditCardData = [
             'holder_name' => $payment->getCcOwner(),
             'card_expiration' => str_pad($payment->getCcExpMonth(), 2, '0', STR_PAD_LEFT)
@@ -32,7 +27,7 @@ class Profile
             'card_number' => $payment->getCcNumber(),
             'card_cvv' => $payment->getCcCid() ?: '',
             'customer_id' => $customerId,
-            'payment_company_code' => $ccTypeCode,
+            'payment_company_code' => $payment->getCcType(),
             'payment_method_code' => $paymentMethodCode
         ];
 

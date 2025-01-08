@@ -69,7 +69,7 @@ trait InfoTrait
      */
     public function getCcBrand()
     {
-        $brands = $this->paymentMethod->getCreditCardCodes();
+        $brands = $this->paymentMethod->getCreditCardTypes();
         $CardCode = $this->getOrder()->getPayment()->getCcType();
 
         return isset($brands[$CardCode]) ? $brands[$CardCode] : null;

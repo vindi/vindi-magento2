@@ -20,7 +20,7 @@
         <column name="response_data" xsi:type="text" nullable="true" comment="Subscription Response Data"/>
     </table>
 
-    <table comment="Vindi Subscription Item Table" engine="innodb" name="vindi_subscription_item" resource="default">
+    <table name="vindi_subscription_item" comment="Vindi Subscription Item Table" engine="innodb" resource="default">
         <column comment="Entity Id" identity="true" name="entity_id" nullable="false" padding="10" unsigned="true"
                 xsi:type="int"/>
         <constraint referenceId="PRIMARY" xsi:type="primary">
@@ -46,6 +46,23 @@
         <column name="updated_at" xsi:type="timestamp" nullable="false" default="CURRENT_TIMESTAMP" on_update="true" comment="Update Time"/>
     </table>
 
+    <table name="vindi_subscription_item_discount" comment="Vindi Subscription Item Discounts Table" engine="innodb" resource="default">
+        <column comment="Entity Id" identity="true" name="entity_id" nullable="false" padding="10" unsigned="true" xsi:type="int"/>
+        <constraint referenceId="PRIMARY" xsi:type="primary">
+            <column name="entity_id"/>
+        </constraint>
+        <column name="subscription_id" xsi:type="int" nullable="false" comment="Subscription ID"/>
+        <column name="product_item_id" xsi:type="int" nullable="false" comment="Product Item ID"/>
+        <column name="magento_product_id" xsi:type="int" nullable="true" comment="Magento Product ID"/>
+        <column name="magento_product_sku" xsi:type="varchar" length="255" nullable="true" comment="Magento Product SKU"/>
+        <column name="discount_type" xsi:type="varchar" length="50" nullable="false" comment="Discount Type"/>
+        <column name="percentage" xsi:type="decimal" precision="5" scale="2" nullable="true" comment="Discount Percentage"/>
+        <column name="amount" xsi:type="decimal" precision="12" scale="4" nullable="true" comment="Discount Amount"/>
+        <column name="quantity" xsi:type="int" nullable="true" comment="Quantity"/>
+        <column name="cycles" xsi:type="int" nullable="true" comment="Cycles"/>
+        <column name="created_at" xsi:type="timestamp" nullable="false" default="CURRENT_TIMESTAMP" comment="Creation Time"/>
+        <column name="updated_at" xsi:type="timestamp" nullable="false" default="CURRENT_TIMESTAMP" on_update="true" comment="Update Time"/>
+    </table>
 
     <table name="vindi_subscription_orders" resource="default" engine="innodb" comment="Subscription Orders Table">
         <column xsi:type="int" name="entity_id" padding="10" unsigned="true" nullable="false" identity="true" comment="Entity ID"/>
