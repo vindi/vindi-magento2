@@ -25,7 +25,11 @@ class PaymentMethod
     protected $methodsCodes = [
         'mastercard' => 'MC',
         'visa' => 'VI',
-        'american_express' => 'AE'
+        'american_express' => 'AE',
+        'elo' => 'ELO',
+        'hipercard' => 'HC',
+        'diners_club' => 'DN',
+        'jcb' => 'JCB',
     ];
 
     /**

@@ -74,8 +74,15 @@ class SaveSubscriptionItem extends Action
             $quantity = $postData['settings']['quantity'] ?? null;
             $status = $postData['settings']['status'] ?? null;
 
-            if (!$entityId) {
+            if (!$entityId || ($price === null && $quantity === null)) {
                 throw new LocalizedException(__('You must provide at least one of the fields: price or quantity.'));
+            }
+
+            $subscriptionItem = $this->subscriptionItemRepository->getById($entityId);
+            $productCode = $subscriptionItem->getProductCode();
+
+            if ($productCode === 'frete' && $quantity !== null) {
+                throw new LocalizedException(__('The quantity of the shipping item cannot be changed. Only the price can be updated.'));
             }
 
             $data = [];
@@ -85,7 +92,7 @@ class SaveSubscriptionItem extends Action
             }
 
             if ($quantity !== null) {
-                $data['quantity'] = (int)$quantity;
+                $data['quantity'] = (int) $quantity;
 
                 if ($quantity > 1) {
                     $data['pricing_schema']['schema_type'] = 'per_unit';
@@ -121,23 +128,17 @@ class SaveSubscriptionItem extends Action
                 $subscriptionItem->setStatus($status);
             }
 
-            if ((float) $price === 0.00 && $productCode !== 'frete') {
+            if ((float)$price === 0.00 && $productCode !== 'frete') {
                 $itemsCollection = $this->vindiSubscriptionItemCollectionFactory->create();
                 $itemsCollection->addFieldToFilter('subscription_id', $subscriptionId);
 
-                $totalItems = $itemsCollection->getSize();
+                $nonZeroItems = $itemsCollection
+                    ->addFieldToFilter('product_code', ['neq' => 'frete'])
+                    ->addFieldToFilter('entity_id', ['neq' => $entityId])
+                    ->addFieldToFilter('price', ['gt' => 0]);
 
-                if ($totalItems > 2) {
-                    $itemsCollection = $this->vindiSubscriptionItemCollectionFactory->create();
-                    $itemsCollection->addFieldToFilter('subscription_id', $subscriptionId);
-
-                    $nonZeroItems = $itemsCollection
-                        ->addFieldToFilter('product_code', ['neq' => 'frete'])
-                        ->addFieldToFilter('price', ['gt' => 0]);
-
-                    if ($nonZeroItems->getSize() < 2) {
-                        throw new LocalizedException(__('A subscription must have at least one non-shipping item with a price greater than zero.'));
-                    }
+                if ($nonZeroItems->getSize() < 1) {
+                    throw new LocalizedException(__('A subscription must have at least one non-shipping item with a price greater than zero.'));
                 }
             }
 
