@@ -10,7 +10,9 @@ use Magento\Checkout\Model\ConfigProviderInterface;
 use Magento\Customer\Model\Session as CustomerSession;
 use Magento\Directory\Model\Currency;
 use Magento\Framework\View\Asset\Source;
+use Magento\Payment\Helper\Data as PaymentHelper;
 use Magento\Payment\Model\CcConfig;
+use Magento\Payment\Model\CcGenericConfigProvider;
 use Vindi\Payment\Helper\Data;
 use Vindi\Payment\Model\Config\Source\CardImages as CardImagesSource;
 use Vindi\Payment\Model\Payment\PaymentMethod;
@@ -20,55 +22,65 @@ use Vindi\Payment\Model\ResourceModel\PaymentProfile\Collection as PaymentProfil
  * Class ConfigProvider
  * @package Vindi\Payment\Model
  */
-class ConfigProvider implements ConfigProviderInterface
+class ConfigProvider extends CcGenericConfigProvider implements ConfigProviderInterface
 {
-    private $helperData;
+    public const CODE = 'vindi';
+
+    /**
+     * @var string
+     */
+    protected $_methodCode = 'vindi';
+
+    protected $icons = [];
+
+    protected $helperData;
     /**
      * @var CcConfig
      */
-    private $ccConfig;
+    protected $ccConfig;
     /**
      * @var Source
      */
-    private $assetSource;
+    protected $assetSource;
 
     /**
      * @var CheckoutSession
      */
-    private $checkoutSession;
+    protected $checkoutSession;
 
     /**
      * @var Currency
      */
-    private $currency;
+    protected $currency;
 
     /**
      * @var PaymentMethod
      */
-    private $paymentMethod;
+    protected $paymentMethod;
 
     /**
      * @var ProductRepositoryInterface
      */
-    private $productRepository;
+    protected $productRepository;
 
     /**
      * @var CustomerSession
      */
-    private $customerSession;
+    protected $customerSession;
 
     /**
      * @var PaymentProfileCollection
      */
-    private $paymentProfileCollection;
+    protected $paymentProfileCollection;
 
     /**
      * @var CardImagesSource
      */
-    private $creditCardTypeSource;
+    protected $creditCardTypeSource;
 
     public function __construct(
         CcConfig $ccConfig,
+        PaymentHelper $paymentHelper,
         Source $assetSource,
         Data $data,
         CheckoutSession $checkoutSession,
@@ -79,7 +91,7 @@ class ConfigProvider implements ConfigProviderInterface
         PaymentProfileCollection $paymentProfileCollection,
         CardImagesSource $creditCardTypeSource
     ) {
-
+        parent::__construct($ccConfig, $paymentHelper, [self::CODE]);
         $this->ccConfig = $ccConfig;
         $this->assetSource = $assetSource;
         $this->helperData = $data;
@@ -93,19 +105,14 @@ class ConfigProvider implements ConfigProviderInterface
     }
 
     /**
-     * @var string
-     */
-    protected $_methodCode = 'vindi_cc';
-
-    /**
      * {@inheritdoc}
      */
     public function getConfig()
     {
         return [
             'payment' => [
-                'vindi_cc' => [
-                    'availableTypes' => [$this->_methodCode => $this->paymentMethod->getCreditCardTypes()],
+                'vindi' => [
+                    'availableTypes' => $this->paymentMethod->getCreditCardCodes(),
                     'months' => [$this->_methodCode => $this->ccConfig->getCcMonths()],
                     'years' => [$this->_methodCode => $this->ccConfig->getCcYears()],
                     'hasVerification' => [$this->_methodCode => $this->ccConfig->hasVerification()],
@@ -115,7 +122,8 @@ class ConfigProvider implements ConfigProviderInterface
                     'hasPlanInCart' => (int) $this->hasPlanInCart(),
                     'planIntervalCountMaxInstallments' => (int) $this->planIntervalCountMaxInstallments(),
                     'saved_cards' => $this->getPaymentProfiles(),
-                    'credit_card_images' => $this->getCreditCardImages()
+                    'credit_card_images' => $this->getCreditCardImages(),
+                    'icons' => $this->getIcons(),
                 ]
             ]
         ];
@@ -218,11 +226,47 @@ class ConfigProvider implements ConfigProviderInterface
 
         foreach ($creditCardOptionArray as $creditCardOption) {
             $ccImages[] = [
+                'code' => $creditCardOption['code'],
                 'label' => $creditCardOption['label'],
                 'value' => $creditCardOption['value']
             ];
         }
 
         return $ccImages;
+    }
+
+
+    /**
+     * Get icons for available payment methods
+     *
+     * @return array
+     */
+    public function getIcons()
+    {
+        if (!empty($this->icons)) {
+            return $this->icons;
+        }
+
+        $types = $this->getCreditCardImages();
+        foreach ($types as $type) {
+            $code = $type['code'];
+            $label = $type['label'];
+
+            if (!array_key_exists($code, $this->icons)) {
+                $asset = $this->ccConfig->createAsset('Vindi_Payment::images/cc/' . strtolower($code) . '.png');
+                $placeholder = $this->assetSource->findSource($asset);
+                if ($placeholder) {
+                    list($width, $height) = getimagesize($asset->getSourceFile());
+                    $this->icons[$code] = [
+                        'url' => $asset->getUrl(),
+                        'width' => $width,
+                        'height' => $height,
+                        'title' => $label,
+                    ];
+                }
+            }
+        }
+
+        return $this->icons;
     }
 }
