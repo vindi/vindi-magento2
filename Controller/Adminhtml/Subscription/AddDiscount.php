@@ -1,19 +1,21 @@
 <?php
-
 namespace Vindi\Payment\Controller\Adminhtml\Subscription;
 
 use Magento\Backend\App\Action;
+use Magento\Framework\Controller\ResultInterface;
 use Magento\Framework\View\Result\PageFactory;
+use Magento\Framework\Registry;
 
 /**
- * Controller for Add Discount Form
+ * Class AddDiscount
+ * Handles the action for adding a discount to a subscription.
  */
 class AddDiscount extends Action
 {
     /**
-     * Authorization level
+     * Authorization level of a basic admin session.
      */
-    const ADMIN_RESOURCE = 'Vindi_Payment::subscription_add_discount';
+    const ADMIN_RESOURCE = 'Vindi_Payment::subscription';
 
     /**
      * @var PageFactory
@@ -21,29 +23,46 @@ class AddDiscount extends Action
     protected $resultPageFactory;
 
     /**
+     * @var Registry
+     */
+    private $registry;
+
+    /**
      * Constructor
      *
      * @param Action\Context $context
      * @param PageFactory $resultPageFactory
+     * @param Registry $registry
      */
     public function __construct(
         Action\Context $context,
-        PageFactory $resultPageFactory
+        PageFactory $resultPageFactory,
+        Registry $registry
     ) {
-        parent::__construct($context);
         $this->resultPageFactory = $resultPageFactory;
+        $this->registry = $registry;
+        parent::__construct($context);
     }
 
     /**
-     * Execute action
+     * Execute view action
      *
-     * @return \Magento\Framework\View\Result\Page
+     * @return ResultInterface
      */
     public function execute()
     {
+        $subscriptionId = (int) $this->getRequest()->getParam('id');
+
+        if (!$subscriptionId) {
+            $this->messageManager->addErrorMessage(__('Unable to find subscription to add discount.'));
+            return $this->_redirect('*/*/');
+        }
+
+        $this->registry->register('current_subscription_id', $subscriptionId);
+
         $resultPage = $this->resultPageFactory->create();
-        $resultPage->setActiveMenu('Vindi_Payment::subscription');
-        $resultPage->getConfig()->getTitle()->prepend(__('Add Discount'));
+        $resultPage->getConfig()->getTitle()->prepend(__('Add Discount to Subscription #%1', $subscriptionId));
+
         return $resultPage;
     }
 }

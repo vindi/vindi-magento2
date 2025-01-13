@@ -4,37 +4,38 @@ namespace Vindi\Payment\Controller\Adminhtml\Subscription;
 
 use Magento\Backend\App\Action;
 use Magento\Backend\App\Action\Context;
-use Magento\Framework\Controller\Result\RedirectFactory;
 use Magento\Framework\Controller\Result\JsonFactory;
+use Magento\Framework\Exception\LocalizedException;
+use Magento\Framework\Event\ManagerInterface as EventManager;
 use Vindi\Payment\Model\ResourceModel\VindiSubscriptionItemDiscount\CollectionFactory;
+use Vindi\Payment\Model\ResourceModel\VindiSubscriptionItem\CollectionFactory as SubscriptionItemCollectionFactory;
 use Vindi\Payment\Model\VindiSubscriptionItemDiscountFactory;
 use Vindi\Payment\Model\Vindi\Discounts;
-use Magento\Framework\Exception\LocalizedException;
-use Magento\Framework\Message\ManagerInterface;
-use Magento\Framework\Event\ManagerInterface as EventManager;
 
+/**
+ * Class SaveAddDiscount
+ *
+ * Controller to save a new discount for a subscription item.
+ */
 class SaveAddDiscount extends Action
 {
     /** @var VindiSubscriptionItemDiscountFactory */
-    protected $discountFactory;
+    private VindiSubscriptionItemDiscountFactory $discountFactory;
 
     /** @var CollectionFactory */
-    protected $discountCollectionFactory;
+    private CollectionFactory $discountCollectionFactory;
 
     /** @var Discounts */
-    protected $discountApi;
+    private Discounts $discountApi;
 
     /** @var JsonFactory */
-    private $resultJsonFactory;
-
-    /** @var RedirectFactory */
-    protected $resultRedirectFactory;
-
-    /** @var ManagerInterface */
-    protected $messageManager;
+    private JsonFactory $resultJsonFactory;
 
     /** @var EventManager */
-    private $eventManager;
+    private EventManager $eventManager;
+
+    /** @var SubscriptionItemCollectionFactory */
+    private SubscriptionItemCollectionFactory $subscriptionItemCollectionFactory;
 
     /**
      * @param Context $context
@@ -42,9 +43,8 @@ class SaveAddDiscount extends Action
      * @param CollectionFactory $discountCollectionFactory
      * @param Discounts $discountApi
      * @param JsonFactory $resultJsonFactory
-     * @param RedirectFactory $resultRedirectFactory
-     * @param ManagerInterface $messageManager
      * @param EventManager $eventManager
+     * @param SubscriptionItemCollectionFactory $subscriptionItemCollectionFactory
      */
     public function __construct(
         Context $context,
@@ -52,75 +52,43 @@ class SaveAddDiscount extends Action
         CollectionFactory $discountCollectionFactory,
         Discounts $discountApi,
         JsonFactory $resultJsonFactory,
-        RedirectFactory $resultRedirectFactory,
-        ManagerInterface $messageManager,
-        EventManager $eventManager
+        EventManager $eventManager,
+        SubscriptionItemCollectionFactory $subscriptionItemCollectionFactory
     ) {
         parent::__construct($context);
         $this->discountFactory = $discountFactory;
         $this->discountCollectionFactory = $discountCollectionFactory;
         $this->discountApi = $discountApi;
         $this->resultJsonFactory = $resultJsonFactory;
-        $this->resultRedirectFactory = $resultRedirectFactory;
-        $this->messageManager = $messageManager;
         $this->eventManager = $eventManager;
+        $this->subscriptionItemCollectionFactory = $subscriptionItemCollectionFactory;
     }
 
     /**
-     * Execute action
+     * Execute action.
      *
      * @return \Magento\Framework\Controller\Result\Json|\Magento\Framework\Controller\Result\Redirect
      */
     public function execute()
     {
-        $resultRedirect = $this->resultRedirectFactory->create();
-        $resultJson = $this->resultJsonFactory->create();
         $request = $this->getRequest();
-
         if (!$request->isPost()) {
-            return $resultJson->setData(['error' => true, 'message' => __('Invalid request method.')]);
+            return $this->jsonErrorResponse(__('Invalid request method.'));
         }
 
-        $subscriptionId = $request->getPostValue('id');
+        $postData = $request->getPostValue();
+        $postData = isset($postData['settings']) ? $postData['settings'] : [];
+        $subscriptionId = $postData['id'] ?? null;
 
         try {
-            $postData       = $request->getPostValue('settings');
-            $productItemId  = $postData['product_item_id'] ?? null;
-            $discountType   = $postData['discount_type'] ?? null;
-            $percentage     = $postData['percentage'] ?? null;
-            $amount         = $postData['amount'] ?? null;
-            $status         = $postData['status'] ?? null;
+            $this->validateRequiredFields($postData, $subscriptionId);
 
-            if (!$productItemId || !$subscriptionId || !$discountType || ($percentage === null && $amount === null) || $status === null) {
-                throw new LocalizedException(__('Missing required data: product_item_id, subscription_id, discount_type, percentage or amount, and status.'));
-            }
+            $data = $this->prepareDiscountData($postData);
+            $response = $this->createDiscountApi($data);
 
-            $data = [
-                'product_item_id' => $productItemId,
-                'discount_type'   => $discountType,
-                'percentage'      => $percentage,
-                'amount'          => $amount,
-                'quantity'        => 1,
-            ];
-
-            $apiResponse = $this->discountApi->createDiscount($data);
-            if (!$apiResponse) {
-                throw new LocalizedException(__('Failed to create discount in the API.'));
-            }
-
-            $discount = $this->discountFactory->create();
-            $discount->setData([
-                'subscription_id' => $subscriptionId,
-                'product_item_id' => $productItemId,
-                'discount_type'   => $discountType,
-                'percentage'      => $percentage,
-                'amount'          => $amount,
-                'status'          => $status ? 'active' : 'inactive',
-            ]);
-            $discount->save();
+            $this->saveDiscount($postData, $subscriptionId, $response['discount']['id']);
 
             $this->eventManager->dispatch('vindi_subscription_discount_update', ['subscription_id' => $subscriptionId]);
-
             $this->messageManager->addSuccessMessage(__('New discount added successfully.'));
         } catch (LocalizedException $e) {
             $this->messageManager->addErrorMessage($e->getMessage());
@@ -128,6 +96,168 @@ class SaveAddDiscount extends Action
             $this->messageManager->addErrorMessage(__('An error occurred while adding the discount.'));
         }
 
-        return $resultRedirect->setPath('vindi_payment/subscription/edit', ['id' => $subscriptionId]);
+        return $this->resultRedirectFactory->create()->setPath('vindi_payment/subscription/edit', ['id' => $subscriptionId]);
+    }
+
+    /**
+     * Validate required fields in the request.
+     *
+     * @param array $postData
+     * @param string|null $subscriptionId
+     * @throws LocalizedException
+     */
+    private function validateRequiredFields(array $postData, ?string $subscriptionId): void
+    {
+        if (empty($postData['data']['product_item_id'])) {
+            throw new LocalizedException(__('The product_item_id field is required.'));
+        }
+
+        if (empty($postData['discount_type'])) {
+            throw new LocalizedException(__('The discount_type field is required.'));
+        }
+
+        if (empty($subscriptionId)) {
+            throw new LocalizedException(__('The subscription_id field is required.'));
+        }
+
+        $this->validateDiscountType($postData);
+        $this->validateDuration($postData);
+    }
+
+    /**
+     * Validate discount type-specific fields.
+     *
+     * @param array $postData
+     * @throws LocalizedException
+     */
+    private function validateDiscountType(array $postData): void
+    {
+        switch ($postData['discount_type']) {
+            case 'percentage':
+                if (empty($postData['percentage'])) {
+                    throw new LocalizedException(__('The percentage field is required when discount type is percentage.'));
+                }
+                break;
+            case 'amount':
+                if (empty($postData['amount'])) {
+                    throw new LocalizedException(__('The amount field is required when discount type is amount.'));
+                }
+                break;
+            case 'quantity':
+                if (empty($postData['quantity'])) {
+                    throw new LocalizedException(__('The quantity field is required when discount type is quantity.'));
+                }
+                break;
+            default:
+                throw new LocalizedException(__('Invalid discount type.'));
+        }
+    }
+
+    /**
+     * Validate duration-specific fields.
+     *
+     * @param array $postData
+     * @throws LocalizedException
+     */
+    private function validateDuration(array $postData): void
+    {
+        if (isset($postData['cycles']) && $postData['cycles'] === 'temporary' && empty($postData['cycles_quantity'])) {
+            throw new LocalizedException(__('The cycles_quantity field is required when the discount duration is temporary.'));
+        }
+    }
+
+    /**
+     * Prepare discount data for API.
+     *
+     * @param array $postData
+     * @return array
+     */
+    private function prepareDiscountData(array $postData): array
+    {
+        $data = [
+            'product_item_id' => $postData['data']['product_item_id'],
+            'discount_type'   => $postData['discount_type'],
+        ];
+
+        switch ($postData['discount_type']) {
+            case 'percentage':
+                $data['percentage'] = $postData['percentage'];
+                break;
+            case 'amount':
+                $data['amount'] = $postData['amount'];
+                break;
+            case 'quantity':
+                $data['quantity'] = $postData['quantity'];
+                break;
+        }
+
+        $data['cycles'] = $postData['cycles'] != 'temporary' ? $postData['cycles_quantity'] : null;
+
+        return $data;
+    }
+
+    /**
+     * Create discount via API.
+     *
+     * @param array $data
+     * @return array
+     * @throws LocalizedException
+     */
+    private function createDiscountApi(array $data): array
+    {
+        $response = $this->discountApi->createDiscount($data);
+        if (!$response || empty($response['discount']['id'])) {
+            throw new LocalizedException(__('Failed to create discount in the API.'));
+        }
+        return $response;
+    }
+
+    /**
+     * Save discount to the database.
+     *
+     * @param array $postData
+     * @param string $subscriptionId
+     * @param string $vindiDiscountId
+     */
+    private function saveDiscount(array $postData, string $subscriptionId, string $vindiDiscountId): void
+    {
+        $discount = $this->discountFactory->create();
+        $discount->setData([
+            'vindi_discount_id' => $vindiDiscountId,
+            'subscription_id'   => $subscriptionId,
+            'product_item_id'   => $postData['data']['product_item_id'],
+            'product_name'      => $this->getProductName($postData['data']['product_item_id']),
+            'discount_type'     => $postData['discount_type'],
+            'percentage'        => $postData['percentage'] ?? null,
+            'amount'            => $postData['amount'] ?? null,
+            'quantity'          => $postData['quantity'] ?? null,
+            'cycles'            => $postData['cycles'] != 'temporary' ? $postData['cycles_quantity'] : null
+        ]);
+        $discount->save();
+    }
+
+    /**
+     * Get product name by product item ID.
+     *
+     * @param string $productItemId
+     * @return string
+     */
+    private function getProductName($productItemId)
+    {
+        $subscriptionItemCollection = $this->subscriptionItemCollectionFactory->create();
+        $subscriptionItemCollection->addFieldToFilter('product_item_id', $productItemId);
+        $subscriptionItem = $subscriptionItemCollection->getFirstItem();
+        return $subscriptionItem->getProductName();
+    }
+
+    /**
+     * Return a JSON error response.
+     *
+     * @param string $message
+     * @return \Magento\Framework\Controller\Result\Json
+     */
+    private function jsonErrorResponse(string $message)
+    {
+        return $this->resultJsonFactory->create()->setData(['error' => true, 'message' => $message]);
     }
 }

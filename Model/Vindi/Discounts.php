@@ -39,7 +39,7 @@ class Discounts
     public function createDiscount(array $data)
     {
         $response = $this->api->request('discounts', 'POST', $data);
-        if (isset($response['id'])) {
+        if (isset($response["discount"]["id"])) {
             return $response;
         }
 

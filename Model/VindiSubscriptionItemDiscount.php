@@ -22,6 +22,15 @@ class VindiSubscriptionItemDiscount extends AbstractModel implements VindiSubscr
         return $this->setData(self::ENTITY_ID, $id);
     }
 
+    public function getVindiDiscountId()
+    {
+        return $this->getData(self::VINDI_DISCOUNT_ID);
+    }
+
+    public function setVindiDiscountId($vindiDiscountId)
+    {
+        return $this->setData(self::VINDI_DISCOUNT_ID, $vindiDiscountId);
+    }
     public function getSubscriptionId()
     {
         return $this->getData(self::SUBSCRIPTION_ID);
@@ -40,6 +49,16 @@ class VindiSubscriptionItemDiscount extends AbstractModel implements VindiSubscr
     public function setProductItemId($productItemId)
     {
         return $this->setData(self::PRODUCT_ITEM_ID, $productItemId);
+    }
+
+    public function getProductName()
+    {
+        return $this->getData(self::PRODUCT_NAME);
+    }
+
+    public function setProductName($productName)
+    {
+        return $this->setData(self::PRODUCT_NAME, $productName);
     }
 
     public function getMagentoProductId()

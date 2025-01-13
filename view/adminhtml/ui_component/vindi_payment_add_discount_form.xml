@@ -27,7 +27,7 @@
             </item>
         </argument>
         <settings>
-            <submitUrl path="vindi_payment/subscription/saveaddnewitem"/>
+            <submitUrl path="vindi_payment/subscription/saveadddiscount"/>
         </settings>
         <dataProvider class="Vindi\Payment\Model\Subscription\DataProvider" name="vindi_payment_itemdiscount_data_source">
             <settings>
@@ -37,7 +37,7 @@
         </dataProvider>
     </dataSource>
 
-    <!-- Fieldset: Subscription Items Grid -->
+    <!-- Fieldset: VindiSubscriptionItemDiscount Items Grid -->
     <fieldset name="settings">
         <settings>
             <label translate="true">Settings</label>
@@ -71,7 +71,7 @@
                 </validation>
                 <elementTmpl>ui/grid/filters/elements/ui-select</elementTmpl>
                 <label translate="true">Product</label>
-                <dataScope>data.sku</dataScope>
+                <dataScope>data.product_item_id</dataScope>
                 <componentType>field</componentType>
                 <listens>
                     <link name="${ $.namespace }.${ $.namespace }:responseData">setParsed</link>
@@ -80,66 +80,79 @@
             <formElements>
                 <select>
                     <settings>
-                        <options class="Vindi\Payment\Ui\Component\Form\Product\Options"/>
+                        <options class="Vindi\Payment\Ui\Component\Form\Product\CurrentSubscriptionOptions"/>
                     </settings>
                 </select>
             </formElements>
         </field>
-        <field name="discount_type" component="Vindi_Payment/js/components/select-swatches" sortOrder="20"
-               formElement="select">
+        <field name="discount_type" sortOrder="20" formElement="select">
             <argument name="data" xsi:type="array">
+                <item name="options" xsi:type="object">Vindi\Payment\Model\Config\Source\DiscountType</item>
                 <item name="config" xsi:type="array">
-                    <item name="filterOptions" xsi:type="boolean">true</item>
-                    <item name="multiple" xsi:type="boolean">false</item>
-                    <item name="showCheckbox" xsi:type="boolean">true</item>
-                    <item name="disableLabel" xsi:type="boolean">true</item>
+                    <item name="dataType" xsi:type="string">int</item>
+                    <item name="component" xsi:type="string">Vindi_Payment/js/form/element/slider-discount-type</item>
+                    <item name="label" xsi:type="string" translate="true">Discount Type</item>
+                    <item name="formElement" xsi:type="string">select</item>
+                    <item name="dataScope" xsi:type="string">discount_type</item>
                 </item>
             </argument>
-            <settings>
-                <required>true</required>
-                <validation>
-                    <rule name="required-entry" xsi:type="boolean">true</rule>
-                </validation>
-                <elementTmpl>ui/grid/filters/elements/ui-select</elementTmpl>
-                <label translate="true">Discount Type</label>
-                <dataScope>data.discount_type</dataScope>
-                <componentType>field</componentType>
-            </settings>
-            <formElements>
-                <select>
-                    <settings>
-                        <options class="Vindi\Payment\Ui\Component\Form\Discount\TypeOptions"/>
-                    </settings>
-                </select>
-            </formElements>
         </field>
-        <field name="duration" component="Vindi_Payment/js/components/select-swatches" sortOrder="30"
-               formElement="select">
+        <field name="percentage" sortOrder="21" formElement="input">
             <argument name="data" xsi:type="array">
                 <item name="config" xsi:type="array">
-                    <item name="filterOptions" xsi:type="boolean">true</item>
-                    <item name="multiple" xsi:type="boolean">false</item>
-                    <item name="showCheckbox" xsi:type="boolean">true</item>
-                    <item name="disableLabel" xsi:type="boolean">true</item>
+                    <item name="label" xsi:type="string" translate="true">Percentage</item>
+                    <item name="dataScope" xsi:type="string">percentage</item>
                 </item>
             </argument>
             <settings>
-                <required>true</required>
-                <validation>
-                    <rule name="required-entry" xsi:type="boolean">true</rule>
-                </validation>
-                <elementTmpl>ui/grid/filters/elements/ui-select</elementTmpl>
-                <label translate="true">Duration</label>
-                <dataScope>data.duration</dataScope>
-                <componentType>field</componentType>
+                <dataType>text</dataType>
             </settings>
-            <formElements>
-                <select>
-                    <settings>
-                        <options class="Vindi\Payment\Ui\Component\Form\Subscription\Cycles"/>
-                    </settings>
-                </select>
-            </formElements>
+        </field>
+        <field name="amount" sortOrder="22" formElement="input">
+            <argument name="data" xsi:type="array">
+                <item name="config" xsi:type="array">
+                    <item name="label" xsi:type="string" translate="true">Amountz</item>
+                    <item name="dataScope" xsi:type="string">amount</item>
+                </item>
+            </argument>
+            <settings>
+                <dataType>text</dataType>
+            </settings>
+        </field>
+        <field name="quantity" sortOrder="23" formElement="input">
+            <argument name="data" xsi:type="array">
+                <item name="config" xsi:type="array">
+                    <item name="label" xsi:type="string" translate="true">Quantity</item>
+                    <item name="dataScope" xsi:type="string">quantity</item>
+                </item>
+            </argument>
+            <settings>
+                <dataType>text</dataType>
+            </settings>
+        </field>
+        <field name="cycles" sortOrder="30" formElement="select">
+            <argument name="data" xsi:type="array">
+                <item name="options" xsi:type="object">Vindi\Payment\Model\Config\Source\SliderDuration</item>
+                <item name="config" xsi:type="array">
+                    <item name="dataType" xsi:type="string">int</item>
+                    <item name="component" xsi:type="string">Vindi_Payment/js/form/element/slider-duration</item>
+                    <item name="label" xsi:type="string" translate="true">Duration</item>
+                    <item name="formElement" xsi:type="string">select</item>
+                    <item name="source" xsi:type="string">cycles</item>
+                    <item name="dataScope" xsi:type="string">cycles</item>
+                </item>
+            </argument>
+        </field>
+        <field name="cycles_quantity" sortOrder="40" formElement="input">
+            <argument name="data" xsi:type="array">
+                <item name="config" xsi:type="array">
+                    <item name="dataType" xsi:type="string">text</item>
+                    <item name="label" xsi:type="string" translate="true">Duration Time</item>
+                    <item name="formElement" xsi:type="string">input</item>
+                    <item name="source" xsi:type="string">cycles_quantity</item>
+                    <item name="dataScope" xsi:type="string">cycles_quantity</item>
+                </item>
+            </argument>
         </field>
     </fieldset>
 </form>

@@ -10,8 +10,12 @@ namespace Vindi\Payment\Api\Data;
 interface VindiSubscriptionItemDiscountInterface
 {
     const ENTITY_ID           = 'entity_id';
+
+    const VINDI_DISCOUNT_ID   = 'vindi_discount_id';
     const SUBSCRIPTION_ID     = 'subscription_id';
     const PRODUCT_ITEM_ID     = 'product_item_id';
+
+    const PRODUCT_NAME        = 'product_name';
     const MAGENTO_PRODUCT_ID  = 'magento_product_id';
     const MAGENTO_PRODUCT_SKU = 'magento_product_sku';
     const DISCOUNT_TYPE       = 'discount_type';
@@ -26,6 +30,9 @@ interface VindiSubscriptionItemDiscountInterface
 
     public function setId($entityId);
 
+    public function getVindiDiscountId();
+
+    public function setVindiDiscountId($vindiDiscountId);
     public function getSubscriptionId();
 
     public function setSubscriptionId($subscriptionId);
@@ -33,6 +40,10 @@ interface VindiSubscriptionItemDiscountInterface
     public function getProductItemId();
 
     public function setProductItemId($productItemId);
+
+    public function getProductName();
+
+    public function setProductName($productName);
 
     public function getMagentoProductId();
 
