@@ -158,6 +158,8 @@
         <column xsi:type="int" name="customer_id" unsigned="true" nullable="false" comment="Customer Id"/>
         <column xsi:type="timestamp" name="created_at" nullable="false" default="CURRENT_TIMESTAMP" on_update="true" comment="Created Datetime"/>
         <column xsi:type="varchar" name="status" length="50" nullable="false" default="active" comment="Payment Link Status"/>
+        <column xsi:type="timestamp" name="expired_at" nullable="true" comment="Expired Datetime"/>
+        <column xsi:type="boolean" name="success_page_accessed" nullable="false" default="0" comment="Success Page Accessed"/>
 
         <constraint xsi:type="primary" referenceId="PRIMARY">
             <column name="entity_id"/>

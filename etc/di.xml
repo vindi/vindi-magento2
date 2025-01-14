@@ -19,6 +19,7 @@
                 <item name="vindi:process-order-creation-queue" xsi:type="object">Vindi\Payment\Console\Command\ProcessOrderCreationQueueCommand</item>
                 <item name="vindi:process-order-paid-queue" xsi:type="object">Vindi\Payment\Console\Command\ProcessOrderPaidQueueCommand</item>
                 <item name="vindi:payment:update-expired-links" xsi:type="object">Vindi\Payment\Console\Command\RunUpdateExpiredLinks</item>
+                <item name="vindi:payment:cancel-orders-with-expired-links" xsi:type="object">Vindi\Payment\Console\Command\RunCancelOrdersWithExpiredLinks</item>
             </argument>
         </arguments>
     </type>
