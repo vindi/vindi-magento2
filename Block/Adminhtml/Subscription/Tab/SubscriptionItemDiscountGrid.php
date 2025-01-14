@@ -175,7 +175,7 @@ class SubscriptionItemDiscountGrid extends \Magento\Backend\Block\Widget\Grid\Ex
     public function renderDuration($value, $row, $column, $isExport)
     {
         $cycles = $row->getData('cycles');
-        return $cycles ? __('Temporary for %1 periods', $cycles) : __('Permanent');
+        return $cycles ? __('Temporary for %1 period(s)', $cycles) : __('Permanent');
     }
 
     /**
