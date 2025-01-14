@@ -85,11 +85,10 @@ class SaveAddNewItem extends Action
             $postData       = $request->getPostValue('settings');
             $productSku = $postData['data']['sku'] ?? null;
             $quantity   = $postData['quantity'] ?? null;
-            $status     = $postData['status'] ?? null;
             $cycles     = $postData['data']['cycles'] ?? null;
             $price      = $postData['price'] ?? null;
 
-            if (!$productSku || !$quantity || !$subscriptionId || $status === null || !$cycles || $price === null) {
+            if (!$productSku || !$quantity || !$subscriptionId || !$cycles || $price === null) {
                 throw new LocalizedException(__('Missing required data: product_sku, quantity, subscription_id, status, cycles, or price.'));
             }
 
@@ -99,13 +98,11 @@ class SaveAddNewItem extends Action
 
             $product = $this->productRepository->get($productSku);
             $vindiProductId = $this->productManagement->findOrCreate($product);
-            $statusValue = $status ? 'active' : 'inactive';
 
             $data = [
                 'product_id'      => $vindiProductId,
                 'subscription_id' => $subscriptionId,
                 'quantity'        => $quantity,
-                'status'          => $statusValue,
                 'cycles'          => $cycles,
                 'pricing_schema' => [
                     'price' => $price
