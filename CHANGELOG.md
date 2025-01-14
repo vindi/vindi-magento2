@@ -3,6 +3,8 @@
 ## [2.2.0 - 14/01/2025](https://github.com/vindi/vindi-magento2/releases/tag/2.2.0)
 
 - Novo layout do cartão de crédito na página de checkout
+- Nova Configuração de Templates Personalizados para Notificação de Link de Pagamento
+- Novo Recurso de cancelamento de Pedidos com Link de Pagamento Expirado Após 30 Dias
 
 ## [2.1.0 - 30/10/2024](https://github.com/vindi/vindi-magento2/releases/tag/2.1.0)
 
