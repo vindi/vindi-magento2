@@ -15,6 +15,9 @@ use Magento\Sales\Model\Service\InvoiceService;
 use Psr\Log\LoggerInterface;
 use Vindi\Payment\Api\OrderCreationQueueRepositoryInterface;
 
+/**
+ * ProcessOrderPaidQueue
+ */
 class ProcessOrderPaidQueue
 {
     /**
@@ -67,9 +70,9 @@ class ProcessOrderPaidQueue
      */
     private const LOCK_NAME = 'vindi_payment_process_order_paid_queue';
 
+
     /**
-     * Constructor
-     *
+     * ProcessOrderPaidQueue constructor.
      * @param LoggerInterface $logger
      * @param OrderCreationQueueRepositoryInterface $orderCreationQueueRepository
      * @param InvoiceService $invoiceService
@@ -103,7 +106,7 @@ class ProcessOrderPaidQueue
     }
 
     /**
-     * Process the oldest pending order creation request for bill_paid event.
+     * @return void
      */
     public function execute()
     {
@@ -151,10 +154,10 @@ class ProcessOrderPaidQueue
     }
 
     /**
-     * Create invoice from bill data
+     * Create invoice from bill data.
      *
      * @param array $billData
-     * @return bool|null
+     * @return bool
      */
     protected function createInvoiceFromBill($billData)
     {
@@ -183,6 +186,23 @@ class ProcessOrderPaidQueue
             $shippingAmount     = $order->getShippingAmount();
             $baseSubtotal       = $order->getBaseSubtotal();
             $subtotal           = $order->getSubtotal();
+
+            $orderItems = $order->getAllItems();
+            $invoiceItems = [];
+            foreach ($orderItems as $item) {
+                $invoiceItem = $this->invoiceItemFactory->create();
+                $invoiceItem->setOrderItem($item);
+                $invoiceItem->setQty($item->getQtyOrdered());
+                $invoiceItem->setPrice($item->getPrice());
+                $invoiceItem->setBasePrice($item->getBasePrice());
+                $invoiceItem->setRowTotal($item->getRowTotal());
+                $invoiceItem->setBaseRowTotal($item->getBaseRowTotal());
+                $invoiceItems[$item->getItemId()] = $invoiceItem;
+            }
+
+            foreach ($invoiceItems as $invoiceItem) {
+                $invoice->addItem($invoiceItem);
+            }
 
             $invoice->setBaseSubtotal($baseSubtotal);
             $invoice->setSubtotal($subtotal);
@@ -225,7 +245,7 @@ class ProcessOrderPaidQueue
     }
 
     /**
-     * Fetch original order using subscription ID
+     * Get order from subscription ID.
      *
      * @param string $subscriptionId
      * @return \Magento\Sales\Api\Data\OrderInterface|null
@@ -246,7 +266,7 @@ class ProcessOrderPaidQueue
     }
 
     /**
-     * Fetch original order using bill ID
+     * Get order from bill ID.
      *
      * @param string $billId
      * @return \Magento\Sales\Api\Data\OrderInterface|null
@@ -267,9 +287,11 @@ class ProcessOrderPaidQueue
     }
 
     /**
-     * @param $billId
-     * @param $subscriptionId
-     * @return false|mixed|null
+     * Get order from bill ID and subscription ID.
+     *
+     * @param string $billId
+     * @param string $subscriptionId
+     * @return \Magento\Sales\Api\Data\OrderInterface|null
      */
     protected function getOrderFromBillIdAndSubscriptionId($billId, $subscriptionId)
     {
@@ -287,4 +309,3 @@ class ProcessOrderPaidQueue
         }
     }
 }
-
