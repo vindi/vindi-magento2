@@ -106,7 +106,9 @@ class Options implements OptionSourceInterface
         }
 
         if (isset($item['uses'], $item['cycles'])) {
-            return $item['uses'] < $item['cycles'];
+            if ($item['uses'] < $item['cycles']) {
+                return false;
+            }
         }
 
         return true;

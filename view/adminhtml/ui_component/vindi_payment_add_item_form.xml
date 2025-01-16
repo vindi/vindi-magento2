@@ -9,7 +9,7 @@
     </argument>
     <settings>
         <buttons>
-            <button class="Vindi\Payment\Block\Adminhtml\Subscription\Edit\BackButton" name="back"/>
+            <button class="Vindi\Payment\Block\Adminhtml\Subscription\Add\Edit\BackButton" name="back"/>
             <button class="Vindi\Payment\Block\Adminhtml\Subscription\Edit\SaveChangesButton" name="save_and_continue"/>
         </buttons>
         <layout>
