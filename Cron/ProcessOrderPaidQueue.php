@@ -203,15 +203,22 @@ class ProcessOrderPaidQueue
                     $invoiceItem->setBaseRowTotal($orderItem->getBaseRowTotal() * $orderItem->getQtyOrdered());
                 }
             } else {
+                $existingInvoiceItems = [];
+                foreach ($invoiceItems as $invoiceItem) {
+                    $existingInvoiceItems[] = $invoiceItem->getOrderItem()->getItemId();
+                }
+
                 foreach ($orderItems as $item) {
-                    $invoiceItem = $this->invoiceItemFactory->create();
-                    $invoiceItem->setOrderItem($item);
-                    $invoiceItem->setQty($item->getQtyOrdered());
-                    $invoiceItem->setPrice($item->getPrice());
-                    $invoiceItem->setBasePrice($item->getBasePrice());
-                    $invoiceItem->setRowTotal($item->getRowTotal() * $item->getQtyOrdered());
-                    $invoiceItem->setBaseRowTotal($item->getBaseRowTotal() * $item->getQtyOrdered());
-                    $invoice->addItem($invoiceItem);
+                    if (!in_array($item->getItemId(), $existingInvoiceItems)) {
+                        $invoiceItem = $this->invoiceItemFactory->create();
+                        $invoiceItem->setOrderItem($item);
+                        $invoiceItem->setQty($item->getQtyOrdered());
+                        $invoiceItem->setPrice($item->getPrice());
+                        $invoiceItem->setBasePrice($item->getBasePrice());
+                        $invoiceItem->setRowTotal($item->getRowTotal() * $item->getQtyOrdered());
+                        $invoiceItem->setBaseRowTotal($item->getBaseRowTotal() * $item->getQtyOrdered());
+                        $invoice->addItem($invoiceItem);
+                    }
                 }
             }
 
