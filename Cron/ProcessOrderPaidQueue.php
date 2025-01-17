@@ -192,27 +192,14 @@ class ProcessOrderPaidQueue
             $invoiceItems = $invoice->getAllItems();
             $countInvoiceItems = count($invoiceItems);
 
-            if ($countOrderItems == $countInvoiceItems) {
-                foreach ($invoiceItems as $invoiceItem) {
-                    $orderItem = $invoiceItem->getOrderItem();
+            foreach ($invoiceItems as $invoiceItem) {
+                $orderItem = $invoiceItem->getOrderItem();
 
-                    $invoiceItem->setQty($orderItem->getQtyOrdered());
-                    $invoiceItem->setPrice($orderItem->getPrice());
-                    $invoiceItem->setBasePrice($orderItem->getBasePrice());
-                    $invoiceItem->setRowTotal($orderItem->getRowTotal() * $orderItem->getQtyOrdered());
-                    $invoiceItem->setBaseRowTotal($orderItem->getBaseRowTotal() * $orderItem->getQtyOrdered());
-                }
-            } else {
-                foreach ($orderItems as $item) {
-                    $invoiceItem = $this->invoiceItemFactory->create();
-                    $invoiceItem->setOrderItem($item);
-                    $invoiceItem->setQty($item->getQtyOrdered());
-                    $invoiceItem->setPrice($item->getPrice());
-                    $invoiceItem->setBasePrice($item->getBasePrice());
-                    $invoiceItem->setRowTotal($item->getRowTotal() * $item->getQtyOrdered());
-                    $invoiceItem->setBaseRowTotal($item->getBaseRowTotal() * $item->getQtyOrdered());
-                    $invoice->addItem($invoiceItem);
-                }
+                $invoiceItem->setQty($orderItem->getQtyOrdered());
+                $invoiceItem->setPrice($orderItem->getPrice());
+                $invoiceItem->setBasePrice($orderItem->getBasePrice());
+                $invoiceItem->setRowTotal($orderItem->getRowTotal() * $orderItem->getQtyOrdered());
+                $invoiceItem->setBaseRowTotal($orderItem->getBaseRowTotal() * $orderItem->getQtyOrdered());
             }
 
             if ($baseDiscountAmount || $discountAmount) {
