@@ -15,9 +15,6 @@ use Magento\Sales\Model\Service\InvoiceService;
 use Psr\Log\LoggerInterface;
 use Vindi\Payment\Api\OrderCreationQueueRepositoryInterface;
 
-/**
- * ProcessOrderPaidQueue
- */
 class ProcessOrderPaidQueue
 {
     /**
@@ -70,9 +67,9 @@ class ProcessOrderPaidQueue
      */
     private const LOCK_NAME = 'vindi_payment_process_order_paid_queue';
 
-
     /**
-     * ProcessOrderPaidQueue constructor.
+     * Constructor
+     *
      * @param LoggerInterface $logger
      * @param OrderCreationQueueRepositoryInterface $orderCreationQueueRepository
      * @param InvoiceService $invoiceService
@@ -106,7 +103,7 @@ class ProcessOrderPaidQueue
     }
 
     /**
-     * @return void
+     * Process the oldest pending order creation request for bill_paid event.
      */
     public function execute()
     {
@@ -154,10 +151,10 @@ class ProcessOrderPaidQueue
     }
 
     /**
-     * Create invoice from bill data.
+     * Create invoice from bill data
      *
      * @param array $billData
-     * @return bool
+     * @return bool|null
      */
     protected function createInvoiceFromBill($billData)
     {
@@ -187,21 +184,33 @@ class ProcessOrderPaidQueue
             $baseSubtotal       = $order->getBaseSubtotal();
             $subtotal           = $order->getSubtotal();
 
-            $orderItems = $order->getAllItems();
-            $invoiceItems = [];
-            foreach ($orderItems as $item) {
-                $invoiceItem = $this->invoiceItemFactory->create();
-                $invoiceItem->setOrderItem($item);
-                $invoiceItem->setQty($item->getQtyOrdered());
-                $invoiceItem->setPrice($item->getPrice());
-                $invoiceItem->setBasePrice($item->getBasePrice());
-                $invoiceItem->setRowTotal($item->getRowTotal());
-                $invoiceItem->setBaseRowTotal($item->getBaseRowTotal());
-                $invoiceItems[$item->getItemId()] = $invoiceItem;
-            }
+            $orderItems = $order->getAllVisibleItems();
+            $countOrderItems = count($orderItems);
 
-            foreach ($invoiceItems as $invoiceItem) {
-                $invoice->addItem($invoiceItem);
+            $invoiceItems = $invoice->getAllItems();
+            $countInvoiceItems = count($invoiceItems);
+
+            if ($countOrderItems == $countInvoiceItems) {
+                foreach ($invoiceItems as $invoiceItem) {
+                    $orderItem = $invoiceItem->getOrderItem();
+
+                    $invoiceItem->setQty($orderItem->getQtyOrdered());
+                    $invoiceItem->setPrice($orderItem->getPrice());
+                    $invoiceItem->setBasePrice($orderItem->getBasePrice());
+                    $invoiceItem->setRowTotal($orderItem->getRowTotal() * $orderItem->getQtyOrdered());
+                    $invoiceItem->setBaseRowTotal($orderItem->getBaseRowTotal() * $orderItem->getQtyOrdered());
+                }
+            } else {
+                foreach ($orderItems as $item) {
+                    $invoiceItem = $this->invoiceItemFactory->create();
+                    $invoiceItem->setOrderItem($item);
+                    $invoiceItem->setQty($item->getQtyOrdered());
+                    $invoiceItem->setPrice($item->getPrice());
+                    $invoiceItem->setBasePrice($item->getBasePrice());
+                    $invoiceItem->setRowTotal($item->getRowTotal() * $item->getQtyOrdered());
+                    $invoiceItem->setBaseRowTotal($item->getBaseRowTotal() * $item->getQtyOrdered());
+                    $invoice->addItem($invoiceItem);
+                }
             }
 
             $invoice->setBaseSubtotal($baseSubtotal);
@@ -245,7 +254,7 @@ class ProcessOrderPaidQueue
     }
 
     /**
-     * Get order from subscription ID.
+     * Fetch original order using subscription ID
      *
      * @param string $subscriptionId
      * @return \Magento\Sales\Api\Data\OrderInterface|null
@@ -266,7 +275,7 @@ class ProcessOrderPaidQueue
     }
 
     /**
-     * Get order from bill ID.
+     * Fetch original order using bill ID
      *
      * @param string $billId
      * @return \Magento\Sales\Api\Data\OrderInterface|null
@@ -287,11 +296,9 @@ class ProcessOrderPaidQueue
     }
 
     /**
-     * Get order from bill ID and subscription ID.
-     *
-     * @param string $billId
-     * @param string $subscriptionId
-     * @return \Magento\Sales\Api\Data\OrderInterface|null
+     * @param $billId
+     * @param $subscriptionId
+     * @return false|mixed|null
      */
     protected function getOrderFromBillIdAndSubscriptionId($billId, $subscriptionId)
     {
@@ -309,3 +316,4 @@ class ProcessOrderPaidQueue
         }
     }
 }
+
