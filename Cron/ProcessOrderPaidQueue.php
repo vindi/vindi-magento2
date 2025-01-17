@@ -10,6 +10,7 @@ use Magento\Framework\Lock\LockManagerInterface;
 use Magento\Sales\Api\OrderRepositoryInterface;
 use Magento\Sales\Model\Order\Email\Sender\InvoiceSender;
 use Magento\Sales\Model\Order\Invoice;
+use Magento\Sales\Model\Order\Invoice\ItemFactory;
 use Magento\Sales\Model\Service\InvoiceService;
 use Psr\Log\LoggerInterface;
 use Vindi\Payment\Api\OrderCreationQueueRepositoryInterface;
@@ -57,6 +58,11 @@ class ProcessOrderPaidQueue
     private $searchCriteriaBuilder;
 
     /**
+     * @var ItemFactory
+     */
+    private $invoiceItemFactory;
+
+    /**
      * Lock name for this cron job
      */
     private const LOCK_NAME = 'vindi_payment_process_order_paid_queue';
@@ -72,6 +78,7 @@ class ProcessOrderPaidQueue
      * @param LockManagerInterface $lockManager
      * @param InvoiceSender $invoiceSender
      * @param SearchCriteriaBuilder $searchCriteriaBuilder
+     * @param ItemFactory $invoiceItemFactory
      */
     public function __construct(
         LoggerInterface $logger,
@@ -81,7 +88,8 @@ class ProcessOrderPaidQueue
         Transaction $transaction,
         LockManagerInterface $lockManager,
         InvoiceSender $invoiceSender,
-        SearchCriteriaBuilder $searchCriteriaBuilder
+        SearchCriteriaBuilder $searchCriteriaBuilder,
+        ItemFactory $invoiceItemFactory
     ) {
         $this->logger = $logger;
         $this->orderCreationQueueRepository = $orderCreationQueueRepository;
@@ -91,6 +99,7 @@ class ProcessOrderPaidQueue
         $this->lockManager = $lockManager;
         $this->invoiceSender = $invoiceSender;
         $this->searchCriteriaBuilder = $searchCriteriaBuilder;
+        $this->invoiceItemFactory = $invoiceItemFactory;
     }
 
     /**
@@ -164,9 +173,59 @@ class ProcessOrderPaidQueue
             }
 
             $invoice = $this->invoiceService->prepareInvoice($order);
-            if (!$invoice || !$invoice->getTotalQty()) {
+            if (!$invoice) {
                 throw new LocalizedException(__('We can\'t create an invoice without products.'));
             }
+
+            $baseGrandeTotal    = $order->getBaseGrandTotal();
+            $grandTotal         = $order->getGrandTotal();
+            $baseShippingAmount = $order->getBaseShippingAmount();
+            $shippingAmount     = $order->getShippingAmount();
+            $baseSubtotal       = $order->getBaseSubtotal();
+            $subtotal           = $order->getSubtotal();
+            $baseDiscountAmount = $order->getBaseDiscountAmount();
+            $discountAmount     = $order->getDiscountAmount();
+
+            $orderItems = $order->getAllVisibleItems();
+            $countOrderItems = count($orderItems);
+
+            $invoiceItems = $invoice->getAllItems();
+            $countInvoiceItems = count($invoiceItems);
+
+            if ($countOrderItems == $countInvoiceItems) {
+                foreach ($invoiceItems as $invoiceItem) {
+                    $orderItem = $invoiceItem->getOrderItem();
+
+                    $invoiceItem->setQty($orderItem->getQtyOrdered());
+                    $invoiceItem->setPrice($orderItem->getPrice());
+                    $invoiceItem->setBasePrice($orderItem->getBasePrice());
+                    $invoiceItem->setRowTotal($orderItem->getRowTotal() * $orderItem->getQtyOrdered());
+                    $invoiceItem->setBaseRowTotal($orderItem->getBaseRowTotal() * $orderItem->getQtyOrdered());
+                }
+            } else {
+                foreach ($orderItems as $item) {
+                    $invoiceItem = $this->invoiceItemFactory->create();
+                    $invoiceItem->setOrderItem($item);
+                    $invoiceItem->setQty($item->getQtyOrdered());
+                    $invoiceItem->setPrice($item->getPrice());
+                    $invoiceItem->setBasePrice($item->getBasePrice());
+                    $invoiceItem->setRowTotal($item->getRowTotal() * $item->getQtyOrdered());
+                    $invoiceItem->setBaseRowTotal($item->getBaseRowTotal() * $item->getQtyOrdered());
+                    $invoice->addItem($invoiceItem);
+                }
+            }
+
+            if ($baseDiscountAmount || $discountAmount) {
+                $invoice->setBaseDiscountAmount($baseDiscountAmount);
+                $invoice->setDiscountAmount($discountAmount);
+            }
+
+            $invoice->setBaseSubtotal($baseSubtotal);
+            $invoice->setSubtotal($subtotal);
+            $invoice->setBaseGrandTotal($baseGrandeTotal);
+            $invoice->setGrandTotal($grandTotal);
+            $invoice->setBaseShippingAmount($baseShippingAmount);
+            $invoice->setShippingAmount($shippingAmount);
 
             $invoice->setRequestedCaptureCase(Invoice::CAPTURE_OFFLINE);
             $invoice->register();
@@ -264,3 +323,4 @@ class ProcessOrderPaidQueue
         }
     }
 }
+
