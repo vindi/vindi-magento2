@@ -183,6 +183,8 @@ class ProcessOrderPaidQueue
             $shippingAmount     = $order->getShippingAmount();
             $baseSubtotal       = $order->getBaseSubtotal();
             $subtotal           = $order->getSubtotal();
+            $baseDiscountAmount = $order->getBaseDiscountAmount();
+            $discountAmount     = $order->getDiscountAmount();
 
             $orderItems = $order->getAllVisibleItems();
             $countOrderItems = count($orderItems);
@@ -211,6 +213,11 @@ class ProcessOrderPaidQueue
                     $invoiceItem->setBaseRowTotal($item->getBaseRowTotal() * $item->getQtyOrdered());
                     $invoice->addItem($invoiceItem);
                 }
+            }
+
+            if ($baseDiscountAmount || $discountAmount) {
+                $invoice->setBaseDiscountAmount($baseDiscountAmount);
+                $invoice->setDiscountAmount($discountAmount);
             }
 
             $invoice->setBaseSubtotal($baseSubtotal);
