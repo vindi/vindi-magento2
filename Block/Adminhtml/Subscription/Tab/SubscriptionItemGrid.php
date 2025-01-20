@@ -71,7 +71,7 @@ class SubscriptionItemGrid extends \Magento\Backend\Block\Widget\Grid\Extended
         $subscriptionId = $this->getRequest()->getParam('id');
 
         $collection = $this->subscriptionItemFactory->create()
-            ->addFieldToSelect(['entity_id', 'product_item_id', 'product_name', 'price'])
+            ->addFieldToSelect(['entity_id', 'product_item_id', 'product_name', 'price', 'status', 'cycles', 'uses', 'quantity'])
             ->addFieldToFilter('subscription_id', $subscriptionId);
 
         $this->setCollection($collection);
@@ -122,6 +122,43 @@ class SubscriptionItemGrid extends \Magento\Backend\Block\Widget\Grid\Extended
         );
 
         $this->addColumn(
+            'quantity',
+            [
+                'header' => __('Quantity'),
+                'index' => 'quantity',
+                'type' => 'number',
+                'header_css_class' => 'col-quantity',
+                'column_css_class' => 'col-quantity',
+            ]
+        );
+
+        $this->addColumn(
+            'status',
+            [
+                'header' => __('Status'),
+                'index' => 'status',
+                'header_css_class' => 'col-status',
+                'column_css_class' => 'col-status',
+                'type' => 'options',
+                'options' => [
+                    'active' => __('Active'),
+                    'inactive' => __('Inactive')
+                ],
+            ]
+        );
+
+        $this->addColumn(
+            'duration',
+            [
+                'header' => __('Duration'),
+                'index' => 'cycles',
+                'header_css_class' => 'col-duration',
+                'column_css_class' => 'col-duration',
+                'frame_callback' => [$this, 'renderDurationColumn'],
+            ]
+        );
+
+        $this->addColumn(
             'edit_action',
             [
                 'header' => __('Action'),
@@ -137,6 +174,15 @@ class SubscriptionItemGrid extends \Magento\Backend\Block\Widget\Grid\Extended
                         ],
                         'field' => 'entity_id',
                     ],
+                    [
+                        'caption' => __('Delete'),
+                        'url' => [
+                            'base' => 'vindi_payment/subscription/deletesubscriptionitem',
+                            'params' => ['form_key' => $this->getFormKey()]
+                        ],
+                        'confirm' => __('Are you sure you want to delete this item?'),
+                        'field' => 'entity_id',
+                    ],
                 ],
                 'filter' => false,
                 'sortable' => false,
@@ -147,6 +193,31 @@ class SubscriptionItemGrid extends \Magento\Backend\Block\Widget\Grid\Extended
         );
 
         return parent::_prepareColumns();
+    }
+
+    /**
+     * Render the Duration column value
+     *
+     * @param string $value
+     * @param \Magento\Framework\DataObject $row
+     * @param \Magento\Backend\Block\Widget\Grid\Column $column
+     * @param bool $isExport
+     * @return string
+     */
+    public function renderDurationColumn($value, $row, $column, $isExport)
+    {
+        $cycle = $row->getData('cycles');
+        $uses  = $row->getData('uses');
+
+        if (is_null($cycle)) {
+            return __('Permanent');
+        }
+
+        if (is_null($uses)) {
+            return $cycle;
+        }
+
+        return __('Temporary (%1/%2)', $uses, $cycle);
     }
 
     /**

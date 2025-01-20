@@ -10,4 +10,7 @@
     <event name="sales_order_save_after">
         <observer name="vindi_payment_order_save_after" instance="Vindi\Payment\Observer\OrderSaveAfter" />
     </event>
+    <event name="vindi_subscription_update">
+        <observer name="vindi_subscription_update_observer" instance="Vindi\Payment\Observer\UpdateSubscriptionObserver"/>
+    </event>
 </config>

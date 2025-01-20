@@ -183,16 +183,48 @@ class ProcessOrderPaidQueue
             $shippingAmount     = $order->getShippingAmount();
             $baseSubtotal       = $order->getBaseSubtotal();
             $subtotal           = $order->getSubtotal();
+            $baseDiscountAmount = $order->getBaseDiscountAmount();
+            $discountAmount     = $order->getDiscountAmount();
 
-            foreach ($order->getAllItems() as $item) {
-                $invoiceItem = $this->invoiceItemFactory->create();
-                $invoiceItem->setOrderItem($item);
-                $invoiceItem->setQty($item->getQtyOrdered());
-                $invoiceItem->setPrice($item->getPrice());
-                $invoiceItem->setBasePrice($item->getBasePrice());
-                $invoiceItem->setRowTotal($item->getRowTotal() * $item->getQtyOrdered());
-                $invoiceItem->setBaseRowTotal($item->getBaseRowTotal() * $item->getQtyOrdered());
-                $invoice->addItem($invoiceItem);
+            $orderItems = $order->getAllVisibleItems();
+            $countOrderItems = count($orderItems);
+
+            $invoiceItems = $invoice->getAllItems();
+            $countInvoiceItems = count($invoiceItems);
+
+            if ($countOrderItems == $countInvoiceItems) {
+                foreach ($invoiceItems as $invoiceItem) {
+                    $orderItem = $invoiceItem->getOrderItem();
+
+                    $invoiceItem->setQty($orderItem->getQtyOrdered());
+                    $invoiceItem->setPrice($orderItem->getPrice());
+                    $invoiceItem->setBasePrice($orderItem->getBasePrice());
+                    $invoiceItem->setRowTotal($orderItem->getRowTotal() * $orderItem->getQtyOrdered());
+                    $invoiceItem->setBaseRowTotal($orderItem->getBaseRowTotal() * $orderItem->getQtyOrdered());
+                }
+            } else {
+                $existingInvoiceItems = [];
+                foreach ($invoiceItems as $invoiceItem) {
+                    $existingInvoiceItems[] = $invoiceItem->getOrderItem()->getItemId();
+                }
+
+                foreach ($orderItems as $item) {
+                    if (!in_array($item->getItemId(), $existingInvoiceItems)) {
+                        $invoiceItem = $this->invoiceItemFactory->create();
+                        $invoiceItem->setOrderItem($item);
+                        $invoiceItem->setQty($item->getQtyOrdered());
+                        $invoiceItem->setPrice($item->getPrice());
+                        $invoiceItem->setBasePrice($item->getBasePrice());
+                        $invoiceItem->setRowTotal($item->getRowTotal() * $item->getQtyOrdered());
+                        $invoiceItem->setBaseRowTotal($item->getBaseRowTotal() * $item->getQtyOrdered());
+                        $invoice->addItem($invoiceItem);
+                    }
+                }
+            }
+
+            if ($baseDiscountAmount || $discountAmount) {
+                $invoice->setBaseDiscountAmount($baseDiscountAmount);
+                $invoice->setDiscountAmount($discountAmount);
             }
 
             $invoice->setBaseSubtotal($baseSubtotal);

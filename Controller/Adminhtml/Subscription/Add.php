@@ -10,10 +10,10 @@ use Vindi\Payment\Model\ResourceModel\Subscription as SubscriptionResource;
 use Magento\Framework\Exception\NoSuchEntityException;
 
 /**
- * Class Edit
+ * Class Add
  * @package Vindi\Payment\Controller\Adminhtml\Subscription
  */
-class Edit extends Action
+class Add extends Action
 {
     /**
      * @var PageFactory
@@ -64,18 +64,10 @@ class Edit extends Action
                 $subscription = $this->subscriptionResource->getById($id);
 
                 $this->registry->register('vindi_payment_subscription_id', $id);
+                $this->registry->register('current_customer_id', $subscription->getCustomerId());
+                $this->registry->register('vindi_current_subscription_payment_method', $subscription->getPaymentMethod());
+                $this->registry->register('vindi_current_subscription_payment_profile', $subscription->getPaymentProfile());
 
-                if ($subscription && $subscription->getCustomerId()) {
-                    $this->registry->register('current_customer_id', $subscription->getCustomerId());
-                }
-
-                if ($subscription && $subscription->getPaymentMethod()) {
-                    $this->registry->register('vindi_current_subscription_payment_method', $subscription->getPaymentMethod());
-                }
-
-                if ($subscription && $subscription->getPaymentProfile()) {
-                    $this->registry->register('vindi_current_subscription_payment_profile', $subscription->getPaymentProfile());
-                }
             } catch (NoSuchEntityException $e) {
                 $this->messageManager->addErrorMessage(__('This subscription no longer exists.'));
                 return $this->_redirect('*/*/');
@@ -83,7 +75,7 @@ class Edit extends Action
         }
 
         $resultPage = $this->resultPageFactory->create();
-        $resultPage->getConfig()->getTitle()->prepend(__('Subscription #%1', $id));
+        $resultPage->getConfig()->getTitle()->prepend(__('Subscription #%1 > Add New Item', $id));
 
         return $resultPage;
     }
