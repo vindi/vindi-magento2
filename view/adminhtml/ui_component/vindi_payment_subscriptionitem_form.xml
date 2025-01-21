@@ -87,29 +87,5 @@
                 <dataScope>quantity</dataScope>
             </settings>
         </field>
-        <field name="status" sortOrder="30" formElement="checkbox">
-            <argument name="data" xsi:type="array">
-                <item name="config" xsi:type="array">
-                    <item name="source" xsi:type="string">menu</item>
-                    <item name="default" xsi:type="string">active</item>
-                </item>
-            </argument>
-            <settings>
-                <dataType>boolean</dataType>
-                <label translate="true">Status</label>
-                <dataScope>status</dataScope>
-            </settings>
-            <formElements>
-                <checkbox>
-                    <settings>
-                        <valueMap>
-                            <map name="false" xsi:type="string">inactive</map>
-                            <map name="true" xsi:type="string">active</map>
-                        </valueMap>
-                        <prefer>toggle</prefer>
-                    </settings>
-                </checkbox>
-            </formElements>
-        </field>
     </fieldset>
 </form>

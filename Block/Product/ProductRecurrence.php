@@ -73,6 +73,23 @@ class ProductRecurrence extends Template
     }
 
     /**
+     * Get cache key informative items
+     *
+     * @return array
+     */
+    public function getCacheKeyInfo()
+    {
+        return [
+            'BLOCK_TPL',
+            $this->_storeManager->getStore()->getCode(),
+            $this->getTemplateFile(),
+            'base_url' => $this->getBaseUrl(),
+            'template' => $this->getTemplate(),
+            'current_product' => $this->getCurrentProduct()->getId(),
+        ];
+    }
+
+    /**
      * Returns the current product from the registry.
      *
      * @return Product|null
@@ -82,6 +99,14 @@ class ProductRecurrence extends Template
         return $this->_registry->registry('current_product');
     }
 
+    public function getProductId(): int
+    {
+        try {
+            return $this->getCurrentProduct()->getId();
+        } catch (\Exception $e) {
+            return 0;
+        }
+    }
     /**
      * Returns the name of a plan by its ID.
      *

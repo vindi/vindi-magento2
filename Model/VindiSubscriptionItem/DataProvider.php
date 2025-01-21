@@ -9,11 +9,38 @@ use Magento\Ui\DataProvider\Modifier\PoolInterface;
 
 class DataProvider extends \Magento\Ui\DataProvider\ModifierPoolDataProvider
 {
+    /**
+     * @var \Vindi\Payment\Model\ResourceModel\VindiSubscriptionItem\Collection
+     */
     protected $collection;
+
+    /**
+     * @var DataPersistorInterface
+     */
     protected $dataPersistor;
+
+    /**
+     * @var array
+     */
     protected $loadedData;
+
+    /**
+     * @var Data
+     */
     protected $helper;
 
+    /**
+     * DataProvider constructor.
+     * @param string $name
+     * @param string $primaryFieldName
+     * @param string $requestFieldName
+     * @param CollectionFactory $subscriptionItemCollectionFactory
+     * @param DataPersistorInterface $dataPersistor
+     * @param Data $helper
+     * @param array $meta
+     * @param array $data
+     * @param PoolInterface|null $pool
+     */
     public function __construct(
         string $name,
         string $primaryFieldName,
@@ -31,6 +58,9 @@ class DataProvider extends \Magento\Ui\DataProvider\ModifierPoolDataProvider
         parent::__construct($name, $primaryFieldName, $requestFieldName, $meta, $data, $pool);
     }
 
+    /**
+     * @return array
+     */
     public function getData()
     {
         if (isset($this->loadedData)) {
@@ -39,11 +69,12 @@ class DataProvider extends \Magento\Ui\DataProvider\ModifierPoolDataProvider
 
         $items = $this->collection->getItems();
 
+        /** @var \Vindi\Payment\Model\VindiSubscriptionItem $subscriptionItem */
         foreach ($items as $subscriptionItem) {
             $result['settings']  = $subscriptionItem->getData();
-            $result['entity_id'] = $subscriptionItem->getId();
-
-            $result['settings']['price'] = number_format((float) $subscriptionItem->getPrice(), 2, '.', '');
+            $price = number_format((float) $result['settings']['price'], 2, '.', '');
+            $result['settings']['price'] = $price;
+            $result['entity_id'] = $subscriptionItem->getEntityId();
 
             $this->loadedData[$subscriptionItem->getEntityId()] = $result;
         }
