@@ -760,7 +760,6 @@
 "Temporary for %1 periods","Temporário por %1 períodos"
 "Are you sure you want to delete this discount?","Tem certeza de que deseja excluir este desconto?"
 "Card Information","Dados do Cartão"
-"Cannot delete item. Subscription must have at least one non-shipping item with a price greater than zero.","Não é possível excluir o item. A assinatura deve ter pelo menos um item que não seja de frete com preço maior que zero."
 "A subscription must have at least one non-shipping item with a price greater than zero.","Uma assinatura deve ter pelo menos um item que não seja de frete com preço maior que zero."
 "The quantity of the shipping item cannot be changed. Only the price can be updated.","A quantidade do item de frete não pode ser alterada. Somente o preço pode ser atualizado."
 "Cannot delete item. Subscription must have at least one non-shipping item with a price greater than zero.","Não é possível excluir o item. A assinatura deve ter pelo menos um item que não seja de frete com preço maior que zero."
