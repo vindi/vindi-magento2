@@ -731,7 +731,6 @@
 "This payment link has expired.","Este link de pagamento expirou."
 "The payment success page has already been accessed.","A página de sucesso do pagamento já foi acessada."
 "Card Information","Dados do Cartão"
-"Cannot delete item. Subscription must have at least one non-shipping item with a price greater than zero.","Não é possível excluir o item. A assinatura deve ter pelo menos um item que não seja de frete com preço maior que zero."
 "A subscription must have at least one non-shipping item with a price greater than zero.","Uma assinatura deve ter pelo menos um item que não seja de frete com preço maior que zero."
 "The quantity of the shipping item cannot be changed. Only the price can be updated.","A quantidade do item de frete não pode ser alterada. Somente o preço pode ser atualizado."
 "Cannot delete item. Subscription must have at least one non-shipping item with a price greater than zero.","Não é possível excluir o item. A assinatura deve ter pelo menos um item que não seja de frete com preço maior que zero."
