@@ -297,12 +297,23 @@ class View extends Container
     }
 
     /**
+     * Get cycle label
+     *
      * @param $cycle
+     * @param $uses
      * @return string
      */
-    public function getCycleLabel($cycle)
+    public function getCycleLabel($cycle, $uses = null)
     {
-        return is_null($cycle) ? __('Permanent') : $cycle;
+        if (is_null($cycle)) {
+            return __('Permanent');
+        }
+
+        if (is_null($uses)) {
+            return $cycle;
+        }
+
+        return __('Temporary (%1/%2)', $uses, $cycle);
     }
 
     /**
@@ -431,7 +442,10 @@ class View extends Container
                     $subscriptionItem->setProductItemId($item['id']);
                     $subscriptionItem->setProductName($item['product']['name']);
                     $subscriptionItem->setProductCode($item['product']['code']);
+                    $subscriptionItem->setStatus($item['status']);
                     $subscriptionItem->setQuantity($item['quantity']);
+                    $subscriptionItem->setUses($item['uses']);
+                    $subscriptionItem->setCycles($item['cycles']);
                     $subscriptionItem->setPrice($item['pricing_schema']['price']);
                     $subscriptionItem->setPricingSchemaId($item['pricing_schema']['id']);
                     $subscriptionItem->setPricingSchemaType($item['pricing_schema']['schema_type']);

@@ -112,7 +112,7 @@ $subscription = $block->getSubscription();
                             <div class="option-value"><?php echo $block->escapeHtml($product['quantity']) ?></div>
                         </td>
                         <td class="col-cycle">
-                            <div class="option-value"><?php echo $block->escapeHtml($block->getCycleLabel($product['cycles'])) ?></div>
+                            <div class="option-value"><?php echo $block->escapeHtml($block->getCycleLabel($product['cycles'], $product['uses'])) ?></div>
                         </td>
                         <td class="col-price">
                             <div class="price-excl-tax">

@@ -91,7 +91,7 @@ class ProductItems
     public function deleteProductItem($productItemId)
     {
         $response = $this->api->request("product_items/{$productItemId}", 'DELETE');
-        if ($response === true) {
+        if (isset($response["product_item"]["id"])) {
             return true;
         }
 
