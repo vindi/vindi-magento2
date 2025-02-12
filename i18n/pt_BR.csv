@@ -752,7 +752,7 @@
 "amount","valor"
 "quantity","quantidade"
 "Fixed Amount","Valor Fixo"
-" units"," unidades"
+"units","unidades"
 "Subscription ID is missing for the discount.","ID da Assinatura está faltando para o desconto."
 "Failed to delete the discount from the subscription in the API.","Falha ao deletar o desconto da assinatura na API."
 "The discount was successfully deleted from the subscription.","O desconto foi excluído com sucesso da assinatura."
@@ -763,3 +763,4 @@
 "A subscription must have at least one non-shipping item with a price greater than zero.","Uma assinatura deve ter pelo menos um item que não seja de frete com preço maior que zero."
 "The quantity of the shipping item cannot be changed. Only the price can be updated.","A quantidade do item de frete não pode ser alterada. Somente o preço pode ser atualizado."
 "Cannot delete item. Subscription must have at least one non-shipping item with a price greater than zero.","Não é possível excluir o item. A assinatura deve ter pelo menos um item que não seja de frete com preço maior que zero."
+"Percentage","Porcentagem"

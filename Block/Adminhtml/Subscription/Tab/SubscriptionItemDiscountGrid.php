@@ -153,11 +153,11 @@ class SubscriptionItemDiscountGrid extends \Magento\Backend\Block\Widget\Grid\Ex
         $discountType = $row->getData('discount_type');
         switch ($discountType) {
             case 'percentage':
-                return $row->getData('percentage') . '%';
+                return str_replace('.', ',', $row->getData('percentage')) . '%';
             case 'amount':
                 return $this->priceHelper->currency($row->getData('amount'), true, false);
             case 'quantity':
-                return $row->getData('quantity') . ' units';
+                return $row->getData('quantity') . ' ' . __('units');
             default:
                 return __('Unknown');
         }
