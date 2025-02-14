@@ -8,9 +8,7 @@ use Vindi\Payment\Helper\Api;
 class PaymentMethod
 {
     public const BANK_SLIP = 'bank_slip';
-
     public const BANK_SLIP_PIX = 'pix_bank_slip';
-
     public const PIX = 'pix';
     public const CREDIT_CARD = 'credit_card';
     public const DEBIT_CARD = 'debit_card';
@@ -121,7 +119,7 @@ class PaymentMethod
                             $method['payment_companies']
                         );
                     } elseif ('PaymentMethod::DebitCard' === $method['type']) {
-                        $paymentMethods['debit_card'] = array_merge(
+                        $this->methods['debit_card'] = array_merge(
                             $this->methods['debit_card'],
                             $method['payment_companies']
                         );
@@ -132,6 +130,23 @@ class PaymentMethod
             }
         }
         return $this->methods;
+    }
+
+    /**
+     * Convert credit card type abbreviation to full name if necessary.
+     *
+     * @param string $ccType
+     * @return string
+     */
+    public function convertCcTypeToFullName(string $ccType): string
+    {
+        $ccTypeTrimmed = strtolower(trim($ccType));
+        foreach ($this->methodsCodes as $fullName => $abbrev) {
+            if (strtolower($abbrev) === $ccTypeTrimmed) {
+                return $fullName;
+            }
+        }
+        return $ccType;
     }
 
     /**
