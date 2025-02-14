@@ -17,20 +17,29 @@ use Magento\Framework\Exception\LocalizedException;
  */
 class SaveSubscriptionItem extends Action
 {
-    /** @var ProductItems */
+    /**
+     * @var ProductItems
+     */
     protected $productItems;
 
-    /** @var VindiSubscriptionItemRepository */
+    /**
+     * @var VindiSubscriptionItemRepository
+     */
     protected $subscriptionItemRepository;
 
-    /** @var JsonFactory */
+    /**
+     * @var JsonFactory
+     */
     protected $resultJsonFactory;
 
-    /** @var VindiSubscriptionItemCollectionFactory */
+    /**
+     * @var VindiSubscriptionItemCollectionFactory
+     */
     protected $vindiSubscriptionItemCollectionFactory;
 
     /**
      * SaveSubscriptionItem constructor.
+     *
      * @param Context $context
      * @param ProductItems $productItems
      * @param VindiSubscriptionItemRepository $subscriptionItemRepository
@@ -72,6 +81,7 @@ class SaveSubscriptionItem extends Action
             $entityId = $postData['entity_id'] ?? null;
             $price = $postData['settings']['price'] ?? null;
             $quantity = $postData['settings']['quantity'] ?? null;
+            $status = $postData['settings']['status'] ?? null;
 
             if (!$entityId || ($price === null && $quantity === null)) {
                 throw new LocalizedException(__('You must provide at least one of the fields: price or quantity.'));
@@ -79,9 +89,30 @@ class SaveSubscriptionItem extends Action
 
             $subscriptionItem = $this->subscriptionItemRepository->getById($entityId);
             $productCode = $subscriptionItem->getProductCode();
+            $subscriptionId = $subscriptionItem->getSubscriptionId();
 
             if ($productCode === 'frete' && $quantity !== null) {
                 throw new LocalizedException(__('The quantity of the shipping item cannot be changed. Only the price can be updated.'));
+            }
+
+            if ($status !== null) {
+                if ($productCode === 'frete' && $status !== 'active') {
+                    throw new LocalizedException(__('Shipping items must remain active.'));
+                }
+
+                if ($status === 'inactive') {
+                    $itemsCollection = $this->vindiSubscriptionItemCollectionFactory->create();
+                    $itemsCollection->addFieldToFilter('subscription_id', $subscriptionId)
+                        ->addFieldToFilter('product_code', ['neq' => 'frete'])
+                        ->addFieldToFilter('entity_id', ['neq' => $entityId])
+                        ->addFieldToFilter('status', 'active');
+
+                    $activeItems = $itemsCollection->getSize();
+
+                    if ($activeItems == 0) {
+                        throw new LocalizedException(__('A subscription must have at least one non-shipping active item.'));
+                    }
+                }
             }
 
             $data = [];
@@ -92,13 +123,14 @@ class SaveSubscriptionItem extends Action
 
             if ($quantity !== null) {
                 $data['quantity'] = (int)$quantity;
-
                 if ($quantity > 1) {
                     $data['pricing_schema']['schema_type'] = 'per_unit';
                 }
             }
 
-            $subscriptionId = $subscriptionItem->getSubscriptionId();
+            if ($status !== null) {
+                $data['status'] = $status;
+            }
 
             if ((float)$price === 0.00 && $productCode !== 'frete') {
                 $itemsCollection = $this->vindiSubscriptionItemCollectionFactory->create();
@@ -127,6 +159,10 @@ class SaveSubscriptionItem extends Action
 
             if ($quantity !== null) {
                 $subscriptionItem->setQuantity($quantity);
+            }
+
+            if ($status !== null) {
+                $subscriptionItem->setStatus($status);
             }
 
             $this->subscriptionItemRepository->save($subscriptionItem);
