@@ -220,28 +220,30 @@ class UpdateSubscriptionObserver implements ObserverInterface
             if (!isset($apiItem['product']) || !is_array($apiItem['product'])) {
                 continue;
             }
-            if (isset($apiItem['discount']) && is_array($apiItem['discount']) && !empty($apiItem['discount'])) {
-                $discountData = $apiItem['discount'];
-                if (!isset($discountData['id'])) {
-                    continue;
+            if (isset($apiItem['discounts']) && is_array($apiItem['discounts']) && !empty($apiItem['discounts'])) {
+                foreach ($apiItem['discounts'] as $discountData) {
+                    if (!isset($discountData['id'])) {
+                        continue;
+                    }
+                    $apiDiscounts[$discountData['id']] = [
+                        'vindi_discount_id' => $discountData['id'],
+                        'subscription_id' => $subscriptionId,
+                        'product_item_id' => $apiItem['id'] ?? 0,
+                        'product_name' => $apiItem['product']['name'] ?? '',
+                        'magento_product_sku' => $apiItem['product']['code'] ?? '',
+                        'discount_type' => $discountData['discount_type'] ?? '',
+                        'percentage' => $discountData['percentage'] ?? null,
+                        'amount' => $discountData['amount'] ?? null,
+                        'quantity' => $discountData['quantity'] ?? null,
+                        'cycles' => $discountData['cycles'] ?? null,
+                    ];
                 }
-                $apiDiscounts[$discountData['id']] = [
-                    'vindi_discount_id' => $discountData['id'],
-                    'subscription_id' => $subscriptionId,
-                    'product_item_id' => $apiItem['id'] ?? 0,
-                    'product_name' => $apiItem['product']['name'] ?? '',
-                    'magento_product_sku' => $apiItem['product']['code'] ?? '',
-                    'discount_type' => $discountData['discount_type'] ?? '',
-                    'percentage' => $discountData['percentage'] ?? null,
-                    'amount' => $discountData['amount'] ?? null,
-                    'quantity' => $discountData['quantity'] ?? null,
-                    'cycles' => $discountData['cycles'] ?? null,
-                ];
             }
         }
 
         $discountCollection = $this->vindiSubscriptionItemDiscountCollectionFactory->create();
         $discountCollection->addFieldToFilter('subscription_id', $subscriptionId);
+
         $existingDiscounts = [];
         foreach ($discountCollection as $discount) {
             $existingDiscounts[$discount->getVindiDiscountId()] = $discount;
