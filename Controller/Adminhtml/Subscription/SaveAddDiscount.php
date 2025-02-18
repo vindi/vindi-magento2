@@ -88,7 +88,7 @@ class SaveAddDiscount extends Action
 
             $this->saveDiscount($postData, $subscriptionId, $response['discount']['id']);
 
-            $this->eventManager->dispatch('vindi_subscription_update', ['subscription_id' => $subscriptionId]);
+            $this->eventManager->dispatch('vindi_subscription_update', ['subscription_id' => $subscriptionId, 'skip_sync_discount' => true]);
             $this->messageManager->addSuccessMessage(__('New discount added successfully.'));
         } catch (LocalizedException $e) {
             $this->messageManager->addErrorMessage($e->getMessage());

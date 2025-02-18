@@ -67,6 +67,7 @@ class UpdateSubscriptionObserver implements ObserverInterface
     public function execute(Observer $observer)
     {
         $subscriptionId = $observer->getEvent()->getData('subscription_id');
+        $skipSync = $observer->getEvent()->getData('skip_sync_discount') ?? false;
 
         if (!$subscriptionId) {
             $this->messageManager->addErrorMessage(__('Missing subscription ID.'));
@@ -76,7 +77,9 @@ class UpdateSubscriptionObserver implements ObserverInterface
         try {
             $this->updateSubscriptionData($subscriptionId);
             $this->checkAndSaveSubscriptionItems($subscriptionId);
-            $this->checkAndSyncSubscriptionDiscounts($subscriptionId);
+            if (!$skipSync) {
+                $this->checkAndSyncSubscriptionDiscounts($subscriptionId);
+            }
         } catch (\Exception $e) {
             $this->messageManager->addErrorMessage(__('Error updating subscription: %1', $e->getMessage()));
         }

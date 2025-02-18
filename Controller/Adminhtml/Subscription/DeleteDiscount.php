@@ -91,7 +91,7 @@ class DeleteDiscount extends Action
             }
 
             $this->discountRepository->delete($discount);
-            $this->eventManager->dispatch('vindi_subscription_update', ['subscription_id' => $subscriptionId]);
+            $this->eventManager->dispatch('vindi_subscription_update', ['subscription_id' => $subscriptionId, 'skip_sync_discount' => true]);
             $this->messageManager->addSuccessMessage(__('The discount was successfully deleted from the subscription.'));
         } catch (LocalizedException $e) {
             $this->messageManager->addErrorMessage($e->getMessage());
