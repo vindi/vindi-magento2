@@ -184,7 +184,11 @@ class OrderCreator
                 if ($productCode !== 'frete') {
                     $productItemId = $billItem['product_item']['id'] ?? null;
                     if ($productItemId) {
-                        $discountsByProductItemId[$productItemId] = abs($billItem['amount']);
+                        if (isset($discountsByProductItemId[$productItemId])) {
+                            $discountsByProductItemId[$productItemId] += abs($billItem['amount']);
+                        } else {
+                            $discountsByProductItemId[$productItemId] = abs($billItem['amount']);
+                        }
                     }
                     $totalDiscount += abs($billItem['amount']);
                 } else {
