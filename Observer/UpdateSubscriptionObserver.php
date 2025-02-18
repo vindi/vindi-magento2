@@ -220,7 +220,7 @@ class UpdateSubscriptionObserver implements ObserverInterface
             return;
         }
 
-        $aggregatedApiDiscounts = [];
+        $apiDiscounts = [];
         foreach ($subscriptionData['product_items'] as $apiItem) {
             if (!isset($apiItem['id'])) {
                 continue;
@@ -229,29 +229,23 @@ class UpdateSubscriptionObserver implements ObserverInterface
                 continue;
             }
             if (isset($apiItem['discounts']) && is_array($apiItem['discounts']) && !empty($apiItem['discounts'])) {
-                $totalAmount = 0;
-                $discountTypes = [];
-                $discountIds = [];
                 foreach ($apiItem['discounts'] as $discountData) {
                     if (!isset($discountData['id'])) {
                         continue;
                     }
-                    $totalAmount += floatval($discountData['amount'] ?? 0);
-                    $discountTypes[] = $discountData['discount_type'] ?? '';
-                    $discountIds[] = $discountData['id'];
+                    $apiDiscounts[$discountData['id']] = [
+                        'vindi_discount_id' => $discountData['id'],
+                        'subscription_id' => $subscriptionId,
+                        'product_item_id' => $apiItem['id'] ?? 0,
+                        'product_name' => $apiItem['product']['name'] ?? '',
+                        'magento_product_sku' => $apiItem['product']['code'] ?? '',
+                        'discount_type' => $discountData['discount_type'] ?? '',
+                        'percentage' => $discountData['percentage'] ?? null,
+                        'amount' => $discountData['amount'] ?? null,
+                        'quantity' => $discountData['quantity'] ?? null,
+                        'cycles' => $discountData['cycles'] ?? null,
+                    ];
                 }
-                $aggregatedApiDiscounts[$apiItem['id']] = [
-                    'vindi_discount_id' => implode(',', $discountIds),
-                    'subscription_id' => $subscriptionId,
-                    'product_item_id' => $apiItem['id'],
-                    'product_name' => $apiItem['product']['name'] ?? '',
-                    'magento_product_sku' => $apiItem['product']['code'] ?? '',
-                    'discount_type' => implode(',', $discountTypes),
-                    'percentage' => null,
-                    'amount' => $totalAmount,
-                    'quantity' => null,
-                    'cycles' => null,
-                ];
             }
         }
 
@@ -260,18 +254,18 @@ class UpdateSubscriptionObserver implements ObserverInterface
 
         $existingDiscounts = [];
         foreach ($discountCollection as $discount) {
-            $existingDiscounts[$discount->getProductItemId()] = $discount;
+            $existingDiscounts[$discount->getVindiDiscountId()] = $discount;
         }
 
-        foreach ($existingDiscounts as $productItemId => $existingDiscount) {
-            if (!isset($aggregatedApiDiscounts[$productItemId])) {
+        foreach ($existingDiscounts as $vindiDiscountId => $existingDiscount) {
+            if (!isset($apiDiscounts[$vindiDiscountId])) {
                 $existingDiscount->delete();
             }
         }
 
-        foreach ($aggregatedApiDiscounts as $productItemId => $apiDiscount) {
-            if (isset($existingDiscounts[$productItemId])) {
-                $this->updateDiscountIfChanged($existingDiscounts[$productItemId], $apiDiscount);
+        foreach ($apiDiscounts as $vindiDiscountId => $apiDiscount) {
+            if (isset($existingDiscounts[$vindiDiscountId])) {
+                $this->updateDiscountIfChanged($existingDiscounts[$vindiDiscountId], $apiDiscount);
             } else {
                 $this->createSubscriptionDiscount($subscriptionId, $apiDiscount);
             }
