@@ -7,6 +7,7 @@ use Vindi\Payment\Api\OrderCreationQueueRepositoryInterface;
 use Vindi\Payment\Helper\WebHookHandlers\OrderCreator;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Lock\LockManagerInterface;
+use Magento\Framework\Event\ManagerInterface as EventManager;
 
 class ProcessOrderCreationQueue
 {
@@ -31,6 +32,11 @@ class ProcessOrderCreationQueue
     private $lockManager;
 
     /**
+     * @var EventManager
+     */
+    private $eventManager;
+
+    /**
      * Lock name for this cron job
      */
     private const LOCK_NAME = 'vindi_payment_process_order_creation_queue';
@@ -42,17 +48,20 @@ class ProcessOrderCreationQueue
      * @param OrderCreationQueueRepositoryInterface $orderCreationQueueRepository
      * @param OrderCreator $orderCreator
      * @param LockManagerInterface $lockManager
+     * @param EventManager $eventManager
      */
     public function __construct(
         LoggerInterface $logger,
         OrderCreationQueueRepositoryInterface $orderCreationQueueRepository,
         OrderCreator $orderCreator,
-        LockManagerInterface $lockManager
+        LockManagerInterface $lockManager,
+        EventManager $eventManager
     ) {
         $this->logger = $logger;
         $this->orderCreationQueueRepository = $orderCreationQueueRepository;
         $this->orderCreator = $orderCreator;
         $this->lockManager = $lockManager;
+        $this->eventManager = $eventManager;
     }
 
     /**
@@ -86,6 +95,12 @@ class ProcessOrderCreationQueue
             if ($result) {
                 $queueItem->setStatus('completed');
                 $this->logger->info(__('Successfully processed order creation queue item ID %1', $queueItem->getId()));
+
+                $subscriptionId = $billData["bill"]["subscription"]["id"] ?? null;
+
+                if ($subscriptionId) {
+                    $this->eventManager->dispatch('vindi_subscription_update', ['subscription_id' => $subscriptionId]);
+                }
             } else {
                 $queueItem->setStatus('failed');
                 $this->logger->error(__('Failed to process order creation queue item ID %1', $queueItem->getId()));
