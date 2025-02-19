@@ -33,22 +33,10 @@
                     echo $param = $request->getParam('order_id'); ?>"/>
 
                     <span class="link" style="display: none"><?= $block->getPaymentLink(); ?></span>
-
-                    <input type="text"
-                           class="admin__control-text"
-                           value="<?php echo $block->getPaymentLink(); ?>"
-                           style="margin-right: 10px"
-                           readonly>
-                    <button class="pix-copy-button"
-                            style="margin-right: 10px"
-                            data-text="<?= $block->escapeHtml(__('Copied!')) ?>"
-                            onclick="vindiVr.copyCode(this, '.link', false)">
-                        <?= $block->escapeHtml(__('Copy link')) ?>
-                    </button>
                 </fieldset>
 
                 <button id="vind_payment_send" class="action-default action-secondary action-send">
-                    <?php /* @escapeNotVerified */ echo __('Create and send new payment link') ?>
+                    <?php /* @escapeNotVerified */ echo __('Send Payment Link') ?>
                 </button>
             <?php endif; ?>
         </div>
