@@ -713,7 +713,7 @@ abstract class AbstractMethod extends OriginAbstractMethod
             'customer_id' => $order->getCustomerId(),
             'customer_email' => $order->getCustomerEmail(),
             'cc_name' => $payment->getCcOwner(),
-            'cc_type' => $payment->getCcType(),
+            'cc_type' => $this->paymentMethod->convertCcTypeToFullName($payment->getCcType()),
             'cc_last_4' => $payment->getCcLast4(),
             'status' => $paymentProfileData["status"],
             'token' => $paymentProfileData["token"],

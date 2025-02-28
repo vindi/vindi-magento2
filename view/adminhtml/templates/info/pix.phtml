@@ -22,7 +22,7 @@ use Vindi\Payment\Block\Info\Pix;
     <?php endif; ?>
         <dd class="content">
             <?php if ($block->getQrCodePix()): ?>
-                <object data="<?= $block->getQrCodePix() ?>" type="image/svg+xml" class="qr-code" id="qrcode">
+                <object data="<?= $block->getQrCodePix() ?>" type="image/svg+xml" class="qr-code" id="qrcode" width="200" height="200">
                     <p>
                         <?= $block->getQrCodeWarningMessage() ?>
                     </p>
