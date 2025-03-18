@@ -1,5 +1,4 @@
 <?php
-
 namespace Vindi\Payment\Block\Adminhtml\Subscription;
 
 use DateTime;
@@ -299,8 +298,8 @@ class View extends Container
     /**
      * Get cycle label
      *
-     * @param $cycle
-     * @param $uses
+     * @param mixed $cycle
+     * @param mixed $uses
      * @return string
      */
     public function getCycleLabel($cycle, $uses = null)
@@ -346,13 +345,12 @@ class View extends Container
         }
 
         $discounts = [];
-        foreach ($products as $key => $product) {
+        foreach ($products as $product) {
             if (empty($product['discounts'])) {
                 continue;
             }
-
             foreach ($product['discounts'] as $discount) {
-                $discounts[$key] = array_merge($discount, [
+                $discounts[] = array_merge($discount, [
                     'product' => $product['product']['name']
                 ]);
             }
@@ -362,7 +360,27 @@ class View extends Container
     }
 
     /**
-     * @param $date
+     * Render discount value based on discount type
+     *
+     * @param array $discount
+     * @return string
+     */
+    public function renderDiscount(array $discount)
+    {
+        switch ($discount['discount_type']) {
+            case 'percentage':
+                return str_replace('.', ',', $discount['percentage']) . '%';
+            case 'amount':
+                return $this->priceHelper->format($discount['amount'], true);
+            case 'quantity':
+                return $discount['quantity'] . ' ' . __('units');
+            default:
+                return __('Unknown');
+        }
+    }
+
+    /**
+     * @param mixed $date
      * @return string
      */
     public function dateFormat($date)
@@ -401,7 +419,7 @@ class View extends Container
     }
 
     /**
-     * @param $amount
+     * @param mixed $amount
      * @return string
      */
     public function formatPrice($amount)
@@ -482,4 +500,3 @@ class View extends Container
         return $this->subscriptions;
     }
 }
-

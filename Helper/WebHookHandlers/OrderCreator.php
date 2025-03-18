@@ -92,6 +92,8 @@ class OrderCreator
     }
 
     /**
+     * Create order from bill data.
+     *
      * @param array $billData
      * @return bool
      */
@@ -124,6 +126,8 @@ class OrderCreator
     }
 
     /**
+     * Retrieve order from subscription ID.
+     *
      * @param string $subscriptionId
      * @return Order|null
      */
@@ -139,6 +143,8 @@ class OrderCreator
     }
 
     /**
+     * Replicate an existing order based on bill data and apply individual item discounts.
+     *
      * @param Order $originalOrder
      * @param array $billData
      * @return Order
@@ -148,8 +154,8 @@ class OrderCreator
         $newOrder = clone $originalOrder;
         $newOrder->setId(null);
         $newOrder->setIncrementId(null);
-        $newOrder->setVindiBillId($billData['id']);
-        $newOrder->setVindiSubscriptionId($billData['subscription']['id']);
+        $newOrder->setVindiBillId($billData['id'] ?? null);
+        $newOrder->setVindiSubscriptionId($billData['subscription']['id'] ?? null);
         $newOrder->setCreatedAt(null);
         $newOrder->setState(Order::STATE_NEW);
         $newOrder->setStatus('pending');
@@ -169,35 +175,58 @@ class OrderCreator
         $billItems = $this->processBillItems($billData['bill_items']);
 
         $totalDiscount = 0;
+        $productBillItems = [];
+        $discountsByProductItemId = [];
 
         foreach ($billItems as $billItem) {
-            if ($billItem['discount_amount'] !== null) {
-                $totalDiscount += $billItem['discount_amount'];
+            $productCode = $billItem['product']['code'] ?? '';
+            if ($billItem['amount'] < 0) {
+                if ($productCode !== 'frete') {
+                    $productItemId = $billItem['product_item']['id'] ?? null;
+                    if ($productItemId) {
+                        if (isset($discountsByProductItemId[$productItemId])) {
+                            $discountsByProductItemId[$productItemId] += abs($billItem['amount']);
+                        } else {
+                            $discountsByProductItemId[$productItemId] = abs($billItem['amount']);
+                        }
+                    }
+                    $totalDiscount += abs($billItem['amount']);
+                } else {
+                    $totalDiscount += abs($billItem['amount']);
+                }
+            } else {
+                $productBillItems[] = $billItem;
+            }
+        }
+
+        foreach ($productBillItems as $billItem) {
+            $sku = $billItem['product_item']['product']['code'] ?? '';
+            if ($sku === 'frete') {
+                $shippingAmount = $billItem['pricing_schema']['price'] ?? 0;
                 continue;
             }
 
-            $sku = $billItem['product_item']['product']['code'];
-            $found = false;
+            $productItemId = $billItem['product_item']['id'] ?? null;
+            $discountForItem = 0;
+            if ($productItemId && isset($discountsByProductItemId[$productItemId])) {
+                $discountForItem = $discountsByProductItemId[$productItemId];
+            }
 
+            $found = false;
             foreach ($originalOrder->getAllVisibleItems() as $originalItem) {
                 if (Data::sanitizeItemSku($originalItem->getSku()) === $sku) {
                     $found = true;
-                    $newItem = $this->updateOrderItemFromBill($originalItem, $billItem);
+                    $newItem = $this->updateOrderItemFromBill($originalItem, $billItem, $discountForItem);
                     $newOrderItems[] = $newItem;
                     break;
                 }
             }
-
-            if (!$found && $sku !== 'frete') {
+            if (!$found) {
                 $product = $this->productFactory->create()->loadByAttribute('sku', $sku);
                 if ($product) {
-                    $newItem = $this->createNewOrderItem($product, $billItem);
+                    $newItem = $this->createNewOrderItem($product, $billItem, $discountForItem);
                     $newOrderItems[] = $newItem;
                 }
-            }
-
-            if ($sku === 'frete') {
-                $shippingAmount = $billItem['pricing_schema']['price'];
             }
         }
 
@@ -213,13 +242,12 @@ class OrderCreator
 
         $subtotal = 0;
         $taxAmount = 0;
-        $discountAmount = $totalDiscount;
         foreach ($newOrderItems as $item) {
             $subtotal += $item->getRowTotal();
             $taxAmount += $item->getTaxAmount();
         }
 
-        $grandTotal = $subtotal + $taxAmount + $shippingAmount - $discountAmount;
+        $grandTotal = $subtotal + $taxAmount + $shippingAmount - $totalDiscount;
 
         $newOrder->setSubtotal($subtotal);
         $newOrder->setBaseSubtotal($subtotal);
@@ -227,8 +255,8 @@ class OrderCreator
         $newOrder->setBaseTaxAmount($taxAmount);
         $newOrder->setShippingAmount($shippingAmount);
         $newOrder->setBaseShippingAmount($shippingAmount);
-        $newOrder->setDiscountAmount(-abs($discountAmount));
-        $newOrder->setBaseDiscountAmount(-abs($discountAmount));
+        $newOrder->setDiscountAmount(-abs($totalDiscount));
+        $newOrder->setBaseDiscountAmount(-abs($totalDiscount));
         $newOrder->setGrandTotal($grandTotal);
         $newOrder->setBaseGrandTotal($grandTotal);
         $newOrder->setTotalDue($grandTotal);
@@ -238,6 +266,8 @@ class OrderCreator
     }
 
     /**
+     * Process bill items and calculate discount amounts.
+     *
      * @param array $billItems
      * @return array
      */
@@ -256,16 +286,19 @@ class OrderCreator
     }
 
     /**
+     * Update the order item based on bill item data and apply individual discount.
+     *
      * @param Order $originalItem
      * @param array $billItem
+     * @param float|int $discount
      * @return Order
      */
-    protected function updateOrderItemFromBill($originalItem, $billItem)
+    protected function updateOrderItemFromBill($originalItem, $billItem, $discount = 0)
     {
         $newItem = clone $originalItem;
         $newItem->setId(null)->setOrderId(null);
 
-        $newPrice = $billItem['pricing_schema']['price'];
+        $newPrice = $billItem['pricing_schema']['price'] ?? 0;
         $newQty = $billItem['quantity'] ?? $originalItem->getQtyOrdered();
 
         $newItem->setPrice($newPrice);
@@ -273,16 +306,21 @@ class OrderCreator
         $newItem->setQtyOrdered($newQty);
         $newItem->setRowTotal($newPrice * $newQty);
         $newItem->setBaseRowTotal($newPrice * $newQty);
+        $newItem->setDiscountAmount($discount);
+        $newItem->setBaseDiscountAmount($discount);
 
         return $newItem;
     }
 
     /**
-     * @param $product
-     * @param $billItem
+     * Create a new order item based on product and bill item data and apply individual discount.
+     *
+     * @param \Magento\Catalog\Model\Product $product
+     * @param array $billItem
+     * @param float|int $discount
      * @return Order
      */
-    protected function createNewOrderItem($product, $billItem)
+    protected function createNewOrderItem($product, $billItem, $discount = 0)
     {
         $orderItem = $this->orderItemFactory->create();
 
@@ -297,13 +335,17 @@ class OrderCreator
         $orderItem->setQtyOrdered($qty);
         $orderItem->setRowTotal($price * $qty);
         $orderItem->setBaseRowTotal($price * $qty);
+        $orderItem->setDiscountAmount($discount);
+        $orderItem->setBaseDiscountAmount($discount);
 
         return $orderItem;
     }
 
     /**
+     * Register the subscription order.
+     *
      * @param Order $order
-     * @param $subscriptionId
+     * @param mixed $subscriptionId
      */
     protected function registerSubscriptionOrder(Order $order, $subscriptionId)
     {
@@ -324,8 +366,10 @@ class OrderCreator
     }
 
     /**
+     * Update payment details for the order based on bill data.
+     *
      * @param Order $order
-     * @param $billData
+     * @param array $billData
      */
     public function updatePaymentDetails(Order $order, $billData)
     {
