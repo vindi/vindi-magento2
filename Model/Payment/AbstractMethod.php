@@ -37,7 +37,7 @@ use Vindi\Payment\Model\ResourceModel\Subscription\Collection as SubscriptionCol
 /**
  * Class AbstractMethod
  *
- * @package \Vindi\Payment\Model\Payment
+ * @package Vindi\Payment\Model\Payment
  */
 abstract class AbstractMethod extends OriginAbstractMethod
 {
@@ -324,9 +324,10 @@ abstract class AbstractMethod extends OriginAbstractMethod
     }
 
     /**
-     * @param \Magento\Framework\DataObject|InfoInterface $payment
-     * @param float $amount
+     * Process the payment for order or subscription
      *
+     * @param InfoInterface $payment
+     * @param float $amount
      * @throws LocalizedException
      * @return $this|string
      */
@@ -376,12 +377,20 @@ abstract class AbstractMethod extends OriginAbstractMethod
         return $this->handleError($order);
     }
 
+    /**
+     * Get payment profile by ID
+     *
+     * @param int $paymentProfileId
+     * @return PaymentProfile
+     */
     protected function getPaymentProfile(int $paymentProfileId): PaymentProfile
     {
         return $this->paymentProfileRepository->getById($paymentProfileId);
     }
 
     /**
+     * Handle subscription order payment process
+     *
      * @param InfoInterface $payment
      * @param OrderItemInterface $orderItem
      * @return mixed
@@ -443,12 +452,12 @@ abstract class AbstractMethod extends OriginAbstractMethod
                 }
 
                 $bill = $responseData['bill'];
-
                 $subscription = $responseData['subscription'];
                 $billId = !$bill ? null : $bill['id'];
 
                 if ($subscription) {
                     $this->saveSubscriptionToDatabase($subscription, $order, $billId);
+                    $this->saveSubscriptionItemDiscounts($subscription, $order);
                 }
 
                 if ($bill) {
@@ -457,19 +466,17 @@ abstract class AbstractMethod extends OriginAbstractMethod
 
                 if ($this->successfullyPaid($body, $bill, $subscription)) {
                     $billId = $bill['id'] ?? 0;
-
                     $order->setVindiBillId($billId);
                     $order->setVindiSubscriptionId($responseData['subscription']['id']);
                     $this->saveOrderToSubscriptionOrdersTable($order);
-
                     return $billId;
                 } else {
                     $this->subscriptionRepository->deleteAndCancelBills($subscription['id']);
 
                     $objectManager = \Magento\Framework\App\ObjectManager::getInstance();
-                    $subscription = $objectManager->create(\Vindi\Payment\Model\Subscription::class)->load($subscription['id']);
-                    $subscription->setStatus('canceled');
-                    $subscription->save();
+                    $subscriptionObj = $objectManager->create(\Vindi\Payment\Model\Subscription::class)->load($subscription['id']);
+                    $subscriptionObj->setStatus('canceled');
+                    $subscriptionObj->save();
 
                     if ($body['payment_method_code'] === PaymentMethod::CREDIT_CARD) {
                         $paymentProfileId = $paymentProfile->getPaymentProfileId();
@@ -489,9 +496,12 @@ abstract class AbstractMethod extends OriginAbstractMethod
     }
 
     /**
+     * Save subscription data to database
+     *
      * @param array $subscription
      * @param Order $order
      * @param null $billId
+     * @return void
      */
     protected function saveSubscriptionToDatabase(array $subscription, Order $order, $billId = null)
     {
@@ -553,10 +563,12 @@ abstract class AbstractMethod extends OriginAbstractMethod
         return false;
     }
 
-
     /**
+     * Handle error during payment processing
+     *
      * @param Order $order
      * @throws LocalizedException
+     * @return void
      */
     protected function handleError(Order $order)
     {
@@ -570,9 +582,12 @@ abstract class AbstractMethod extends OriginAbstractMethod
     }
 
     /**
+     * Handle bank slip and pix additional information
+     *
      * @param InfoInterface $payment
      * @param array $body
      * @param $bill
+     * @return void
      */
     protected function handleBankSplitAdditionalInformation(InfoInterface $payment, array $body, $bill)
     {
@@ -599,6 +614,8 @@ abstract class AbstractMethod extends OriginAbstractMethod
     }
 
     /**
+     * Check if payment was successful
+     *
      * @param array $body
      * @param $bill
      * @param array $subscription
@@ -621,8 +638,9 @@ abstract class AbstractMethod extends OriginAbstractMethod
     }
 
     /**
-     * @param $paymentMethodCode
+     * Check if payment method code is valid
      *
+     * @param $paymentMethodCode
      * @return bool
      */
     protected function isValidPaymentMethodCode($paymentMethodCode)
@@ -638,8 +656,9 @@ abstract class AbstractMethod extends OriginAbstractMethod
     }
 
     /**
-     * @param $bill
+     * Check if payment is waiting for payment method response
      *
+     * @param $bill
      * @return bool
      */
     protected function isWaitingPaymentMethodResponse($bill)
@@ -652,8 +671,9 @@ abstract class AbstractMethod extends OriginAbstractMethod
     }
 
     /**
-     * @param $bill
+     * Check if bill status is valid
      *
+     * @param $bill
      * @return bool
      */
     protected function isValidStatus($bill)
@@ -673,7 +693,13 @@ abstract class AbstractMethod extends OriginAbstractMethod
     }
 
     /**
+     * Create a new payment profile
+     *
+     * @param Order $order
+     * @param InfoInterface $payment
+     * @param mixed $customerId
      * @throws \Magento\Framework\Exception\CouldNotSaveException
+     * @return PaymentProfile
      */
     public function createPaymentProfile(Order $order, InfoInterface $payment, $customerId)
     {
@@ -687,7 +713,7 @@ abstract class AbstractMethod extends OriginAbstractMethod
             'customer_id' => $order->getCustomerId(),
             'customer_email' => $order->getCustomerEmail(),
             'cc_name' => $payment->getCcOwner(),
-            'cc_type' => $payment->getCcType(),
+            'cc_type' => $this->paymentMethod->convertCcTypeToFullName($payment->getCcType()),
             'cc_last_4' => $payment->getCcLast4(),
             'status' => $paymentProfileData["status"],
             'token' => $paymentProfileData["token"],
@@ -700,8 +726,10 @@ abstract class AbstractMethod extends OriginAbstractMethod
     }
 
     /**
+     * Save order to subscription orders table
+     *
      * @param Order $order
-     * @param $billId
+     * @return void
      */
     private function saveOrderToSubscriptionOrdersTable(Order $order)
     {
@@ -718,6 +746,45 @@ abstract class AbstractMethod extends OriginAbstractMethod
             $this->connection->insert($tableName, $data);
         } catch (\Exception $e) {
             $this->psrLogger->error('Error saving order to subscription orders table: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Save subscription item discounts to database
+     *
+     * @param array $subscription
+     * @param Order $order
+     * @return void
+     */
+    protected function saveSubscriptionItemDiscounts(array $subscription, Order $order)
+    {
+        if (!isset($subscription['product_items']) || !is_array($subscription['product_items'])) {
+            return;
+        }
+        $tableName = $this->resourceConnection->getTableName('vindi_subscription_item_discount');
+        foreach ($subscription['product_items'] as $item) {
+            if (!isset($item['discounts']) || !is_array($item['discounts']) || empty($item['discounts'])) {
+                continue;
+            }
+            foreach ($item['discounts'] as $discount) {
+                $data = [
+                    'vindi_discount_id'   => $discount['id'] ?? 0,
+                    'subscription_id'      => $subscription['id'] ?? 0,
+                    'product_item_id'      => $item['id'] ?? 0,
+                    'product_name'         => $item['product']['name'] ?? '',
+                    'magento_product_sku'  => $item['product']['code'] ?? '',
+                    'discount_type'        => $discount['discount_type'] ?? '',
+                    'percentage'           => $discount['percentage'] ?? null,
+                    'amount'               => $discount['amount'] ?? null,
+                    'quantity'             => $discount['quantity'] ?? null,
+                    'cycles'               => $discount['cycles'] ?? null,
+                ];
+                try {
+                    $this->connection->insert($tableName, $data);
+                } catch (\Exception $e) {
+                    $this->psrLogger->error('Error saving subscription item discount to database: ' . $e->getMessage());
+                }
+            }
         }
     }
 }

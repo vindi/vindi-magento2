@@ -64,10 +64,18 @@ class Edit extends Action
                 $subscription = $this->subscriptionResource->getById($id);
 
                 $this->registry->register('vindi_payment_subscription_id', $id);
-                $this->registry->register('current_customer_id', $subscription->getCustomerId());
-                $this->registry->register('vindi_current_subscription_payment_method', $subscription->getPaymentMethod());
-                $this->registry->register('vindi_current_subscription_payment_profile', $subscription->getPaymentProfile());
 
+                if ($subscription && $subscription->getCustomerId()) {
+                    $this->registry->register('current_customer_id', $subscription->getCustomerId());
+                }
+
+                if ($subscription && $subscription->getPaymentMethod()) {
+                    $this->registry->register('vindi_current_subscription_payment_method', $subscription->getPaymentMethod());
+                }
+
+                if ($subscription && $subscription->getPaymentProfile()) {
+                    $this->registry->register('vindi_current_subscription_payment_profile', $subscription->getPaymentProfile());
+                }
             } catch (NoSuchEntityException $e) {
                 $this->messageManager->addErrorMessage(__('This subscription no longer exists.'));
                 return $this->_redirect('*/*/');

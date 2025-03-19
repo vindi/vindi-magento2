@@ -1,9 +1,7 @@
 <?php
-
 use Vindi\Payment\Block\Adminhtml\Subscription\View;
 
 /** @var View $block */
-
 $block->checkAndSaveSubscriptionItems();
 ?>
 <section class="admin__page-section order-view-account-information">
@@ -87,7 +85,7 @@ $block->checkAndSaveSubscriptionItems();
             </thead>
             <?php if (!empty($block->getProducts())): ?>
                 <?php foreach($block->getProducts() as $key => $product): ?>
-                    <tbody class="<?php echo ($key%2) ? 'even' : 'odd'?>">
+                    <tbody class="<?php echo ($key % 2) ? 'even' : 'odd' ?>">
                     <tr class="border">
                         <td class="col-product">
                             <div class="option-value"><?php echo $block->escapeHtml($product['product']['name']) ?></div>
@@ -96,7 +94,7 @@ $block->checkAndSaveSubscriptionItems();
                             <div class="option-value"><?php echo $block->escapeHtml($product['quantity']) ?></div>
                         </td>
                         <td class="col-cycle">
-                            <div class="option-value"><?php echo $block->escapeHtml($block->getCycleLabel($product['cycles'])) ?></div>
+                            <div class="option-value"><?php echo $block->escapeHtml($block->getCycleLabel($product['cycles'], $product['uses'])) ?></div>
                         </td>
                         <td class="col-price">
                             <div class="price-excl-tax">
@@ -129,7 +127,7 @@ $block->checkAndSaveSubscriptionItems();
             </thead>
             <?php if (!empty($block->getPeriods())): ?>
                 <?php foreach($block->getPeriods() as $key => $period): ?>
-                    <tbody class="<?php echo ($key%2) ? 'even' : 'odd'?>">
+                    <tbody class="<?php echo ($key % 2) ? 'even' : 'odd' ?>">
                     <tr class="border">
                         <td class="col-product">
                             <div class="option-value"><?php echo $block->escapeHtml($block->dateFormat($period['start_at'])) ?> - <?php echo $block->escapeHtml($block->dateFormat($period['end_at'])) ?></div>
@@ -163,7 +161,7 @@ $block->checkAndSaveSubscriptionItems();
             </thead>
             <?php if (!empty($block->getDiscounts())): ?>
                 <?php foreach($block->getDiscounts() as $key => $discount): ?>
-                    <tbody class="<?php echo ($key%2) ? 'even' : 'odd'?>">
+                    <tbody class="<?php echo ($key % 2) ? 'even' : 'odd' ?>">
                     <tr class="border">
                         <td class="col-product">
                             <div class="option-value"><?php echo $block->escapeHtml($discount['product']) ?></div>
@@ -173,7 +171,7 @@ $block->checkAndSaveSubscriptionItems();
                         </td>
                         <td class="col-promo last">
                             <div class="price-excl-tax">
-                                <div class="price">R$ <?php echo $block->escapeHtml($discount['amount']) ?></div>
+                                <div class="price"><?php echo $block->renderDiscount($discount); ?></div>
                             </div>
                         </td>
                     </tr>
@@ -183,6 +181,7 @@ $block->checkAndSaveSubscriptionItems();
         </table>
     </div>
 </section>
+
 <section class="admin__page-section">
     <div class="admin__page-section-title">
         <span class="title"><?= __('Orders') ?></span>

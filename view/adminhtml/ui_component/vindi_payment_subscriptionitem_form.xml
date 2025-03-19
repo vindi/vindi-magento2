@@ -69,5 +69,47 @@
                 </validation>
             </settings>
         </field>
+        <field name="quantity" sortOrder="20" formElement="input">
+            <argument name="data" xsi:type="array">
+                <item name="config" xsi:type="array">
+                    <item name="source" xsi:type="string">menu</item>
+                </item>
+            </argument>
+            <settings>
+                <validation>
+                    <rule name="required-entry" xsi:type="boolean">true</rule>
+                    <rule name="validate-digits" xsi:type="boolean">true</rule>
+                    <rule name="validate-greater-than-zero" xsi:type="boolean">true</rule>
+                    <rule name="min" xsi:type="number">1</rule>
+                </validation>
+                <dataType>text</dataType>
+                <label translate="true">Quantity</label>
+                <dataScope>quantity</dataScope>
+            </settings>
+        </field>
+        <field name="status" sortOrder="30" formElement="checkbox">
+            <argument name="data" xsi:type="array">
+                <item name="config" xsi:type="array">
+                    <item name="source" xsi:type="string">menu</item>
+                    <item name="default" xsi:type="string">active</item>
+                </item>
+            </argument>
+            <settings>
+                <dataType>boolean</dataType>
+                <label translate="true">Status</label>
+                <dataScope>status</dataScope>
+            </settings>
+            <formElements>
+                <checkbox>
+                    <settings>
+                        <valueMap>
+                            <map name="false" xsi:type="string">inactive</map>
+                            <map name="true" xsi:type="string">active</map>
+                        </valueMap>
+                        <prefer>toggle</prefer>
+                    </settings>
+                </checkbox>
+            </formElements>
+        </field>
     </fieldset>
 </form>

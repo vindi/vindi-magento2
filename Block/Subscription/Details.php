@@ -125,7 +125,6 @@ class Details extends Template
             $subscriptionCollection->addFieldToFilter('customer_id', $this->customerSession->getCustomerId());
             $subscriptionCollection->addFieldToFilter('id', $subscriptionId);
             $subscriptionCollection->setPageSize(1);
-
             return $subscriptionCollection->getFirstItem();
         }
         return null;
@@ -143,7 +142,6 @@ class Details extends Template
             $paymentProfileCollection = $this->paymentProfileCollectionFactory->create();
             $paymentProfileCollection->addFieldToFilter('entity_id', $subscription->getPaymentProfileId());
             $paymentProfileCollection->setPageSize(1);
-
             return $paymentProfileCollection->getFirstItem();
         }
         return null;
@@ -160,7 +158,6 @@ class Details extends Template
         if ($subscription) {
             $orderCollection = $this->orderCollectionFactory->create();
             $orderCollection->addFieldToFilter('vindi_subscription_id', $subscription->getId());
-
             return $orderCollection->getItems();
         }
         return [];
@@ -266,7 +263,6 @@ class Details extends Template
         if (!isset($data['start_at'])) {
             return '-';
         }
-
         try {
             $startAt = new DateTime($data['start_at']);
             return $startAt->format('d/m/Y');
@@ -303,12 +299,10 @@ class Details extends Template
                 'months' => __('month(s)'),
                 'years'  => __('year(s)')
             ];
-
             if (array_key_exists($interval, $intervalLabels)) {
                 return __('Every %1 %2', $intervalCount, $intervalLabels[$interval]);
             }
         }
-
         return '-';
     }
 
@@ -336,38 +330,31 @@ class Details extends Template
         ) {
             return '-';
         }
-
         $billingTriggerDay  = $data['billing_trigger_day'];
         $billingTriggerType = $data['billing_trigger_type'];
-
         if ($billingTriggerType == 'day_of_month') {
             return __('Day %1 of the month', $billingTriggerDay);
         }
-
         if ($billingTriggerDay == 0) {
             if ($billingTriggerType == 'beginning_of_period') {
                 return __('Exactly on the day of the start of the period');
             }
-
             return __('Exactly on the day of the end of the period');
         }
-
         $billingTriggerDayLabel = __('before');
-
         if ($billingTriggerDay > 0) {
             $billingTriggerDayLabel = __('after');
         }
-
         $billingTriggerTypeLabel = __('end of the period');
-
         if ($billingTriggerType == 'beginning_of_period') {
             $billingTriggerTypeLabel = __('start of the period');
         }
-
         return __('%1 days', $billingTriggerDay) . ' ' . $billingTriggerDayLabel . ' ' . $billingTriggerTypeLabel;
     }
 
     /**
+     * Get plan duration
+     *
      * @return string
      */
     public function getPlanDuration()
@@ -375,14 +362,11 @@ class Details extends Template
         $data = $this->getSubscriptionData();
         if (array_key_exists('billing_cycles', $data)) {
             $billingCycle = $data["billing_cycles"];
-
             if ($billingCycle == null || empty($billingCycle) || $billingCycle < 0) {
                 return __('Permanent');
             }
-
             return __('%1 cycles', $billingCycle);
         }
-
         return __('Permanent');
     }
 
@@ -422,13 +406,10 @@ class Details extends Template
     public function getPaymentMethodImage()
     {
         $data = $this->getSubscriptionData();
-
         $paymentMethodCode = '';
-
         if (isset($data['payment_method']['code'])) {
             $paymentMethodCode = $data['payment_method']['code'];
             $imageUrl = '';
-
             switch ($paymentMethodCode) {
                 case 'pix':
                 case 'pix_bank_slip':
@@ -443,10 +424,8 @@ class Details extends Template
                 default:
                     return '';
             }
-
             return '<img src="' . $imageUrl . '" alt="' . $paymentMethodCode . '" style="width: 200px; height: auto;" />';
         }
-
         return '';
     }
 
@@ -454,11 +433,18 @@ class Details extends Template
      * Get cycle label
      *
      * @param $cycle
+     * @param $uses
      * @return string
      */
-    public function getCycleLabel($cycle)
+    public function getCycleLabel($cycle, $uses = null)
     {
-        return is_null($cycle) ? __('Permanent') : $cycle;
+        if (is_null($cycle)) {
+            return __('Permanent');
+        }
+        if (is_null($uses)) {
+            return $cycle;
+        }
+        return __('Temporary (%1/%2)', $uses, $cycle);
     }
 
     /**
@@ -471,12 +457,10 @@ class Details extends Template
         if (!$id = $this->getSubscriptionId()) {
             return [];
         }
-
         if ($this->periods === null) {
             $request = $this->api->request('periods?query=subscription_id%3D' . $id, 'GET');
             $this->periods = $request['periods'] ?? [];
         }
-
         return $this->periods;
     }
 
@@ -491,19 +475,36 @@ class Details extends Template
         if (empty($products)) {
             return [];
         }
-
         $discounts = [];
         foreach ($products as $product) {
             if (empty($product['discounts'])) {
                 continue;
             }
-
             foreach ($product['discounts'] as $discount) {
                 $discounts[] = array_merge($discount, ['product' => $product['product']['name']]);
             }
         }
-
         return $discounts;
+    }
+
+    /**
+     * Render discount value based on discount type
+     *
+     * @param array $discount
+     * @return string
+     */
+    public function renderDiscount(array $discount)
+    {
+        switch ($discount['discount_type']) {
+            case 'percentage':
+                return str_replace('.', ',', $discount['percentage']) . '%';
+            case 'amount':
+                return $this->priceHelper->format($discount['amount'], true);
+            case 'quantity':
+                return $discount['quantity'] . ' ' . __('units');
+            default:
+                return __('Unknown');
+        }
     }
 
     /**
@@ -544,10 +545,8 @@ class Details extends Template
         if (!$subscriptionId) {
             return [];
         }
-
         $collection = $this->subscriptionsOrderCollectionFactory->create();
         $collection->addFieldToFilter('subscription_id', $subscriptionId);
-
         return $collection->getItems();
     }
 
@@ -562,11 +561,9 @@ class Details extends Template
         if (!$subscriptionId) {
             return [];
         }
-
         $paymentProfileId = $this->getSubscription()->getPaymentProfile();
         $paymentProfileCollection = $this->paymentProfileCollectionFactory->create();
         $paymentProfileCollection->addFieldToFilter('payment_profile_id', $paymentProfileId);
-
         return $paymentProfileCollection->getItems();
     }
 
@@ -579,23 +576,18 @@ class Details extends Template
     {
         if ($this->subscriptionData === null) {
             $id = $this->getRequest()->getParam('id');
-
             $subscriptionModel = $this->subscriptionFactory->create()->load($id);
-
             $responseData = $subscriptionModel->getData('response_data');
-
             if ($responseData) {
                 $this->subscriptionData = json_decode($responseData, true);
             } else {
                 $this->subscriptionData = $this->vindiSubscription->getSubscriptionById($id);
-
                 if ($this->subscriptionData) {
                     $subscriptionModel->setData('response_data', json_encode($this->subscriptionData));
                     $subscriptionModel->save();
                 }
             }
         }
-
         return $this->subscriptionData;
     }
 
@@ -619,7 +611,6 @@ class Details extends Template
     public function getCreditCardImage($ccType)
     {
         $creditCardOptionArray = $this->creditCardTypeSource->toOptionArray();
-
         foreach ($creditCardOptionArray as $creditCardOption) {
             if ($creditCardOption['label']->getText() == $ccType) {
                 return $creditCardOption['value'];
@@ -628,4 +619,3 @@ class Details extends Template
         return null;
     }
 }
-

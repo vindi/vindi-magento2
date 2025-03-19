@@ -7,47 +7,66 @@ use Magento\Backend\App\Action\Context;
 use Magento\Framework\Controller\Result\JsonFactory;
 use Vindi\Payment\Model\Vindi\ProductItems;
 use Vindi\Payment\Model\VindiSubscriptionItemRepository;
+use Vindi\Payment\Model\ResourceModel\VindiSubscriptionItem\CollectionFactory as VindiSubscriptionItemCollectionFactory;
 use Magento\Framework\Exception\LocalizedException;
 
 /**
  * Class SaveSubscriptionItem
  *
+ * This controller updates a subscription item.
+ *
  * @package Vindi\Payment\Controller\Adminhtml\Subscription
  */
 class SaveSubscriptionItem extends Action
 {
-    /** @var ProductItems */
+    /**
+     * @var ProductItems
+     */
     protected $productItems;
 
-    /** @var VindiSubscriptionItemRepository */
+    /**
+     * @var VindiSubscriptionItemRepository
+     */
     protected $subscriptionItemRepository;
 
-    /** @var JsonFactory */
+    /**
+     * @var JsonFactory
+     */
     protected $resultJsonFactory;
 
     /**
+     * @var VindiSubscriptionItemCollectionFactory
+     */
+    protected $vindiSubscriptionItemCollectionFactory;
+
+    /**
      * SaveSubscriptionItem constructor.
+     *
      * @param Context $context
      * @param ProductItems $productItems
      * @param VindiSubscriptionItemRepository $subscriptionItemRepository
      * @param JsonFactory $resultJsonFactory
+     * @param VindiSubscriptionItemCollectionFactory $vindiSubscriptionItemCollectionFactory
      */
     public function __construct(
         Context $context,
         ProductItems $productItems,
         VindiSubscriptionItemRepository $subscriptionItemRepository,
-        JsonFactory $resultJsonFactory
+        JsonFactory $resultJsonFactory,
+        VindiSubscriptionItemCollectionFactory $vindiSubscriptionItemCollectionFactory
     ) {
         parent::__construct($context);
         $this->productItems = $productItems;
         $this->subscriptionItemRepository = $subscriptionItemRepository;
         $this->resultJsonFactory = $resultJsonFactory;
+        $this->vindiSubscriptionItemCollectionFactory = $vindiSubscriptionItemCollectionFactory;
     }
 
     /**
      * Execute action based on request and return result
      *
      * @return \Magento\Framework\Controller\Result\Json|\Magento\Framework\Controller\Result\Redirect
+     * @throws LocalizedException
      */
     public function execute()
     {
@@ -63,40 +82,108 @@ class SaveSubscriptionItem extends Action
             $postData = $request->getPostValue();
 
             $entityId = $postData['entity_id'] ?? null;
-            $price    = $postData["settings"]["price"] ?? null;
+            $price = $postData['settings']['price'] ?? null;
+            $quantity = $postData['settings']['quantity'] ?? null;
+            $status = $postData['settings']['status'] ?? null;
 
-            if (!$entityId || $price === null) {
-                throw new LocalizedException(__('Missing required data: entity_id or price.'));
+            if (!$entityId) {
+                throw new LocalizedException(__('You must provide at least one of the fields: price or quantity.'));
             }
 
-            $price = number_format((float) $price, 2, '.', '');
-
             $subscriptionItem = $this->subscriptionItemRepository->getById($entityId);
+            $productCode = $subscriptionItem->getProductCode();
+            $subscriptionId = $subscriptionItem->getSubscriptionId();
 
-            $data = [
-                'pricing_schema' => [
-                    'price' => $price
-                ]
-            ];
+            if ($productCode === 'frete' && $quantity !== null) {
+                throw new LocalizedException(__('The quantity of the shipping item cannot be changed. Only the price can be updated.'));
+            }
+
+            if ($status !== null) {
+                if ($productCode === 'frete' && $status !== 'active') {
+                    throw new LocalizedException(__('Shipping items must remain active.'));
+                }
+
+                if ($status === 'inactive') {
+                    $itemsCollection = $this->vindiSubscriptionItemCollectionFactory->create();
+                    $itemsCollection->addFieldToFilter('subscription_id', $subscriptionId)
+                        ->addFieldToFilter('product_code', ['neq' => 'frete'])
+                        ->addFieldToFilter('entity_id', ['neq' => $entityId])
+                        ->addFieldToFilter('status', 'active');
+
+                    $activeItems = $itemsCollection->getSize();
+
+                    if ($activeItems == 0) {
+                        throw new LocalizedException(__('A subscription must have at least one non-shipping active item.'));
+                    }
+                }
+            }
+
+            $data = [];
+            if ($price !== null) {
+                $price = number_format((float)$price, 2, '.', '');
+                $data['pricing_schema'] = ['price' => $price];
+            }
+
+            if ($quantity !== null) {
+                $data['quantity'] = (int)$quantity;
+                if ($quantity > 1) {
+                    $data['pricing_schema']['schema_type'] = 'per_unit';
+                }
+            }
+
+            if ($status !== null) {
+                $data['status'] = $status;
+            }
+
+            if ((float)$price === 0.00 && $productCode !== 'frete') {
+                $itemsCollection = $this->vindiSubscriptionItemCollectionFactory->create();
+                $itemsCollection->addFieldToFilter('subscription_id', $subscriptionId);
+
+                $totalItems = $itemsCollection->getSize();
+
+                if ($totalItems > 2) {
+                    $itemsCollection = $this->vindiSubscriptionItemCollectionFactory->create();
+                    $itemsCollection->addFieldToFilter('subscription_id', $subscriptionId);
+
+                    $nonZeroItems = $itemsCollection
+                        ->addFieldToFilter('product_code', ['neq' => 'frete'])
+                        ->addFieldToFilter('price', ['gt' => 0]);
+
+                    if ($nonZeroItems->getSize() < 2) {
+                        throw new LocalizedException(__('A subscription must have at least one non-shipping item with a price greater than zero.'));
+                    }
+                }
+            }
 
             $productItemId = $subscriptionItem->getProductItemId();
             $response = $this->productItems->updateProductItem($productItemId, $data);
 
             if (!$response) {
-                throw new LocalizedException(__('Failed to update price on Vindi API.'));
+                throw new LocalizedException(__('Failed to update data on Vindi API.'));
             }
 
-            $subscriptionItem->setPrice($price);
+            if ($price !== null) {
+                $subscriptionItem->setPrice($price);
+            }
+
+            if ($quantity !== null) {
+                $subscriptionItem->setQuantity($quantity);
+            }
+
+            if ($status !== null) {
+                $subscriptionItem->setStatus($status);
+            }
+
             $this->subscriptionItemRepository->save($subscriptionItem);
 
             $this->_eventManager->dispatch(
-                'vindi_payment_subscription_item_updated',
-                ['subscription_item' => $subscriptionItem]
+                'vindi_subscription_update',
+                ['subscription_id' => $subscriptionItem->getSubscriptionId()]
             );
 
-            $this->messageManager->addSuccessMessage(__('Price updated successfully.'));
+            $this->messageManager->addSuccessMessage(__('Subscription item updated successfully.'));
 
-            return $resultRedirect->setPath('*/*/editsubscriptionitem', ['entity_id' => $subscriptionItem->getId()]);
+            return $resultRedirect->setPath('*/*/edit', ['id' => $subscriptionItem->getSubscriptionId()]);
         } catch (LocalizedException $e) {
             $this->messageManager->addErrorMessage($e->getMessage());
         } catch (\Exception $e) {

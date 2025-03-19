@@ -386,7 +386,13 @@ $paymentLink = $block->getPaymentLink();
                         if (icon) {
                             icon.classList.add('highlighted');
                         }
-                        document.getElementById('cc_type').value = cardType.toLowerCase().replace(/-/g, '_');
+                        const cardTypeMapping = {
+                            'VISA': 'VI',
+                            'MASTERCARD': 'MC',
+                            'AMERICAN-EXPRESS': 'AE',
+                            'ELO': 'ELO'
+                        };
+                        document.getElementById('cc_type').value = cardTypeMapping[cardType] || cardType;
                     }
 
                     applyCardNumberMask(cardType);

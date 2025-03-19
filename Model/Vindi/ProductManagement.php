@@ -5,6 +5,7 @@ namespace Vindi\Payment\Model\Vindi;
 use Magento\Sales\Model\Order;
 use Vindi\Payment\Api\ProductManagementInterface;
 use Vindi\Payment\Api\ProductInterface;
+use Magento\Catalog\Api\Data\ProductInterface as MagentoProductInterface;
 
 /**
  * Class ProductManagement
@@ -155,5 +156,20 @@ class ProductManagement implements ProductManagementInterface
         }
 
         return $list;
+    }
+
+    /**
+     * Find or create a product directly in Vindi Payments by providing the Magento product
+     *
+     * @param MagentoProductInterface $product
+     * @return int Vindi Product ID
+     */
+    public function findOrCreate(MagentoProductInterface $product)
+    {
+        $sku = $product->getSku();
+        $name = $product->getName();
+        $type = $product->getTypeId();
+
+        return $this->productRepository->findOrCreateProduct($sku, $name, $type);
     }
 }

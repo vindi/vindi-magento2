@@ -1,53 +1,46 @@
-<!--@subject {{trans "Payment Link for Your Order"}} @-->
+<!--@subject {{trans "Payment Link"}} @-->
 <!--@vars
 {"store url=\"\"":"Store Url",
 "skin url=\"images/logo_email.gif\" _area='frontend'":"Email Logo Image"}
 @-->
 <!--@styles
-body,td { color:#2f2f2f; font:11px/1.35em Verdana, Arial, Helvetica, sans-serif; }
-a { color: #ffffff; text-decoration: none; }
-.pay-now-button {
-    display: inline-block;
-    padding: 10px 20px;
-    background-color: #1a73e8;
-    color: #ffffff !important;
-    font-size: 16px;
-    font-weight: bold;
-    border-radius: 4px;
-    text-align: center;
-}
-.pay-now-button:hover, .pay-now-button:visited {
-    color: #ffffff !important;
-}
+body,td { color:#2f2f2f; font:14px/1.5em Arial, Helvetica, sans-serif; }
+h1 { font-size:22px; color:#333333; }
+p { margin:10px 0; }
+a { color:#1a73e8; text-decoration:none; }
 @-->
 {{template config_path="design/email/header_template"}}
-<table cellspacing="0" cellpadding="0" border="0" width="100%">
+<table cellspacing="0" cellpadding="0" border="0" width="100%" style="background-color:#f8f8f8; padding:20px 0;">
     <tr>
-        <td align="center" valign="top" style="padding:20px 0 20px 0">
-            <table bgcolor="#FFFFFF" cellspacing="0" cellpadding="10" border="0" width="650" style="border:1px solid #E0E0E0;">
+        <td align="center">
+            <table bgcolor="#FFFFFF" cellspacing="0" cellpadding="20" border="0" width="650" style="border:1px solid #e0e0e0; border-radius:8px;">
                 <tr>
-                    <td valign="top">
-                        <h1 style="font-size:22px;font-weight:normal;line-height:22px;margin:0 0 11px 0;">{{trans "Hello"}}, {{var customer_name|raw}}</h1>
+                    <td align="center" style="border-bottom:1px solid #e0e0e0; padding-bottom:20px;">
+                        <h1>{{trans "Hello"}}, {{var customer_name|raw}}</h1>
                     </td>
                 </tr>
                 <tr>
                     <td>
-                        <p style="font-size:14px;line-height:20px;margin:0 0 20px 0;">{{trans "Thank you for your order!"}}</p>
-                        <p style="font-size:14px;line-height:20px;margin:0 0 20px 0;">{{trans "To complete your purchase, please use the payment link below."}}</p>
-                        <table cellspacing="0" cellpadding="0" border="0" width="100%">
-                            <tbody>
-                            <tr>
-                                <td align="center" valign="top" style="padding:20px;">
-                                    <a href="{{var payment_link}}" class="pay-now-button">{{trans "Pay Now"}}</a>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td valign="top" style="font-size:12px;padding:7px 9px 9px 9px;text-align:center;color:#555;">
-                                    {{trans "If you have any questions or need assistance, please contact our support team."}}
-                                </td>
-                            </tr>
-                            </tbody>
-                        </table>
+                        <h2 style="font-size:18px; color:#333;">{{trans "A Payment Link Has Been Generated for You"}}</h2>
+                        <p style="font-size:14px; color:#555;">
+                            {{trans "We have generated a payment link for your order. Please log in to your Customer Account to access it."}}
+                        </p>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <h3 style="font-size:16px; color:#333; margin-bottom:10px;">{{trans "How to Access the Payment Link?"}}</h3>
+                        <p style="font-size:14px; color:#555; margin:0;">
+                            {{trans "Log in to your account, access the 'Orders' section and click on the payment link access corresponding to the order #"}}{{var order_increment}}.
+                        </p>
+                    </td>
+                </tr>
+                <tr>
+                    <td style="border-top:1px solid #e0e0e0; padding-top:20px;">
+                        <h4 style="font-size:14px; color:#555; margin-bottom:5px;">{{trans "Order Details"}}</h4>
+                        <p style="font-size:14px; color:#333; margin:0;">
+                            <strong>{{trans "Nº: "}}</strong> #{{var order_increment}}
+                        </p>
                     </td>
                 </tr>
             </table>
