@@ -1,10 +1,13 @@
 # Notas das versões
 
+<<<<<<< HEAD
 ## [2.3.0 - 19/03/2025](https://github.com/vindi/vindi-magento2/releases/tag/2.3.0)
 
 - Inclusão de desconto nos itens da assinatura
 - Adicionando função formatPhone no checkout
 
+=======
+>>>>>>> development
 ## [2.2.0 - 14/01/2025](https://github.com/vindi/vindi-magento2/releases/tag/2.2.0)
 
 - Novo layout do cartão de crédito na página de checkout

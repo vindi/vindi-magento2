@@ -2,7 +2,11 @@
     "name": "vindi/vindi-magento2",
     "description": "Módulo de cobrança Vindi para o Magento 2",
     "type": "magento2-module",
+<<<<<<< HEAD
     "version": "2.3.0",
+=======
+    "version": "2.2.0",
+>>>>>>> development
     "license": "GPL-3.0",
     "authors": [
         {
