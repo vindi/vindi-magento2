@@ -203,4 +203,25 @@
             <argument name="resourceModel" xsi:type="string">Vindi\Payment\Model\ResourceModel\VindiSubscriptionItem</argument>
         </arguments>
     </virtualType>
+
+    <!-- VindiSubscriptionItemDiscount -->
+    <preference for="Vindi\Payment\Api\Data\VindiSubscriptionItemDiscountInterface" type="Vindi\Payment\Model\VindiSubscriptionItemDiscount"/>
+    <preference for="Vindi\Payment\Api\Data\VindiSubscriptionItemDiscountSearchResultInterface" type="Vindi\Payment\Model\VindiSubscriptionItemDiscountSearchResult"/>
+    <preference for="Vindi\Payment\Api\VindiSubscriptionItemDiscountRepositoryInterface" type="Vindi\Payment\Model\VindiSubscriptionItemDiscountRepository"/>
+
+    <type name="Magento\Framework\View\Element\UiComponent\DataProvider\CollectionFactory">
+        <arguments>
+            <argument name="collections" xsi:type="array">
+                <item name="vindi_payment_itemdiscount_listing_data_source" xsi:type="string">Vindi\Payment\Model\ResourceModel\VindiSubscriptionItemDiscount\Grid\Collection</item>
+                <item name="vindi_payment_itemdiscount_data_source" xsi:type="string">Vindi\Payment\Model\ResourceModel\VindiSubscriptionItemDiscount\Form\DataProvider</item>
+            </argument>
+        </arguments>
+    </type>
+
+    <virtualType name="Vindi\Payment\Model\ResourceModel\VindiSubscriptionItemDiscount\Grid\Collection" type="Magento\Framework\View\Element\UiComponent\DataProvider\SearchResult">
+        <arguments>
+            <argument name="mainTable" xsi:type="string">vindi_subscription_item_discount</argument>
+            <argument name="resourceModel" xsi:type="string">Vindi\Payment\Model\ResourceModel\VindiSubscriptionItemDiscount</argument>
+        </arguments>
+    </virtualType>
 </config>

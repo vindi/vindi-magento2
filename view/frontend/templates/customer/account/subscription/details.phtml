@@ -1,10 +1,8 @@
 <?php
-
 use Vindi\Payment\Block\Subscription\Details;
 use Vindi\Payment\Model\Payment\PaymentMethod;
 
 /** @var Details $block */
-
 $subscription = $block->getSubscription();
 ?>
 <h2><?= __('Subscription: #') . $subscription->getId() ?></h2>
@@ -197,7 +195,7 @@ $subscription = $block->getSubscription();
                         </td>
                         <td class="col-promo last">
                             <div class="price-excl-tax">
-                                <div class="price">R$ <?php echo $block->escapeHtml($discount['amount']) ?></div>
+                                <div class="price"><?php echo $block->renderDiscount($discount); ?></div>
                             </div>
                         </td>
                     </tr>
@@ -339,7 +337,6 @@ $subscription = $block->getSubscription();
                 <p><?php echo $block->escapeHtml($shippingAddress->getCountryId()) ?></p>
                 <p>T: <?php echo $block->escapeHtml($shippingAddress->getTelephone()) ?></p>
             </div>
-            <!-- <a href="#" class="text-blue">--><?php //= __('Edit Address') ?><!--</a>-->
         </div>
     <?php endif; ?>
 <?php endif; ?>
