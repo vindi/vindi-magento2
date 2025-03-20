@@ -298,8 +298,8 @@ class View extends Container
     /**
      * Get cycle label
      *
-     * @param mixed $cycle
-     * @param mixed $uses
+     * @param $cycle
+     * @param $uses
      * @return string
      */
     public function getCycleLabel($cycle, $uses = null)
