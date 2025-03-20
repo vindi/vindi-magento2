@@ -441,9 +441,11 @@ class Details extends Template
         if (is_null($cycle)) {
             return __('Permanent');
         }
+
         if (is_null($uses)) {
             return $cycle;
         }
+
         return __('Temporary (%1/%2)', $uses, $cycle);
     }
 

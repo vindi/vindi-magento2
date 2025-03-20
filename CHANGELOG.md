@@ -1,5 +1,11 @@
 # Notas das versões
 
+## [2.3.0 - 20/02/2025](https://github.com/vindi/vindi-magento2/releases/tag/2.3.0)
+
+- Adiciona funcionalidade de inclusão e exclusão de itens na assinatura diretamente no painel do Magento
+- Adiciona funcionalidade de inativar e reativar itens em assinaturas
+- Realiza atualização de Segurança na Atividade de Links de Pagamento
+
 ## [2.2.0 - 14/01/2025](https://github.com/vindi/vindi-magento2/releases/tag/2.2.0)
 
 - Novo layout do cartão de crédito na página de checkout
