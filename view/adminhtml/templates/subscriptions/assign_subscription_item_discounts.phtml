@@ -1,0 +1,19 @@
+<?php
+$blockGrid = $block->getBlockGrid();
+$gridJsObjectName = $blockGrid->getJsObjectName();
+?>
+<?= $block->getGridHtml() ?>
+<input type="hidden" name="vindi_subscription_item_discounts" data-form-part="subscription_form" id="vindi_subscription_item_discounts" value="" />
+<script type="text/x-magento-init">
+    {
+        "*": {
+            "Vindi_Payment/js/assign-subscription-item-discounts": {
+                "selectedItems": <?= /* @escapeNotVerified */ $block->getDiscountItemsJson() ?>,
+                "gridJsObjectName": <?= /* @escapeNotVerified */ '"' . $gridJsObjectName . '"' ?: '{}' ?>
+    }
+}
+}
+</script>
+<script>
+    require('mage/apply/main').apply();
+</script>
