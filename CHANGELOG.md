@@ -1,5 +1,10 @@
 # Notas das versões
 
+## [2.4.0 - 25/03/2025](https://github.com/vindi/vindi-magento2/releases/tag/2.4.0)
+
+- Adiciona funcionalidade de desconto aos itens da assinatura
+- Corrige formato dos dados de telefone enviados para a API
+
 ## [2.3.0 - 20/02/2025](https://github.com/vindi/vindi-magento2/releases/tag/2.3.0)
 
 - Adiciona funcionalidade de inclusão e exclusão de itens na assinatura diretamente no painel do Magento
