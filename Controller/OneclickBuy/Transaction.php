@@ -54,7 +54,6 @@ class Transaction implements HttpPostActionInterface
      */
     private ProductRepository $productRepository;
 
-
     /**
      * @var CustomerSession
      */
@@ -89,6 +88,16 @@ class Transaction implements HttpPostActionInterface
      * @var ManagerInterface
      */
     private ManagerInterface $messageManager;
+
+    /**
+     * @var JsonFactory
+     */
+    private JsonFactory $resultJsonFactory;
+
+    /**
+     * @var PaymentProfileRepository
+     */
+    private PaymentProfileRepository $paymentProfileRepository;
 
     /**
      * @param CheckoutSession $checkoutSession
@@ -144,7 +153,7 @@ class Transaction implements HttpPostActionInterface
     public function execute()
     {
         $resultJson = $this->resultJsonFactory->create();
-        $result = ['success' => false];
+        $result = ['success' => false, 'message' => 'Ocorreu um erro ao processar o seu pagamento'];
 
         $productId = $this->httpRequest->getParam('productId');
         $paymentProfileId = $this->httpRequest->getParam('profile');
@@ -190,6 +199,7 @@ class Transaction implements HttpPostActionInterface
             $this->checkoutSession->setLastSuccessQuoteId($quote->getId());
             $this->checkoutSession->setLastQuoteId($quote->getId());
             $this->checkoutSession->setLastOrderId($order->getId());
+            $result = ['success' => true, 'message' => ''];
         } catch (LocalizedException $e) {
             $this->messageManager->addErrorMessage($e->getMessage());
         }
