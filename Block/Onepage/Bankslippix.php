@@ -156,6 +156,16 @@ class Bankslippix extends Template
     }
 
     /**
+     * Returns the bar code for the bank slip
+     *
+     * @return string
+     */
+    public function getBankSlipBarcode(): string
+    {
+        return $this->getOrder()->getPayment()->getAdditionalInformation('typeable_barcode');
+    }
+
+    /**
      * Returns the next billing date of the subscription
      *
      * @return string|null

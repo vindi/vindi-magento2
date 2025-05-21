@@ -59,7 +59,7 @@ use Vindi\Payment\Block\Onepage\Pix;
                         "components": {
                             "vindiPix": {
                                 "component": "Vindi_Payment/js/view/onepage/vindi-pix",
-                                "qrCodeKey": "<?= $block->getQrcodeOriginalPath() ?>"
+                                "qrCodeKey": "<?= $block->getQrcodeOriginalPathWithoutJson() ?>"
                             }
                         }
                     }

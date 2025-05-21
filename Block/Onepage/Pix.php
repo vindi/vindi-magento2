@@ -135,6 +135,18 @@ class Pix extends Template
     }
 
     /**
+     * Returns the original Pix QR code path
+     *
+     * @return string
+     */
+    public function getQrcodeOriginalPathWithoutJson(): string
+    {
+        return $this->getOrder()
+            ->getPayment()
+            ->getAdditionalInformation('qrcode_original_path');
+    }
+
+    /**
      * Retrieves the last real order from the checkout session
      *
      * @return Order

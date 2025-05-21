@@ -179,6 +179,18 @@ class BankSlipPix extends Info
     }
 
     /**
+     * Returns the original Pix QR code path
+     *
+     * @return string
+     */
+    public function getQrcodeOriginalPathWithoutJson(): string
+    {
+        return $this->getOrder()
+            ->getPayment()
+            ->getAdditionalInformation('qrcode_original_path');
+    }
+
+    /**
      * @return mixed
      * @throws \Magento\Framework\Exception\LocalizedException
      */
