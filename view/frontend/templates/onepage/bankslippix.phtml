@@ -116,7 +116,7 @@ use Vindi\Payment\Block\Onepage\Bankslippix;
             </object>
 
             <div class="checkout-success qr-code">
-                <span>QRCode</span>
+                <span><?= $block->escapeHtml(__('QRCode')) ?></span>
                 <p style="word-break: break-all;"><?= $block->getQrcodeOriginalPath() ?></p>
             </div>
 
