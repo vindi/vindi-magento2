@@ -13,7 +13,7 @@
             />
         </referenceContainer>
         <referenceBlock name="product.info.addtocart">
-            <block class="Vindi\Payment\Block\Product\OneclickBuy" name="product.oneclickbuy.button" template="Vindi_Payment::product/oneclickbuy.phtml" after="-" />
+            <block class="Vindi\Payment\Block\Product\OneclickBuy" name="product.oneclickbuy.button" template="Vindi_Payment::product/oneclickbuy.phtml" after="-" cacheable="false" />
         </referenceBlock>
     </body>
 </page>
