@@ -25,6 +25,7 @@ use Magento\Sales\Api\OrderRepositoryInterface;
 use Vindi\Payment\Model\PaymentProfileRepository;
 use Magento\Framework\DataObject;
 use Magento\Quote\Model\Quote\Address;
+use Magento\Store\Model\StoreManagerInterface;
 
 class Transaction implements HttpPostActionInterface
 {
@@ -100,6 +101,11 @@ class Transaction implements HttpPostActionInterface
     private PaymentProfileRepository $paymentProfileRepository;
 
     /**
+     * @var StoreManagerInterface
+     */
+    private StoreManagerInterface $storeManager;
+
+    /**
      * @param CheckoutSession $checkoutSession
      * @param StoreRepository $storeRepository
      * @param ProductRepository $productRepository
@@ -129,7 +135,8 @@ class Transaction implements HttpPostActionInterface
         RequestInterface $httpRequest,
         OrderRepositoryInterface $orderRepository,
         ManagerInterface $messageManager,
-        PaymentProfileRepository $paymentProfileRepository
+        PaymentProfileRepository $paymentProfileRepository,
+        StoreManagerInterface $storeManager
     ) {
         $this->checkoutSession = $checkoutSession;
         $this->storeRepository = $storeRepository;
@@ -145,6 +152,7 @@ class Transaction implements HttpPostActionInterface
         $this->orderRepository = $orderRepository;
         $this->messageManager = $messageManager;
         $this->paymentProfileRepository = $paymentProfileRepository;
+        $this->storeManager = $storeManager;
     }
 
     /**
@@ -153,55 +161,75 @@ class Transaction implements HttpPostActionInterface
     public function execute()
     {
         $resultJson = $this->resultJsonFactory->create();
-        $result = ['success' => false, 'message' => 'Ocorreu um erro ao processar o seu pagamento'];
+        $result = ['success' => false, 'message' => 'Ocorreu um erro ao processar o seu pagamento', 'redirect_url' => ''];
 
-        $productId = $this->httpRequest->getParam('productId');
-        $paymentProfileId = $this->httpRequest->getParam('profile');
-
-        $customerId = $this->customerSession->getCustomerId();
-        $customer = $this->customerRepository->getById($customerId);
-        $store = $this->storeRepository->getById($customer->getStoreId());
-
-        $quote = $this->quoteFactory->create();
-        $quote->setStore($store);
-        $quote->setStoreId($store->getId());
-        $quote->assignCustomer($customer);
-
-        $product = $this->productRepository->getById($productId);
-        $buyRequest = [
-            'product' => $productId,
-            'qty' => 1,
-        ];
-
-        $quote->addProduct(
-            $product,
-            new DataObject($buyRequest)
-        );
-
-        $quoteAddress = $this->getQuoteAddress($customer);
-        $quote->setBillingAddress($quoteAddress);
-        $this->quoteResource->save($quote);
-        // Set Sales Order Payment
-        $quote->getPayment()->importData(['method' => "vindi",
-            'additional_data' => ["payment_profile" => $paymentProfileId,
-                                    "installments" => '1']]);
-
-        $this->quoteResource->save($quote);
-
-        // Collect Totals & Save Quote
-        $quote->collectTotals();
-        $this->quoteResource->save($quote);
-
-        // Create Order From Quote and send e-mail
-        /** @var \Magento\Sales\Model\Order $order */
         try {
+            $productId = $this->httpRequest->getParam('productId');
+            $paymentProfileId = $this->httpRequest->getParam('profile');
+
+            $customerId = $this->customerSession->getCustomerId();
+            $customer = $this->customerRepository->getById($customerId);
+            $store = $this->storeRepository->getById($customer->getStoreId());
+
+            $quote = $this->quoteFactory->create();
+            $quote->setStore($store);
+            $quote->setStoreId($store->getId());
+            $quote->assignCustomer($customer);
+
+            $product = $this->productRepository->getById($productId);
+            $buyRequest = [
+                'product' => $productId,
+                'qty' => 1,
+            ];
+
+            $quote->addProduct(
+                $product,
+                new DataObject($buyRequest)
+            );
+
+            $quoteAddress = $this->getQuoteAddress($customer);
+            $quote->setBillingAddress($quoteAddress);
+            $this->quoteResource->save($quote);
+            
+            // Set Sales Order Payment
+            $quote->getPayment()->importData([
+                'method' => "vindi",
+                'additional_data' => [
+                    "payment_profile" => $paymentProfileId,
+                    "installments" => '1'
+                ]
+            ]);
+
+            $this->quoteResource->save($quote);
+
+            // Collect Totals & Save Quote
+            $quote->collectTotals();
+            $this->quoteResource->save($quote);
+
+            // Create Order From Quote
             $order = $this->quoteManagement->submit($quote);
+            
+            $this->checkoutSession->clearQuote();
             $this->checkoutSession->setLastSuccessQuoteId($quote->getId());
             $this->checkoutSession->setLastQuoteId($quote->getId());
             $this->checkoutSession->setLastOrderId($order->getId());
-            $result = ['success' => true, 'message' => ''];
+            $this->checkoutSession->setLastRealOrderId($order->getIncrementId());
+            
+            $order = $this->orderRepository->get($order->getId());
+            $this->checkoutSession->setLastOrderStatus($order->getStatus());
+
+            $result = [
+                'success' => true,
+                'redirect_url' => $this->storeManager->getStore()->getUrl('checkout/onepage/success'),
+                'message' => '',
+            ];
+            
         } catch (LocalizedException $e) {
             $this->messageManager->addErrorMessage($e->getMessage());
+            $result['message'] = $e->getMessage();
+        } catch (\Exception $e) {
+            $this->messageManager->addErrorMessage('Erro interno do servidor.');
+            $result['message'] = 'Erro interno do servidor.';
         }
 
         return $resultJson->setData($result);
