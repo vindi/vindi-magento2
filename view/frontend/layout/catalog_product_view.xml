@@ -2,6 +2,7 @@
 <page xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:View/Layout/etc/page_configuration.xsd">
     <head>
         <css src="Vindi_Payment::css/recurrence.css"/>
+        <script src="Vindi_Payment::js/product/oneclickbuy.js"/>
     </head>
     <body>
         <referenceContainer name="product.info.main">
@@ -11,5 +12,8 @@
                    after="product.info.price"
             />
         </referenceContainer>
+        <referenceBlock name="product.info.addtocart">
+            <block class="Vindi\Payment\Block\Product\OneclickBuy" name="product.oneclickbuy.button" template="Vindi_Payment::product/oneclickbuy.phtml" after="-" cacheable="false" />
+        </referenceBlock>
     </body>
 </page>

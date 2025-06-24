@@ -8,4 +8,9 @@ const config = {
     shim: {
         'vindi-card-mask': {}
     },
+    map: {
+        "*": {
+            "vindi_vr/oneclickbuy": "Vindi_Payment/js/product/oneclickbuy"
+        }
+    }
 };

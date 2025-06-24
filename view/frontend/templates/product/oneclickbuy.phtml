@@ -1,0 +1,23 @@
+<?php
+/** @var \Vindi\Payment\Block\Product\OneclickBuy $block */
+?>
+
+<?php if($block->showOneclickBuy()): ?>
+    <p id="product-id" style="display:none"><?= $block->getProductId() ?></p>
+    <select id="card-selector">
+        <?php foreach($block->getCards() as $card): ?>
+            <option value="<?= $card['value'] ?>"><?= $card['label'] ?></option>
+        <?php endforeach; ?>
+    </select>
+    <button type="submit" id="payment-oneclickbuy" class="action primary">
+        <?php /* @escapeNotVerified */ echo $block->getButtonText(); ?>
+    </button>
+
+    <script type="text/x-magento-init">
+        {
+            "*": {
+                "vindi_vr/oneclickbuy": ""
+            }
+        }
+    </script>
+<?php endif; ?>
