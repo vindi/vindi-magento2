@@ -12,7 +12,7 @@ class PixConfiguration extends AbstractHelper implements PixConfigurationInterfa
     /**
      * @inheritDoc
      */
-    public function getInfoMessage(string $scopeType = ScopeInterface::SCOPE_STORE, string $scopeCode = null)
+    public function getInfoMessage(string $scopeType = ScopeInterface::SCOPE_STORE, ?string $scopeCode = null)
     {
         $result = $this->scopeConfig->getValue(static::PATH_INFO_MESSAGE, $scopeType, $scopeCode);
         return $result ?: '';
@@ -21,7 +21,7 @@ class PixConfiguration extends AbstractHelper implements PixConfigurationInterfa
     /**
      * @inheritDoc
      */
-    public function getInfoMessageOnepageSuccess(string $scopeType = ScopeInterface::SCOPE_STORE, string $scopeCode = null)
+    public function getInfoMessageOnepageSuccess(string $scopeType = ScopeInterface::SCOPE_STORE, ?string $scopeCode = null)
     {
         $result = $this->scopeConfig->getValue(static::PATH_INFO_MESSAGE_ONEPAGE_SUCCESS, $scopeType, $scopeCode);
         return $result ?: '';
@@ -30,7 +30,7 @@ class PixConfiguration extends AbstractHelper implements PixConfigurationInterfa
     /**
      * @inheritDoc
      */
-    public function getQrCodeWarningMessage(string $scopeType = ScopeInterface::SCOPE_STORE, string $scopeCode = null)
+    public function getQrCodeWarningMessage(string $scopeType = ScopeInterface::SCOPE_STORE, ?string $scopeCode = null)
     {
         $result = $this->scopeConfig->getValue(static::PATH_QR_CODE_WARNING_MESSAGE, $scopeType, $scopeCode);
         return $result ?: '';

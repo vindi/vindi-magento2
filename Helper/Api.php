@@ -143,12 +143,9 @@ class Api extends AbstractHelper
             $this->logger->error(
                 __(sprintf('[Request #%s]: Error while executing request!\n%s', $requestId, $sanitizedResponse))
             );
-            curl_close($ch);
             $this->logApiRequest($endpoint, $method, $requestBody, $response, $statusCode, 'Error while executing request');
             return false;
         }
-
-        curl_close($ch);
 
         $status = "HTTP Status: $statusCode";
 

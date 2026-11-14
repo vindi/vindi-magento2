@@ -17,7 +17,7 @@ interface PixConfigurationInterface
      *
      * @return string
      */
-    public function getInfoMessage(string $scopeType = ScopeInterface::SCOPE_STORE, string $scopeCode = null);
+    public function getInfoMessage(string $scopeType = ScopeInterface::SCOPE_STORE, ?string $scopeCode = null);
 
     /**
      * @param string $scopeType
@@ -25,7 +25,7 @@ interface PixConfigurationInterface
      *
      * @return string
      */
-    public function getInfoMessageOnepageSuccess(string $scopeType = ScopeInterface::SCOPE_STORE, string $scopeCode = null);
+    public function getInfoMessageOnepageSuccess(string $scopeType = ScopeInterface::SCOPE_STORE, ?string $scopeCode = null);
 
     /**
      * @param string $scopeType
@@ -33,5 +33,5 @@ interface PixConfigurationInterface
      *
      * @return string
      */
-    public function getQrCodeWarningMessage(string $scopeType = ScopeInterface::SCOPE_STORE, string $scopeCode = null);
+    public function getQrCodeWarningMessage(string $scopeType = ScopeInterface::SCOPE_STORE, ?string $scopeCode = null);
 }
