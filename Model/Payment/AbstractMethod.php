@@ -194,8 +194,8 @@ abstract class AbstractMethod extends OriginAbstractMethod
         \Vindi\Payment\Helper\Data $helperData,
         SubscriptionRepository $subscriptionRepositoryModel,
         SubscriptionCollection $subscriptionCollection,
-        AbstractResource $resource = null,
-        AbstractDb $resourceCollection = null,
+        ?AbstractResource $resource = null,
+        ?AbstractDb $resourceCollection = null,
         array $data = []
     ) {
         parent::__construct(
@@ -244,7 +244,7 @@ abstract class AbstractMethod extends OriginAbstractMethod
      * @return bool
      * @throws NoSuchEntityException
      */
-    public function isAvailable(\Magento\Quote\Api\Data\CartInterface $quote = null)
+    public function isAvailable(?\Magento\Quote\Api\Data\CartInterface $quote = null)
     {
         if (
             $this->getPaymentMethodCode() == PaymentMethod::BANK_SLIP
