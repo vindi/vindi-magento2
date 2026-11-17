@@ -2,6 +2,8 @@
 
 namespace Vindi\Payment\Observer;
 
+use Vindi\Payment\Model\ResourceModel\VindiSubscriptionItemDiscount as DiscountResource;
+use Vindi\Payment\Model\ResourceModel\VindiSubscriptionItem as SubscriptionItemResource;
 use Magento\Framework\Event\Observer;
 use Magento\Framework\Event\ObserverInterface;
 use Magento\Framework\Message\ManagerInterface;
@@ -19,6 +21,16 @@ use Vindi\Payment\Model\VindiSubscriptionItemDiscountFactory;
  */
 class UpdateSubscriptionObserver implements ObserverInterface
 {
+    /**
+     * @var DiscountResource
+     */
+    private $discountResource;
+
+    /**
+     * @var SubscriptionItemResource
+     */
+    private $subscriptionItemResource;
+
     /** @var ManagerInterface */
     private $messageManager;
 
@@ -47,8 +59,12 @@ class UpdateSubscriptionObserver implements ObserverInterface
         VindiSubscriptionItemFactory $vindiSubscriptionItemFactory,
         ResourceConnection $resource,
         VindiSubscriptionItemDiscountCollectionFactory $vindiSubscriptionItemDiscountCollectionFactory,
-        VindiSubscriptionItemDiscountFactory $vindiSubscriptionItemDiscountFactory
+        VindiSubscriptionItemDiscountFactory $vindiSubscriptionItemDiscountFactory,
+        SubscriptionItemResource $subscriptionItemResource,
+        DiscountResource $discountResource
     ) {
+        $this->discountResource = $discountResource;
+        $this->subscriptionItemResource = $subscriptionItemResource;
         $this->messageManager = $messageManager;
         $this->vindiSubscriptionItemCollectionFactory = $vindiSubscriptionItemCollectionFactory;
         $this->vindiSubscription = $vindiSubscription;
@@ -179,7 +195,7 @@ class UpdateSubscriptionObserver implements ObserverInterface
         }
 
         if ($updated) {
-            $existingItem->save();
+            $this->subscriptionItemResource->save($existingItem);
         }
     }
 
@@ -205,7 +221,7 @@ class UpdateSubscriptionObserver implements ObserverInterface
         $subscriptionItem->setPricingSchemaType($apiItem['pricing_schema']['schema_type'] ?? '');
         $subscriptionItem->setPricingSchemaFormat($apiItem['pricing_schema']['schema_format'] ?? 'N/A');
         $subscriptionItem->setMagentoProductSku($apiItem['product']['code'] ?? '');
-        $subscriptionItem->save();
+        $this->subscriptionItemResource->save($subscriptionItem);
     }
 
     /**
@@ -301,7 +317,7 @@ class UpdateSubscriptionObserver implements ObserverInterface
         }
 
         if ($updated) {
-            $existingDiscount->save();
+            $this->discountResource->save($existingDiscount);
         }
     }
 
@@ -326,6 +342,6 @@ class UpdateSubscriptionObserver implements ObserverInterface
             'quantity'             => $apiDiscount['quantity'] ?? null,
             'cycles'               => $apiDiscount['cycles'] ?? null
         ]);
-        $discount->save();
+        $this->discountResource->save($discount);
     }
 }

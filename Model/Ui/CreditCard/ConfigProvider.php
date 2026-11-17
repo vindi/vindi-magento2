@@ -97,6 +97,7 @@ class ConfigProvider extends CcGenericConfigProvider
         $grandTotal = $this->checkoutSession->getQuote()->getGrandTotal();
         $methodCode = self::CODE;
 
+        $customerTaxvat = '';
         $customer = $this->customerSession->getCustomer();
         if ($customer && $customer->getTaxvat()) {
             $taxVat = preg_replace('/[^0-9]/', '', (string) $customer->getTaxvat());

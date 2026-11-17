@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Vindi\Payment\Console\Command;
 
 use Vindi\Payment\Cron\CancelOrdersWithExpiredLinks;
+use Magento\Framework\Console\Cli;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -57,11 +58,11 @@ class RunCancelOrdersWithExpiredLinks extends Command
         try {
             $this->cancelOrdersWithExpiredLinks->execute();
             $output->writeln('<info>Orders with expired payment links have been canceled successfully.</info>');
-            return Command::SUCCESS;
+            return Cli::RETURN_SUCCESS;
         } catch (\Exception $e) {
             $this->logger->error('Error while canceling orders with expired payment links: ' . $e->getMessage());
             $output->writeln('<error>An error occurred while canceling orders with expired payment links.</error>');
-            return Command::FAILURE;
+            return Cli::RETURN_FAILURE;
         }
     }
 }

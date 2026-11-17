@@ -23,7 +23,7 @@ class RunUpdateExpiredLinks extends Command
      */
     public function __construct(
         UpdateExpiredLinks $updateExpiredLinks,
-        string $name = null
+        ?string $name = null
     ) {
         $this->updateExpiredLinks = $updateExpiredLinks;
         parent::__construct($name);

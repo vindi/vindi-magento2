@@ -158,8 +158,9 @@ class Save extends Action
         $data       = $request->getPostValue();
         $customerId = $this->customerSession->getCustomerId();
 
+        $entityId = null;
         try {
-            $entityId       = isset($data['entity_id']) ? (int) $data['entity_id'] : null;
+            $entityId = isset($data['entity_id']) ? (int) $data['entity_id'] : null;
             $subscriptionId = isset($data['subscription_id']) ? (int) $data['subscription_id'] : null;
             $paymentProfile = $this->paymentProfileFactory->create();
 

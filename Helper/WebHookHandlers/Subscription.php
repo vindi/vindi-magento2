@@ -2,6 +2,8 @@
 
 namespace Vindi\Payment\Helper\WebHookHandlers;
 
+use Magento\Sales\Model\ResourceModel\Order as OrderResource;
+use Vindi\Payment\Model\ResourceModel\Subscription as SubscriptionResource;
 use Exception;
 use Magento\Framework\Api\SearchCriteriaBuilder;
 use Magento\Sales\Api\Data\OrderInterface;
@@ -16,6 +18,16 @@ use Vindi\Payment\Model\SubscriptionRepository;
  */
 class Subscription
 {
+    /**
+     * @var OrderResource
+     */
+    private $orderResource;
+
+    /**
+     * @var SubscriptionResource
+     */
+    private $subscriptionResource;
+
     /**
      * @var LoggerInterface
      */
@@ -51,8 +63,12 @@ class Subscription
         SearchCriteriaBuilder $searchCriteriaBuilder,
         OrderFactory $orderFactory,
         LoggerInterface $logger,
-        SubscriptionRepository $subscriptionRepository
+        SubscriptionRepository $subscriptionRepository,
+        SubscriptionResource $subscriptionResource,
+        OrderResource $orderResource
     ) {
+        $this->orderResource = $orderResource;
+        $this->subscriptionResource = $subscriptionResource;
         $this->logger = $logger;
         $this->orderRepository = $orderRepository;
         $this->searchCriteriaBuilder = $searchCriteriaBuilder;
@@ -99,9 +115,10 @@ class Subscription
         $this->cancel($order->getIncrementId());
 
         $objectManager = \Magento\Framework\App\ObjectManager::getInstance();
-        $subscription = $objectManager->create(\Vindi\Payment\Model\Subscription::class)->load($subscriptionId);
+        $subscription = $objectManager->create(\Vindi\Payment\Model\Subscription::class);
+        $this->subscriptionResource->load($subscription, $subscriptionId);
         $subscription->setStatus('canceled');
-        $subscription->save();
+        $this->subscriptionResource->save($subscription);
 
         return true;
     }
@@ -162,6 +179,6 @@ class Subscription
                 ->setStatus(\Magento\Sales\Model\Order::STATE_CLOSED);
         }
 
-        $order->save();
+        $this->orderResource->save($order);
     }
 }

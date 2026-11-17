@@ -2,6 +2,7 @@
 
 namespace Vindi\Payment\Model\Payment;
 
+use Vindi\Payment\Model\ResourceModel\VindiCustomer as VindiCustomerResource;
 use Magento\Customer\Api\CustomerRepositoryInterface;
 use Magento\Framework\Message\ManagerInterface;
 use Magento\Sales\Model\Order;
@@ -16,6 +17,11 @@ use Vindi\Payment\Model\VindiCustomerFactory;
 
 class Customer
 {
+    /**
+     * @var VindiCustomerResource
+     */
+    private $vindiCustomerResource;
+
     /**
      * @var CustomerRepositoryInterface
      */
@@ -60,8 +66,10 @@ class Customer
         StoreManagerInterface $storeManager,
         PaymentProfileCollectionFactory $paymentProfileCollectionFactory,
         VindiCustomerCollectionFactory $vindiCustomerCollectionFactory,
-        VindiCustomerFactory $vindiCustomerFactory
+        VindiCustomerFactory $vindiCustomerFactory,
+        VindiCustomerResource $vindiCustomerResource
     ) {
+        $this->vindiCustomerResource = $vindiCustomerResource;
         $this->customerRepository = $customerRepository;
         $this->api = $api;
         $this->messageManager = $messageManager;
@@ -267,7 +275,7 @@ class Customer
         $vindiCustomer = $this->vindiCustomerFactory->create();
         $vindiCustomer->setMagentoCustomerId($magentoCustomerId);
         $vindiCustomer->setVindiCustomerId($vindiCustomerId);
-        $vindiCustomer->save();
+        $this->vindiCustomerResource->save($vindiCustomer);
     }
 
     /**

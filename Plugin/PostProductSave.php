@@ -1,6 +1,7 @@
 <?php
 namespace Vindi\Payment\Plugin;
 
+use Magento\Catalog\Model\ResourceModel\Product as ProductResource;
 use Magento\Catalog\Model\ProductRepository;
 
 /**
@@ -10,6 +11,11 @@ use Magento\Catalog\Model\ProductRepository;
 class PostProductSave
 {
     /**
+     * @var ProductResource
+     */
+    private $productResource;
+
+    /**
      * @var ProductRepository
      */
     protected $productRepository;
@@ -18,8 +24,11 @@ class PostProductSave
      * PostProductSave constructor.
      * @param ProductRepository $productRepository
      */
-    public function __construct(ProductRepository $productRepository)
-    {
+    public function __construct(
+        ProductRepository $productRepository,
+        ProductResource $productResource
+    ) {
+        $this->productResource = $productResource;
         $this->productRepository = $productRepository;
     }
 
@@ -45,7 +54,7 @@ class PostProductSave
         $value = $this->determineValue($result);
         $result->setData('vindi_enable_recurrence', $value);
 
-        $result->getResource()->saveAttribute($result, 'vindi_enable_recurrence');
+        $this->productResource->saveAttribute($result, 'vindi_enable_recurrence');
 
         return $result;
     }

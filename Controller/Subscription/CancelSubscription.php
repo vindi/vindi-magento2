@@ -2,6 +2,7 @@
 
 namespace Vindi\Payment\Controller\Subscription;
 
+use Vindi\Payment\Model\ResourceModel\Subscription as SubscriptionResource;
 use Magento\Framework\App\Action\Action;
 use Magento\Framework\App\Action\Context;
 use Magento\Framework\Controller\Result\JsonFactory;
@@ -10,6 +11,11 @@ use Vindi\Payment\Model\SubscriptionRepository;
 
 class CancelSubscription extends Action
 {
+    /**
+     * @var SubscriptionResource
+     */
+    private $subscriptionResource;
+
     /**
      * @var JsonFactory
      */
@@ -37,8 +43,10 @@ class CancelSubscription extends Action
         Context $context,
         JsonFactory $resultJsonFactory,
         Subscription $subscription,
-        SubscriptionRepository $subscriptionRepository
+        SubscriptionRepository $subscriptionRepository,
+        SubscriptionResource $subscriptionResource
     ) {
+        $this->subscriptionResource = $subscriptionResource;
         $this->resultJsonFactory = $resultJsonFactory;
         $this->subscription = $subscription;
         $this->subscriptionRepository = $subscriptionRepository;
@@ -60,9 +68,10 @@ class CancelSubscription extends Action
                 $this->subscription->deleteAndCancelBills($subscriptionId);
 
                 $objectManager = \Magento\Framework\App\ObjectManager::getInstance();
-                $subscription = $objectManager->create(\Vindi\Payment\Model\Subscription::class)->load($subscriptionId);
+                $subscription = $objectManager->create(\Vindi\Payment\Model\Subscription::class);
+                $this->subscriptionResource->load($subscription, $subscriptionId);
                 $subscription->setStatus('canceled');
-                $subscription->save();
+                $this->subscriptionResource->save($subscription);
 
                 $this->messageManager->addSuccessMessage(__('Subscription canceled successfully.'));
             } catch (\Exception $e) {

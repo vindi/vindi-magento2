@@ -4,7 +4,8 @@ declare(strict_types=1);
 
 namespace Vindi\Payment\Cron;
 
-use Vindi\Payment\Model\PaymentLinkFactory;
+use Vindi\Payment\Model\ResourceModel\PaymentLink as PaymentLinkResource;
+use Vindi\Payment\Model\ResourceModel\PaymentLink\CollectionFactory;
 use Magento\Sales\Api\OrderRepositoryInterface;
 use Magento\Sales\Api\OrderManagementInterface;
 use Magento\Framework\Stdlib\DateTime\DateTime;
@@ -13,9 +14,14 @@ use Psr\Log\LoggerInterface;
 class CancelOrdersWithExpiredLinks
 {
     /**
-     * @var PaymentLinkFactory
+     * @var PaymentLinkResource
      */
-    private PaymentLinkFactory $paymentLinkFactory;
+    private $paymentLinkResource;
+
+    /**
+     * @var CollectionFactory
+     */
+    private CollectionFactory $paymentLinkCollectionFactory;
 
     /**
      * @var OrderRepositoryInterface
@@ -38,20 +44,22 @@ class CancelOrdersWithExpiredLinks
     private LoggerInterface $logger;
 
     /**
-     * @param PaymentLinkFactory $paymentLinkFactory
+     * @param CollectionFactory $paymentLinkCollectionFactory
      * @param OrderRepositoryInterface $orderRepository
      * @param OrderManagementInterface $orderManagement
      * @param DateTime $dateTime
      * @param LoggerInterface $logger
      */
     public function __construct(
-        PaymentLinkFactory $paymentLinkFactory,
+        CollectionFactory $paymentLinkCollectionFactory,
         OrderRepositoryInterface $orderRepository,
         OrderManagementInterface $orderManagement,
         DateTime $dateTime,
-        LoggerInterface $logger
+        LoggerInterface $logger,
+        PaymentLinkResource $paymentLinkResource
     ) {
-        $this->paymentLinkFactory = $paymentLinkFactory;
+        $this->paymentLinkResource = $paymentLinkResource;
+        $this->paymentLinkCollectionFactory = $paymentLinkCollectionFactory;
         $this->orderRepository = $orderRepository;
         $this->orderManagement = $orderManagement;
         $this->dateTime = $dateTime;
@@ -65,7 +73,7 @@ class CancelOrdersWithExpiredLinks
     {
         try {
             $currentDate = $this->dateTime->gmtDate();
-            $paymentLinkCollection = $this->paymentLinkFactory->create()->getCollection()
+            $paymentLinkCollection = $this->paymentLinkCollectionFactory->create()
                 ->addFieldToFilter('expired_at', ['notnull' => true])
                 ->addFieldToFilter('expired_at', ['lt' => date('Y-m-d H:i:s', strtotime('-30 days', strtotime($currentDate)))]);
 
@@ -79,7 +87,7 @@ class CancelOrdersWithExpiredLinks
 
                     if ($paymentLink->getStatus() !== 'processed') {
                         $paymentLink->setStatus('processed');
-                        $paymentLink->save();
+                        $this->paymentLinkResource->save($paymentLink);
                         $this->logger->info(sprintf('Payment link for order ID %s has been updated to "processed".', $orderId));
                     }
                 }

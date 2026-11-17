@@ -130,7 +130,7 @@ class StatusTest extends \PHPUnit\Framework\TestCase
     {
         $orderMock = $this->getMockBuilder(\Magento\Sales\Model\Order::class)
             ->disableOriginalConstructor()
-            ->setMethods(array('getState', 'setState', 'addCommentToStatusHistory'))
+            ->onlyMethods(['getState', 'setState', 'addCommentToStatusHistory'])
             ->getMock();
 
         $orderMock->method('getState')

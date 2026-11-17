@@ -51,7 +51,7 @@ class OrderTest extends \PHPUnit\Framework\TestCase
 
     private function makeAssertions($list, $vindiProductId, $amount)
     {
-        $this->assertContains('fake_sku', $list[0]['product_id'], '', true);
+        $this->assertSame('fake_sku', $list[0]['product_id']);
         $this->assertEquals('9.99', $list[0]['amount']);
 
         $this->assertEquals($vindiProductId, $list[1]['product_id']);
