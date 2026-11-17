@@ -578,7 +578,7 @@ abstract class AbstractMethod extends OriginAbstractMethod
      *
      * @param Order $order
      * @throws LocalizedException
-     * @return void
+     * @return never
      */
     protected function handleError(Order $order)
     {
