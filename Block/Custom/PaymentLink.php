@@ -248,7 +248,9 @@ class PaymentLink extends Template
     public function getCurrencySymbol()
     {
         $currencyCode = $this->_storeManager->getStore()->getCurrentCurrencyCode();
-        $currency = $this->_currencyFactory->create()->load($currencyCode);
+        $currency = $this->_currencyFactory->create();
+        $currency->unsRate();
+        $currency->setData('currency_code', $currencyCode);
         return $currency->getCurrencySymbol();
     }
 

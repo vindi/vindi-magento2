@@ -2,6 +2,7 @@
 
 namespace Vindi\Payment\Model\Payment;
 
+use Vindi\Payment\Model\ResourceModel\Subscription as SubscriptionResource;
 use Magento\Framework\Api\AttributeValueFactory;
 use Magento\Framework\Api\ExtensionAttributesFactory;
 use Magento\Framework\App\Config\ScopeConfigInterface;
@@ -41,6 +42,11 @@ use Vindi\Payment\Model\ResourceModel\Subscription\Collection as SubscriptionCol
  */
 abstract class AbstractMethod extends OriginAbstractMethod
 {
+    /**
+     * @var SubscriptionResource
+     */
+    private $subscriptionResource;
+
     /**
      * @var Api
      */
@@ -194,10 +200,12 @@ abstract class AbstractMethod extends OriginAbstractMethod
         \Vindi\Payment\Helper\Data $helperData,
         SubscriptionRepository $subscriptionRepositoryModel,
         SubscriptionCollection $subscriptionCollection,
-        AbstractResource $resource = null,
-        AbstractDb $resourceCollection = null,
+        SubscriptionResource $subscriptionResource,
+        ?AbstractResource $resource = null,
+        ?AbstractDb $resourceCollection = null,
         array $data = []
     ) {
+        $this->subscriptionResource = $subscriptionResource;
         parent::__construct(
             $context,
             $registry,
@@ -244,7 +252,7 @@ abstract class AbstractMethod extends OriginAbstractMethod
      * @return bool
      * @throws NoSuchEntityException
      */
-    public function isAvailable(\Magento\Quote\Api\Data\CartInterface $quote = null)
+    public function isAvailable(?\Magento\Quote\Api\Data\CartInterface $quote = null)
     {
         if (
             $this->getPaymentMethodCode() == PaymentMethod::BANK_SLIP
@@ -374,7 +382,7 @@ abstract class AbstractMethod extends OriginAbstractMethod
             $this->bill->delete($bill['id']);
         }
 
-        return $this->handleError($order);
+        $this->handleError($order);
     }
 
     /**
@@ -398,8 +406,9 @@ abstract class AbstractMethod extends OriginAbstractMethod
      */
     protected function handleSubscriptionOrder(InfoInterface $payment, OrderItemInterface $orderItem)
     {
+        $order = $payment->getOrder();
+        $paymentProfile = null;
         try {
-            $order = $payment->getOrder();
             $customerId = $this->customer->findOrCreate($order);
 
             $vindiPlan = null;
@@ -474,11 +483,12 @@ abstract class AbstractMethod extends OriginAbstractMethod
                     $this->subscriptionRepository->deleteAndCancelBills($subscription['id']);
 
                     $objectManager = \Magento\Framework\App\ObjectManager::getInstance();
-                    $subscriptionObj = $objectManager->create(\Vindi\Payment\Model\Subscription::class)->load($subscription['id']);
+                    $subscriptionObj = $objectManager->create(\Vindi\Payment\Model\Subscription::class);
+                    $this->subscriptionResource->load($subscriptionObj, $subscription['id']);
                     $subscriptionObj->setStatus('canceled');
-                    $subscriptionObj->save();
+                    $this->subscriptionResource->save($subscriptionObj);
 
-                    if ($body['payment_method_code'] === PaymentMethod::CREDIT_CARD) {
+                    if ($body['payment_method_code'] === PaymentMethod::CREDIT_CARD && $paymentProfile) {
                         $paymentProfileId = $paymentProfile->getPaymentProfileId();
                         if ($paymentProfileId) {
                             $this->profile->deletePaymentProfile($paymentProfileId);
@@ -489,10 +499,10 @@ abstract class AbstractMethod extends OriginAbstractMethod
                 }
             }
         } catch (\Exception $e) {
-            return $this->handleError($order);
+            $this->handleError($order);
         }
 
-        return $this->handleError($order);
+        $this->handleError($order);
     }
 
     /**
@@ -568,7 +578,7 @@ abstract class AbstractMethod extends OriginAbstractMethod
      *
      * @param Order $order
      * @throws LocalizedException
-     * @return void
+     * @return never
      */
     protected function handleError(Order $order)
     {

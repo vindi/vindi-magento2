@@ -98,7 +98,7 @@ class CreditCard extends Template
 
             $vindiBillId  = $order->getData('vindi_bill_id');
 
-            if ($vindiBillId == false || $vindiBillId == null || empty($vindiBillId) || $vindiBillId < 1) {
+            if (!$vindiBillId || $vindiBillId < 1) {
                 return true;
             }
         }

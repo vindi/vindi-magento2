@@ -54,7 +54,7 @@ class DataProvider extends \Magento\Ui\DataProvider\ModifierPoolDataProvider
         Data $helper,
         array $meta = [],
         array $data = [],
-        PoolInterface $pool = null
+        ?PoolInterface $pool = null
     ) {
         $this->collection = $vindiplanCollectionFactory->create();
         $this->dataPersistor = $dataPersistor;

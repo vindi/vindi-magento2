@@ -50,7 +50,7 @@ class SendEmailService
     public function __construct(
          StoreManagerInterface $storeManager,
          TransportBuilder      $transportBuilder,
-         Emulation             $emulation = null
+         ?Emulation            $emulation = null
     ) {
         $this->emulation = $emulation ?? ObjectManager::getInstance()->get(Emulation::class);
         $this->storeManager = $storeManager;

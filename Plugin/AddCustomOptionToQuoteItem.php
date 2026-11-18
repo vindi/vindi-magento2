@@ -55,9 +55,7 @@ class AddCustomOptionToQuoteItem
                     ];
                 }
 
-                if (!empty($additionalOptions)) {
-                    $product->addCustomOption('additional_options', json_encode($additionalOptions));
-                }
+                $product->addCustomOption('additional_options', json_encode($additionalOptions));
             }
         }
 

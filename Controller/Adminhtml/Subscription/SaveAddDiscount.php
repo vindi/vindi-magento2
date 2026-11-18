@@ -2,6 +2,7 @@
 
 namespace Vindi\Payment\Controller\Adminhtml\Subscription;
 
+use Vindi\Payment\Model\ResourceModel\VindiSubscriptionItemDiscount as DiscountResource;
 use Magento\Backend\App\Action;
 use Magento\Backend\App\Action\Context;
 use Magento\Framework\Controller\Result\JsonFactory;
@@ -19,6 +20,11 @@ use Vindi\Payment\Model\Vindi\Discounts;
  */
 class SaveAddDiscount extends Action
 {
+    /**
+     * @var DiscountResource
+     */
+    private $discountResource;
+
     /** @var VindiSubscriptionItemDiscountFactory */
     private VindiSubscriptionItemDiscountFactory $discountFactory;
 
@@ -53,8 +59,10 @@ class SaveAddDiscount extends Action
         Discounts $discountApi,
         JsonFactory $resultJsonFactory,
         EventManager $eventManager,
-        SubscriptionItemCollectionFactory $subscriptionItemCollectionFactory
+        SubscriptionItemCollectionFactory $subscriptionItemCollectionFactory,
+        DiscountResource $discountResource
     ) {
+        $this->discountResource = $discountResource;
         parent::__construct($context);
         $this->discountFactory = $discountFactory;
         $this->discountCollectionFactory = $discountCollectionFactory;
@@ -233,7 +241,7 @@ class SaveAddDiscount extends Action
             'quantity'          => $postData['quantity'] ?? null,
             'cycles'            => $postData['cycles'] != 'temporary' ? $postData['cycles_quantity'] : null
         ]);
-        $discount->save();
+        $this->discountResource->save($discount);
     }
 
     /**

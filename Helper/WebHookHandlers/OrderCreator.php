@@ -2,6 +2,7 @@
 
 namespace Vindi\Payment\Helper\WebHookHandlers;
 
+use Magento\Sales\Model\ResourceModel\Order as OrderResource;
 use Magento\Sales\Model\OrderFactory;
 use Magento\Sales\Model\Order;
 use Magento\Sales\Model\OrderRepository;
@@ -20,6 +21,11 @@ use Vindi\Payment\Helper\Data;
  */
 class OrderCreator
 {
+    /**
+     * @var OrderResource
+     */
+    private $orderResource;
+
     /**
      * @var OrderFactory
      */
@@ -79,8 +85,10 @@ class OrderCreator
         PaymentBill $paymentBill,
         OrderRepository $orderRepository,
         ProductFactory $productFactory,
-        OrderItemInterfaceFactory $orderItemFactory
+        OrderItemInterfaceFactory $orderItemFactory,
+        OrderResource $orderResource
     ) {
+        $this->orderResource = $orderResource;
         $this->orderFactory = $orderFactory;
         $this->subscriptionOrderRepository = $subscriptionOrderRepository;
         $this->subscriptionOrderFactory = $subscriptionOrderFactory;
@@ -136,7 +144,9 @@ class OrderCreator
         $subscriptionOrder = $this->subscriptionOrderRepository->getBySubscriptionId($subscriptionId);
 
         if ($subscriptionOrder) {
-            return $this->orderFactory->create()->load($subscriptionOrder->getOrderId());
+            $order = $this->orderFactory->create();
+            $this->orderResource->load($order, $subscriptionOrder->getOrderId());
+            return $order;
         }
 
         return null;

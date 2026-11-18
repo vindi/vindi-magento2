@@ -2,7 +2,6 @@
 
 namespace Vindi\Payment\Test\Unit;
 
-use Magento\Catalog\Api\Data\ProductInterface;
 use Magento\Catalog\Api\ProductRepositoryInterface;
 use Magento\Framework\TestFramework\Unit\Helper\ObjectManager;
 use PHPUnit\Framework\MockObject\MockObject;
@@ -94,18 +93,7 @@ class PlanTest extends TestCase
 
     private function createProductMock()
     {
-        $methods = array_merge(get_class_methods(ProductInterface::class), [
-                'getVindiInterval',
-                'getVindiIntervalCount',
-                'getVindiBillingTriggerType',
-                'getVindiBillingTriggerDay',
-                'getVindiBillingCycles'
-            ]);
-
-
-        $productMock = $this->getMockBuilder(ProductInterface::class)
-            ->setMethods($methods)
-            ->disableOriginalConstructor()
+        $productMock = $this->getMockBuilder(PlanProductInterface::class)
             ->getMock();
 
         $productMock->method('getTypeId')->willReturn('bundle');

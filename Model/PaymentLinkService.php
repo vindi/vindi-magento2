@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Vindi\Payment\Model;
 
+use Vindi\Payment\Model\ResourceModel\PaymentLink as PaymentLinkResource;
 use Vindi\Payment\Model\ResourceModel\PaymentLink\CollectionFactory as PaymentLinkCollectionFactory;
 use Magento\Framework\App\Config\ScopeConfigInterface;
 use Magento\Framework\Exception\NoSuchEntityException;
@@ -18,6 +19,11 @@ use Vindi\Payment\Model\PaymentLinkFactory;
 
 class PaymentLinkService
 {
+    /**
+     * @var PaymentLinkResource
+     */
+    private $paymentLinkResource;
+
     /**
      * Payment link expiration time, 20 days (in hours)
      */
@@ -110,8 +116,10 @@ class PaymentLinkService
         Data $helper,
         PaymentLinkRepositoryInterface $linkRepository,
         DateTimeFactory $dateTimeFactory,
-        SendEmailService $sendEmailService
+        SendEmailService $sendEmailService,
+        PaymentLinkResource $paymentLinkResource
     ) {
+        $this->paymentLinkResource = $paymentLinkResource;
         $this->paymentLinkCollectionFactory = $paymentLinkCollectionFactory;
         $this->orderRepository = $orderRepository;
         $this->scopeConfig = $scopeConfig;
@@ -343,7 +351,8 @@ class PaymentLinkService
      */
     public function getPaymentLinkByOrderId($orderId)
     {
-        $paymentLink = $this->paymentLinkFactory->create()->load($orderId, 'order_id');
+        $paymentLink = $this->paymentLinkFactory->create();
+        $this->paymentLinkResource->load($paymentLink, $orderId, 'order_id');
         return $paymentLink->getId() ? $paymentLink : false;
     }
 

@@ -4,6 +4,7 @@ namespace Vindi\Payment\Console\Command;
 
 use Magento\Framework\App\State;
 use Magento\Framework\Event\ManagerInterface as EventManager;
+use Magento\Framework\Console\Cli;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
@@ -67,7 +68,7 @@ class UpdateSubscriptionCommand extends Command
      * @param OutputInterface $output
      * @return int
      */
-    protected function execute(InputInterface $input, OutputInterface $output)
+    protected function execute(InputInterface $input, OutputInterface $output): int
     {
         try {
             $this->state->setAreaCode('adminhtml');
@@ -76,7 +77,7 @@ class UpdateSubscriptionCommand extends Command
 
             if (!is_numeric($subscriptionId)) {
                 $output->writeln('<error>Invalid subscription ID. It must be numeric.</error>');
-                return Command::FAILURE;
+                return Cli::RETURN_FAILURE;
             }
 
             $this->eventManager->dispatch(
@@ -86,10 +87,10 @@ class UpdateSubscriptionCommand extends Command
 
             $output->writeln('<info>Subscription with ID ' . $subscriptionId . ' has been updated successfully.</info>');
 
-            return Command::SUCCESS;
+            return Cli::RETURN_SUCCESS;
         } catch (\Exception $e) {
             $output->writeln('<error>Error: ' . $e->getMessage() . '</error>');
-            return Command::FAILURE;
+            return Cli::RETURN_FAILURE;
         }
     }
 }

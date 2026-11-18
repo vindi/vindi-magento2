@@ -1,6 +1,8 @@
 <?php
 namespace Vindi\Payment\Block\Adminhtml\Subscription;
 
+use Vindi\Payment\Model\ResourceModel\VindiSubscriptionItem as SubscriptionItemResource;
+use Vindi\Payment\Model\ResourceModel\Subscription as SubscriptionResource;
 use DateTime;
 use Exception;
 use Magento\Backend\Block\Widget\Container;
@@ -21,6 +23,16 @@ use Vindi\Payment\Model\VindiSubscriptionItemFactory;
  */
 class View extends Container
 {
+    /**
+     * @var SubscriptionItemResource
+     */
+    private $subscriptionItemResource;
+
+    /**
+     * @var SubscriptionResource
+     */
+    private $subscriptionResource;
+
     /**
      * @var array|null
      */
@@ -95,8 +107,12 @@ class View extends Container
         SubscriptionFactory $subscriptionFactory,
         VindiSubscriptionItemCollectionFactory $vindiSubscriptionItemCollectionFactory,
         VindiSubscriptionItemFactory $vindiSubscriptionItemFactory,
+        SubscriptionResource $subscriptionResource,
+        SubscriptionItemResource $subscriptionItemResource,
         array $data = []
     ) {
+        $this->subscriptionItemResource = $subscriptionItemResource;
+        $this->subscriptionResource = $subscriptionResource;
         parent::__construct($context, $data);
         $this->vindiSubscription = $vindiSubscription;
         $this->api = $api;
@@ -469,7 +485,7 @@ class View extends Container
                     $subscriptionItem->setPricingSchemaType($item['pricing_schema']['schema_type']);
                     $subscriptionItem->setPricingSchemaFormat($item['pricing_schema']['schema_format'] ?? 'N/A');
                     $subscriptionItem->setMagentoProductSku($item['product']['code']);
-                    $subscriptionItem->save();
+                    $this->subscriptionItemResource->save($subscriptionItem);
                 }
             }
         }
@@ -482,7 +498,8 @@ class View extends Container
     {
         if ($this->subscriptions === null) {
             $id = $this->registry->registry('vindi_payment_subscription_id');
-            $subscriptionModel = $this->subscriptionFactory->create()->load($id);
+            $subscriptionModel = $this->subscriptionFactory->create();
+            $this->subscriptionResource->load($subscriptionModel, $id);
             $responseData = $subscriptionModel->getData('response_data');
 
             if ($responseData) {
@@ -492,7 +509,7 @@ class View extends Container
 
                 if ($this->subscriptions) {
                     $subscriptionModel->setData('response_data', json_encode($this->subscriptions));
-                    $subscriptionModel->save();
+                    $this->subscriptionResource->save($subscriptionModel);
                 }
             }
         }
